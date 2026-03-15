@@ -1,8 +1,12 @@
-## Roadmap
+## To Do
 
-- [x] Base chess board UI
-- [ ] Set up PostgreSQL database for opening lines
-- [ ] Design schema for moves / positions (FEN-based)
-- [ ] Integrate opening database (Lichess API or PGN import)
-- [ ] Implement move navigation system
-- [ ] Add board flip and highlight system
+- [ ] Django Full Connection
+- [ ] PostgreSQL (opening lines, journals)
+- [ ] Chess: move navigation, board flip, FEN + PGN 
+Reader, rules
+- [ ] Dashboard: Email categorizer, journal app, macbook notifications
+
+## Errors 
+
+- [x] Gmail sign-in on Vercel
+- [x] Lichess Opening Explorer API: no results
