@@ -2,32 +2,56 @@
 
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
+import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
+
+type Email = {
+    id: string
+    subject: string
+    sender: string
+    snippet: string
+    date: string
+}
 
 export default function Page() {
-    const [emails, setEmails] = useState([]);
+    const { data: session } = useSession()
+    const [emails, setEmails] = useState<Email[]>([]);
 
     useEffect(() => {
-    async function loadEmails() {
-        const res = await fetch("/api/gmail/inbox");
-        const data = await res.json();
-        setEmails(data);
-    }
+        if (!session) return;
 
-    loadEmails();
-    }, []);
+        async function loadEmails() {
+            const res = await fetch("/api/gmail/inbox");
 
+            if (!res.ok) {
+                console.error("Inbox API Failed");
+                return
+            }
+            const data = await res.json();
+            setEmails(data);
+        }
+
+        loadEmails();
+    }, [session]);
+
+    
     return (
     <>
         <Header />
 
-        <a href="/api/gmail/login">Connect Gmail</a>
+        {!session && 
+            (<button onClick={() => signIn("google")}>Connect Gmail</button>
+        )}
 
-        {emails.map((mail, i) => (
-        <div key={i}>
-            <b>{mail.subject}</b>
-            <p>{mail.sender}</p>
-            <p>{mail.snippet}</p>
-        </div>
+        <h2>Inbox</h2>
+
+        {emails.map((mail) => (
+            <div key={mail.id} style={{ marginBottom: "15px"}}>
+                <strong>{mail.subject}</strong>
+                <div>{mail.sender}</div>
+                <div>{mail.snippet}</div>
+                <small>{mail.date}</small>
+            </div>
         ))}
     </>
     );
