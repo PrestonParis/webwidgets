@@ -1,0 +1,28 @@
+.grid-container {
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.square {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    height: 200px;
+    width: 200px;
+    font-size: 30px;
+    text-align: center;
+}
+
+#result, #turn {
+    font-size: 40px;
+}
+
+div div button {
+    height: 200px;
+    width: 200px;
+    font-size: 100px;
+}
