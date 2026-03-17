@@ -15,7 +15,7 @@ export default function CryptoDashboard() {
     const [chartData, setChartData] = useState<ChartData | null >(null);
 
     useEffect(() => {
-        fetch('http://localhost:8000/crypto/api/avax-stats/')
+        fetch('http://localhost:8000/api/crypto/avax-stats/')
             .then(res => res.json())
             .then(data => {
                 setChartData(JSON.parse(data.plot))
@@ -25,7 +25,7 @@ export default function CryptoDashboard() {
 
     return (
         <div>
-            <h1>AVAX Analysis</h1>
+            <h2 className="project-link"> Old Project: AVAX Analysis</h2>
             <Plot 
                 data={chartData.data}
                 layout={chartData.layout}

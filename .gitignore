@@ -179,3 +179,6 @@ next-env.d.ts
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 >>>>>>> 39bfb23b386a17eccd2494da5a1373d704476254
+
+# Legacy
+my_projects/legacy/alphavantagestocks.py

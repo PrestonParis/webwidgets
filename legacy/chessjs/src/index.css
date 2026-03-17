@@ -1,0 +1,23 @@
+.grid-container {
+  display: inline-grid;
+  justify-items: center;
+  grid-template-columns: repeat(8, 1fr);
+  margin: 0;
+  border: 3px solid black;
+}
+
+.rank {
+  margin: 0
+}
+.square {
+  border: 1px solid;
+  background-color: white;
+  background-size: cover;
+}
+.square button {
+  border: none;
+  padding: 30px;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+}
