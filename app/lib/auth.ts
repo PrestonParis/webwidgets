@@ -1,8 +1,27 @@
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 
+interface GoogleToken {
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: number;
+    user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    };
+}
+
+interface GoogleRefreshResponse {
+    access_token: string;
+    expires_in: number;
+    scope: string;
+    token_type: string;
+    refresh_token?: string; // if changed
+}
+
 // Refresh Access Token Helper
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: GoogleToken) {
     try {
         const url = "https://oauth2.googleapis.com/token";
         const response = await fetch(url, {
@@ -16,7 +35,7 @@ async function refreshAccessToken(token: any) {
             })
         });
 
-        const refreshedTokens = await response.json()
+        const refreshedTokens: GoogleRefreshResponse = await response.json()
 
         if (!response.ok) throw refreshedTokens;
 
@@ -68,7 +87,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             // 3. Access Token Expired: Update
-            return refreshAccessToken(token)
+            return refreshAccessToken(token as unknown as GoogleToken)
         },
         async session({ session, token }) {
             session.accessToken = token.accessToken as string;

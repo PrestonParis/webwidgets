@@ -40,7 +40,6 @@ export default function Page() {
     return (
     <>
         <Header />
-        <h2>Journal</h2>
         <JournalForm />
         
         <LogoutButton/>
@@ -48,7 +47,7 @@ export default function Page() {
             (<button onClick={() => signIn("google")}>Connect Gmail</button>
         )}
 
-        <h2>Inbox</h2>
+        <h2 className="text-gray-900 text-xl font-semibold tracking-tight">Inbox</h2>
 
         {emails.map((mail) => (
             <div key={mail.id} style={{ marginBottom: "15px"}}>
