@@ -1,17 +1,17 @@
 window.addEventListener("load", startGame)
 
-var turn = "x"
-var turn_no = 0
+const turn = "x"
+const turn_no = 0
 
-const one = document.querySelector(`div div button.one`).innerHTML
-const two = document.querySelector(`div div button.two`).innerHTML
-const three = document.querySelector(`div div button.three`).innerHTML
-const four = document.querySelector(`div div button.four`).innerHTML
-const five = document.querySelector(`div div button.five`).innerHTML
-const six = document.querySelector(`div div button.six`).innerHTML
-const seven = document.querySelector(`div div button.seven`).innerHTML
-const eight = document.querySelector(`div div button.eight`).innerHTML
-const nine = document.querySelector(`div div button.nine`).innerHTML
+const one = document.querySelector(`div div button.one`)?.innerHTML
+const two = document.querySelector(`div div button.two`)?.innerHTML
+const three = document.querySelector(`div div button.three`)?.innerHTML
+const four = document.querySelector(`div div button.four`)?.innerHTML
+const five = document.querySelector(`div div button.five`)?.innerHTML
+const six = document.querySelector(`div div button.six`)?.innerHTML
+const seven = document.querySelector(`div div button.seven`)?.innerHTML
+const eight = document.querySelector(`div div button.eight`)?.innerHTML
+const nine = document.querySelector(`div div button.nine`)?.innerHTML
 
 const squares = [
     document.querySelector(`div div button.one`), 
@@ -51,8 +51,8 @@ function placeLetter(element) {
 }
 
 function check_wins() {
-    const one = document.querySelector(`div div button.one`).innerHTML;
-    const two = document.querySelector(`div div button.two`).innerHTML;
+    const one = document.querySelector(`div div button.one`)?.innerHTML;
+    const two = document.querySelector(`div div button.two`)?.innerHTML;
     const three = document.querySelector(`div div button.three`).innerHTML;
     const four = document.querySelector(`div div button.four`).innerHTML;
     const five = document.querySelector(`div div button.five`).innerHTML;
