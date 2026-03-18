@@ -26,6 +26,8 @@ export default function Lyrics() {
 
     return (
         <div>
+            {/* Todo: Let Users determine amount of words to see */}
+
             <input 
                 type="number" 
                 value={wordAmount} 

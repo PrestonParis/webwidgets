@@ -17,7 +17,6 @@ class LyricAnalysis:
         else:
             self.DATA_PATH = Path(path)
         
-        print(f'Data Path: {self.DATA_PATH}')
         self.filter_common = filter_common
         self.COMMON_WORDS = {"the", "a", "and", "is", "it", "in", "to", "of", "i", "you", "my", "me", "that"}
 

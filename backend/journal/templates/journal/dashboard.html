@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Project Journal</h1>
+    <div class="journal-entries">
+        {% for entry in entries %}
+            <div class="entry">
+                <h3>{{ entry.title }}</h3>
+                <small>{{ entry.created_at|date:"M d, Y" }}</small>
+                <p>{{ entry.content }}</p>
+            </div>
+        {% empty %}
+            <p>No Entries</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

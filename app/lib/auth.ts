@@ -1,6 +1,40 @@
 import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 
+// Refresh Access Token Helper
+async function refreshAccessToken(token: any) {
+    try {
+        const url = "https://oauth2.googleapis.com/token";
+        const response = await fetch(url, {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            method: "POST",
+            body: new URLSearchParams({
+                client_id: process.env.GOOGLE_CLIENT_ID!,
+                client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                grant_type: "refresh_token",
+                refresh_token: token.refreshToken,
+            })
+        });
+
+        const refreshedTokens = await response.json()
+
+        if (!response.ok) throw refreshedTokens;
+
+        return {
+            ...token,
+            accessToken: refreshedTokens.access_token,
+            accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+            refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+        };
+    } catch (error) {
+        console.error("RefreshAccessTokenError", error);
+        return {
+            ...token,
+            error: "RefreshAccessTokenError"
+        }
+    }
+}
+
 export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
@@ -8,8 +42,10 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             authorization: {
                 params: {
-                    scope:
-                    "openid email profile https://www.googleapis.com/auth/gmail.readonly",
+                    prompt: "consent",
+                    access_type: "offline", // get refresh token
+                    response_type: "code",
+                    scope: "openid email profile https://www.googleapis.com/auth/gmail.readonly", // Provide access
                 },
             },
         }),
@@ -17,16 +53,27 @@ export const authOptions: NextAuthOptions = {
 
     callbacks: {
         async jwt({ token, account }) {
-            console.log("ACCOUNT:", account);
+            // 1. Initial Sign In: save access, refresh, expiry
             if (account) {
-                token.accessToken = account.access_token;
+                return {
+                    ...token,
+                    accessToken: account.access_token,
+                    refreshToken: account.refresh_token,
+                    accessTokenExpires: (account.expires_at ?? 0) * 1000,
+                }
             }
-            return token;
-        },
+            // 2. Return previous token if access token hasn't expired
+            if (Date.now() < (token.accessTokenExpires as number)) {
+                return token;
+            }
 
+            // 3. Access Token Expired: Update
+            return refreshAccessToken(token)
+        },
         async session({ session, token }) {
             session.accessToken = token.accessToken as string;
+            // session.error = token.error
             return session;
         },
-        },
+    },
 };

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
+import LogoutButton from "@/components/SignOut";
+import JournalForm from "@/components/JournalForm";
 
 type Email = {
     id: string
@@ -38,7 +40,10 @@ export default function Page() {
     return (
     <>
         <Header />
-
+        <h2>Journal</h2>
+        <JournalForm />
+        
+        <LogoutButton/>
         {!session && 
             (<button onClick={() => signIn("google")}>Connect Gmail</button>
         )}
