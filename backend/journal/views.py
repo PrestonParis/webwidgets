@@ -18,7 +18,7 @@ class EntryListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self) -> Any:
-        return Entry.objects.filter(user=self.request.user)
+        return Entry.objects.filter(user=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer) -> Any:
         # Attached logged in user to current entry

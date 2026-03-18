@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "next dev",
-    "dev:backend": "cd backend && python manage.py runserver",
+    "dev:backend": "cd backend && source venv/bin/activate && python manage.py runserver",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -26,10 +26,12 @@
     "@types/plotly.js": "^3.0.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.27",
     "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5"
   }
 }
