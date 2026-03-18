@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework_social_oauth2', #  Journal entry retrieval
     'corsheaders',
     'journal',
+    'api_auth',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

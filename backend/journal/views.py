@@ -1,16 +1,12 @@
-from multiprocessing import AuthenticationError
 from typing import Any
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
-from .auth import GoogleTokenAuthentication
+from api_auth.authentication import GoogleTokenAuthentication
 from .serializers import EntrySerializers
 from .models import Entry
 from rest_framework import generics, permissions
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class EntryListCreateView(generics.ListCreateAPIView):
+    '''Serve the emails by most recent'''
     serializer_class = EntrySerializers
     # Tell this view to use Google auth
     authentication_classes = [GoogleTokenAuthentication]
