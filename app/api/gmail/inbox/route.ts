@@ -3,7 +3,7 @@ import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import he from "he"
-interface ExtendedSession {
+export interface ExtendedSession {
     user?: {
         name?: string | null;
         email?: string | null;
