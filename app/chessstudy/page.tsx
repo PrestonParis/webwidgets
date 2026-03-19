@@ -1,7 +1,7 @@
 "use client";
 
 import Chessboard from "@/components/Chessboard";
-import Header from "@/components/Header";
+import Header from "@/components/Global/Header";
 import { useEffect, useState } from "react";
 
 type LichessMove = {
