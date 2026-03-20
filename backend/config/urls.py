@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/', include('crypto.urls')),
     path('api/', include('lyrics.urls')),
     path('journal/', include('journal.urls')),
+    path('api/classify/', include('email_categorization.urls')),
 ]
