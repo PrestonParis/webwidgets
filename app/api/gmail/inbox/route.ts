@@ -58,16 +58,34 @@ export async function GET(req: Request) {
                     format: "metadata",
                     metadataHeaders: ["Subject", "From", "Date"]
                 });
-        
+                
                 const headers = email.data.payload?.headers || [];
                 const dateHeader = headers.find((h) => h.name === "Date")?.value
+                const subject = headers.find((h) => h.name === "Subject")?.value
+                const sender = headers.find((h) => h.name === "From")?.value
+
+                // Use the sender, subject and email to classify the email into a category (work, personal, spam, etc.)
+                const classifyRes = await fetch("http://localhost:8000/api/classify/predict/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        sender: sender,
+                        subject: subject,
+                        email: email.data.snippet
+                    })
+                });
+                const { category } = await classifyRes.json();
 
                 return {
                     id: msg.id,
-                    subject: headers.find((h) => h.name === "Subject")?.value,
-                    sender: headers.find((h) => h.name === "From")?.value,
+                    subject: subject,
+                    sender: sender,
                     date: dateHeader ? cleanDate(dateHeader) : "No Date",
                     snippet: he.decode(email.data.snippet ?? ""),
+                    category: category || "Uncategorized"
                     };
             })
         );

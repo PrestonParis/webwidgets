@@ -79,6 +79,7 @@ export default function JournalForm() {
                 <h2 className="text-lg font-bold mb-4">Create Entry</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input 
+                        spellCheck="true"
                         type="text" 
                         placeholder="Journal Title"
                         value={title} 
@@ -87,6 +88,7 @@ export default function JournalForm() {
                         className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                     />
                     <textarea 
+                        spellCheck="true"
                         placeholder="Write your entry here..." 
                         value={content}
                         onChange={(e) => setContent(e.target.value)} 
