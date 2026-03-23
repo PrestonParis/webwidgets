@@ -28,7 +28,7 @@ export default function JournalForm() {
                 },
         });
             const data = await response.json()
-            setEntries(data);
+            setEntries(Array.isArray(data) ? data : data.results ?? []); // Fix object to array with drf wrapper. 
         } catch (error) {
             console.error("Failed to fetch entries: ", error)
         }

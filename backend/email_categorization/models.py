@@ -23,3 +23,5 @@ class EmailCategory(models.Model):
     
     class Meta:
         unique_together = ('user', 'email_id')
+        verbose_name = "Email Category"
+        verbose_name_plural = "Email Categories"

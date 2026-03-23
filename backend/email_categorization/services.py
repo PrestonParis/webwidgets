@@ -5,30 +5,27 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from .models import EmailCategory
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, 'models')
+
 class EmailCategorizer:
-    MODEL_PATH = 'models/email_classifier.pkl'
-    VECTORIZER_PATH = 'models/tfidf_vectorizer.pkl'
+    MODEL_PATH = os.path.join(MODELS_DIR, 'email_classifier.pkl')
+    VECTORIZER_PATH = os.path.join(MODELS_DIR, 'tfidf_vectorizer.pkl')
     
     def __init__(self) -> None:
         self.model = None
-        self.vectorizer = None
         self.load_or_train_model()
     
     def load_or_train_model(self) -> None:
         """Load existing model or train a new one"""
         if os.path.exists(self.MODEL_PATH):
             self.model = joblib.load(self.MODEL_PATH)
-            self.vectorizer = joblib.load(self.VECTORIZER_PATH)
         else:
             self.train_model()
     
     def train_model(self, user=None) -> bool:
         """Train the model on user's manually categorized emails"""
-        # Get training data from manually categorized emails
-        training_data = EmailCategory.objects.filter(
-            manually_categorized=True
-        )
-        
+        training_data = EmailCategory.objects.filter(manually_categorized=True)
         if user:
             training_data = training_data.filter(user=user)
         
@@ -44,13 +41,11 @@ class EmailCategorizer:
             ('tfidf', TfidfVectorizer(max_features=1000, stop_words='english')),
             ('classifier', MultinomialNB())
         ])
-        
         self.model.fit(texts, labels)
         
         # Save model
-        os.makedirs('models', exist_ok=True)
+        os.makedirs(MODELS_DIR, exist_ok=True)
         joblib.dump(self.model, self.MODEL_PATH)
-        
         return True
     
     def categorize_email(self, sender: str, subject: str) -> str:
