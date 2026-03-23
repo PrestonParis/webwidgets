@@ -32,11 +32,15 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# DRFSO2_URL_NAMESPACE = 'drf'  # Optional: Set a namespace for DRF Social OAuth2 URLs
+DRFSO2_URL_NAMESPACE = 'drf'
+
 INSTALLED_APPS = [
     'rest_framework',
     'oauth2_provider', # Journal entry retrieval
     'social_django', #  Journal entry retrieval
     'rest_framework_social_oauth2', #  Journal entry retrieval
+    'drf_social_oauth2',
     'corsheaders',
     'journal',
     'api_auth',
@@ -63,6 +67,7 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = (
     'rest_framework_social_oauth2.backends.DjangoOAuth2',
     'social_core.backends.google.GoogleOAuth2',
+    'drf_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 

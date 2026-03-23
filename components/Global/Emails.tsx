@@ -67,8 +67,9 @@ export default function Emails() {
     const handleManualClassify = async (email_id: string, category: string, sender: string, subject: string) => {
         const token = (session as any)?.accessToken;
         // Optimistically update the UI
-        setEmails((prev) => prev.map(mail => 
-            mail.id === email_id ? { ...mail, category } : mail
+        setEmails((prev) => 
+            prev.map((mail) => 
+                mail.id === email_id ? { ...mail, category } : mail
         ));
 
         await fetch("http://localhost:8000/api/classify/manual/", {
@@ -80,7 +81,7 @@ export default function Emails() {
             body: JSON.stringify({ email_id, category, sender, subject })
         });
         // Refresh the list to show the new category
-        loadEmails();
+        //loadEmails();
     };
 
     return (

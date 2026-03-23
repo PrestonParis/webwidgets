@@ -24,4 +24,6 @@ urlpatterns = [
     path('api/', include('lyrics.urls')),
     path('journal/', include('journal.urls')),
     path('api/classify/', include('email_categorization.urls')),
+    path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
+    path('social-auth/', include('social_django.urls', namespace='social'))
 ]

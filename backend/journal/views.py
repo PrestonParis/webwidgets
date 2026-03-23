@@ -12,6 +12,7 @@ class EntryListCreateView(generics.ListCreateAPIView):
     authentication_classes = [GoogleTokenAuthentication]
     # Check User
     permission_classes = [permissions.IsAuthenticated]
+    # pagination_class = None
 
     def get_queryset(self) -> Any:
         return Entry.objects.filter(user=self.request.user).order_by('-created_at')

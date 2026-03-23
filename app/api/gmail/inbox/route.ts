@@ -65,6 +65,7 @@ export async function GET(req: Request) {
                 const sender = headers.find((h) => h.name === "From")?.value
 
                 // Use the sender, subject and email to classify the email into a category (work, personal, spam, etc.)
+                
                 const classifyRes = await fetch("http://localhost:8000/api/classify/predict/", {
                     method: "POST",
                     headers: {
@@ -74,10 +75,24 @@ export async function GET(req: Request) {
                     body: JSON.stringify({
                         sender: sender,
                         subject: subject,
-                        email: email.data.snippet
+                        email: email.data.snippet,
+                        email_id: msg.id,
+                        user_email: session?.user?.email
                     })
                 });
-                const { category } = await classifyRes.json();
+                // const { category } = await classifyRes.json();
+                let category = "Uncategorized";
+                if (classifyRes.ok) {
+                    try {
+                        const data = await classifyRes.json();
+                        category = data.category || "Uncategorized";
+                    } catch (err) {
+                        console.error("Django returned but invalid response", err);
+                    }
+                } else {
+                    const errorText = await classifyRes.text();
+                    console.error("Classification API error", classifyRes.status);
+                }
 
                 return {
                     id: msg.id,
