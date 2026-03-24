@@ -4,6 +4,7 @@ import Header from "@/components/Global/Header";
 import LogoutButton from "@/components/Global/SignOut";
 import EmailWidget from "@/components/Widgets/EmailWidget";
 import JournalWidget from "@/components/Widgets/JournalWidget";
+import SoberWidget from "@/components/Widgets/SoberWidget";
 import StockWidget from "@/components/Widgets/StockWidget";
 
 export default function Page() {
@@ -28,10 +29,13 @@ export default function Page() {
                     {/* Widget 2: Email Inbox Snapshot */}
                     <EmailWidget />
 
-                    {/* Widget 3: Future - Stock Volatility (NVIDIA/AMD) */}
+                    {/* Widget 3: Addiction Recovery Timer */}
+                    <SoberWidget startTime={null} />
+                    
+                    {/* Future - Stock Volatility (NVIDIA/AMD) */}
                     <StockWidget />
 
-                    {/* Widget 4: Future - Crypto Tracker (AVAX) */}
+                    {/* Crypto Tracker (AVAX) */}
                     <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm opacity-50 flex flex-col justify-center items-center border-dashed">
                         <span className="text-gray-400 font-medium">Add New Widget</span>
                     </div>
