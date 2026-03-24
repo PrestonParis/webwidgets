@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.100.0",
     "equine": "^1.0.0-alpha.0",
     "googleapis": "^171.4.0",
     "he": "^1.2.0",
