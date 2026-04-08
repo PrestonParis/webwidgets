@@ -12,7 +12,6 @@ export default function Header() {
         <nav>
         <ul className="nav-tabs">
             <li className="header-link"><Link href="/" className={isActive("/") ? "active": ""}>Home</Link></li>
-            <li className="header-link"><Link href="/personaldash" className={isActive("/personaldash") ? "active": ""}>Personal Dashboard</Link></li>
         </ul>
         </nav>
     </header>
