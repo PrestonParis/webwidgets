@@ -70,7 +70,7 @@ export default function JournalWidget() {
             </div>
 
             <Link 
-                href="/personaldash/journal" 
+                href="/journal" 
                 className="mt-6 block text-center py-3 bg-blue-600 text-white rounded-2xl text-sm font-bold hover:bg-blue-700 transition-all active:scale-[0.98]"
             >
                 + New Entry
