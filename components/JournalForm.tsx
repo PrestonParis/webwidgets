@@ -13,7 +13,7 @@ interface JournalEntry {
 export default function JournalForm() {
     const { data: session } = useSession()
     const [title, setTitle] = useState("")
-    const [entries, setEntries] = useState([])
+    const [entries, setEntries] = useState<JournalEntry[]>([])
     const [content, setContent] = useState("")
     const [isSaving, setIsSaving] = useState(false)
 
@@ -52,15 +52,17 @@ export default function JournalForm() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": ` Bearer ${session.accessToken}`
+                    "Authorization": `Bearer ${session.accessToken}`
                 },
                 body: JSON.stringify({ title, content }),
             });
 
+            // Clear for next entry
             if (response.ok) {
                 console.log("Entry Saved")
-                setTitle("") // Clear for next entry
+                setTitle("") 
                 setContent("")
+                fetchEntries()
             };
         } catch (error) {
             console.error("Failed to save entry:", error)

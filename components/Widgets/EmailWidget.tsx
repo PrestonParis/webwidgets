@@ -61,7 +61,7 @@ export default function EmailWidget() {
             </div>
 
             <Link 
-                href="/personaldash/inbox" 
+                href="/inbox" 
                 className="mt-4 block text-center py-2 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 rounded-xl text-sm font-semibold transition-colors"
             >
                 Open Full Inbox →
