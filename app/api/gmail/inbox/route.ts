@@ -81,7 +81,7 @@ export async function GET(req: Request) {
                 } else {
                     try {
                         // 2. Fallback to FastAPI service
-                        const mlRes = await fetch("http://localhost:8080/predict", {
+                        const mlRes = await fetch(`${process.env.ML_SERVICE_URL}/predict`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ sender, subject })
