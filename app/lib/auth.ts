@@ -71,14 +71,15 @@ export const authOptions: NextAuthOptions = {
     ],
 
     callbacks: {
-        async jwt({ token, account }) {
+        async jwt({ token, account, user }) {
             // 1. Initial Sign In: save access, refresh, expiry
-            if (account) {
+            if (account && user) {
                 return {
                     ...token,
                     accessToken: account.access_token,
                     refreshToken: account.refresh_token,
                     accessTokenExpires: (account.expires_at ?? 0) * 1000,
+                    id: user.id
                 }
             }
             // 2. Return previous token if access token hasn't expired
@@ -91,7 +92,10 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             session.accessToken = token.accessToken as string;
-            // session.error = token.error
+            if (session.user) {
+                // Attach the ID so session.user.id exists in component
+                session.user.id = token.id as string; 
+            }
             return session;
         },
     },
