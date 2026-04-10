@@ -3,6 +3,7 @@ import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import he from "he"
+import { supabase } from "@/app/lib/supabase";
 export interface ExtendedSession {
     user?: {
         name?: string | null;
@@ -32,9 +33,10 @@ export async function GET(req: Request) {
     const session = await getServerSession(authOptions) as ExtendedSession | null;
     const token = session?.accessToken;
 
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!token || !session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     
-    // Extract token from URL (/api/gmail/inbox?pageToken=abc)
     const { searchParams } = new URL(req.url);
     const pageToken = searchParams.get("pageToken") || undefined;
 
@@ -60,48 +62,58 @@ export async function GET(req: Request) {
                 });
                 
                 const headers = email.data.payload?.headers || [];
-                const dateHeader = headers.find((h) => h.name === "Date")?.value
-                const subject = headers.find((h) => h.name === "Subject")?.value
-                const sender = headers.find((h) => h.name === "From")?.value
+                const dateHeader = headers.find((h) => h.name === "Date")?.value;
+                const subject = headers.find((h) => h.name === "Subject")?.value || "No Subject";
+                const sender = headers.find((h) => h.name === "From")?.value || "Unknown Sender";
 
-                // Use the sender, subject and email to classify the email into a category (work, personal, spam, etc.)
-                
-                const classifyRes = await fetch("http://localhost:8000/api/classify/predict/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        sender: sender,
-                        subject: subject,
-                        email: email.data.snippet,
-                        email_id: msg.id,
-                        user_email: session?.user?.email
-                    })
-                });
-                // const { category } = await classifyRes.json();
                 let category = "Uncategorized";
-                if (classifyRes.ok) {
-                    try {
-                        const data = await classifyRes.json();
-                        category = data.category || "Uncategorized";
-                    } catch (err) {
-                        console.error("Django returned but invalid response", err);
-                    }
+
+                // 1. Check Supabase for existing classification
+                const { data: existingClass } = await supabase
+                    .from('email_classifications')
+                    .select('category')
+                    .eq('user_email', session.user.email)
+                    .or(`email_id.eq.${msg.id},sender.eq.${sender}`)
+                    .maybeSingle(); // maybeSingle handles 0 results without error
+
+                if (existingClass) {
+                    category = existingClass.category;
                 } else {
-                    const errorText = await classifyRes.text();
-                    console.error("Classification API error", classifyRes.status);
+                    try {
+                        // 2. Fallback to FastAPI service
+                        const mlRes = await fetch("http://localhost:8080/predict", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ sender, subject })
+                        });
+
+                        if (mlRes.ok) {
+                            const { category: predicted } = await mlRes.json();
+                            category = predicted;
+
+                            // 3. Save prediction to Supabase (Fire-and-forget)
+                            supabase.from('email_classifications').insert({
+                                email_id: msg.id,
+                                user_email: session.user.email,
+                                sender,
+                                subject,
+                                category: predicted
+                            }).then();
+                        }
+                    } catch (mlError) {
+                        console.error("ML Service unreachable:", mlError);
+                        category = "Uncategorized";
+                    }
                 }
 
                 return {
                     id: msg.id,
-                    subject: subject,
-                    sender: sender,
+                    subject,
+                    sender,
                     date: dateHeader ? cleanDate(dateHeader) : "No Date",
                     snippet: he.decode(email.data.snippet ?? ""),
-                    category: category || "Uncategorized"
-                    };
+                    category: category
+                };
             })
         );
         
@@ -110,7 +122,7 @@ export async function GET(req: Request) {
             nextPageToken: messageList.data.nextPageToken || null
         });
     } catch (error) {
-        console.error("Gmail Fetch Error", error)
-        return NextResponse.json({error: "Failed to fetch"});
+        console.error("Gmail Fetch Error", error);
+        return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
     }
 }
