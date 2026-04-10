@@ -3,6 +3,14 @@
 import { supabase } from "@/app/lib/supabase";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+interface SoberWidgetProps {
+    tracker: {
+        id: string;
+        addiction: string;
+        start_time: string;
+    };
+    onReset: (id: string, newStart: string) => void;
+}
 
 function formatTime(seconds: number) {
     const d = Math.floor(seconds / 86400);
@@ -12,29 +20,13 @@ function formatTime(seconds: number) {
     return `${d}d ${h}h ${m}m ${s}s`;
 }
 
-export default function SoberWidget() {
+export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {    
     const [secondsClean, setSecondsClean] = useState(0);
-    const [startTime, setStartTime] = useState<string | null>(null);
-    const [addiction, setAddiction] = useState<string | null>(null);
+    const startTime = tracker.start_time;
+    const addiction = tracker.addiction;
     const [trigger, setTrigger] = useState("");
     const [showUrgeForm, setShowUrgeForm] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function loadProfile() {
-            const { data } = await supabase
-                .from("recovery_profiles")
-                .select("start_time, addiction")
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .maybeSingle();
-            setStartTime(data?.start_time ?? null);
-            setAddiction(data?.addiction ?? null);
-            setLoading(false);
-        }
-        loadProfile();
-    }, []);
 
     useEffect(() => {
         if (!startTime) return;
@@ -62,41 +54,34 @@ export default function SoberWidget() {
         await supabase
             .from("recovery_profiles")
             .update({ start_time: now })
-            .order("created_at", { ascending: false })
-            .limit(1);
-        setStartTime(now);
+            .eq("id", tracker.id);
+        onReset(tracker.id, now);
         setSecondsClean(0);
     };
 
-    if (loading) return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-            <p className="text-xs text-gray-400">Loading...</p>
-        </div>
-    );
-
     if (!startTime) return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-            <p className="text-xs text-gray-400">No streak started. Visit the recovery page to begin.</p>
-            <Link href="/recovery" className="block text-center text-xs text-gray-400 hover:text-purple-600 transition-colors pt-1">
+        <div className="bg-white dark:bg-zinc-950 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4 transition-colors">
+            <p className="text-xs text-gray-400 dark:text-zinc-500">No streak started. Visit the recovery page to begin.</p>
+            <Link href="/recovery" className="block text-center text-xs text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors pt-1">
                     View full page →
             </Link>
         </div>
     );
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+        <div className="bg-white dark:bg-zinc-950 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4 space-y-3 transition-colors">
             {/* Header */}
             <div className="flex justify-between items-center">
-                <p className="text-xs font-mono text-gray-400">SOBER TIME</p>
+                <p className="text-xs font-mono text-gray-400 dark:text-zinc-500">SOBER TIME</p>
                 {addiction && (
-                    <span className="text-xs bg-purple-50 text-purple-600 font-bold px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold px-2 py-0.5 rounded-full">
                         {addiction}
                     </span>
                 )}
             </div>
 
             {/* Timer */}
-            <p className="text-2xl font-extrabold text-gray-900 tracking-tight">
+            <p className="text-2xl font-extrabold text-gray-900 dark:text-zinc-100 tracking-tight">
                 {formatTime(secondsClean)}
             </p>
 
@@ -107,33 +92,41 @@ export default function SoberWidget() {
                         placeholder="What triggered it?"
                         value={trigger}
                         onChange={(e) => setTrigger(e.target.value)}
-                        className="w-full border rounded-xl p-2 text-sm outline-none focus:ring-2 focus:ring-purple-200 resize-none h-16"
+                        className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-2 text-sm outline-none focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 text-gray-900 dark:text-zinc-100 resize-none h-16"
                     />
                     <div className="flex gap-2">
                         <button
                             onClick={handleLogUrge}
                             disabled={isSaving || !trigger.trim()}
-                            className="flex-1 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700 disabled:bg-gray-300"
+                            className="flex-1 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600 transition-colors"
                         >
                             {isSaving ? "Saving..." : "Save"}
                         </button>
                         <button
                             onClick={() => { setShowUrgeForm(false); setTrigger(""); }}
-                            className="flex-1 py-2 border border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-50"
+                            className="flex-1 py-2 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs font-bold text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900 transition-colors"
                         >
                             Cancel
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setShowUrgeForm(true)}
-                        className="flex-1 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100"
-                    >
-                        Log urge
-                    </button>
-                    <Link href="/recovery" className="block text-center text-xs text-gray-400 hover:text-purple-600 transition-colors pt-1">
+                <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setShowUrgeForm(true)}
+                            className="flex-1 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
+                        >
+                            Log urge
+                        </button>
+                        <button
+                            onClick={handleReset}
+                            className="flex-1 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                        >
+                            Reset Streak
+                        </button>
+                    </div>
+                    <Link href="/recovery" className="block text-center text-xs text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors pt-1">
                         View full page →
                     </Link>
                 </div>
