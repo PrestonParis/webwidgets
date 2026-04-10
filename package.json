@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:ml\"",
     "dev:frontend": "next dev",
-    "dev:backend": "cd backend && source venv/bin/activate && python manage.py runserver",
+    "dev:ml": "cd ml_service && source venv/bin/activate && uvicorn main:app --port 8080 --reload",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.100.0",
