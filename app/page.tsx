@@ -4,7 +4,7 @@ import Header from "@/components/Global/Header";
 import LogoutButton from "@/components/Global/SignOut";
 import EmailWidget from "@/components/Widgets/EmailWidget";
 import JournalWidget from "@/components/Widgets/JournalWidget";
-import SoberWidget from "@/components/Widgets/SoberWidget";
+import SoberWidget from "@/components/Widgets/RecoveryWidget";
 import StockWidget from "@/components/Widgets/StockWidget";
 
 export default function Page() {
