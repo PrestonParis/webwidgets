@@ -1,5 +1,6 @@
 "use client"
 
+import { supabase } from "@/app/lib/supabase";
 import { signIn, useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -65,23 +66,24 @@ export default function Emails() {
     
     // Function to handle manual classification from the UI
     const handleManualClassify = async (email_id: string, category: string, sender: string, subject: string) => {
-        const token = (session as any)?.accessToken;
-        // Optimistically update the UI
-        setEmails((prev) => 
-            prev.map((mail) => 
-                mail.id === email_id ? { ...mail, category } : mail
+        // Optimistic UI update
+        setEmails((prev) => prev.map((mail) => 
+            mail.id === email_id ? { ...mail, category } : mail
         ));
 
-        await fetch("http://localhost:8000/api/classify/manual/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ email_id, category, sender, subject })
-        });
-        // Refresh the list to show the new category
-        //loadEmails();
+        // Write to Supabase instead of Django
+        const { error } = await supabase
+            .from('email_classifications')
+            .upsert({ 
+                email_id, 
+                category, 
+                sender, 
+                subject, 
+                user_email: session?.user?.email,
+                is_manual: true 
+            }, { onConflict: 'email_id' });
+
+        if (error) console.error("Failed to save classification:", error);
     };
 
     return (
