@@ -2,7 +2,7 @@
 
 import Header from "@/components/Global/Header";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/app/lib/supabase";
 interface JournalEntry {
     id: number;
@@ -20,26 +20,28 @@ export function JournalForm() {
 
 
     // 1. Fetch Journals
-    const fetchEntries = useCallback(async () => {
-        if (!session?.user?.id) return;
-        
-        const { data, error } = await supabase
-            .from('journals')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error("Fetch error:", error.message);
-        } else {
-            setEntries(data || []);
-        }
-    }, [session, supabase]);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        fetchEntries();
-    }, [fetchEntries])
-    
+        if (!session?.user?.id) return;
+
+        const loadEntries = async () => {
+            const { data, error } = await supabase
+                .from('journals')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Fetch error:", error.message);
+            } else {
+                setEntries(data || []);
+            }
+        };
+
+        loadEntries();
+    }, [session, refreshKey]);
+
     // 2. Saving Journals
     const handleSubmit = async (e: React.BaseSyntheticEvent) => {
         e.preventDefault();
@@ -60,7 +62,7 @@ export function JournalForm() {
         if (!error) {
             setTitle("");
             setContent("");
-            fetchEntries();
+            setRefreshKey(k => k + 1);
         } else {
             console.error("Save error:", error.message);
         }
