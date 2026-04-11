@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 interface Props {
     value: string;
@@ -66,7 +66,7 @@ export default function DatePicker({ value, onChange, onCancel }: Props) {
     };
 
     const handleSave = () => {
-        let h24 =
+        const h24 =
             ampm === "PM"
                 ? (hour === 12 ? 12 : hour + 12)
                 : (hour === 12 ? 0 : hour);

@@ -30,12 +30,14 @@ function cleanDate(date: string) {
 /* Fetch all the emails */
 
 export async function GET(req: Request) {
+    
     const session = await getServerSession(authOptions) as ExtendedSession | null;
     const token = session?.accessToken;
 
     if (!token || !session?.user?.email) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const userEmail = session.user.email;
     
     const { searchParams } = new URL(req.url);
     const pageToken = searchParams.get("pageToken") || undefined;
@@ -72,7 +74,7 @@ export async function GET(req: Request) {
                 const { data: existingClass } = await supabase
                     .from('email_classifications')
                     .select('category')
-                    .eq('user_email', session.user.email)
+                    .eq('user_email', userEmail)
                     .or(`email_id.eq.${msg.id},sender.eq.${sender}`)
                     .maybeSingle(); // maybeSingle handles 0 results without error
 
@@ -94,7 +96,7 @@ export async function GET(req: Request) {
                             // 3. Save prediction to Supabase (Fire-and-forget)
                             supabase.from('email_classifications').insert({
                                 email_id: msg.id,
-                                user_email: session.user.email,
+                                user_email: userEmail,
                                 sender,
                                 subject,
                                 category: predicted
