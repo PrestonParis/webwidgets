@@ -372,8 +372,6 @@ export default function RecoveryPage() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedAddiction, setSelectedAddiction] = useState("");
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
-    
-
 
     useEffect(() => {
         let cancelled = false;
