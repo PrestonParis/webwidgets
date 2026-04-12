@@ -12,19 +12,30 @@ export interface JournalEntry {
     created_at: string;
 }
 
+function tiptapToPreviewText(html: string) {
+    if (!html) return "";
+
+    return html
+    .replace(/<h[1-6]>(.*?)<\/h[1-6]>/g, (_, t) => `\n${t.toUpperCase()}\n`)
+    .replace(/<li>(.*?)<\/li>/g, "• $1\n")
+    .replace(/<\/p>/g, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}
+
 export default function JournalWidget() {
     const { data: session } = useSession();
     const [latestEntry, setLatestEntry] = useState<JournalEntry | null>(null);
     const [count, setCount] = useState(0);
 
     const loadJournalData = useCallback(async () => {
-        // Use session.user.id like we did in the main page
         if (!session?.user?.id) return;
 
         try {
             const { data, error, count: totalCount } = await supabase
                 .from('journals')
-                .select('*', { count: 'exact' }) // Get total count efficiently
+                .select('*', { count: 'exact' })
                 .eq('user_id', session.user.id)
                 .order('created_at', { ascending: false });
 
@@ -64,7 +75,7 @@ export default function JournalWidget() {
                             {latestEntry.title}
                         </h4>
                         <p className="text-gray-500 dark:text-zinc-400 text-xs italic line-clamp-3 border-l-2 border-gray-100 dark:border-zinc-800 pl-3">
-                            {latestEntry.content}
+                            {tiptapToPreviewText(latestEntry.content)}
                         </p>
                     </div>
                 ) : (

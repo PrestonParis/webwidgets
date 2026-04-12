@@ -12,12 +12,45 @@ interface SoberWidgetProps {
     onReset: (id: string, newStart: string) => void;
 }
 
-function formatTime(seconds: number) {
-    const d = Math.floor(seconds / 86400);
-    const h = Math.floor((seconds % 86400) / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${d}d ${h}h ${m}m ${s}s`;
+function getTimeParts(totalSeconds: number) {
+    const SECONDS_IN_DAY = 86400;
+    const SECONDS_IN_MONTH = 2629746; // Avg (30.44 days)
+    const SECONDS_IN_YEAR = 31557600; // Avg (365.25 days)
+
+    const years = Math.floor(totalSeconds / SECONDS_IN_YEAR);
+    let remainder = totalSeconds % SECONDS_IN_YEAR;
+
+    const months = Math.floor(remainder / SECONDS_IN_MONTH);
+    remainder %= SECONDS_IN_MONTH;
+
+    const days = Math.floor(remainder / SECONDS_IN_DAY);
+    remainder %= SECONDS_IN_DAY;
+
+    const hours = Math.floor(remainder / 3600);
+    const minutes = Math.floor((remainder % 3600) / 60);
+    const seconds = remainder % 60;
+
+    return {
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        seconds,
+    };
+}
+
+function TimeUnit({ value, label }: { value: number; label: string }) {
+    return (
+        <div className="flex flex-col items-baseline">
+            <div className="flex items-baseline gap-0.5">
+                <span className="text-3xl font-black tracking-tighter text-gray-900 dark:text-zinc-100">
+                    {value}
+                </span>
+                <span className="text-sm font-bold text-gray-400 lowercase">{label}</span>
+            </div>
+        </div>
+    );
 }
 
 export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {    
@@ -27,6 +60,8 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     const [trigger, setTrigger] = useState("");
     const [showUrgeForm, setShowUrgeForm] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    const time = getTimeParts(secondsClean);
 
     useEffect(() => {
         if (!startTime) return;
@@ -71,8 +106,11 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     return (
         <div className="bg-white dark:bg-zinc-950 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4 space-y-3 transition-colors">
             {/* Header */}
-            <div className="flex justify-between items-center">
-                <p className="text-xs font-mono text-gray-400 dark:text-zinc-500">SOBER TIME</p>
+            <div className="flex justify-between items-start">
+                <h3 className="font-bold text-gray-800 dark:text-zinc-100 text-lg hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                    Sober Time
+                </h3>
+
                 {addiction && (
                     <span className="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold px-2 py-0.5 rounded-full">
                         {addiction}
@@ -81,9 +119,21 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
             </div>
 
             {/* Timer */}
-            <p className="text-2xl font-extrabold text-gray-900 dark:text-zinc-100 tracking-tight">
-                {formatTime(secondsClean)}
-            </p>
+            <div className="flex flex-wrap gap-3 items-end">
+                {/* Years/Months only show if they exist to keep the widget clean */}
+                {time.years > 0 && <TimeUnit value={time.years} label="y" />}
+                {time.months > 0 && <TimeUnit value={time.months} label="m" />}
+                <TimeUnit value={time.days} label="d" />
+                <TimeUnit value={time.hours} label="h" />
+                <TimeUnit value={time.minutes} label="m" />
+                
+                {/* Seconds with a slight pulse to show the app is "alive" */}
+                <div className="flex flex-col items-center animate-pulse">
+                    <span className="text-xl font-black text-emerald-500">{time.seconds}</span>
+                    <span className="text-[10px] uppercase font-bold text-gray-400">s</span>
+                </div>
+            </div>
+
 
             {/* Urge form */}
             {showUrgeForm ? (
