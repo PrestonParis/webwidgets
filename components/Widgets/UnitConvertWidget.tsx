@@ -1,8 +1,8 @@
 "use client";
 import { useState, useMemo } from "react";
 import { ArrowDownUp, ArrowLeftRight } from "lucide-react";
-import { getCategories, getUnits } from "@/app/lib/unitData";
-import { convert, formatResult } from "@/app/lib/convert";
+import { getCategories, getUnits } from "@/types/unitconvert";
+import { convert, formatResult } from "@/app/lib/logic/convert";
 
 function cn(...classes: (string | undefined | false | null)[]) {
     return classes.filter(Boolean).join(" ");

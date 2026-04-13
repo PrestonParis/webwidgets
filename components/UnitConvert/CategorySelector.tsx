@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LucideIcon, Ruler, Thermometer, Gauge, Clock, Square, HardDrive } from "lucide-react";
-import { categories } from "@/app/lib/unitData";
+import { categories } from "@/types/unitconvert";
 
 function cn(...classes: (string | undefined | false | null)[]) {
     return classes.filter(Boolean).join(" ");

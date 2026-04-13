@@ -1,4 +1,4 @@
-import { categories } from "./unitData";
+import { categories } from "@/types/unitconvert";
 
 export function convert(
   category: string,
