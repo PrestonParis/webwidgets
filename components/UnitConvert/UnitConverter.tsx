@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { ArrowUpDown } from "lucide-react";
-import { categories } from "@/app/lib/unitData";
-import { convert, formatResult } from "@/app/lib/convert";
+import { categories } from "@/types/unitconvert";
+import { convert, formatResult } from "@/app/lib/logic/convert";
 
 
 interface Props {

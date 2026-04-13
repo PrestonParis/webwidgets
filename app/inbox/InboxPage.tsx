@@ -3,15 +3,7 @@
 import { supabase } from "@/app/lib/supabase";
 import { signIn, useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
-
-type Email = {
-    id: string
-    subject: string
-    sender: string
-    snippet: string
-    date: string
-    category?: string
-}
+import { Email } from "@/types/inbox";
 
 export default function Emails() {
     const { data: session } = useSession();
