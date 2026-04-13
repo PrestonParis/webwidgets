@@ -4,33 +4,11 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import he from "he"
 import { supabase } from "@/app/lib/supabase";
-export interface ExtendedSession {
-    user?: {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-    };
-    accessToken?: string;
-}
-
-function cleanDate(date: string) {
-    // Wed, 18 Mar 2026 21:24:20 +0000 -> Wed, Mar 18, 2026, 05:24 PM
-    return new Date(date).toLocaleString("en-US", {
-        timeZone: "America/New_York",
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    })
-}
+import { cleanDate } from "@/app/lib/utils/time";
+import { ExtendedSession } from "@../../../types/next-auth";
 
 /* Fetch all the emails */
-
 export async function GET(req: Request) {
-    
     const session = await getServerSession(authOptions) as ExtendedSession | null;
     const token = session?.accessToken;
 
