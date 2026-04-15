@@ -19,3 +19,31 @@ export function cleanDate(date: string) {
         hour12: true
     })
 }
+
+export function getTimeParts(totalSeconds: number) {
+    const SECONDS_IN_DAY = 86400;
+    const SECONDS_IN_MONTH = 2629746; // Avg (30.44 days)
+    const SECONDS_IN_YEAR = 31557600; // Avg (365.25 days)
+
+    const years = Math.floor(totalSeconds / SECONDS_IN_YEAR);
+    let remainder = totalSeconds % SECONDS_IN_YEAR;
+
+    const months = Math.floor(remainder / SECONDS_IN_MONTH);
+    remainder %= SECONDS_IN_MONTH;
+
+    const days = Math.floor(remainder / SECONDS_IN_DAY);
+    remainder %= SECONDS_IN_DAY;
+
+    const hours = Math.floor(remainder / 3600);
+    const minutes = Math.floor((remainder % 3600) / 60);
+    const seconds = remainder % 60;
+
+    return {
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        seconds,
+    };
+}
