@@ -3,10 +3,7 @@ import { useState, useMemo } from "react";
 import { ArrowDownUp, ArrowLeftRight } from "lucide-react";
 import { getCategories, getUnits } from "@/types/unitconvert";
 import { convert, formatResult } from "@/app/lib/logic/convert";
-
-function cn(...classes: (string | undefined | false | null)[]) {
-    return classes.filter(Boolean).join(" ");
-}
+import { cn } from "@/app/lib/utils";
 
 export default function UnitConverterWidget() {
   const categoryList = getCategories();
