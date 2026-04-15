@@ -11,12 +11,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@supabase/supabase-js": "^2.100.0",
     "@tiptap/extension-character-count": "^3.22.3",
     "@tiptap/extension-placeholder": "^3.22.3",
     "@tiptap/pm": "^3.22.3",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
+    "clsx": "^2.1.1",
     "equine": "^1.0.0-alpha.0",
     "framer-motion": "^12.38.0",
     "googleapis": "^171.4.0",
@@ -27,7 +31,8 @@
     "plotly.js": "^3.4.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
