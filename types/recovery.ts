@@ -6,10 +6,6 @@ export interface Tracker {
 }
 
 export interface SoberWidgetProps {
-    tracker: {
-        id: string;
-        addiction: string;
-        start_time: string;
-    };
+    tracker: Tracker
     onReset: (id: string, newStart: string) => void;
 }
