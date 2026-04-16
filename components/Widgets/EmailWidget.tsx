@@ -2,14 +2,7 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-
-type Email = {
-    id: string
-    subject: string
-    sender: string
-    snippet: string
-    date: string
-}
+import { Email } from '@/types/inbox';
 
 export default function EmailWidget() {
     const { data: session } = useSession();
@@ -44,6 +37,14 @@ export default function EmailWidget() {
         }, [session, loadEmails]);
     
     return (
+        <>
+        {loading ? (
+            <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-10 bg-gray-100 dark:bg-zinc-800 rounded animate-pulse" />
+                ))}
+            </div>
+        ) : (
         <div className="bg-white dark:bg-zinc-950 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
             <div className="flex justify-between items-start mb-4">
                 <h3 className="font-bold text-gray-800 dark:text-zinc-100 text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -80,5 +81,6 @@ export default function EmailWidget() {
                 Open Full Inbox →
             </Link>
         </div>
-    );
+        )}
+    </>);
 }
