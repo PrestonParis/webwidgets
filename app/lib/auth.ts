@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             session.accessToken = token.accessToken as string;
+            session.error = token.error as string | undefined;
             if (session.user) {
                 // Attach the ID so session.user.id exists in component
                 session.user.id = token.id as string; 
