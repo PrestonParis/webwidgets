@@ -1,15 +1,27 @@
 "use client";
-import { useSession, signIn } from "next-auth/react";
+
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-    const { data: session } = useSession();
+    const { user, status, signInWithGoogle } = useAuth();
 
     useEffect(() => {
-        if (session?.error === "RefreshAccessTokenError") {
-            signIn("google"); // Kicks them to Google consent screen, gets fresh tokens
-        }
-    }, [session]);
+        if (status !== "loading" && !user) {
+            signInWithGoogle();
+            }
+        }, 
+    );
+
+    if (status === "loading") {
+        return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-pulse text-gray-400">Loading session...</div>
+        </div>
+        );
+    }
+
+    if (!user) return null;
 
     return <>{children}</>;
 }
