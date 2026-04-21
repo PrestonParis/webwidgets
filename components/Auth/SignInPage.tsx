@@ -1,9 +1,10 @@
 // This component provides a sign-in and sign-up interface using Supabase for authentication.
 import { useState } from "react";
 import { supabase } from "@/app/lib/supabase";
-import { signIn } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SignInPage() {
+    const { signInWithGoogle } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -73,7 +74,7 @@ export default function SignInPage() {
 
         {/* Google */}
         <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={signInWithGoogle}
             className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-all duration-150 mb-5"
         >
         <svg width="18" height="18" viewBox="0 0 48 48">
