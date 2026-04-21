@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabase";
@@ -8,18 +8,18 @@ import { JournalEntry } from "@/types/journal";
 import { tiptapToPreviewText } from "@/app/lib/utils/tiptap";
 
 export default function JournalWidget() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
     const [latestEntry, setLatestEntry] = useState<JournalEntry | null>(null);
     const [count, setCount] = useState(0);
 
     const loadJournalData = useCallback(async () => {
-        if (!session?.user?.id) return;
+        if (!user?.id) return;
 
         try {
             const { data, error, count: totalCount } = await supabase
                 .from('journals')
                 .select('*', { count: 'exact' })
-                .eq('user_id', session.user.id)
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -31,7 +31,7 @@ export default function JournalWidget() {
         } catch (error) {
             console.error("Journal Widget fetch failed:", error);
         }
-    }, [session]);
+    }, [user]);
 
     useEffect(() => {
         loadJournalData();
