@@ -1,19 +1,32 @@
 "use client"
-
-import { supabase } from "@/app/lib/supabase";
-import { signIn, useSession } from "next-auth/react";
+import { supabase } from "@/app/lib/supabase"; 
+import { useAuth } from "@/hooks/useAuth";
 import { useCallback, useEffect, useState } from "react";
 import { Email } from "@/types/inbox";
 
 export default function Emails() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
     const [emails, setEmails] = useState<Email[]>([]);
     const [nextPageToken, setNextPageToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(false);
 
-    // Fetch function for initial load and load more
+    // Handler for Google OAuth connection
+    const handleGoogleConnect = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+        if (error) console.error("Error connecting to Google:", error.message);
+    };
+
     const loadEmails = useCallback(async (token?: string) => {
-        if (!session) return;
+        if (!user) return;
         setLoading(true);
 
         try {
@@ -26,7 +39,6 @@ export default function Emails() {
             
             const data = await res.json()
             
-            // Append if there's a token or start fresh
             const newEmails = data.emails || [];
             setEmails((prev) => (token ? [...prev, ...newEmails] : newEmails));
             setNextPageToken(data.nextPageToken);
@@ -35,35 +47,29 @@ export default function Emails() {
         } finally {
             setLoading(false);
         }
-    }, [session]) // Only if session changes
+    }, [user])
     
     useEffect(() => {
-        // Receive emails from /api/gmail/inbox/route.ts
-        if (session) {
+        if (user) {
             loadEmails();
         }
-    }, [session, loadEmails]);
+    }, [user, loadEmails]);
 
-    // Handler for manual classification from the UI
     const senderCounts = (emails || []).reduce((acc: Record<string, number>, mail) => {
         const senderName = mail.sender ? mail.sender.split('<')[0].trim() : "Unknown Sender";
         acc[senderName] = (acc[senderName] || 0) + 1;
         return acc
     }, {})
 
-    // Get top 5 senders by count
     const topSenders = Object.entries(senderCounts)
-    .sort((a ,b) => b[1] - a[1])
-    .slice(0, 5)
+        .sort((a ,b) => b[1] - a[1])
+        .slice(0, 5)
     
-    // Function to handle manual classification from the UI
     const handleManualClassify = async (email_id: string, category: string, sender: string, subject: string) => {
-        // Optimistic UI update
         setEmails((prev) => prev.map((mail) => 
             mail.id === email_id ? { ...mail, category } : mail
         ));
 
-        // Write to Supabase instead of Django
         const { error } = await supabase
             .from('email_classifications')
             .upsert({ 
@@ -71,7 +77,7 @@ export default function Emails() {
                 category, 
                 sender, 
                 subject, 
-                user_email: session?.user?.email,
+                user_email: user?.email,
                 is_manual: true 
             }, { onConflict: 'email_id' });
 
@@ -79,30 +85,30 @@ export default function Emails() {
     };
 
     return (
-        <>
         <div className="max-w-2xl mx-auto p-4">
-            {!session ? (
-                <button 
-                    onClick={() => signIn("google")}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                >
-                    Connect Gmail
-                </button>
+            {!user ? (
+                <div className="text-center py-10">
+                    <p className="mb-4 text-gray-600">Please sign in to view your inbox.</p>
+                    <button 
+                        onClick={handleGoogleConnect}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        Connect Google Account
+                    </button>
+                </div>
             ) : (
                 <>  
-                    {/* Header with title and syncing status */}
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-gray-900 text-xl font-semibold tracking-tight">Inbox</h2>
                         {loading && <span className="text-sm text-blue-500 animate-pulse">Syncing...</span>}
                     </div>
 
-                    {/* Display top senders with counts */}
                     {topSenders.length > 0 && (
                         <div className="mb-8 p-4 bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
                             <h3 className="text-gray-900 font-semibold mb-3">Top Senders</h3>
                             <div className="space-y-2">
                                 {topSenders.map(([sender, count]) => (
-                                    <div key={sender} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                                    <div key={sender} className="flex items-center justify-between p-2 bg-white rounded-lg shadow-xs">
                                         <span className="text-gray-700 font-medium">{sender}</span>
                                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{count} emails</span>
                                     </div>
@@ -110,7 +116,7 @@ export default function Emails() {
                             </div>
                         </div>
                     )}
-                    {/* Email list with sender, subject, snippet and date */}
+
                     <div className="space-y-4">
                         {Array.isArray(emails) && emails.map((mail) => (
                             <div key={mail.id} className="group p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all relative">
@@ -123,8 +129,7 @@ export default function Emails() {
                                             {mail.category || "Uncategorized"}
                                         </span>
 
-                                        {/* 2. Buttons are now siblings to the span, inside the group */}
-                                        <div className="flex gap-1 animate-in fade-in slide-in-from-left-2">
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             {['work', 'personal', 'notifications'].map((cat) => (
                                                 <button 
                                                     key={cat}
@@ -150,7 +155,7 @@ export default function Emails() {
                             </div>
                         ))}
                     </div>
-                    {/* Load more button if there's a nextPageToken */}
+
                     {nextPageToken && (
                         <button 
                             onClick={() => loadEmails(nextPageToken)}
@@ -161,9 +166,7 @@ export default function Emails() {
                         </button>
                     )}
                 </>
-        
             )}
         </div>
-        </>
     );
 }

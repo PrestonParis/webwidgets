@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/app/lib/supabase";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -13,7 +13,7 @@ import EntryCard from "@/components/Journal/EntryCard";
 // ─── Main Form ────────────────────────────────────────────────────────────────
 
 export default function JournalForm() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
     const [title, setTitle] = useState("");
     const [entries, setEntries] = useState<JournalEntry[]>([]);
     const [isSaving, setIsSaving] = useState(false);
@@ -76,12 +76,12 @@ export default function JournalForm() {
 
     // ── Fetch entries ─────────────────────────────────────────────────────────
     useEffect(() => {
-        if (!session?.user?.id) return;
+        if (!user?.id) return;
         const load = async () => {
         let query = supabase
             .from("journals")
             .select("*")
-            .eq("user_id", session.user.id)
+            .eq("user_id", user.id)
             .order("created_at", { ascending: false });
 
         if (view === "all") query = query.is("deleted_at", null);
@@ -92,7 +92,7 @@ export default function JournalForm() {
         else setEntries(data || []);
         };
         load();
-    }, [session, refreshKey, view]);
+    }, [user, refreshKey, view]);
 
   // ── Start editing ─────────────────────────────────────────────────────────
     const handleEditClick = useCallback((entry: JournalEntry) => {
@@ -115,7 +115,7 @@ export default function JournalForm() {
 // ── Save (create or update) ───────────────────────────────────────────────
   const handleSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
-    if (!session?.user?.id || !editor) return;
+    if (!user?.id || !editor) return;
 
     const html = editor.getHTML();
     if (!title.trim() || !html || html === "<p></p>") return;
@@ -131,13 +131,13 @@ export default function JournalForm() {
           updated_at: new Date().toISOString(),
         })
         .eq("id", editingId)
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
 
       if (error) console.error("Update error:", error.message, error.hint);
     } else {
       const { error } = await supabase
         .from("journals")
-        .insert([{ title: title.trim(), content: html, user_id: session.user.id }]);
+        .insert([{ title: title.trim(), content: html, user_id: user.id }]);
 
       if (error) console.error("Insert error:", error.message, error.hint);
       else localStorage.removeItem("journal_draft");
@@ -158,13 +158,13 @@ export default function JournalForm() {
       .from("journals")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", id)
-      .eq("user_id", session?.user?.id);
+      .eq("user_id", user?.id);
 
     if (error) { console.error("Delete error:", error.message); return; }
     // If currently editing this entry, cancel the edit
     if (editingId === id) cancelEdit();
     setEntries((prev) => prev.filter((e) => e.id !== id));
-  }, [session, editingId, cancelEdit]);
+  }, [user, editingId, cancelEdit]);
 
   // ── Restore from trash ────────────────────────────────────────────────────
   const handleRestore = useCallback(async (id: number) => {
@@ -172,11 +172,11 @@ export default function JournalForm() {
       .from("journals")
       .update({ deleted_at: null })
       .eq("id", id)
-      .eq("user_id", session?.user?.id);
+      .eq("user_id", user?.id);
 
     if (error) { console.error("Restore error:", error.message); return; }
     setRefreshKey((k) => k + 1);
-  }, [session]);
+  }, [user]);
 
   // ── Filtered entries ──────────────────────────────────────────────────────
   const filtered = entries.filter((e) => {
