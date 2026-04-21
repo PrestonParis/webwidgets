@@ -1,13 +1,12 @@
 "use client"
 
 import { supabase } from "@/app/lib/supabase";
-import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { Email } from "@/types/inbox";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Emails() {
-    const { user } = useAuth();
+    const { user, signInWithGoogle } = useAuth();
     const [emails, setEmails] = useState<Email[]>([]);
     const [nextPageToken, setNextPageToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(false);
@@ -84,7 +83,7 @@ export default function Emails() {
         <div className="max-w-2xl mx-auto p-4">
             {!user ? (
                 <button 
-                    onClick={() => signIn("google")}
+                    onClick={() => signInWithGoogle()}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg"
                 >
                     Connect Gmail
