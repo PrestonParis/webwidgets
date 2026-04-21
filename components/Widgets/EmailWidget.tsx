@@ -1,15 +1,15 @@
 "use client"
-import { useSession } from 'next-auth/react';
+import { useAuth } from "@/hooks/useAuth";
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Email } from '@/types/inbox';
 
 export default function EmailWidget() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
     const [emails, setEmails] = useState<Email[]>([]);
     const [loading, setLoading] = useState(false);
     const loadEmails = useCallback(async (token?: string) => {
-            if (!session) return;
+            if (!user) return;
             setLoading(true);
     
             try {
@@ -27,14 +27,14 @@ export default function EmailWidget() {
             } finally {
                 setLoading(false);
             }
-        }, [session]) // Only if session changes
+        }, [user]) // Only if user changes
         
         useEffect(() => {
             // Receive emails from /api/gmail/inbox/route.ts
-            if (session) {
+            if (user) {
                 loadEmails();
             }
-        }, [session, loadEmails]);
+        }, [user, loadEmails]);
     
     return (
         <>

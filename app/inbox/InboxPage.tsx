@@ -1,19 +1,20 @@
 "use client"
 
 import { supabase } from "@/app/lib/supabase";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { Email } from "@/types/inbox";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Emails() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
     const [emails, setEmails] = useState<Email[]>([]);
     const [nextPageToken, setNextPageToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(false);
 
     // Fetch function for initial load and load more
     const loadEmails = useCallback(async (token?: string) => {
-        if (!session) return;
+        if (!user) return;
         setLoading(true);
 
         try {
@@ -35,14 +36,14 @@ export default function Emails() {
         } finally {
             setLoading(false);
         }
-    }, [session]) // Only if session changes
+    }, [user]) // Only if user changes
     
     useEffect(() => {
         // Receive emails from /api/gmail/inbox/route.ts
-        if (session) {
+        if (user) {
             loadEmails();
         }
-    }, [session, loadEmails]);
+    }, [user, loadEmails]);
 
     // Handler for manual classification from the UI
     const senderCounts = (emails || []).reduce((acc: Record<string, number>, mail) => {
@@ -71,7 +72,7 @@ export default function Emails() {
                 category, 
                 sender, 
                 subject, 
-                user_email: session?.user?.email,
+                user_email: user?.email,
                 is_manual: true 
             }, { onConflict: 'email_id' });
 
@@ -81,7 +82,7 @@ export default function Emails() {
     return (
         <>
         <div className="max-w-2xl mx-auto p-4">
-            {!session ? (
+            {!user ? (
                 <button 
                     onClick={() => signIn("google")}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg"
