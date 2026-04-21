@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/lib/supabase";
 import { Tracker } from "@/types/recovery";
+import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Global/Header";
 import LogoutButton from "@/components/Global/SignOut";
 import DashboardGrid from "./DashboardGrid";
 import HiddenWidgetsTray from "./HiddenWidgetsTray";
-import { useSession } from "next-auth/react";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 
 export default function Dashboard() {
-  const { data: session } = useSession();
+  const { firstName } = useAuth();
   const [trackers, setTrackers] = useState<Tracker[]>([]);
-  const userId = (session?.user as { id?: string })?.id;
-
-  const { layout, updateLayout, toggleVisibility, ready } =
-    useDashboardLayout(userId, trackers);
-
-  const firstName = session?.user?.name?.split(" ")[0] ?? "there";
+  const { layout, updateLayout, toggleVisibility, ready } = useDashboardLayout(trackers);
 
   const handleUpdateStart = (id: string, newStart: string) => {
     setTrackers((prev) =>

@@ -1,11 +1,11 @@
 "use client";
-import { useSession } from "next-auth/react";
 import Dashboard from "@/components/Dashboard/DashboardView";
 import SignInPage from "@/components/Auth/SignInPage";
+import { useAuth } from "@/hooks/useAuth";
 
 // Main page component that conditionally renders either the dashboard or the sign-in page based on authentication status.
 export default function Page() {
-    const { data: session, status } = useSession();
+    const { status } = useAuth()
 
     if (status === "loading") {
         return (
@@ -14,5 +14,5 @@ export default function Page() {
             </div>
         );
     }
-    return session ? <Dashboard /> : <SignInPage />;
+    return status === "authenticated" ? <Dashboard /> : <SignInPage />;
 }

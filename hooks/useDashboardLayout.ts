@@ -24,17 +24,25 @@ function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
     return [...base, ...recoveryWidgets];
 }
 
-export function useDashboardLayout(userId: string | undefined, trackers: Tracker[]) {
+export function useDashboardLayout(trackers: Tracker[]) {
+    const [userId, setUserId] = useState<string | undefined>();
     const [layout, setLayout] = useState<WidgetConfig[]>([]);
     const [ready, setReady] = useState(false);
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Load: remote first, fallback to localStorage, fallback to default
+
+    useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+        setUserId(data.session?.user.id);
+        });
+    }, []);
+
+    // Load layout on userId or trackers change (trackers needed to build default layout if no saved one)
     useEffect(() => {
         if (!userId || trackers === undefined) return;
 
         async function load() {
-        // 1. Try localStorage immediately for instant render
+        // 1. Load cached layout immediately for snappy UI while we fetch remote
         const cached = localStorage.getItem(STORAGE_KEY);
         if (cached) {
             try {
@@ -48,11 +56,11 @@ export function useDashboardLayout(userId: string | undefined, trackers: Tracker
         .from("dashboard_layouts")
         .select("layout")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
     if (data?.layout) {
     const remote: WidgetConfig[] = data.layout;
-    // Merge: keep remote order/visibility, append any missing recovery widgets
+    // Merge remote with defaults to ensure any new trackers are included, but keep remote visibility/order
     const remoteIds = new Set(remote.map((w) => w.id));
     const defaults = buildDefaultLayout(trackers);
     const merged = [
@@ -74,17 +82,18 @@ export function useDashboardLayout(userId: string | undefined, trackers: Tracker
 
     const persistLayout = useCallback(
         (next: WidgetConfig[]) => {
-        // Always write localStorage immediately
+        // Always update localStorage immediately for snappy reloads, but debounce the Supabase write
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 
         // Debounce the Supabase write
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
         debounceTimer.current = setTimeout(async () => {
             if (!userId) return;
-            await supabase.from("dashboard_layouts").upsert(
-            { user_id: userId, layout: next, updated_at: new Date().toISOString() },
-            { onConflict: "user_id" }
+            const { error } = await supabase.from("dashboard_layouts").upsert(
+                { user_id: userId, layout: next, updated_at: new Date().toISOString() },
+                { onConflict: "user_id" }
             );
+            if (error) console.error("Error persisting layout:", error);
         }, DEBOUNCE_MS);
         },
         [userId]
