@@ -22,8 +22,8 @@
 * Journal 
 	* Widget 
 		* Entry count includes trash
-		* Inconsistent Coloring
 	* Page
+		* Inconsistent Coloring compared to widget
 		* "New Entry" Section is undesirable
 		* Edit pencil and delete "x" are too small
 		* Bold, Italic, Strikethrough doesn't highlight when active
