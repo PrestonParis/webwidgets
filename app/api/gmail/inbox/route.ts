@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import he from "he"
 import { cleanDate } from "@/app/lib/utils/time";
+import { TokenUpdate } from "@/types/inbox";
 
 // Fetch all the emails
 export async function GET(req: Request) {
@@ -24,18 +25,18 @@ export async function GET(req: Request) {
     }
     );
     const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-        cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-            );
-        },
-        },
-    }
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+            getAll() { return cookieStore.getAll(); },
+            setAll(cookiesToSet) {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+                );
+            },
+            },
+        }
     );
 
     // Get the authenticated user
@@ -44,10 +45,10 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch their stored Google access token
+    // Fetch the user's Google tokens from Supabase
     const { data: tokenRow } = await supabaseAdmin
         .from("user_tokens")
-        .select("access_token")
+        .select("access_token, refresh_token, expires_at")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -55,15 +56,39 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "No Google token found" }, { status: 401 });
     }
 
-    const token = tokenRow.access_token;
     const userEmail = user.email;
     const { searchParams } = new URL(req.url);
     const pageToken = searchParams.get("pageToken") || undefined;
 
-    const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: token });
-    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+    // Set up Google OAuth2 client
+    const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET
+    );
 
+    // Set the credentials for the OAuth2 client
+    oauth2Client.setCredentials({
+        access_token: tokenRow.access_token,
+        refresh_token: tokenRow.refresh_token,
+        expiry_date: Number(tokenRow.expires_at),
+    });
+
+    // Listen for token refresh events and update Supabase with new tokens
+    oauth2Client.on('tokens', async (tokens) => {
+        const updateData: TokenUpdate = {
+            ...(tokens.access_token && { access_token: tokens.access_token }),
+            ...(tokens.expiry_date && { expires_at: tokens.expiry_date }),
+            ...(tokens.refresh_token && { refresh_token: tokens.refresh_token }),
+        };
+        
+        await supabaseAdmin
+            .from("user_tokens")
+            .update(updateData)
+            .eq("user_id", user.id);
+    });
+
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+    
     try {
         const messageList = await gmail.users.messages.list({
         userId: "me",
@@ -105,7 +130,10 @@ export async function GET(req: Request) {
         .from("email_classifications")
         .select("email_id, sender, category")
         .eq("user_email", userEmail)
-        .or(`email_id.in.(${emailIds.join(",")}),sender.in.(${senders.join(",")})`);
+        .or(
+            `email_id.in.(${emailIds.map(id => `"${id}"`).join(",")}),` +
+            `sender.in.(${senders.map(s => `"${s}"`).join(",")})`
+            );
 
         const classByEmailId = new Map(existingClasses?.map((c) => [c.email_id, c.category]) ?? []);
         const classBySender  = new Map(existingClasses?.map((c) => [c.sender,   c.category]) ?? []);
@@ -123,42 +151,42 @@ export async function GET(req: Request) {
         }
 
         if (needsPrediction.length > 0) {
-        try {
-            const mlRes = await fetch(`${process.env.ML_SERVICE_URL}/predict/batch`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                emails: needsPrediction.map((e) => ({
-                id:      e.id,
-                sender:  e.sender,
-                subject: e.subject,
-                })),
-            }),
-            });
+            try {
+                const mlRes = await fetch(`${process.env.ML_SERVICE_URL}/predict/batch`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        emails: needsPrediction.map((e) => ({
+                        id:      e.id,
+                        sender:  e.sender,
+                        subject: e.subject,
+                        })),
+                    }),
+                });
 
-            if (mlRes.ok) {
-            const predictions: { id: string; category: string }[] = await mlRes.json();
+                if (mlRes.ok) {
+                const predictions: { id: string; category: string }[] = await mlRes.json();
 
-            supabase.from("email_classifications").insert(
-                predictions.map(({ id, category }) => {
-                const email = needsPrediction.find((e) => e.id === id)!;
-                return {
-                    email_id:   id,
-                    user_email: userEmail,
-                    sender:     email.sender,
-                    subject:    email.subject,
-                    category,
-                };
-                })
-            ).then();
+                supabase.from("email_classifications").insert(
+                    predictions.map(({ id, category }) => {
+                        const email = needsPrediction.find((e) => e.id === id)!;
+                        return {
+                            email_id:   id,
+                            user_email: userEmail,
+                            sender:     email.sender,
+                            subject:    email.subject,
+                            category,
+                        };
+                    })
+                ).then();
 
-            for (const { id, category } of predictions) {
-                categoryMap.set(id, category);
+                for (const { id, category } of predictions) {
+                    categoryMap.set(id, category);
+                }
+                }
+            } catch (mlError) {
+                console.error("ML Service unreachable:", mlError);
             }
-            }
-        } catch (mlError) {
-            console.error("ML Service unreachable:", mlError);
-        }
         }
 
         const emails = parsed.map((e) => ({
@@ -167,8 +195,8 @@ export async function GET(req: Request) {
         }));
 
         return NextResponse.json({
-        emails,
-        nextPageToken: messageList.data.nextPageToken || null,
+            emails,
+            nextPageToken: messageList.data.nextPageToken || null,
         });
 
     } catch (error) {

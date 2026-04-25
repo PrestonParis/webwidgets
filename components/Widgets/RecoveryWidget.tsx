@@ -29,7 +29,7 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     const handleLogUrge = async () => {
         if (!trigger.trim()) return;
         setIsSaving(true);
-        await supabase.from("urges").insert({ trigger, intensity: 5 });
+        await supabase.from("urges").insert({ trigger, intensity: 5, tracker_id: tracker.id });
         setTrigger("");
         setShowUrgeForm(false);
         setIsSaving(false);
@@ -39,7 +39,7 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
         const confirmed = window.confirm("Reset your streak?");
         if (!confirmed) return;
         const now = new Date().toISOString();
-        await supabase.from("relapses").insert({ relapsed_at: now });
+        await supabase.from("relapses").insert({ relapsed_at: now, tracker_id: tracker.id });
         await supabase
             .from("recovery_profiles")
             .update({ start_time: now })

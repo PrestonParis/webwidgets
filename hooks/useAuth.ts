@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 export function useAuth() {
     const [user, setUser] = useState<User | null>(null);
     const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+    const [profile, setProfile] = useState<{ full_name: string | null } | null>(null);
 
     useEffect(() => {
         // Get initial session
@@ -28,10 +29,24 @@ export function useAuth() {
             }, { onConflict: "user_id" });
         }
     });
-
+    // Cleanup subscription on unmount
     return () => subscription.unsubscribe();
     }, []);
 
+    // Fetch user profile (full name) after authentication
+    useEffect(() => {
+        if (!user?.id) return;
+        supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", user.id)
+            .single()
+            .then(({ data }) => {
+                setProfile(data);
+            });
+    }, [user?.id]);
+
+    // Sign in with Google, requesting offline access for refresh tokens
     const signInWithGoogle = async () => {
         await supabase.auth.signInWithOAuth({
             provider: "google",
@@ -44,19 +59,20 @@ export function useAuth() {
                 },
             },
         });
-        };
-
+    };
+    // Sign out user and clear session
     const signOut = async () => {
         await supabase.auth.signOut();
+        window.location.href = "/";
     };
-
+    // Return auth state and helper functions
     return {
         user,
         status,
         loading: status === "loading",
         signInWithGoogle,
         signOut,
-        firstName: user?.user_metadata?.full_name?.split(" ")[0] ?? "there",
+        firstName: profile?.full_name?.split(" ")[0] ?? "User",
         userId: user?.id,
     };
 }

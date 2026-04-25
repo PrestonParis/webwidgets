@@ -1,4 +1,3 @@
--- supabase/migrations/add_dashboard_layouts.sql
 create table if not exists dashboard_layouts (
     id          uuid primary key default gen_random_uuid(),
     user_id     uuid not null references auth.users(id) on delete cascade,

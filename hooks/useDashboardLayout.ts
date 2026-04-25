@@ -1,10 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { supabase } from "@/app/lib/supabase";
 import { WidgetConfig } from "@/types/dashboard";
 import { Tracker } from "@/types/recovery";
 
-const STORAGE_KEY = "dashboard_layout";
 const DEBOUNCE_MS = 1200;
+
+function hydrateTrackers(layout: WidgetConfig[], trackers: Tracker[]): WidgetConfig[] {
+    return layout.map((w) => {
+        if (w.type !== "recovery") return w;
+        
+        // Extract tracker ID from the widget ID (format: "widget-recovery-{trackerId}")
+        const trackerId = w.id.replace("widget-recovery-", "");
+        const fresh = trackers.find((t) => t.id === trackerId);
+        
+        if (fresh) {
+            return { 
+                ...w, 
+                props: { ...w.props, tracker: fresh } 
+            };
+        }
+        
+        // If tracker no longer exists, mark as recovery-empty or filter out
+        return { 
+            ...w, 
+            type: "recovery-empty", 
+            props: {} 
+        };
+    });
+}
 
 function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
     const base: WidgetConfig[] = [
@@ -12,6 +35,19 @@ function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
         { id: "widget-email",     type: "email",     visible: true, columnSpan: 1, containerId: "main", order: 1 },
         { id: "widget-converter", type: "converter", visible: true, columnSpan: 1, containerId: "main", order: 2 },
     ];
+
+    if (trackers.length === 0) {
+        base.push({ 
+            id: "widget-recovery-none", 
+            type: "recovery-empty", 
+            visible: true, 
+            columnSpan: 1, 
+            containerId: "main", 
+            order: 3 
+        });
+        return base;
+    }
+
     const recoveryWidgets: WidgetConfig[] = trackers.map((t, i) => ({
         id: `widget-recovery-${t.id}`,
         type: "recovery",
@@ -19,106 +55,140 @@ function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
         columnSpan: 1,
         containerId: "main",
         order: base.length + i,
-        props: { tracker: t },
+        props: { tracker: t }, // Store the full tracker object in props
     }));
+
     return [...base, ...recoveryWidgets];
 }
 
-export function useDashboardLayout(trackers: Tracker[]) {
+export function useDashboardLayout(trackers: Tracker[] | null) {
+    const safeTrackers = useMemo(() => trackers ?? [], [trackers]);
     const [userId, setUserId] = useState<string | undefined>();
     const [layout, setLayout] = useState<WidgetConfig[]>([]);
     const [ready, setReady] = useState(false);
     const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+    const hasLoadedInitial = useRef(false);
 
     useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-        setUserId(data.session?.user.id);
+        supabase.auth.getSession().then(({ data }) => {
+            setUserId(data.session?.user.id);
         });
     }, []);
 
-    // Load layout on userId or trackers change (trackers needed to build default layout if no saved one)
     useEffect(() => {
-        if (!userId || trackers === undefined) return;
+        // Don't proceed until we have userId and trackers is not null
+        if (!userId || trackers === null || hasLoadedInitial.current) return;
 
         async function load() {
-        // 1. Load cached layout immediately for snappy UI while we fetch remote
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
             try {
-            setLayout(JSON.parse(cached));
-            setReady(true);
-            } catch {}
+                const storageKey = `dashboard_layout_${userId}`;
+                let finalLayout: WidgetConfig[];
+
+                // Try to load from localStorage first
+                const cached = localStorage.getItem(storageKey);
+                let savedLayout: WidgetConfig[] | null = null;
+                
+                if (cached) {
+                    try {
+                        savedLayout = JSON.parse(cached);
+                    } catch (e) {
+                        console.error("Cache parse error", e);
+                    }
+                }
+
+                // Try to load from Supabase
+                const { data } = await supabase
+                    .from("dashboard_layouts")
+                    .select("layout")
+                    .eq("user_id", userId)
+                    .maybeSingle();
+
+                const remoteLayout = data?.layout as WidgetConfig[] | null;
+                
+                // Use remote if available, otherwise cached, otherwise defaults
+                const layoutSource = remoteLayout || savedLayout;
+                
+                if (layoutSource) {
+                    // Hydrate the saved layout with fresh tracker data
+                    const hydrated = hydrateTrackers(layoutSource, safeTrackers);
+                    
+                    // Remove recovery-empty if we have trackers
+                    if (safeTrackers.length > 0) {
+                        finalLayout = hydrated.filter(w => w.type !== "recovery-empty");
+                    } else {
+                        finalLayout = hydrated;
+                    }
+                    
+                    // Add any missing trackers that aren't in the layout
+                    const existingTrackerIds = new Set(
+                        finalLayout
+                            .filter(w => w.type === "recovery")
+                            .map(w => w.id.replace("widget-recovery-", ""))
+                    );
+                    
+                    const missingTrackers = safeTrackers.filter(
+                        t => !existingTrackerIds.has(t.id)
+                    );
+                    
+                    if (missingTrackers.length > 0) {
+                        const newWidgets = missingTrackers.map((t, i) => ({
+                            id: `widget-recovery-${t.id}`,
+                            type: "recovery" as const,
+                            visible: true,
+                            columnSpan: 1,
+                            containerId: "main" as const,
+                            order: finalLayout.length + i,
+                            props: { tracker: t },
+                        }));
+                        finalLayout = [...finalLayout, ...newWidgets];
+                    }
+                } else {
+                    // No saved layout, build from defaults
+                    finalLayout = buildDefaultLayout(safeTrackers);
+                }
+
+                setLayout(finalLayout);
+                localStorage.setItem(storageKey, JSON.stringify(finalLayout));
+                hasLoadedInitial.current = true;
+            } catch (err) {
+                console.error("Critical layout load error:", err);
+                // Fallback to default layout
+                const defaults = buildDefaultLayout(safeTrackers);
+                setLayout(defaults);
+            } finally {
+                setReady(true);
+            }
         }
 
-    // 2. Fetch remote and reconcile (adds any new trackers not in saved layout)
-    const { data } = await supabase
-        .from("dashboard_layouts")
-        .select("layout")
-        .eq("user_id", userId)
-        .maybeSingle();
+        load();
+    }, [userId, trackers, safeTrackers]);
 
-    if (data?.layout) {
-    const remote: WidgetConfig[] = data.layout;
-    // Merge remote with defaults to ensure any new trackers are included, but keep remote visibility/order
-    const remoteIds = new Set(remote.map((w) => w.id));
-    const defaults = buildDefaultLayout(trackers);
-    const merged = [
-        ...remote,
-        ...defaults.filter((w) => !remoteIds.has(w.id)),
-    ];
-    setLayout(merged);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    } else if (!cached) {
-        // No remote, no cache — use defaults
-        const defaults = buildDefaultLayout(trackers);
-        setLayout(defaults);
-    }
-    setReady(true);
-    }
+    const persistLayout = useCallback((next: WidgetConfig[]) => {
+        if (!userId) return;
+        const storageKey = `dashboard_layout_${userId}`;
+        localStorage.setItem(storageKey, JSON.stringify(next));
 
-    load();
-    }, [userId, trackers]);
-
-    const persistLayout = useCallback(
-        (next: WidgetConfig[]) => {
-        // Always update localStorage immediately for snappy reloads, but debounce the Supabase write
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-
-        // Debounce the Supabase write
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
         debounceTimer.current = setTimeout(async () => {
-            if (!userId) return;
-            const { error } = await supabase.from("dashboard_layouts").upsert(
+            await supabase.from("dashboard_layouts").upsert(
                 { user_id: userId, layout: next, updated_at: new Date().toISOString() },
                 { onConflict: "user_id" }
             );
-            if (error) console.error("Error persisting layout:", error);
         }, DEBOUNCE_MS);
-        },
-        [userId]
-    );
+    }, [userId]);
 
-    const updateLayout = useCallback(
-        (next: WidgetConfig[]) => {
-            setLayout(next);
-            persistLayout(next);
-        },
-        [persistLayout]
-    );
+    const updateLayout = useCallback((next: WidgetConfig[]) => {
+        setLayout(next);
+        persistLayout(next);
+    }, [persistLayout]);
 
-    const toggleVisibility = useCallback(
-        (id: string) => {
+    const toggleVisibility = useCallback((id: string) => {
         setLayout((prev) => {
-            const next = prev.map((w) =>
-            w.id === id ? { ...w, visible: !w.visible } : w
-            );
+            const next = prev.map((w) => w.id === id ? { ...w, visible: !w.visible } : w);
             persistLayout(next);
             return next;
         });
-        },
-        [persistLayout]
-    );
+    }, [persistLayout]);
 
     return { layout, updateLayout, toggleVisibility, ready };
 }
