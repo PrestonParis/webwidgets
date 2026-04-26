@@ -36,6 +36,11 @@ function StudyTrainer({
     const handleDrop = useCallback(
         ({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
             if (done) return false;
+
+            // 1. Guard against null values
+            if (!sourceSquare || !targetSquare) return false;
+
+            // 2. TypeScript now knows these are strings
             const correct = isCorrectMove(
                 moves,
                 index,
