@@ -5,7 +5,7 @@ import { useTrackers } from '@/hooks/Recovery/useTrackers';
 import { useRecoveryActions } from '@/hooks/Recovery/useRecoveryActions';
 import TrackerCard from '@/components/Recovery/TrackerCard';
 import AddTrackerDrawer from '@/components/Recovery/AddTrackerDrawer';
-import LoadingState from '@/components/Recovery/LoadingState';
+import LoadingState from '@/components/Global/LoadingState';
 import EmptyState from '@/components/Recovery/EmptyState';
 
 export default function RecoveryPage() {
