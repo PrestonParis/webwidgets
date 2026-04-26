@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
 import {
     LayoutDashboard,
     Settings,
     ChevronDown,
     User,
-    LogOut
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+    LogOut,
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
     const { signOut, firstName } = useAuth();
@@ -25,7 +25,7 @@ export default function Header() {
         try {
             await signOut();
         } catch (err) {
-            console.error("Sign out failed:", err);
+            console.error('Sign out failed:', err);
             setLoading(false);
         }
     };
@@ -37,14 +37,14 @@ export default function Header() {
                 setOpen(false);
             }
         }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () =>
+            document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     return (
         <header className="sticky top-0 z-30 w-full border-b border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
-
                 {/* Left — Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
                     <div className="w-7 h-7 rounded-lg bg-[#4f6ef7] flex items-center justify-center shadow-sm group-hover:bg-[#3a58e0] transition-colors">
@@ -63,26 +63,25 @@ export default function Header() {
                     >
                         <div className="w-5 h-5 rounded-full bg-[#4f6ef7]/10 flex items-center justify-center">
                             <span className="text-[10px] font-bold text-[#4f6ef7]">
-                                {firstName?.[0]?.toUpperCase() ?? "?"}
+                                {firstName?.[0]?.toUpperCase() ?? '?'}
                             </span>
                         </div>
                         <span className="text-xs font-medium hidden sm:block">
-                            {firstName ?? "Account"}
+                            {firstName ?? 'Account'}
                         </span>
                         <ChevronDown
                             className={`w-3 h-3 transition-transform duration-200 ${
-                                open ? "rotate-180" : ""
+                                open ? 'rotate-180' : ''
                             }`}
                         />
                     </button>
 
                     {open && (
                         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow-xl p-2 z-50">
-
                             {/* User Info */}
                             <div className="px-3 py-2 border-b border-gray-100 dark:border-zinc-800">
                                 <p className="text-xs font-semibold">
-                                    {firstName ?? "User"}
+                                    {firstName ?? 'User'}
                                 </p>
                                 <p className="text-[11px] text-gray-400">
                                     Account
@@ -121,7 +120,7 @@ export default function Header() {
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl disabled:opacity-50"
                             >
                                 <LogOut className="w-3.5 h-3.5" />
-                                {loading ? "Signing out..." : "Sign out"}
+                                {loading ? 'Signing out...' : 'Sign out'}
                             </button>
                         </div>
                     )}
@@ -129,7 +128,6 @@ export default function Header() {
             </div>
             {confirmOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    
                     {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -138,7 +136,6 @@ export default function Header() {
 
                     {/* Modal */}
                     <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 shadow-xl p-6">
-
                         <h2 className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
                             Sign out
                         </h2>
@@ -163,7 +160,7 @@ export default function Header() {
                                 disabled={loading}
                                 className="px-3 py-1.5 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
                             >
-                                {loading ? "Signing out..." : "Sign out"}
+                                {loading ? 'Signing out...' : 'Sign out'}
                             </button>
                         </div>
                     </div>

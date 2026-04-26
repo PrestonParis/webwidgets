@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/app/lib/supabase";
-import Header from "@/components/Global/Header";
-import Footer from "@/components/Global/Footer";
-import { User } from "@supabase/supabase-js";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/app/lib/supabase';
+import Header from '@/components/Global/Header';
+import Footer from '@/components/Global/Footer';
+import { User } from '@supabase/supabase-js';
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
-    const [fullName, setFullName] = useState("");
+    const [fullName, setFullName] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -25,12 +25,12 @@ export default function ProfilePage() {
             }
 
             const { data: profile } = await supabase
-                .from("profiles")
-                .select("full_name")
-                .eq("id", u.id)
+                .from('profiles')
+                .select('full_name')
+                .eq('id', u.id)
                 .single();
 
-            setFullName(profile?.full_name ?? "");
+            setFullName(profile?.full_name ?? '');
             setLoading(false);
         };
 
@@ -43,12 +43,12 @@ export default function ProfilePage() {
         setSaving(true);
 
         await supabase
-            .from("profiles")
+            .from('profiles')
             .update({
                 full_name: fullName,
                 updated_at: new Date().toISOString(),
             })
-            .eq("id", user.id);
+            .eq('id', user.id);
 
         setSaving(false);
     };
@@ -58,7 +58,9 @@ export default function ProfilePage() {
             <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950">
                 <Header />
                 <main className="flex-1 max-w-2xl mx-auto px-6 lg:px-12 py-12">
-                    <div className="text-sm text-gray-400">Loading profile...</div>
+                    <div className="text-sm text-gray-400">
+                        Loading profile...
+                    </div>
                 </main>
                 <Footer />
             </div>
@@ -70,7 +72,9 @@ export default function ProfilePage() {
             <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950">
                 <Header />
                 <main className="flex-1 max-w-2xl mx-auto px-6 lg:px-12 py-12">
-                    <div className="text-sm text-red-500">Please sign in to view your profile</div>
+                    <div className="text-sm text-red-500">
+                        Please sign in to view your profile
+                    </div>
                 </main>
                 <Footer />
             </div>
@@ -99,7 +103,9 @@ export default function ProfilePage() {
 
                     {/* Name */}
                     <div>
-                        <label className="text-xs text-gray-500">Full name</label>
+                        <label className="text-xs text-gray-500">
+                            Full name
+                        </label>
                         <input
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
@@ -113,7 +119,7 @@ export default function ProfilePage() {
                         disabled={saving}
                         className="px-4 py-2 rounded-xl bg-[#4f6ef7] text-white text-sm font-semibold hover:bg-[#3a58e0] disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Save changes"}
+                        {saving ? 'Saving...' : 'Save changes'}
                     </button>
                 </div>
             </main>

@@ -1,14 +1,13 @@
-"use client"
+'use client';
 
-import Header from "@/components/Global/Header"; 
-import JournalForm from "./JournalPage";
-
+import Header from '@/components/Global/Header';
+import JournalForm from './JournalPage';
 
 export default function Page() {
-  return (
-    <>
-      <Header />
-      <JournalForm />
-    </>
-  );
+    return (
+        <>
+            <Header />
+            <JournalForm />
+        </>
+    );
 }
