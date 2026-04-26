@@ -1,11 +1,12 @@
-import { Tracker } from "./recovery";
+import { Tracker } from './recovery';
 
-export type WidgetType = 
-    | "journal" 
-    | "email" 
-    | "recovery" 
-    | "converter" 
-    | "recovery-empty";
+export type WidgetType =
+    | 'journal'
+    | 'email'
+    | 'recovery'
+    | 'converter'
+    | 'recovery-empty'
+    | 'chess';
 
 export interface WidgetConfig {
     id: string;
@@ -18,5 +19,5 @@ export interface WidgetConfig {
         tracker?: Tracker; // recovery
         initialUnit?: string; // converter
         // recovery-empty doesn't need any props
-    }; 
-} 
+    };
+}

@@ -1,13 +1,13 @@
-"use client"
-import Header from "@/components/Global/Header";
-import Emails from "@/components/Inbox/Emails";
-import { AuthGuard } from "@/components/Inbox/AuthGuard";
+'use client';
+import Header from '@/components/Global/Header';
+import Emails from '@/components/Inbox/Emails';
+import { AuthGuard } from '@/components/Inbox/AuthGuard';
 
-export default function Page() {    
+export default function Page() {
     return (
         <AuthGuard>
-        <Header />
-        <Emails />
+            <Header />
+            <Emails />
         </AuthGuard>
     );
 }

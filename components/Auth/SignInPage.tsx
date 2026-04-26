@@ -1,148 +1,167 @@
 // This component provides a sign-in and sign-up interface using Supabase for authentication.
-import { useState } from "react";
-import { supabase } from "@/app/lib/supabase";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from 'react';
+import { supabase } from '@/app/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
+import { WebWidgetsIcon } from '../Icons/WebWidgetsIcon';
+import { GoogleIcon } from '../Icons/GoogleIcon';
 
 export default function SignInPage() {
     const { signInWithGoogle } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [mode, setMode] = useState<"signin" | "signup">("signin");
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-        if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setError("Check your email for a confirmation link.");
-        } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        // Next-auth session will pick up after Google OAuth;
-        window.location.reload();
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
+        try {
+            if (mode === 'signup') {
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+                setError('Check your email for a confirmation link.');
+            } else {
+                const { error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+                // Next-auth session will pick up after Google OAuth;
+                window.location.reload();
+            }
+        } catch (err: unknown) {
+            setError(
+                err instanceof Error ? err.message : 'Something went wrong.',
+            );
+        } finally {
+            setLoading(false);
         }
-    } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-        setLoading(false);
-    }
     };
 
     return (
-    <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center px-4 relative overflow-hidden">
-
-        {/* Background grid */}
-        <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-            backgroundImage:
-            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-        }}
-        />
-
-      {/* Radial glow */}
-        <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150px rounded-full opacity-10 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #4f6ef7 0%, transparent 70%)" }}
-        />
-
-        <div className="relative z-10 w-full max-w-sm">
-        {/* Logo / wordmark */}
-        <div className="mb-10 text-center">
-            <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-[#4f6ef7] flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="5" rx="1" fill="white" fillOpacity="0.9" />
-                <rect x="9" y="2" width="5" height="5" rx="1" fill="white" fillOpacity="0.5" />
-                <rect x="2" y="9" width="5" height="5" rx="1" fill="white" fillOpacity="0.5" />
-                <rect x="9" y="9" width="5" height="5" rx="1" fill="white" fillOpacity="0.9" />
-                </svg>
-            </div>
-            <span className="text-white font-semibold text-lg tracking-tight">Welcome to WebWidgets</span>
-            </div>
-            <p className="text-zinc-500 text-sm">Your personal dashboard. Sign in to continue.</p>
-        </div>
-
-        {/* Card */}
-        <div className="bg-[#111118] border border-white/8 rounded-2xl p-7 shadow-2xl">
-
-        {/* Google */}
-        <button
-            onClick={signInWithGoogle}
-            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-all duration-150 mb-5"
-        >
-        <svg width="18" height="18" viewBox="0 0 48 48">
-            <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 33.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.5 29.1 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z" />
-            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9l5.7-5.7C33.7 6.5 29.1 4 24 4 16.3 4 9.7 8.4 6.3 14.7z" />
-            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.4-5l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.2 0-9.7-3.3-11.3-8H6.2C9.5 35.4 16.3 44 24 44z" />
-            <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C41.1 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z" />
-        </svg>
-            Continue with Google
-        </button>
-
-          {/* Divider */}
-        <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-white/[0.07]" />
-            <span className="text-zinc-600 text-xs">or</span>
-            <div className="flex-1 h-px bg-white/[0.07]" />
-        </div>
-
-          {/* Email / Password form */}
-        <form onSubmit={handleEmailAuth} className="space-y-3">
-            <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-[#4f6ef7]/60 focus:bg-white/8 transition-all"
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-[#4f6ef7]/60 transition-all"
+        <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center px-4 relative overflow-hidden">
+            {/* Background grid */}
+            <div
+                className="absolute inset-0 opacity-[0.04]"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+                    backgroundSize: '48px 48px',
+                }}
             />
 
-            {error && (
-                <p className={`text-xs px-1 ${error.includes("Check your email") ? "text-emerald-400" : "text-red-400"}`}>
-                {error}
+            {/* Radial glow */}
+            <div
+                className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150px rounded-full opacity-10 pointer-events-none"
+                style={{
+                    background:
+                        'radial-gradient(circle, #4f6ef7 0%, transparent 70%)',
+                }}
+            />
+
+            <div className="relative z-10 w-full max-w-sm">
+                {/* Logo / wordmark */}
+                <div className="mb-10 text-center">
+                    <div className="inline-flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#4f6ef7] flex items-center justify-center">
+                            <WebWidgetsIcon />
+                        </div>
+                        <span className="text-white font-semibold text-lg tracking-tight">
+                            Welcome to WebWidgets
+                        </span>
+                    </div>
+                    <p className="text-zinc-500 text-sm">
+                        Your personal dashboard. Sign in to continue.
+                    </p>
+                </div>
+
+                {/* Card */}
+                <div className="bg-[#111118] border border-white/8 rounded-2xl p-7 shadow-2xl">
+                    {/* Google */}
+                    <button
+                        onClick={signInWithGoogle}
+                        className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-all duration-150 mb-5"
+                    >
+                        <GoogleIcon />
+                        Continue with Google
+                    </button>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="flex-1 h-px bg-white/[0.07]" />
+                        <span className="text-zinc-600 text-xs">or</span>
+                        <div className="flex-1 h-px bg-white/[0.07]" />
+                    </div>
+
+                    {/* Email / Password form */}
+                    <form onSubmit={handleEmailAuth} className="space-y-3">
+                        <input
+                            type="email"
+                            placeholder="Email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-[#4f6ef7]/60 focus:bg-white/8 transition-all"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-[#4f6ef7]/60 transition-all"
+                        />
+
+                        {error && (
+                            <p
+                                className={`text-xs px-1 ${error.includes('Check your email') ? 'text-emerald-400' : 'text-red-400'}`}
+                            >
+                                {error}
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-2.5 rounded-xl bg-[#4f6ef7] hover:bg-[#3d5ce0] text-white text-sm font-medium transition-all duration-150 disabled:opacity-50"
+                        >
+                            {loading
+                                ? '...'
+                                : mode === 'signin'
+                                  ? 'Sign in'
+                                  : 'Create account'}
+                        </button>
+                    </form>
+
+                    {/* Toggle sign in / sign up */}
+                    <p className="text-center text-xs text-zinc-600 mt-5">
+                        {mode === 'signin'
+                            ? "Don't have an account? "
+                            : 'Already have an account? '}
+                        <button
+                            onClick={() => {
+                                setMode(
+                                    mode === 'signin' ? 'signup' : 'signin',
+                                );
+                                setError(null);
+                            }}
+                            className="text-[#4f6ef7] hover:text-[#7b93f9] transition-colors"
+                        >
+                            {mode === 'signin' ? 'Sign up' : 'Sign in'}
+                        </button>
+                    </p>
+                </div>
+
+                <p className="text-center text-zinc-700 text-xs mt-6">
+                    By continuing, you agree to our Terms of Service and Privacy
+                    Policy.
                 </p>
-            )}
-
-            <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-2.5 rounded-xl bg-[#4f6ef7] hover:bg-[#3d5ce0] text-white text-sm font-medium transition-all duration-150 disabled:opacity-50"
-            >
-                {loading ? "..." : mode === "signin" ? "Sign in" : "Create account"}
-            </button>
-        </form>
-
-          {/* Toggle sign in / sign up */}
-            <p className="text-center text-xs text-zinc-600 mt-5">
-            {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
-            <button
-                onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(null); }}
-                className="text-[#4f6ef7] hover:text-[#7b93f9] transition-colors"
-            >
-                {mode === "signin" ? "Sign up" : "Sign in"}
-            </button>
-            </p>
+            </div>
         </div>
-
-        <p className="text-center text-zinc-700 text-xs mt-6">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
-        </p>
-        </div>
-    </div>
     );
 }
