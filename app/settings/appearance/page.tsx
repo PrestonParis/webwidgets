@@ -1,31 +1,34 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Header from "@/components/Global/Header";
-import Footer from "@/components/Global/Footer";
+import { useEffect, useState } from 'react';
+import Header from '@/components/Global/Header';
+import Footer from '@/components/Global/Footer';
 
 export default function AppearancePage() {
-    const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
         // Check localStorage during initial render
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem("theme") as "light" | "dark" | null;
+            const saved = localStorage.getItem('theme') as
+                | 'light'
+                | 'dark'
+                | null;
             if (saved) return saved;
         }
-        return "light";
+        return 'light';
     });
 
     useEffect(() => {
         // Apply theme to document when it changes
-        if (theme === "dark") {
-            document.documentElement.classList.add("dark");
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
         } else {
-            document.documentElement.classList.remove("dark");
+            document.documentElement.classList.remove('dark');
         }
     }, [theme]);
 
-    const toggleTheme = (value: "light" | "dark") => {
+    const toggleTheme = (value: 'light' | 'dark') => {
         setTheme(value);
-        localStorage.setItem("theme", value);
+        localStorage.setItem('theme', value);
     };
 
     return (
@@ -43,22 +46,22 @@ export default function AppearancePage() {
                     <p className="text-sm font-semibold">Theme</p>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => toggleTheme("light")}
+                            onClick={() => toggleTheme('light')}
                             className={`px-4 py-2 rounded-xl text-sm border transition ${
-                                theme === "light"
-                                    ? "bg-gray-100 border-gray-300"
-                                    : "border-gray-200 dark:border-zinc-700"
+                                theme === 'light'
+                                    ? 'bg-gray-100 border-gray-300'
+                                    : 'border-gray-200 dark:border-zinc-700'
                             }`}
                         >
                             Light
                         </button>
 
                         <button
-                            onClick={() => toggleTheme("dark")}
+                            onClick={() => toggleTheme('dark')}
                             className={`px-4 py-2 rounded-xl text-sm border transition ${
-                                theme === "dark"
-                                    ? "bg-zinc-800 text-white border-zinc-700"
-                                    : "border-gray-200 dark:border-zinc-700"
+                                theme === 'dark'
+                                    ? 'bg-zinc-800 text-white border-zinc-700'
+                                    : 'border-gray-200 dark:border-zinc-700'
                             }`}
                         >
                             Dark

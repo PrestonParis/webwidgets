@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { LayoutDashboard, X, Mail, GitBranch } from "lucide-react";
+import Link from 'next/link';
+import { LayoutDashboard, X, Mail, GitBranch } from 'lucide-react';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -9,13 +9,14 @@ export default function Footer() {
     return (
         <footer className="w-full border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
             <div className="max-w-7xl mx-auto px-6 lg:px-12 py-14">
-
                 {/* Main grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-
                     {/* Brand */}
                     <div>
-                        <Link href="/" className="flex items-center gap-2 group mb-4">
+                        <Link
+                            href="/"
+                            className="flex items-center gap-2 group mb-4"
+                        >
                             <div className="w-8 h-8 rounded-xl bg-[#4f6ef7] flex items-center justify-center shadow-sm group-hover:bg-[#3a58e0] transition-colors">
                                 <LayoutDashboard className="w-4 h-4 text-white" />
                             </div>
@@ -25,7 +26,8 @@ export default function Footer() {
                         </Link>
 
                         <p className="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed max-w-xs">
-                            A modular dashboard for managing your tools, trackers, and workflows in one place.
+                            A modular dashboard for managing your tools,
+                            trackers, and workflows in one place.
                         </p>
                     </div>
 
@@ -92,15 +94,14 @@ export default function Footer() {
 
                 {/* Bottom bar */}
                 <div className="mt-14 pt-6 border-t border-gray-100 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-3">
-
                     <p className="text-xs text-gray-400 dark:text-zinc-500">
-                        © {currentYear} webwidgets. Built for modular productivity.
+                        © {currentYear} webwidgets. Built for modular
+                        productivity.
                     </p>
 
                     <p className="text-xs text-gray-400 dark:text-zinc-500">
                         Version 1.0
                     </p>
-
                 </div>
             </div>
         </footer>
