@@ -1,5 +1,3 @@
-// types/chess.ts
-
 export interface ChessGame {
     id: string;
     user_id: string;
@@ -61,3 +59,35 @@ export interface ParsedMove {
 
 /** Result of the move trainer for a single session */
 export type TrainerResult = 'correct' | 'incorrect' | 'hint';
+
+export type Tab = 'review' | 'trainer' | 'studies';
+
+export interface KeyboardNavProps {
+    tab: Tab;
+    movesLength: number;
+    onPrev: () => void;
+    onNext: () => void;
+    onStart: () => void;
+    onEnd: () => void;
+}
+
+export interface GameHeaderProps {
+    game: ChessGame;
+    tab: Tab;
+    onBack: () => void;
+    onTabChange: (t: Tab) => void;
+}
+export type SquareStyles = {
+    [square: string]: React.CSSProperties;
+};
+export interface BoardViewProps {
+    white: string;
+    black: string;
+    boardFen: string;
+    squareStyles: SquareStyles;
+    moveIndex: number;
+    movesLength: number;
+    showControls: boolean;
+    activeVariation: ChessVariation | null;
+    onMoveSelect: (i: number) => void;
+}
