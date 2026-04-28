@@ -102,13 +102,13 @@ export default function UnitConverterWidget() {
                         onClick={handleSwap}
                         className="w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 shadow-sm hover:shadow-md flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                     >
-                        <ArrowDownUp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                        <ArrowDownUp className="w-3.5 h-3.5" />
                     </button>
                 </div>
 
                 <div className="flex gap-2">
                     <div className="flex-1 min-w-0 h-11 px-4 flex items-center rounded-2xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100/50 dark:border-amber-900/20">
-                        <span className="text-sm font-bold text-amber-700 dark:text-amber-400 truncate">
+                        <span className="text-sm font-bold truncate">
                             {convertedResult || '0'}
                         </span>
                     </div>

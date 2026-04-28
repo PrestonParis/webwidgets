@@ -1,164 +1,149 @@
-import { useState, useMemo, useCallback } from 'react';
-import type { ChessVariation, TrainerResult } from '@/types/chess';
-import { Chessboard, PieceDropHandlerArgs } from 'react-chessboard';
-import {
-    parsePgnFromFen,
-    fenAtIndexFromFen,
-    buildLastMoveStyles,
-    isCorrectMove,
-} from '@/app/lib/utils/chess';
+'use client';
 
-// ─── Move Trainer ─────────────────────────────────────────────────────────────
-export function MoveTrainer({ variation }: { variation: ChessVariation }) {
-    const moves = useMemo(
-        () => parsePgnFromFen(variation.pgn, variation.start_fen),
-        [variation],
-    );
-    const [index, setIndex] = useState(0);
-    const [result, setResult] = useState<TrainerResult | null>(null);
-    const [done, setDone] = useState(false);
+import { useMemo } from 'react';
+import { Chessboard } from 'react-chessboard';
+import { useMoveTrainer } from '@/hooks/chess/useMoveTrainer';
+import { MoveTrainerProps } from '@/types/chess';
 
-    const fen = fenAtIndexFromFen(moves, index, variation.start_fen);
-    const squareStyles = buildLastMoveStyles(moves, index);
+export default function MoveTrainer({
+    variation,
+    layout = 'compact',
+    onBack,
+}: MoveTrainerProps) {
+    const {
+        moves,
+        index,
+        result,
+        done,
+        fen,
+        squareStyles,
+        handleMove,
+        reset,
+        showHint,
+    } = useMoveTrainer(variation);
 
-    const handleDrop = useCallback(
-        ({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
-            if (done) return false;
-
-            // 1. Guard against null values
-            if (!sourceSquare || !targetSquare) return false;
-
-            // 2. TypeScript now knows these are strings
-            const correct = isCorrectMove(
-                moves,
-                index,
-                sourceSquare,
-                targetSquare,
-            );
-            if (correct) {
-                setResult('correct');
-                setTimeout(() => {
-                    setResult(null);
-                    if (index + 1 >= moves.length) {
-                        setDone(true);
-                    } else {
-                        setIndex((i) => i + 1);
-                    }
-                }, 700);
-            } else {
-                setResult('incorrect');
-                setTimeout(() => setResult(null), 900);
-            }
-            return correct;
-        },
-        [done, index, moves],
-    );
-
-    const handleHint = () => {
-        setResult('hint');
-        setTimeout(() => setResult(null), 1800);
-    };
-
-    const handleReset = () => {
-        setIndex(0);
-        setResult(null);
-        setDone(false);
-    };
-
-    const hintSquares: Record<string, React.CSSProperties> = useMemo(() => {
+    const hintStyles = useMemo(() => {
         if (result !== 'hint' || !moves[index]) return {};
         return {
-            [moves[index].from]: { backgroundColor: 'rgba(99,179,237,0.55)' },
+            [moves[index].from]: { backgroundColor: 'rgba(59, 130, 246, 0.5)' },
         };
     }, [result, index, moves]);
 
+    const isExpanded = layout === 'expanded';
+
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h3 className="font-semibold text-zinc-100">
-                        {variation.title}
-                    </h3>
-                    {variation.annotation && (
-                        <p className="text-xs text-zinc-500 mt-0.5">
-                            {variation.annotation}
-                        </p>
-                    )}
-                </div>
-                <div className="flex gap-2">
-                    <button
-                        onClick={handleHint}
-                        disabled={done}
-                        className="text-xs px-3 py-1.5 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-40 transition-colors"
-                    >
-                        Hint
-                    </button>
-                    <button
-                        onClick={handleReset}
-                        className="text-xs px-3 py-1.5 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 transition-colors"
-                    >
-                        Reset
-                    </button>
-                </div>
-            </div>
-
-            {/* Status banner */}
-            {result && (
-                <div
-                    className={`text-center text-sm font-medium py-2 rounded-lg transition-all ${
-                        result === 'correct'
-                            ? 'bg-green-900/50 text-green-300'
-                            : result === 'incorrect'
-                              ? 'bg-red-900/50 text-red-300'
-                              : 'bg-blue-900/50 text-blue-300'
-                    }`}
-                >
-                    {result === 'correct' && '✓ Correct!'}
-                    {result === 'incorrect' && '✗ Try again'}
-                    {result === 'hint' &&
-                        `Hint: move from ${moves[index]?.from}`}
-                </div>
-            )}
-
-            {done ? (
-                <div className="text-center py-8 space-y-3">
-                    <div className="text-4xl">🎉</div>
-                    <p className="text-zinc-300 font-medium">
-                        Variation complete!
-                    </p>
-                    <button
-                        onClick={handleReset}
-                        className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
-                    >
-                        Practice Again
-                    </button>
-                </div>
-            ) : (
-                <div className="rounded-lg overflow-hidden shadow-lg">
+        <div
+            className={`flex ${isExpanded ? 'flex-col lg:flex-row gap-8' : 'flex-col gap-4'} items-start`}
+        >
+            {/* Board Section */}
+            <div className="flex-1 w-full space-y-4">
+                <div className="rounded-xl overflow-hidden shadow-2xl border border-zinc-800">
                     <Chessboard
                         options={{
                             position: fen,
-                            squareStyles: { ...squareStyles, ...hintSquares },
-                            onPieceDrop: handleDrop,
+                            onPieceDrop: handleMove,
+                            boardOrientation:
+                                variation.side_to_move === 'black'
+                                    ? 'black'
+                                    : 'white',
+                            squareStyles: { ...squareStyles, ...hintStyles },
+                            animationDurationInMs: 300,
                         }}
                     />
                 </div>
-            )}
 
-            {/* Move progress */}
-            <div className="flex gap-1">
-                {moves.map((_, i) => (
-                    <div
-                        key={i}
-                        className={`h-1 flex-1 rounded-full transition-colors ${
-                            i < index
-                                ? 'bg-blue-500'
-                                : i === index
-                                  ? 'bg-blue-400 animate-pulse'
-                                  : 'bg-zinc-700'
-                        }`}
-                    />
-                ))}
+                {/* Progress Bar */}
+                <div className="flex gap-1 h-1.5 w-full">
+                    {moves.map((_, i) => (
+                        <div
+                            key={i}
+                            className={`flex-1 rounded-full transition-all duration-500 ${
+                                i < index
+                                    ? 'bg-blue-500'
+                                    : i === index
+                                      ? 'bg-blue-400 animate-pulse'
+                                      : 'bg-zinc-800'
+                            }`}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            {/* Control Panel Section */}
+            <div
+                className={`${isExpanded ? 'lg:w-80' : 'w-full'} flex flex-col gap-4`}
+            >
+                {onBack && (
+                    <button
+                        onClick={onBack}
+                        className="text-xs text-zinc-500 hover:text-zinc-300 self-start transition-colors"
+                    >
+                        ← Back
+                    </button>
+                )}
+
+                <header>
+                    <h2 className="text-lg font-bold text-zinc-100">
+                        {variation.title}
+                    </h2>
+                    {variation.annotation && (
+                        <p className="text-sm text-zinc-400 mt-1">
+                            {variation.annotation}
+                        </p>
+                    )}
+                </header>
+
+                {/* Result Message */}
+                <div
+                    className={`h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${
+                        result === 'correct'
+                            ? 'bg-green-500/10 text-green-400'
+                            : result === 'incorrect'
+                              ? 'bg-red-500/10 text-red-400'
+                              : result === 'hint'
+                                ? 'bg-blue-500/10 text-blue-400'
+                                : 'bg-transparent'
+                    }`}
+                >
+                    {result === 'correct' && '✓ Well done!'}
+                    {result === 'incorrect' && '✗ Try a different move'}
+                    {result === 'hint' &&
+                        `Look at the ${moves[index]?.from} square`}
+                </div>
+
+                {done ? (
+                    <div className="p-6 bg-zinc-900 rounded-xl border border-zinc-800 text-center space-y-4">
+                        <span className="text-3xl">🎯</span>
+                        <p className="text-sm text-zinc-300">
+                            Variation Complete
+                        </p>
+                        <button
+                            onClick={reset}
+                            className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+                        >
+                            Train Again
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={showHint}
+                            className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm transition-colors"
+                        >
+                            Hint
+                        </button>
+                        <button
+                            onClick={reset}
+                            className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm transition-colors"
+                        >
+                            Reset
+                        </button>
+                    </div>
+                )}
+
+                <div className="text-[10px] text-zinc-600 uppercase tracking-widest pt-2 border-t border-zinc-800">
+                    Move {index + 1} of {moves.length}
+                </div>
             </div>
         </div>
     );

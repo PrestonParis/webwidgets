@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js';
-import { ParsedMove } from '@/types/chess';
+import { ChessGame, ParsedMove } from '@/types/chess';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -127,4 +127,50 @@ export function isCorrectMove(
     const expected = moves[currentIndex];
     if (!expected) return false;
     return expected.from === fromSquare && expected.to === toSquare;
+}
+
+// Add this to your existing utils file
+export function getPgnData(pgn: string) {
+    try {
+        const chess = new Chess();
+        chess.loadPgn(pgn);
+
+        return {
+            headers: chess.header(),
+            moves: chess.history({ verbose: true }),
+            error: null,
+        };
+    } catch (e) {
+        return {
+            headers: null,
+            moves: [],
+            error: (e as Error).message,
+        };
+    }
+}
+
+export function validatePgn(pgn: string): string | null {
+    try {
+        const chess = new Chess();
+        chess.loadPgn(pgn);
+        return null; // valid
+    } catch (e) {
+        return (e as Error).message;
+    }
+}
+
+export function parsePgnHeaders(pgn: string): Partial<ChessGame> {
+    const get = (tag: string) => {
+        const m = pgn.match(new RegExp(`\\[${tag}\\s+"([^"]*)"\\]`));
+        return m?.[1] ?? null;
+    };
+    return {
+        white: get('White') || 'White',
+        black: get('Black') || 'Black',
+        result: get('Result') || null,
+        event: get('Event') || null,
+        site: get('Site') || null,
+        played_at:
+            get('Date')?.replace(/\./g, '-').replace(/\?/g, '01') || null,
+    };
 }

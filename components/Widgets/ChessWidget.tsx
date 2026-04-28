@@ -1,5 +1,4 @@
 'use client';
-// components/Widgets/ChessWidget.tsx
 import { useEffect, useState, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { ChessGame } from '@/types/chess';
@@ -9,10 +8,13 @@ import {
     buildLastMoveStyles,
     parsePgn,
 } from '@/app/lib/utils/chess';
+import { PawnIcon } from '../Icons/PawnIcon';
+import { useWidgetSettings } from '@/hooks/useWidgetSettings';
 
 export default function ChessWidget() {
     const [game, setGame] = useState<ChessGame | null>(null);
     const [loading, setLoading] = useState(true);
+    const { settings, updateSettings } = useWidgetSettings('email', 'email');
 
     useEffect(() => {
         fetch('/api/chess/latest')
@@ -38,9 +40,11 @@ export default function ChessWidget() {
 
     return (
         <WidgetShell
-            icon="chess"
-            title="Recent Game"
+            icon={<PawnIcon />}
+            title="Chess"
             badge="Analysis"
+            settings={settings}
+            onSettingsChange={updateSettings}
             footerHref="/chess"
             footerLabel="View All Games →"
         >
@@ -65,7 +69,8 @@ export default function ChessWidget() {
                         />
                     </div>
                     <p className="text-[10px] text-center text-zinc-400">
-                        Move {game.current_move_index ?? 0} ·{' '}
+                        Move{' '}
+                        {Math.floor((game.current_move_index ?? 0) / 2) + 1} ·{' '}
                         {game.event || 'Casual Game'}
                     </p>
                 </div>
