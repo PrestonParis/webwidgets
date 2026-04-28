@@ -24,15 +24,15 @@ export async function GET() {
     );
 
     const {
-        data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) return NextResponse.json(null, { status: 401 });
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json(null, { status: 401 });
 
     // Most recently *viewed* game (falls back to most recently updated)
     const { data, error } = await supabase
         .from('chess_games')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .order('last_viewed_at', { ascending: false, nullsFirst: false })
         .limit(1)
         .maybeSingle();

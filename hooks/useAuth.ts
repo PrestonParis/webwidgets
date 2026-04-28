@@ -13,10 +13,10 @@ export function useAuth() {
     );
 
     useEffect(() => {
-        // Get initial session
-        supabase.auth.getSession().then(({ data }) => {
-            setUser(data.session?.user ?? null);
-            setStatus(data.session ? 'authenticated' : 'unauthenticated');
+        // Get initial user (getUser validates the token with the auth server)
+        supabase.auth.getUser().then(({ data }) => {
+            setUser(data.user ?? null);
+            setStatus(data.user ? 'authenticated' : 'unauthenticated');
         });
 
         // Listen for auth changes (sign in, sign out, token refresh)

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -8,8 +8,7 @@ import {
     WIDGET_COLOR_DEFAULTS,
     WidgetSettings,
 } from '@/types/widgets';
-
-const DEBOUNCE_MS = 800;
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function useWidgetSettings(widgetId: string, widgetType: string) {
     const { user } = useAuth();
@@ -22,7 +21,6 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
 
     const [settings, setSettings] = useState<WidgetSettings>(defaultSettings);
     const [loading, setLoading] = useState(true);
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ── Load on mount ──────────────────────────
     useEffect(() => {
@@ -54,26 +52,18 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
     }, [user?.id, widgetId]);
 
     // ── Debounced upsert ───────────────────────
-    const persist = useCallback(
-        (next: WidgetSettings) => {
-            if (!user?.id) return;
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-
-            debounceRef.current = setTimeout(async () => {
-                const { error } = await supabase.from('widget_settings').upsert(
-                    {
-                        user_id: user.id,
-                        widget_id: widgetId,
-                        settings: next,
-                    },
-                    { onConflict: 'user_id,widget_id' },
-                );
-                if (error)
-                    console.error('useWidgetSettings upsert error:', error);
-            }, DEBOUNCE_MS);
-        },
-        [user?.id, widgetId],
-    );
+    const persist = useDebounce(async (next: WidgetSettings) => {
+        if (!user?.id) return;
+        const { error } = await supabase.from('widget_settings').upsert(
+            {
+                user_id: user.id,
+                widget_id: widgetId,
+                settings: next,
+            },
+            { onConflict: 'user_id,widget_id' },
+        );
+        if (error) console.error('useWidgetSettings upsert error:', error);
+    }, 800);
 
     // ── Update helper (merges partial) ────────
     const updateSettings = useCallback(
