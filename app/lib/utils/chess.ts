@@ -60,19 +60,12 @@ export function parsePgnFromFen(pgn: string, startFen: string): ParsedMove[] {
 
 /**
  * Return the FEN at a specific move index (0 = starting position).
+ * Pass startFen to anchor at a position other than the standard starting FEN.
  */
-export function fenAtIndex(moves: ParsedMove[], index: number): string {
-    if (index === 0 || moves.length === 0) return STARTING_FEN;
-    return moves[Math.min(index, moves.length) - 1]?.fen ?? STARTING_FEN;
-}
-
-/**
- * Return the FEN at a specific move index from a given starting FEN.
- */
-export function fenAtIndexFromFen(
+export function fenAtIndex(
     moves: ParsedMove[],
     index: number,
-    startFen: string,
+    startFen = STARTING_FEN,
 ): string {
     if (index === 0 || moves.length === 0) return startFen;
     return moves[Math.min(index, moves.length) - 1]?.fen ?? startFen;
@@ -150,27 +143,20 @@ export function getPgnData(pgn: string) {
 }
 
 export function validatePgn(pgn: string): string | null {
-    try {
-        const chess = new Chess();
-        chess.loadPgn(pgn);
-        return null; // valid
-    } catch (e) {
-        return (e as Error).message;
-    }
+    return getPgnData(pgn).error;
 }
 
 export function parsePgnHeaders(pgn: string): Partial<ChessGame> {
-    const get = (tag: string) => {
-        const m = pgn.match(new RegExp(`\\[${tag}\\s+"([^"]*)"\\]`));
-        return m?.[1] ?? null;
-    };
+    const { headers } = getPgnData(pgn);
+    if (!headers) return { white: 'White', black: 'Black' };
+    const get = (key: string) => headers[key] ?? null;
     return {
         white: get('White') || 'White',
         black: get('Black') || 'Black',
-        result: get('Result') || null,
-        event: get('Event') || null,
-        site: get('Site') || null,
+        result: get('Result'),
+        event: get('Event'),
+        site: get('Site'),
         played_at:
-            get('Date')?.replace(/\./g, '-').replace(/\?/g, '01') || null,
+            get('Date')?.replace(/\./g, '-').replace(/\?/g, '01') ?? null,
     };
 }

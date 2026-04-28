@@ -3,15 +3,64 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import he from 'he';
+import Anthropic from '@anthropic-ai/sdk';
 import { cleanDate } from '@/app/lib/utils/time';
+import { EMAIL_CATEGORIES, EmailCategory } from '@/types/inbox';
+
+const anthropic = new Anthropic();
+
+// ── Claude classification ────────────────────────────────────────────────────
+
+async function classifyEmails(
+    emails: { idx: number; sender: string; subject: string }[],
+): Promise<Map<number, EmailCategory>> {
+    const list = emails
+        .map((e) => `${e.idx}. From: ${e.sender}\n   Subject: ${e.subject}`)
+        .join('\n');
+
+    const msg = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        messages: [
+            {
+                role: 'user',
+                content: `Classify each email into exactly one of: ${EMAIL_CATEGORIES.join(', ')}.
+
+Reply with ONLY a JSON array of objects like: [{"idx":0,"category":"work"},...]
+
+Emails:
+${list}`,
+            },
+        ],
+    });
+
+    const text =
+        msg.content[0].type === 'text' ? msg.content[0].text.trim() : '[]';
+
+    const out = new Map<number, EmailCategory>();
+    try {
+        const parsed: { idx: number; category: string }[] = JSON.parse(text);
+        for (const item of parsed) {
+            const cat = EMAIL_CATEGORIES.includes(
+                item.category as EmailCategory,
+            )
+                ? (item.category as EmailCategory)
+                : 'other';
+            out.set(item.idx, cat);
+        }
+    } catch {
+        // fallback: everything is 'other'
+    }
+    return out;
+}
+
+// ── Route ────────────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
     const cookieStore = await cookies();
 
-    const supabaseAdmin = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
+    const makeClient = (key: string) =>
+        createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
             cookies: {
                 getAll: () => cookieStore.getAll(),
                 setAll: (cookiesToSet) => {
@@ -20,23 +69,10 @@ export async function GET(req: Request) {
                     );
                 },
             },
-        },
-    );
+        });
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll: () => cookieStore.getAll(),
-                setAll: (cookiesToSet) => {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        cookieStore.set(name, value, options),
-                    );
-                },
-            },
-        },
-    );
+    const supabase = makeClient(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const supabaseAdmin = makeClient(process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
     const {
         data: { user },
@@ -64,7 +100,6 @@ export async function GET(req: Request) {
         process.env.GOOGLE_CLIENT_SECRET,
         process.env.GOOGLE_REDIRECT_URI,
     );
-
     oauth2Client.setCredentials({
         access_token: tokenRow.access_token,
         refresh_token: tokenRow.refresh_token,
@@ -82,26 +117,26 @@ export async function GET(req: Request) {
     }
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-
     const { searchParams } = new URL(req.url);
     const pageToken = searchParams.get('pageToken') || undefined;
 
     try {
-        // 1. ONLY fetch message IDs first
+        // 1. Fetch message IDs
         const listRes = await gmail.users.messages.list({
             userId: 'me',
             maxResults: 10,
             pageToken,
         });
 
-        const messages = listRes.data.messages || [];
-        const ids = messages.map((m) => m.id!).filter(Boolean);
+        const ids = (listRes.data.messages || [])
+            .map((m) => m.id!)
+            .filter(Boolean);
 
         if (ids.length === 0) {
             return NextResponse.json({ emails: [], nextPageToken: null });
         }
 
-        // 2. Batch fetch message details (IMPORTANT OPTIMIZATION)
+        // 2. Batch fetch metadata
         const batch = await Promise.all(
             ids.map((id) =>
                 gmail.users.messages.get({
@@ -115,103 +150,104 @@ export async function GET(req: Request) {
 
         const parsed = batch.map((email, i) => {
             const headers = email.data.payload?.headers || [];
-
-            const subject =
-                headers.find((h) => h.name === 'Subject')?.value ||
-                'No Subject';
-            const sender =
-                headers.find((h) => h.name === 'From')?.value ||
-                'Unknown Sender';
-            const date = headers.find((h) => h.name === 'Date')?.value || null;
-
             return {
                 id: ids[i],
-                subject,
-                sender,
-                date: date ? cleanDate(date) : 'No Date',
+                subject:
+                    headers.find((h) => h.name === 'Subject')?.value ||
+                    'No Subject',
+                sender:
+                    headers.find((h) => h.name === 'From')?.value ||
+                    'Unknown Sender',
+                date:
+                    cleanDate(
+                        headers.find((h) => h.name === 'Date')?.value || '',
+                    ) || 'No Date',
                 snippet: he.decode(email.data.snippet ?? ''),
             };
         });
 
-        // 3. Classification lookup
+        // 3. Load existing classifications (by email_id or sender)
         const emailIds = parsed.map((e) => e.id);
-        const senders = parsed.map((e) => e.sender);
+        const senders = [...new Set(parsed.map((e) => e.sender))];
 
         const { data: existing } = await supabase
             .from('email_classifications')
-            .select('email_id, sender, category')
-            .eq('user_email', user.email)
+            .select('email_id, sender, category, is_manual')
+            .eq('user_id', user.id)
             .or(
                 `email_id.in.(${emailIds.map((id) => `"${id}"`).join(',')}),` +
                     `sender.in.(${senders.map((s) => `"${s}"`).join(',')})`,
             );
 
-        const byId = new Map(
-            existing?.map((c) => [c.email_id, c.category]) ?? [],
-        );
-        const bySender = new Map(
-            existing?.map((c) => [c.sender, c.category]) ?? [],
-        );
+        const byId = new Map(existing?.map((c) => [c.email_id, c]) ?? []);
+        const bySender = new Map(existing?.map((c) => [c.sender, c]) ?? []);
 
-        const categoryMap = new Map<string, string>();
-        const needsML: typeof parsed = [];
+        const categoryMap = new Map<
+            string,
+            { category: string; is_manual: boolean }
+        >();
+        const needsAI: {
+            idx: number;
+            id: string;
+            sender: string;
+            subject: string;
+        }[] = [];
 
-        for (const email of parsed) {
-            const cached = byId.get(email.id) ?? bySender.get(email.sender);
-
-            if (cached) {
-                categoryMap.set(email.id, cached);
+        for (let i = 0; i < parsed.length; i++) {
+            const email = parsed[i];
+            const hit = byId.get(email.id) ?? bySender.get(email.sender);
+            if (hit) {
+                categoryMap.set(email.id, {
+                    category: hit.category,
+                    is_manual: hit.is_manual,
+                });
             } else {
-                needsML.push(email);
+                needsAI.push({ idx: i, ...email });
             }
         }
 
-        // 4. ML prediction batch
-        if (needsML.length > 0) {
-            const mlRes = await fetch(
-                `${process.env.ML_SERVICE_URL}/predict/batch`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        emails: needsML.map(({ id, sender, subject }) => ({
-                            id,
-                            sender,
-                            subject,
-                        })),
-                    }),
-                },
+        // 4. Classify uncategorized emails with Claude
+        if (needsAI.length > 0) {
+            const predictions = await classifyEmails(
+                needsAI.map(({ idx, sender, subject }) => ({
+                    idx,
+                    sender,
+                    subject,
+                })),
             );
 
-            if (mlRes.ok) {
-                const predictions: { id: string; category: string }[] =
-                    await mlRes.json();
+            const toInsert = needsAI.map(({ idx, id, sender, subject }) => ({
+                user_id: user.id,
+                email_id: id,
+                sender,
+                subject,
+                category: predictions.get(idx) ?? 'other',
+                is_manual: false,
+            }));
 
-                await supabase.from('email_classifications').insert(
-                    predictions.map(({ id, category }) => {
-                        const email = needsML.find((e) => e.id === id)!;
+            // ignoreDuplicates ensures manual classifications are never overwritten
+            await supabase.from('email_classifications').upsert(toInsert, {
+                onConflict: 'user_id,email_id',
+                ignoreDuplicates: true,
+            });
 
-                        return {
-                            email_id: id,
-                            user_email: user.email,
-                            sender: email.sender,
-                            subject: email.subject,
-                            category,
-                        };
-                    }),
-                );
-
-                for (const p of predictions) {
-                    categoryMap.set(p.id, p.category);
-                }
+            for (const row of toInsert) {
+                categoryMap.set(row.email_id, {
+                    category: row.category,
+                    is_manual: false,
+                });
             }
         }
 
-        // 5. Final response
-        const emails = parsed.map((e) => ({
-            ...e,
-            category: categoryMap.get(e.id) ?? 'Uncategorized',
-        }));
+        // 5. Build final response
+        const emails = parsed.map((e) => {
+            const hit = categoryMap.get(e.id);
+            return {
+                ...e,
+                category: hit?.category ?? 'other',
+                is_manual: hit?.is_manual ?? false,
+            };
+        });
 
         return NextResponse.json({
             emails,

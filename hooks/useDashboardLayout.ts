@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { supabase } from '@/app/lib/supabase';
 import { WidgetConfig } from '@/types/dashboard';
 import { Tracker } from '@/types/recovery';
-
-const DEBOUNCE_MS = 1200;
+import { useDebounce } from '@/hooks/useDebounce';
 
 function hydrateTrackers(
     layout: WidgetConfig[],
@@ -96,12 +95,11 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
     const [userId, setUserId] = useState<string | undefined>();
     const [layout, setLayout] = useState<WidgetConfig[]>([]);
     const [ready, setReady] = useState(false);
-    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const hasLoadedInitial = useRef(false);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data }) => {
-            setUserId(data.session?.user.id);
+        supabase.auth.getUser().then(({ data }) => {
+            setUserId(data.user?.id);
         });
     }, []);
 
@@ -209,25 +207,28 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
         load();
     }, [userId, trackers, safeTrackers]);
 
+    const persistToDb = useDebounce(
+        async (next: WidgetConfig[], uid: string) => {
+            await supabase.from('dashboard_layouts').upsert(
+                {
+                    user_id: uid,
+                    layout: next,
+                    updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'user_id' },
+            );
+        },
+        1200,
+    );
+
     const persistLayout = useCallback(
         (next: WidgetConfig[]) => {
             if (!userId) return;
             const storageKey = `dashboard_layout_${userId}`;
             localStorage.setItem(storageKey, JSON.stringify(next));
-
-            if (debounceTimer.current) clearTimeout(debounceTimer.current);
-            debounceTimer.current = setTimeout(async () => {
-                await supabase.from('dashboard_layouts').upsert(
-                    {
-                        user_id: userId,
-                        layout: next,
-                        updated_at: new Date().toISOString(),
-                    },
-                    { onConflict: 'user_id' },
-                );
-            }, DEBOUNCE_MS);
+            persistToDb(next, userId);
         },
-        [userId],
+        [userId, persistToDb],
     );
 
     const updateLayout = useCallback(
