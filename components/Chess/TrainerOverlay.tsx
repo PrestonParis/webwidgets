@@ -1,4 +1,4 @@
-import { MoveTrainer } from '@/components/Chess/MoveTrainer';
+import MoveTrainer from '@/components/Chess/MoveTrainer';
 import type { ChessVariation } from '@/types/chess';
 
 interface TrainerOverlayProps {

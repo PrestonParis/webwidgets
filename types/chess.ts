@@ -13,15 +13,12 @@ export interface ChessGame {
     created_at: string;
     updated_at: string;
 }
-
-/** A parsed move with the FEN after it was played */
 export interface ChessMove {
     san: string; // "e4", "Nf3", "O-O", etc.
     from: string; // "e2"
     to: string; // "e4"
     fenAfter: string;
 }
-
 export interface ChessStudy {
     id: string;
     user_id: string;
@@ -33,21 +30,40 @@ export interface ChessStudy {
     variation_count?: number;
 }
 
-export interface ChessVariation {
+export type SideToMove = 'white' | 'black';
+
+interface BaseVariation {
     id: string;
     user_id: string;
-    game_id: string | null;
-    study_id: string | null;
     title: string;
     start_fen: string;
-    branch_move_index: number | null;
     pgn: string;
     annotation: string | null;
     practiced_count: number;
-    last_practiced: string | null;
+    last_practiced: string | null; // ISO string from DB
     created_at: string;
     updated_at: string;
+    // Helpful derived field for UI
+    side_to_move?: SideToMove;
 }
+export interface GameVariation extends BaseVariation {
+    game_id: string;
+    study_id: null;
+    branch_move_index: number; // Required for games to know where it split
+}
+
+export interface StudyVariation extends BaseVariation {
+    game_id: null;
+    study_id: string;
+    branch_move_index: null; // Studies often start from a custom FEN, not a branch
+}
+
+export type ChessVariation = GameVariation | StudyVariation;
+
+export type NewVariation = Omit<
+    ChessVariation,
+    'id' | 'created_at' | 'updated_at' | 'practiced_count'
+>;
 
 /** Parsed move with from/to squares and resulting FEN */
 export interface ParsedMove {
@@ -59,7 +75,6 @@ export interface ParsedMove {
 
 /** Result of the move trainer for a single session */
 export type TrainerResult = 'correct' | 'incorrect' | 'hint';
-
 export type Tab = 'review' | 'trainer' | 'studies';
 
 export interface KeyboardNavProps {
@@ -90,4 +105,10 @@ export interface BoardViewProps {
     showControls: boolean;
     activeVariation: ChessVariation | null;
     onMoveSelect: (i: number) => void;
+}
+
+export interface MoveTrainerProps {
+    variation: ChessVariation;
+    layout?: 'compact' | 'expanded';
+    onBack?: () => void;
 }

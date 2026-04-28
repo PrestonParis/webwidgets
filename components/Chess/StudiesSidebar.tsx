@@ -1,20 +1,43 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
-// ─── Studies Sidebar (stub — fleshed out in StudiesPage) ──────────────────────
 export function StudiesSidebar({ gameId }: { gameId: string }) {
     const [studies, setStudies] = useState<{ id: string; title: string }[]>([]);
     const router = useRouter();
 
     useEffect(() => {
+        // 1. Use gameId to filter the initial fetch
         supabase
             .from('chess_studies')
             .select('id, title')
+            .eq('game_id', gameId) // Only fetch studies for this specific game
             .order('updated_at', { ascending: false })
             .then(({ data }) => setStudies(data ?? []));
-    }, []);
+    }, [gameId]);
 
+    const handleCreateStudy = async () => {
+        const title = prompt('Study title?');
+        if (!title) return;
+
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // 2. Include game_id in the insert payload
+        const { data } = await supabase
+            .from('chess_studies')
+            .insert({
+                user_id: user.id,
+                title,
+                game_id: gameId, // Associate the new study with the current game
+            })
+            .select()
+            .single();
+
+        if (data) setStudies((prev) => [data, ...prev]);
+    };
     return (
         <div className="p-4 space-y-4">
             <div className="flex justify-between items-center">
@@ -57,14 +80,14 @@ export function StudiesSidebar({ gameId }: { gameId: string }) {
                     if (!user) return;
                     const { data } = await supabase
                         .from('chess_studies')
-                        .insert({ user_id: user.id, title })
+                        .insert({ user_id: user.id, title, game_id: gameId })
                         .select()
                         .single();
                     if (data) setStudies((prev) => [data, ...prev]);
                 }}
                 className="w-full text-sm py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-colors"
             >
-                + New Study
+                <button onClick={handleCreateStudy}>+ New Study</button>
             </button>
         </div>
     );
