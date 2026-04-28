@@ -1,45 +1,99 @@
-#### Bugs, Missing Features
+# Dashboard
 
-- General
-  - Supabase website named during gmail login (Gemini Attempt)
-  - Widget Standardization -> Code Refactoring + Load Times Cut -> New Widgets (Chess, Nutrition Tracker, ??, ??)
-- Dashboard
-  - Gmail API fetch error easily fixed with sign out + back in (Fixed?)
-  - Widget customization settings (Gear icon - Size, color)
-  - Buggy Sign In (Something went wrong, restart) for gmail accounts
-  - Buggy Sign out for gmail accounts (Have to Refresh)
-  - User Greeting refresh needed
-  - Refresh Causes long loading, 2nd Refresh loads quicker
-- Settings
-- Inbox
-  - Widget
-    - (General Improvements: Show Classification)
-    - Refreshing on page load
-  - Page
-- Recovery
-  - Widget
-    - Clean time slightly inaccurate (month), needs to use exact date for calculations
-    - White Add Tracker
-    - White Calendar
-  - Page
-- Journal
-  - Widget
-    - Entry count includes trash
-  - Page
-    - Inconsistent Coloring compared to widget
-    - "New Entry" Section is undesirable
-    - Edit pencil and delete "x" are too small
-    - Bold, Italic, Strikethrough doesn't highlight when active
-    - Bullets in the bullet list and Numbers in numbers list not visible in dark mode
-    - Option to hide "draft saved" constantly
-    - Can't quote things on a list
-    - Trash can icon -> Full/Empty variation depending on journals in trash
-    - title that sticks after edits (on refresh pops up)
-    - Save changes if you cancel while editing
-    - Moving background
-    - Crash Testing
-- Unit Converter
-  - Widget
-    - White up down arrows in dark mode
-    - Two Way conversion isn't a thing, can only enter text in one box
-    - Plurals
+A personal dashboard built with Next.js and Supabase. Aggregates tools you use daily — email, journaling, recovery tracking, chess, and unit conversion — into a single customizable layout.
+
+## Features
+
+- **Inbox** — Gmail integration with AI-powered email categorization (Claude) and manual override
+- **Journal** — Rich-text journaling with autosave, drafts, and trash
+- **Recovery** — Sobriety/streak tracker with heatmap and urge logging
+- **Chess** — Game library, variation explorer, and move trainer synced from Lichess
+- **Unit Converter** — Common unit conversions across categories
+- **Dashboard** — Drag-and-drop widget layout persisted per user
+
+## Stack
+
+| Layer         | Technology                                           |
+| ------------- | ---------------------------------------------------- |
+| Frontend      | Next.js 16, React 19, Tailwind CSS 4                 |
+| Backend       | Next.js API Routes, Supabase (Postgres + Auth + RLS) |
+| AI            | Anthropic Claude Haiku (email classification)        |
+| Auth          | Supabase Auth + Google OAuth                         |
+| Rich text     | Tiptap                                               |
+| Chess         | chess.js, react-chessboard                           |
+| Drag and drop | dnd-kit                                              |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- Python 3.11+ (optional — legacy ML service)
+- A Supabase project
+- Google OAuth credentials
+- An Anthropic API key
+
+### Install
+
+```bash
+npm install
+```
+
+### Environment
+
+Copy `.env.local` and fill in your values:
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+
+# Anthropic (email classification)
+ANTHROPIC_API_KEY=
+
+# Lichess
+LICHESS_API_TOKEN=
+```
+
+### Database
+
+Run the SQL scripts in `scripts/sql/` against your Supabase project in the order they appear within each subfolder:
+
+```
+scripts/sql/
+  auth/
+  inbox/
+  chess/
+  journal/
+  recovery/
+  dashboard/
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+Starts the Next.js dev server on [http://localhost:3000](http://localhost:3000).
+
+## Project Structure
+
+```
+app/                  Next.js app router (pages + API routes)
+components/           UI components grouped by feature
+hooks/                Custom React hooks
+types/                Shared TypeScript types
+scripts/sql/          Supabase SQL migrations
+ml_service/           Legacy Python classifier (superseded by Claude)
+```
+
+## Known Issues
+
+See [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).

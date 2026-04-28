@@ -71,19 +71,21 @@ export function useEmails() {
         subject: string,
     ) => {
         setEmails((prev) =>
-            prev.map((m) => (m.id === email_id ? { ...m, category } : m)),
+            prev.map((m) =>
+                m.id === email_id ? { ...m, category, is_manual: true } : m,
+            ),
         );
 
         await supabase.from('email_classifications').upsert(
             {
+                user_id: user?.id,
                 email_id,
                 category,
                 sender,
                 subject,
-                user_email: user?.email,
                 is_manual: true,
             },
-            { onConflict: 'email_id' },
+            { onConflict: 'user_id,email_id' },
         );
     };
 

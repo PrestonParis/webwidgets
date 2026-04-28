@@ -5,14 +5,12 @@ node_modules/
 jspm_packages/
 
 # =========================
-# Python service (ml_service)
+# Private / local-only
 # =========================
-ml_service/venv/
-ml_service/.venv/
-ml_service/__pycache__/
-ml_service/**/*.pyc
-ml_service/**/*.pyo
-ml_service/.env
+docs/
+scripts/
+ml_service/
+Procfile
 
 # =========================
 # Logs
