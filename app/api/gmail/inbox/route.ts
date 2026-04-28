@@ -7,13 +7,17 @@ import Anthropic from '@anthropic-ai/sdk';
 import { cleanDate } from '@/app/lib/utils/time';
 import { EMAIL_CATEGORIES, EmailCategory } from '@/types/inbox';
 
-const anthropic = new Anthropic();
+const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 
-// ── Claude classification ────────────────────────────────────────────────────
+type EmailInput = { idx: number; sender: string; subject: string };
 
-async function classifyEmails(
-    emails: { idx: number; sender: string; subject: string }[],
+// ── Tier 1: Claude ───────────────────────────────────────────────────────────
+
+async function classifyWithClaude(
+    emails: EmailInput[],
 ): Promise<Map<number, EmailCategory>> {
+    if (!anthropic) throw new Error('No ANTHROPIC_API_KEY');
+
     const list = emails
         .map((e) => `${e.idx}. From: ${e.sender}\n   Subject: ${e.subject}`)
         .join('\n');
@@ -36,22 +40,113 @@ ${list}`,
 
     const text =
         msg.content[0].type === 'text' ? msg.content[0].text.trim() : '[]';
+    const parsed: { idx: number; category: string }[] = JSON.parse(text);
 
     const out = new Map<number, EmailCategory>();
-    try {
-        const parsed: { idx: number; category: string }[] = JSON.parse(text);
-        for (const item of parsed) {
-            const cat = EMAIL_CATEGORIES.includes(
-                item.category as EmailCategory,
-            )
-                ? (item.category as EmailCategory)
-                : 'other';
-            out.set(item.idx, cat);
-        }
-    } catch {
-        // fallback: everything is 'other'
+    for (const item of parsed) {
+        const cat = EMAIL_CATEGORIES.includes(item.category as EmailCategory)
+            ? (item.category as EmailCategory)
+            : 'other';
+        out.set(item.idx, cat);
     }
     return out;
+}
+
+// ── Tier 2: ML service ───────────────────────────────────────────────────────
+
+async function classifyWithMlService(
+    emails: EmailInput[],
+): Promise<Map<number, EmailCategory>> {
+    const mlUrl = process.env.ML_SERVICE_URL;
+    if (!mlUrl) throw new Error('No ML_SERVICE_URL');
+
+    const res = await fetch(`${mlUrl}/predict/batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            emails: emails.map(({ idx, sender, subject }) => ({
+                id: String(idx),
+                sender,
+                subject,
+            })),
+        }),
+        signal: AbortSignal.timeout(5000),
+    });
+
+    if (!res.ok) throw new Error(`ML service ${res.status}`);
+
+    const predictions: { id: string; category: string }[] = await res.json();
+    const out = new Map<number, EmailCategory>();
+    for (const p of predictions) {
+        const cat = EMAIL_CATEGORIES.includes(p.category as EmailCategory)
+            ? (p.category as EmailCategory)
+            : 'other';
+        out.set(Number(p.id), cat);
+    }
+    return out;
+}
+
+// ── Tier 3: Rule-based ───────────────────────────────────────────────────────
+
+const RULES: { pattern: RegExp; category: EmailCategory }[] = [
+    {
+        pattern: /github|jira|linear|gitlab|jenkins|vercel|sentry/i,
+        category: 'work',
+    },
+    {
+        pattern:
+            /invoice|receipt|payment|bank|chase|paypal|stripe|venmo|statement|tax/i,
+        category: 'finance',
+    },
+    {
+        pattern: /amazon|ebay|etsy|order|shipped|delivery|tracking|ups|fedex/i,
+        category: 'shopping',
+    },
+    {
+        pattern: /unsubscribe|newsletter|digest|weekly|daily|roundup/i,
+        category: 'promotions',
+    },
+    {
+        pattern: /linkedin|twitter|facebook|instagram|tiktok|reddit/i,
+        category: 'social',
+    },
+    {
+        pattern:
+            /alert|notification|noreply|no-reply|donotreply|verify|confirm/i,
+        category: 'notifications',
+    },
+    {
+        pattern: /offer|deal|discount|sale|% off|promo|coupon/i,
+        category: 'promotions',
+    },
+];
+
+function classifyWithRules(emails: EmailInput[]): Map<number, EmailCategory> {
+    const out = new Map<number, EmailCategory>();
+    for (const e of emails) {
+        const text = `${e.sender} ${e.subject}`;
+        const match = RULES.find((r) => r.pattern.test(text));
+        out.set(e.idx, match?.category ?? 'other');
+    }
+    return out;
+}
+
+// ── Classifier with fallback chain ───────────────────────────────────────────
+
+async function classifyEmails(
+    emails: EmailInput[],
+): Promise<Map<number, EmailCategory>> {
+    try {
+        return await classifyWithClaude(emails);
+    } catch (e) {
+        console.warn('Claude classification failed, trying ML service:', e);
+    }
+    try {
+        return await classifyWithMlService(emails);
+    } catch (e) {
+        console.warn('ML service failed, using rule-based fallback:', e);
+    }
+    return classifyWithRules(emails);
 }
 
 // ── Route ────────────────────────────────────────────────────────────────────
