@@ -1,7 +1,7 @@
 'use client';
 
-import { useDatePickerState } from './useDatePickerState';
-import { getMonthMeta } from './calendarUtils';
+import { useDatePickerState } from '@/app/lib/useDatePickerState';
+import { getMonthMeta } from '@/app/lib/calendarUtils';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { QuickActions } from './QuickActions';

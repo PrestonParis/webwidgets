@@ -1,4 +1,4 @@
-import { DAYS } from './calendarUtils';
+import { DAYS } from '../../../app/lib/calendarUtils';
 import { CalendarGridProps } from '@/types/recovery';
 
 export function CalendarGrid({
