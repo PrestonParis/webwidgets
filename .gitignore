@@ -9,8 +9,16 @@ jspm_packages/
 # =========================
 docs/
 scripts/
-ml_service/
-Procfile
+
+# =========================
+# Python service (ml_service)
+# =========================
+ml_service/venv/
+ml_service/.venv/
+ml_service/__pycache__/
+ml_service/**/*.pyc
+ml_service/**/*.pyo
+ml_service/.env
 
 # =========================
 # Logs
