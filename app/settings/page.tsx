@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '@/lib/db/supabase';
 import { User } from '@supabase/supabase-js';
-import Header from '@/components/Global/Header';
-import Footer from '@/components/Global/Footer';
-import { GoogleIcon } from '@/components/Icons/GoogleIcon';
+import Header from '@/components/global/Header';
+import Footer from '@/components/global/Footer';
+import { GoogleIcon } from '@/icons/GoogleIcon';
 
 export default function SettingsPage() {
     const [user, setUser] = useState<User | null>(null);

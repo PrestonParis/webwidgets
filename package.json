@@ -12,7 +12,12 @@
     "analyze": "tsx scripts/analyze.ts",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check": "node --max-old-space-size=4096 $(which tsx) scripts/linting/index.ts",
+    "linting:lint": "tsx scripts/linting/index.ts --lint-only",
+    "linting:ts": "tsx scripts/linting/index.ts --ts-only",
+    "linting:smells": "tsx scripts/linting/index.ts --smells-only",
+    "linting:stats": "tsx scripts/linting/index.ts --stats-only"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
@@ -40,8 +45,7 @@
     "react-chessboard": "^5.10.0",
     "react-dom": "19.2.3",
     "react-plotly.js": "^2.6.0",
-    "tailwind-merge": "^3.5.0",
-    "ts-morph": "^28.0.0"
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -50,15 +54,21 @@
     "@types/plotly.js": "^3.0.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
     "autoprefixer": "^10.4.27",
+    "babel-plugin-react-compiler": "^1.0.0",
     "concurrently": "^9.2.1",
-    "eslint": "^9",
+    "eslint": "^9.39.4",
     "eslint-config-next": "16.1.6",
+    "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.10",
     "prettier": "^3.8.3",
     "tailwindcss": "^4.2.1",
+    "ts-morph": "^28.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5"
   },

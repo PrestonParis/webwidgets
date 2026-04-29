@@ -1,10 +1,10 @@
 'use client';
 
-import EmptyInbox from '../Dashboard/EmptyInbox';
-import WidgetShell from '@/components/Widgets/WidgetShell';
-import { useWidgetSettings } from '@/hooks/useWidgetSettings';
-import { useEmails } from '@/hooks/useEmails';
-import MailIcon from '../Icons/MailIcon';
+import EmptyInbox from '../dashboard/EmptyInbox';
+import WidgetShell from '@/components/widgets/WidgetShell';
+import { useWidgetSettings } from '@/hooks/dashboard/useWidgetSettings';
+import { useEmails } from '@/features/inbox/hooks/useEmails';
+import MailIcon from '../../icons/MailIcon';
 
 export default function EmailWidget() {
     const { settings, updateSettings } = useWidgetSettings('email', 'email');
@@ -39,9 +39,16 @@ export default function EmailWidget() {
                             key={mail.id}
                             className="text-xs border-b border-gray-50 dark:border-zinc-900 pb-2 last:border-0"
                         >
-                            <p className="font-semibold truncate">
-                                {mail.subject}
-                            </p>
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <p className="font-semibold truncate flex-1">
+                                    {mail.subject}
+                                </p>
+                                {mail.category && mail.category !== 'other' && (
+                                    <span className="shrink-0 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
+                                        {mail.category}
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-gray-400 truncate">
                                 {mail.snippet}
                             </p>

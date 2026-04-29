@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Header from '@/components/Global/Header';
-import Footer from '@/components/Global/Footer';
+import Header from '@/components/global/Header';
+import Footer from '@/components/global/Footer';
 
 export default function AppearancePage() {
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '@/lib/db/supabase';
 import type { ChessStudy, ChessVariation } from '@/types/chess';
-import MoveTrainer from '@/components/Chess/MoveTrainer';
-import { AddVariationModal } from '@/components/Chess/AddVariationModal';
-import LoadingState from '@/components/Global/LoadingState';
+import MoveTrainer from '@/features/chess/components/MoveTrainer';
+import { AddVariationModal } from '@/features/chess/components/AddVariationModal';
+import LoadingState from '@/components/global/LoadingState';
 
 export default function StudyDetailPage() {
     const { studyId } = useParams<{ studyId: string }>();

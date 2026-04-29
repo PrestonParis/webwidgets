@@ -13,7 +13,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ReactNode } from 'react';
 import { WidgetConfig } from '@/types/dashboard';
 import { WidgetSize } from '@/types/widgets';
-import { cn } from '@/app/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 interface Props {
     config: WidgetConfig;

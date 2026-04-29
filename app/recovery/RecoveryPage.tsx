@@ -1,24 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useTrackers } from '@/hooks/Recovery/useTrackers';
-import { useRecoveryActions } from '@/hooks/Recovery/useRecoveryActions';
-import TrackerCard from '@/components/Recovery/TrackerCard';
-import AddTrackerDrawer from '@/components/Recovery/AddTrackerDrawer';
-import LoadingState from '@/components/Global/LoadingState';
-import EmptyState from '@/components/Recovery/EmptyState';
+import { useTrackers } from '@/features/recovery/hooks/useTrackers';
+import { useRecoveryActions } from '@/features/recovery/hooks/useRecoveryActions';
+import TrackerCard from '@/features/recovery/components/TrackerCard';
+import AddTrackerDrawer from '@/features/recovery/components/AddTrackerDrawer';
+import LoadingState from '@/components/global/LoadingState';
+import EmptyState from '@/features/recovery/components/EmptyState';
 
 export default function RecoveryPage() {
     const { trackers, setTrackers, loading, fetchTrackers } = useTrackers();
     const [showAddForm, setShowAddForm] = useState(false);
-    const { handleReset, handleDelete, handleAddTracker } =
-        useRecoveryActions(fetchTrackers);
-
-    const handleUpdateStart = (id: string, newStart: string) => {
-        setTrackers((prev) =>
-            prev.map((t) => (t.id === id ? { ...t, start_time: newStart } : t)),
-        );
-    };
+    const { handleReset, handleDelete, handleAddTracker, handleUpdateStart } =
+        useRecoveryActions(fetchTrackers, setTrackers);
 
     if (loading) return <LoadingState />;
 

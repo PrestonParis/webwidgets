@@ -1,4 +1,4 @@
-import Header from '@/components/Global/Header';
+import Header from '@/components/global/Header';
 import UnitConvertPage from './UnitConvertPage';
 
 export default function Home() {

@@ -9,7 +9,7 @@ import {
     User,
     LogOut,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function Header() {
     const { signOut, firstName } = useAuth();

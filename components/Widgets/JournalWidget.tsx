@@ -1,13 +1,13 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '@/lib/db/supabase';
 import { JournalEntry } from '@/types/journal';
-import { tiptapToPreviewText } from '@/app/lib/utils/tiptap';
+import { tiptapToPreviewText } from '@/lib/utils/tiptap';
 import { BookText } from 'lucide-react';
-import WidgetShell from '@/components/Widgets/WidgetShell';
-import { useWidgetSettings } from '@/hooks/useWidgetSettings';
+import WidgetShell from '@/components/widgets/WidgetShell';
+import { useWidgetSettings } from '@/hooks/dashboard/useWidgetSettings';
 
 export default function JournalWidget() {
     const { user } = useAuth();
@@ -30,6 +30,7 @@ export default function JournalWidget() {
                 .from('journals')
                 .select('*', { count: 'exact' })
                 .eq('user_id', user.id)
+                .is('deleted_at', null)
                 .order('created_at', { ascending: false });
             if (error) throw error;
             if (data) {

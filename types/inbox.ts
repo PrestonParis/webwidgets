@@ -33,3 +33,5 @@ export type ClassifyHandler = (
     sender: string,
     subject: string,
 ) => void | Promise<void>;
+
+export type EmailInput = { idx: number; sender: string; subject: string };
