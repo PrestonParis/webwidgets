@@ -53,3 +53,5 @@ export type CalendarGridProps = {
     sel: SelDate;
     setSel: (day: number, month: number, year: number) => void;
 };
+
+export type DayStatus = 'clean' | 'relapse' | 'future' | 'before';

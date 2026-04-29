@@ -1,8 +1,9 @@
 import { TrainerSidebar } from '@/features/chess/components/TrainerSidebar';
 import { ReviewSidebar } from '@/features/chess/components/ReviewSidebar';
 import { StudiesSidebar } from '@/features/chess/components/StudiesSidebar';
+import { TrainerSidebarProps } from '@/types/chess';
 
-export function ChessSidebar(props) {
+export function ChessSidebar(props: TrainerSidebarProps) {
     const {
         tab,
         variations,
@@ -36,7 +37,7 @@ export function ChessSidebar(props) {
         <ReviewSidebar
             variations={variations}
             moveIndex={moveIndex}
-            moves={moves} // ✅ FIX
+            moves={moves}
             onMoveSelect={onMoveSelect}
             onSelectVariation={onVariationSelect}
             onAdd={onAddVariation}

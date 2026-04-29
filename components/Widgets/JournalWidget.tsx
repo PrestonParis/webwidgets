@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { JournalEntry } from '@/types/journal';
 import { tiptapToPreviewText } from '@/lib/utils/tiptap';
@@ -19,32 +19,41 @@ export default function JournalWidget() {
         'journal',
     );
 
-    const loadJournalData = useCallback(async () => {
-        if (!user?.id) return;
-        try {
-            const {
-                data,
-                error,
-                count: totalCount,
-            } = await supabase
-                .from('journals')
-                .select('*', { count: 'exact' })
-                .eq('user_id', user.id)
-                .is('deleted_at', null)
-                .order('created_at', { ascending: false });
-            if (error) throw error;
-            if (data) {
-                setLatestEntry(data[0] || null);
-                setCount(totalCount || data.length);
-            }
-        } catch (error) {
-            console.error('Journal Widget fetch failed:', error);
-        }
-    }, [user]);
-
     useEffect(() => {
-        loadJournalData();
-    }, [loadJournalData]);
+        let isMounted = true;
+
+        const fetch = async () => {
+            if (!user?.id) return;
+
+            try {
+                const {
+                    data,
+                    error,
+                    count: totalCount,
+                } = await supabase
+                    .from('journals')
+                    .select('*', { count: 'exact' })
+                    .eq('user_id', user.id)
+                    .is('deleted_at', null)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (data && isMounted) {
+                    setLatestEntry(data[0] || null);
+                    setCount(totalCount || data.length);
+                }
+            } catch (error) {
+                console.error('Journal Widget fetch failed:', error);
+            }
+        };
+
+        fetch();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [user]);
 
     return (
         <WidgetShell

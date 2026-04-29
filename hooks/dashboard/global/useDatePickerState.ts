@@ -41,7 +41,7 @@ export function useDatePickerState(value: string) {
     };
 
     const buildDate = () => {
-        const h24 = to24Hour(hour, minute, ampm);
+        const h24 = to24Hour(hour, ampm);
         return new Date(selYear, selMonth, selDay, h24, minute);
     };
 

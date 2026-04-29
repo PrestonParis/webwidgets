@@ -40,7 +40,7 @@ export default function CountdownWidget() {
     );
     const { countdowns, loading, addCountdown, deleteCountdown } =
         useCountdowns();
-    const [now, setNow] = useState(Date.now());
+    const [now, setNow] = useState(() => Date.now());
     const [adding, setAdding] = useState(false);
     const [newName, setNewName] = useState('');
     const [newDate, setNewDate] = useState('');

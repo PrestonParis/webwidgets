@@ -25,13 +25,11 @@ export interface ChessStudy {
     title: string;
     description: string | null;
     created_at: string;
-    updated_at: string;
-    // Joined count (not in DB, computed client-side or via view)
+    updated_at: string; // Joined count (not in DB, computed client-side or via view)
     variation_count?: number;
 }
 
 export type SideToMove = 'white' | 'black';
-
 interface BaseVariation {
     id: string;
     user_id: string;
@@ -43,7 +41,6 @@ interface BaseVariation {
     last_practiced: string | null; // ISO string from DB
     created_at: string;
     updated_at: string;
-    // Helpful derived field for UI
     side_to_move?: SideToMove;
 }
 export interface GameVariation extends BaseVariation {
@@ -65,7 +62,6 @@ export type NewVariation = Omit<
     'id' | 'created_at' | 'updated_at' | 'practiced_count'
 >;
 
-/** Parsed move with from/to squares and resulting FEN */
 export interface ParsedMove {
     san: string; // e.g. "e4"
     from: string; // e.g. "e2"
@@ -112,3 +108,62 @@ export interface MoveTrainerProps {
     layout?: 'compact' | 'expanded';
     onBack?: () => void;
 }
+
+export interface TrainerSidebarProps {
+    tab: Tab;
+    moveIndex: number;
+    variations: ChessVariation[];
+    moves: ParsedMove[];
+    onMoveSelect: (i: number) => void;
+    onVariationSelect: (variation: ChessVariation) => void;
+    onAddVariation: () => void;
+    onDeleteVariation: (variationId: string) => void;
+    activeVariation: ChessVariation | null;
+    setActiveVariation: (variation: ChessVariation | null) => void;
+    gameId: string;
+}
+
+export interface StudiesSidebarProps {
+    gameId: string;
+}
+
+export interface ReviewSidebarProps {
+    variations: ChessVariation[];
+    activeVariation: ChessVariation | null;
+    onSelect: (variation: ChessVariation) => void;
+    onBack: () => void;
+}
+
+export type AddVariationModalProps =
+    | {
+          studyId: string;
+          onClose: () => void;
+          onSaved: (variation: ChessVariation) => void;
+      }
+    | {
+          gameId: string;
+          branchIndex: number;
+          startFen: string;
+          onClose: () => void;
+          onSaved: (variation: ChessVariation) => void;
+      };
+
+export type VariationInsert = {
+    user_id: string;
+    title: string;
+    pgn: string;
+    annotation: string | null;
+} & (
+    | {
+          study_id: string;
+          start_fen: string;
+          game_id?: never;
+          branch_move_index?: never;
+      }
+    | {
+          game_id: string;
+          start_fen: string;
+          branch_move_index: number;
+          study_id?: never;
+      }
+);

@@ -1,23 +1,8 @@
-// components/Chess/AddVariationModal.tsx
 import { useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { ChessVariation } from '@/types/chess';
-
-const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
-type AddVariationModalProps =
-    | {
-          studyId: string;
-          onClose: () => void;
-          onSaved: (variation: ChessVariation) => void;
-      }
-    | {
-          gameId: string;
-          branchIndex: number;
-          startFen: string;
-          onClose: () => void;
-          onSaved: (variation: ChessVariation) => void;
-      };
+import { ChessVariation, VariationInsert } from '@/types/chess';
+import { AddVariationModalProps } from '@/types/chess';
+import { STARTING_FEN } from '@/features/chess/constants';
 
 export function AddVariationModal(props: AddVariationModalProps) {
     const isStudyMode = 'studyId' in props;
@@ -40,13 +25,28 @@ export function AddVariationModal(props: AddVariationModalProps) {
             return;
         }
 
-        // Build base insert data
-        const insertData: any = {
-            user_id: user.id,
-            title: title.trim(),
-            pgn: pgn.trim(),
-            annotation: annotation.trim() || null,
-        };
+        let insertData: VariationInsert;
+
+        if (isStudyMode) {
+            insertData = {
+                user_id: user.id,
+                title: title.trim(),
+                pgn: pgn.trim(),
+                annotation: annotation.trim() || null,
+                study_id: props.studyId,
+                start_fen: editableStartFen.trim() || STARTING_FEN,
+            };
+        } else {
+            insertData = {
+                user_id: user.id,
+                title: title.trim(),
+                pgn: pgn.trim(),
+                annotation: annotation.trim() || null,
+                game_id: props.gameId,
+                start_fen: props.startFen,
+                branch_move_index: props.branchIndex,
+            };
+        }
 
         if (isStudyMode) {
             insertData.study_id = props.studyId;

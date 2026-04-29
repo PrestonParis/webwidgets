@@ -90,8 +90,8 @@ export default function RecoveryHeatmap({ trackerId, startTime }: Props) {
     };
 
     const CELL = 10;
-    const GAP = 2;
-    const stride = CELL + GAP;
+    // const GAP = 2;
+    // const stride = CELL + GAP;
 
     return (
         <div className="relative">
