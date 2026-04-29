@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import CategorySelector from '@/components/UnitConvert/CategorySelector';
-import UnitConverter from '@/components/UnitConvert/UnitConverter';
+import CategorySelector from '@/features/convert/components/CategorySelector';
+import UnitConverter from '@/features/convert/components/UnitConverter';
 import { ArrowLeftRight } from 'lucide-react';
 
 export default function UnitConvertPage() {

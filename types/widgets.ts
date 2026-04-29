@@ -38,6 +38,15 @@ export const WIDGET_COLOR_DEFAULTS: Record<string, WidgetColor> = {
     email: 'blue',
     recovery: 'purple',
     converter: 'amber',
+    pomodoro: 'red',
+    todo: 'blue',
+    weather: 'blue',
+    worldclock: 'zinc',
+    currency: 'emerald',
+    mood: 'pink',
+    habit: 'purple',
+    scratchpad: 'amber',
+    countdown: 'orange',
 };
 
 export interface WidgetShellProps {

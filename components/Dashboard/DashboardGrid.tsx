@@ -13,12 +13,21 @@ import {
 } from '@dnd-kit/sortable';
 import { WidgetConfig } from '@/types/dashboard';
 import WidgetWrapper from './WidgetWrapper';
-import JournalWidget from '@/components/Widgets/JournalWidget';
-import EmailWidget from '@/components/Widgets/EmailWidget';
-import SoberWidget from '@/components/Widgets/RecoveryWidget';
-import UnitConverterWidget from '@/components/Widgets/UnitConvertWidget';
+import JournalWidget from '@/components/widgets/JournalWidget';
+import EmailWidget from '@/components/widgets/EmailWidget';
+import SoberWidget from '@/components/widgets/RecoveryWidget';
+import UnitConverterWidget from '@/components/widgets/UnitConvertWidget';
 import EmptyRecovery from './EmptyRecovery';
-import ChessWidget from '../Widgets/ChessWidget';
+import ChessWidget from '../widgets/ChessWidget';
+import PomodoroWidget from '@/components/widgets/PomodoroWidget';
+import TodoWidget from '@/components/widgets/TodoWidget';
+import WeatherWidget from '@/components/widgets/WeatherWidget';
+import WorldClockWidget from '@/components/widgets/WorldClockWidget';
+import CurrencyWidget from '@/components/widgets/CurrencyWidget';
+import MoodWidget from '@/components/widgets/MoodWidget';
+import HabitWidget from '@/components/widgets/HabitWidget';
+import ScratchpadWidget from '@/components/widgets/ScratchpadWidget';
+import CountdownWidget from '@/components/widgets/CountdownWidget';
 
 interface Props {
     layout: WidgetConfig[];
@@ -47,6 +56,24 @@ function renderWidgetContent(
             return <UnitConverterWidget />;
         case 'chess':
             return <ChessWidget />;
+        case 'pomodoro':
+            return <PomodoroWidget />;
+        case 'todo':
+            return <TodoWidget />;
+        case 'weather':
+            return <WeatherWidget />;
+        case 'worldclock':
+            return <WorldClockWidget />;
+        case 'currency':
+            return <CurrencyWidget />;
+        case 'mood':
+            return <MoodWidget />;
+        case 'habit':
+            return <HabitWidget />;
+        case 'scratchpad':
+            return <ScratchpadWidget />;
+        case 'countdown':
+            return <CountdownWidget />;
         default:
             return null;
     }

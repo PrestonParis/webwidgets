@@ -1,4 +1,4 @@
-import { MailTrayIcon } from '../Icons/MailTrayIcon';
+import { MailTrayIcon } from '../../icons/MailTrayIcon';
 import EmptyWidget from './EmptyWidget';
 
 export default function EmptyRecovery() {

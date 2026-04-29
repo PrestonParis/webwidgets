@@ -1,6 +1,6 @@
 'use client';
 
-import Header from '@/components/Global/Header';
+import Header from '@/components/global/Header';
 import JournalForm from './JournalPage';
 
 export default function Page() {

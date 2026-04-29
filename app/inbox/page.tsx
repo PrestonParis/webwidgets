@@ -1,7 +1,7 @@
 'use client';
-import Header from '@/components/Global/Header';
-import Emails from '@/components/Inbox/Emails';
-import { AuthGuard } from '@/components/Inbox/AuthGuard';
+import Header from '@/components/global/Header';
+import Emails from '@/features/inbox/components/Emails';
+import { AuthGuard } from '@/features/inbox/components/AuthGuard';
 
 export default function Page() {
     return (

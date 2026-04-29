@@ -1,7 +1,7 @@
 'use client';
-import Dashboard from '@/components/Dashboard/DashboardView';
-import SignInPage from '@/components/Auth/SignInPage';
-import { useAuth } from '@/hooks/useAuth';
+import Dashboard from '@/components/dashboard/DashboardView';
+import SignInPage from '@/components/auth/SignInPage';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 // Main page component that conditionally renders either the dashboard or the sign-in page based on authentication status.
 export default function Page() {

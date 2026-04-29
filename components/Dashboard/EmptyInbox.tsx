@@ -1,4 +1,4 @@
-import MailIcon from '../Icons/MailIcon';
+import MailIcon from '../../icons/MailIcon';
 import EmptyWidget from './EmptyWidget';
 
 export default function EmptyInbox() {

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '@/lib/db/supabase';
 import { Tracker } from '@/types/recovery';
-import { useAuth } from '@/hooks/useAuth';
-import Header from '@/components/Global/Header';
+import { useAuth } from '@/hooks/auth/useAuth';
+import Header from '@/components/global/Header';
 import DashboardGrid from './DashboardGrid';
 import HiddenWidgetsTray from './HiddenWidgetsTray';
-import { useDashboardLayout } from '@/hooks/useDashboardLayout';
-import Footer from '../Global/Footer';
-import { useGreeting } from '@/hooks/useGreeting';
+import { useDashboardLayout } from '@/hooks/dashboard/useDashboardLayout';
+import Footer from '../global/Footer';
+import { useGreeting } from '@/hooks/dashboard/useGreeting';
 
 export default function Dashboard() {
     const { firstName } = useAuth();
