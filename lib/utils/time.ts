@@ -76,7 +76,7 @@ export function getMonthMeta(year: number, month: number) {
     return { firstDay, daysInMonth };
 }
 
-export function to24Hour(hour: number, minute: number, ampm: 'AM' | 'PM') {
+export function to24Hour(hour: number, ampm: 'AM' | 'PM') {
     return ampm === 'PM'
         ? hour === 12
             ? 12

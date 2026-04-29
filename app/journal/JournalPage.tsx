@@ -49,7 +49,7 @@ export default function JournalPage() {
                 editorUtils.editor.commands.setContent(draft.content);
             }
         }
-    }, [editorUtils.editor]);
+    }, [editorUtils.editor, restoreDraft, editorUtils]);
 
     const wordCount = editorUtils.editor?.storage.characterCount.words() ?? 0;
 
@@ -68,6 +68,7 @@ export default function JournalPage() {
 
                 <JournalForm
                     {...editorUtils}
+                    onTitleChange={editorUtils.setTitle}
                     isSaving={isSaving}
                     focusMode={focusMode}
                     onFocusToggle={() => setFocusMode((v) => !v)}
@@ -87,10 +88,10 @@ export default function JournalPage() {
                 <section className="lg:col-span-8 space-y-6">
                     {/* View & Search Controls */}
                     <div className="flex gap-4 border-b border-stone-100 dark:border-zinc-800 pb-2">
-                        {['all', 'trash'].map((v) => (
+                        {(['all', 'trash'] as const).map((v) => (
                             <button
                                 key={v}
-                                onClick={() => entryUtils.setView(v as any)}
+                                onClick={() => entryUtils.setView(v)}
                                 className={`text-sm font-medium capitalize ${entryUtils.view === v ? 'text-amber-600' : 'text-stone-400'}`}
                             >
                                 {v === 'all' ? 'Recent' : 'Trash'}

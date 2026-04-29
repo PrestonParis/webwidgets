@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/db/supabase';
-import { AuthMode } from '@/features/auth/constants';
 
 export const signUpWithEmail = async (email: string, password: string) => {
     return await supabase.auth.signUp({ email, password });

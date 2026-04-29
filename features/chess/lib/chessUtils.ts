@@ -102,10 +102,11 @@ export function buildLastMoveStyles(
 
 /**
  * Get whose turn it is at a given move index.
- */
+
 export function turnAtIndex(moves: ParsedMove[], index: number): 'w' | 'b' {
     return index % 2 === 0 ? 'w' : 'b';
 }
+ */
 
 /**
  * Check if a move (by square pair) matches the expected next move in a variation.

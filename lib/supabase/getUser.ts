@@ -1,4 +1,6 @@
-export async function getUserOrThrow(supabase) {
+import { SupabaseClient } from '@supabase/supabase-js';
+
+export async function getUserOrThrow(supabase: SupabaseClient) {
     const {
         data: { user },
     } = await supabase.auth.getUser();

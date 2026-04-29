@@ -6,7 +6,7 @@ import type { ChessGame, ChessVariation } from '@/types/chess';
 // To be combined with useChessGames in future
 export function useChessGame(id: string) {
     const [game, setGame] = useState<ChessGame | null>(null);
-    const [moveIndex, setMoveIndex] = useState(0);
+    const [_, setMoveIndex] = useState(0);
     const [variations, setVariations] = useState<ChessVariation[]>([]);
     const [loading, setLoading] = useState(true);
 

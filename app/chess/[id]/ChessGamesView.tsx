@@ -11,6 +11,7 @@ import LoadingState from '@/components/global/LoadingState';
 import { NoGame } from '@/features/chess/components/NoGame';
 import { useChessGameController } from '@/features/chess/hooks/useChessGameController';
 import { ChessSidebar } from '@/features/chess/components/ChessSidebar';
+import { ChessVariation } from '@/types/chess';
 
 export default function ChessGamePage() {
     const { id } = useParams<{ id: string }>();
@@ -70,10 +71,11 @@ export default function ChessGamePage() {
 
                 <ChessSidebar
                     tab={controller.tab}
+                    moves={controller.moves}
                     variations={variations}
                     moveIndex={controller.moveIndex}
                     onMoveSelect={controller.handleMoveSelect}
-                    onVariationSelect={(v) => {
+                    onVariationSelect={(v: ChessVariation) => {
                         controller.setActiveVariation(v);
                         controller.setTab('trainer');
                     }}
@@ -89,7 +91,7 @@ export default function ChessGamePage() {
                 <TrainerOverlay
                     activeVariation={controller.activeVariation}
                     otherVariations={variations.filter(
-                        (v) => v.id !== controller.activeVariation.id,
+                        (v) => v.id !== controller.activeVariation?.id,
                     )}
                     onBack={() => controller.setActiveVariation(null)}
                     onSelect={(v) => controller.setActiveVariation(v)}
