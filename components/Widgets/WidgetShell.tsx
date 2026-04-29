@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Settings, X } from 'lucide-react';
-import { cn } from '@/app/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import {
     WidgetSize,
     WidgetBackground,
@@ -17,10 +17,9 @@ import {
     COLORS,
     SIZE_LABELS,
     BG_LABELS,
-} from '@/app/lib/constants/widget-styles';
+} from '@/lib/constants/widget-styles';
 import { WidgetShellProps } from '@/types/widgets';
 
-// The WidgetShell component provides a consistent layout and styling for all widgets, including header, settings panel, content area, and optional footer. It accepts props for customization and handles the display of the settings panel.
 export default function WidgetShell({
     icon,
     title,
@@ -32,13 +31,20 @@ export default function WidgetShell({
     settingsSlot,
     settings: settingsProp,
     onSettingsChange,
-}: WidgetShellProps) {
+    showSettings = true,
+}: WidgetShellProps & { showSettings?: boolean }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
-    // Merge with defaults so colorMap lookup is always safe, even before Supabase loads
+
     const settings: WidgetSettings = {
         ...DEFAULT_WIDGET_SETTINGS,
         ...settingsProp,
     };
+
+    const update = (partial: Partial<WidgetSettings>) => {
+        if (!onSettingsChange) return;
+        onSettingsChange({ ...settings, ...partial });
+    };
+
     const c =
         colorMap[settings.color] ?? colorMap[DEFAULT_WIDGET_SETTINGS.color];
 
@@ -75,6 +81,7 @@ export default function WidgetShell({
                             {icon}
                         </span>
                     </div>
+
                     <h3
                         className={cn(
                             'font-bold text-gray-800 dark:text-zinc-100',
@@ -94,148 +101,138 @@ export default function WidgetShell({
                         </div>
                     )}
 
-                    {/* Gear icon — visible on hover or when open */}
-                    <button
-                        onClick={() => setSettingsOpen((v) => !v)}
-                        className={cn(
-                            'transition-opacity w-7 h-7 rounded-xl flex items-center justify-center',
-                            'text-gray-400 dark:text-zinc-500',
-                            'hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300',
-                            settingsOpen
-                                ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
-                                : 'opacity-0 group-hover:opacity-100',
-                        )}
-                        aria-label="Widget settings"
-                    >
-                        {settingsOpen ? (
-                            <X className="w-3.5 h-3.5" />
-                        ) : (
-                            <Settings className="w-3.5 h-3.5" />
-                        )}
-                    </button>
-                </div>
-            </div>
-
-            {/* ── Settings panel (slide down) ── */}
-            <div
-                className={cn(
-                    'overflow-hidden transition-all duration-200 ease-in-out',
-                    settingsOpen
-                        ? 'max-h-112 mb-4 opacity-100'
-                        : 'max-h-0 opacity-0',
-                )}
-            >
-                <div className="rounded-2xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-4 space-y-4">
-                    {/* Color swatches */}
-                    <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-2">
-                            Color
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                            {COLORS.map((col) => (
-                                <button
-                                    key={col}
-                                    onClick={() =>
-                                        onSettingsChange?.({ color: col })
-                                    }
-                                    title={col}
-                                    className={cn(
-                                        'w-6 h-6 rounded-full transition-all',
-                                        colorMap[col].swatch,
-                                        settings.color === col
-                                            ? 'ring-2 ring-offset-2 ring-offset-gray-50 dark:ring-offset-zinc-900 ring-gray-500 dark:ring-zinc-400 scale-110'
-                                            : 'opacity-50 hover:opacity-100 hover:scale-105',
-                                    )}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Size */}
-                    <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-2">
-                            Size
-                        </p>
-                        <div className="flex gap-2">
-                            {(
-                                ['compact', 'default', 'large'] as WidgetSize[]
-                            ).map((s) => (
-                                <button
-                                    key={s}
-                                    onClick={() =>
-                                        onSettingsChange?.({ size: s })
-                                    }
-                                    className={cn(
-                                        'flex-1 py-1.5 rounded-xl text-xs font-bold transition-all',
-                                        settings.size === s
-                                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
-                                            : 'bg-white dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600',
-                                    )}
-                                >
-                                    {SIZE_LABELS[s]}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Background */}
-                    <div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-2">
-                            Background
-                        </p>
-                        <div className="flex gap-2">
-                            {(
-                                [
-                                    'default',
-                                    'glass',
-                                    'solid',
-                                ] as WidgetBackground[]
-                            ).map((bg) => (
-                                <button
-                                    key={bg}
-                                    onClick={() =>
-                                        onSettingsChange?.({ background: bg })
-                                    }
-                                    className={cn(
-                                        'flex-1 py-1.5 rounded-xl text-xs font-bold transition-all',
-                                        settings.background === bg
-                                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
-                                            : 'bg-white dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600',
-                                    )}
-                                >
-                                    {BG_LABELS[bg]}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Widget-specific extras */}
-                    {settingsSlot && (
-                        <div className="border-t border-gray-100 dark:border-zinc-800 pt-4">
-                            {settingsSlot}
-                        </div>
+                    {showSettings && onSettingsChange && (
+                        <button
+                            onClick={() => setSettingsOpen((v) => !v)}
+                            className={cn(
+                                'transition-opacity w-7 h-7 rounded-xl flex items-center justify-center',
+                                'text-gray-400 dark:text-zinc-500',
+                                'hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300',
+                                settingsOpen
+                                    ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
+                                    : 'opacity-0 group-hover:opacity-100',
+                            )}
+                        >
+                            {settingsOpen ? (
+                                <X className="w-3.5 h-3.5" />
+                            ) : (
+                                <Settings className="w-3.5 h-3.5" />
+                            )}
+                        </button>
                     )}
                 </div>
             </div>
 
-            {/* ── Content ── */}
-            <div className="grow">{children}</div>
-
-            {/* ── Footer ── */}
-            {footerSlot ? (
-                <div className="mt-6">{footerSlot}</div>
-            ) : footerHref && footerLabel ? (
-                <Link
-                    href={footerHref}
+            {/* ── Settings ── */}
+            {showSettings && (
+                <div
                     className={cn(
-                        'mt-6 block text-center py-2.5 rounded-xl text-sm font-semibold transition-colors',
-                        'bg-gray-50 dark:bg-zinc-900/50 text-gray-600 dark:text-zinc-400',
-                        c.footerHover,
+                        'overflow-hidden transition-all duration-200',
+                        settingsOpen
+                            ? 'max-h-125 mb-4 opacity-100'
+                            : 'max-h-0 opacity-0',
                     )}
                 >
-                    {footerLabel}
-                </Link>
-            ) : null}
+                    <div className="rounded-2xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-4 space-y-4">
+                        {/* Color */}
+                        <div>
+                            <p className="text-xs font-bold mb-2">Color</p>
+                            <div className="flex gap-2">
+                                {COLORS.map((col) => (
+                                    <button
+                                        key={col}
+                                        onClick={() => update({ color: col })}
+                                        className={cn(
+                                            'w-6 h-6 rounded-full',
+                                            colorMap[col].swatch,
+                                            settings.color === col &&
+                                                'ring-2 scale-110',
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Size */}
+                        <div>
+                            <p className="text-xs font-bold mb-2">Size</p>
+                            <div className="flex gap-2">
+                                {(
+                                    [
+                                        'compact',
+                                        'default',
+                                        'large',
+                                    ] as WidgetSize[]
+                                ).map((s) => (
+                                    <button
+                                        key={s}
+                                        onClick={() => update({ size: s })}
+                                        className={cn(
+                                            'flex-1 py-1 rounded-xl text-xs font-bold',
+                                            settings.size === s
+                                                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                                                : 'bg-zinc-100 dark:bg-zinc-800',
+                                        )}
+                                    >
+                                        {SIZE_LABELS[s]}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Background */}
+                        <div>
+                            <p className="text-xs font-bold mb-2">Background</p>
+                            <div className="flex gap-2">
+                                {(
+                                    [
+                                        'default',
+                                        'glass',
+                                        'solid',
+                                    ] as WidgetBackground[]
+                                ).map((bg) => (
+                                    <button
+                                        key={bg}
+                                        onClick={() =>
+                                            update({ background: bg })
+                                        }
+                                        className={cn(
+                                            'flex-1 py-1 rounded-xl text-xs font-bold',
+                                            settings.background === bg
+                                                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                                                : 'bg-zinc-100 dark:bg-zinc-800',
+                                        )}
+                                    >
+                                        {BG_LABELS[bg]}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {settingsSlot && (
+                            <div className="pt-3 border-t">{settingsSlot}</div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Content */}
+            <div className="grow">{children}</div>
+
+            {/* Footer */}
+            {footerSlot ??
+                (footerHref && footerLabel && (
+                    <Link
+                        href={footerHref}
+                        className={cn(
+                            'mt-6 block text-center py-2.5 rounded-xl text-sm font-semibold',
+                            'bg-gray-50 dark:bg-zinc-900/50 text-gray-600 dark:text-zinc-400',
+                            c.footerHover,
+                        )}
+                    >
+                        {footerLabel}
+                    </Link>
+                ))}
         </div>
     );
 }

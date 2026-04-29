@@ -2,14 +2,14 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { ChessGame } from '@/types/chess';
-import WidgetShell from '@/components/Widgets/WidgetShell';
+import WidgetShell from '@/components/widgets/WidgetShell';
 import {
     fenAtIndex,
     buildLastMoveStyles,
     parsePgn,
-} from '@/app/lib/utils/chess';
-import { PawnIcon } from '../Icons/PawnIcon';
-import { useWidgetSettings } from '@/hooks/useWidgetSettings';
+} from '@/features/chess/lib/chessUtils';
+import { PawnIcon } from '../../icons/PawnIcon';
+import { useWidgetSettings } from '@/hooks/dashboard/useWidgetSettings';
 
 export default function ChessWidget() {
     const [game, setGame] = useState<ChessGame | null>(null);

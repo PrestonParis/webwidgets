@@ -1,7 +1,7 @@
 'use client';
 
-import Header from '@/components/Global/Header';
-import Footer from '@/components/Global/Footer';
+import Header from '@/components/global/Header';
+import Footer from '@/components/global/Footer';
 
 export default function TermsPage() {
     return (

@@ -6,7 +6,16 @@ export type WidgetType =
     | 'recovery'
     | 'converter'
     | 'recovery-empty'
-    | 'chess';
+    | 'chess'
+    | 'pomodoro'
+    | 'todo'
+    | 'weather'
+    | 'worldclock'
+    | 'currency'
+    | 'mood'
+    | 'habit'
+    | 'scratchpad'
+    | 'countdown';
 
 export interface WidgetConfig {
     id: string;

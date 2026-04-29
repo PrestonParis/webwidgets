@@ -3,10 +3,10 @@
 import { useState, useMemo } from 'react';
 import { ArrowDownUp, ArrowLeftRight } from 'lucide-react';
 import { getCategories, getUnits } from '@/types/unitconvert';
-import { convert, formatResult } from '@/app/lib/logic/convert';
-import { cn } from '@/app/lib/utils';
-import WidgetShell from '@/components/Widgets/WidgetShell';
-import { useWidgetSettings } from '@/hooks/useWidgetSettings';
+import { convert, formatResult } from '@/features/convert/hooks/useConvert';
+import { cn } from '@/lib/utils/utils';
+import WidgetShell from '@/components/widgets/WidgetShell';
+import { useWidgetSettings } from '@/hooks/dashboard/useWidgetSettings';
 
 export default function UnitConverterWidget() {
     const categoryList = getCategories();
@@ -14,6 +14,8 @@ export default function UnitConverterWidget() {
     const [fromUnit, setFromUnit] = useState(() => getUnits('Length')[0]);
     const [toUnit, setToUnit] = useState(() => getUnits('Length')[1]);
     const [fromValue, setFromValue] = useState('1');
+    const [toValue, setToValue] = useState('');
+    const [lastEdited, setLastEdited] = useState<'from' | 'to'>('from');
     const { settings, updateSettings } = useWidgetSettings(
         'converter',
         'converter',
@@ -25,14 +27,32 @@ export default function UnitConverterWidget() {
         ? toUnit
         : (units[1] ?? units[0] ?? '');
 
-    const convertedResult = useMemo(
+    const derivedTo = useMemo(
         () => formatResult(convert(category, fromValue, validFrom, validTo)),
         [category, fromValue, validFrom, validTo],
     );
+    const derivedFrom = useMemo(
+        () => formatResult(convert(category, toValue, validTo, validFrom)),
+        [category, toValue, validTo, validFrom],
+    );
+
+    const displayFrom = lastEdited === 'from' ? fromValue : derivedFrom || '';
+    const displayTo = lastEdited === 'to' ? toValue : derivedTo || '';
+
     const conversionRate = useMemo(
         () => formatResult(convert(category, '1', validFrom, validTo)),
         [category, validFrom, validTo],
     );
+
+    const handleFromChange = (v: string) => {
+        setLastEdited('from');
+        setFromValue(v);
+    };
+
+    const handleToChange = (v: string) => {
+        setLastEdited('to');
+        setToValue(v);
+    };
 
     const handleCategoryChange = (cat: string) => {
         const newUnits = getUnits(cat);
@@ -40,13 +60,21 @@ export default function UnitConverterWidget() {
         setFromUnit(newUnits[0] ?? '');
         setToUnit(newUnits[1] ?? newUnits[0] ?? '');
         setFromValue('1');
+        setToValue('');
+        setLastEdited('from');
     };
 
     const handleSwap = () => {
         setFromUnit(validTo);
         setToUnit(validFrom);
-        setFromValue(convertedResult);
+        setFromValue(displayTo);
+        setToValue('');
+        setLastEdited('from');
     };
+
+    // Shared class for number inputs — hides browser spinner arrows
+    const inputClass =
+        'flex-1 min-w-0 h-11 px-4 text-sm bg-gray-50 dark:bg-zinc-900/50 rounded-2xl border border-transparent focus:border-amber-500/50 outline-none text-gray-900 dark:text-zinc-100 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
     return (
         <WidgetShell
@@ -79,9 +107,9 @@ export default function UnitConverterWidget() {
                 <div className="flex gap-2">
                     <input
                         type="number"
-                        value={fromValue}
-                        onChange={(e) => setFromValue(e.target.value)}
-                        className="flex-1 min-w-0 h-11 px-4 text-sm bg-gray-50 dark:bg-zinc-900/50 rounded-2xl border border-transparent focus:border-amber-500/50 outline-none text-gray-900 dark:text-zinc-100 transition-all"
+                        value={displayFrom}
+                        onChange={(e) => handleFromChange(e.target.value)}
+                        className={inputClass}
                         placeholder="0"
                     />
                     <select
@@ -107,11 +135,16 @@ export default function UnitConverterWidget() {
                 </div>
 
                 <div className="flex gap-2">
-                    <div className="flex-1 min-w-0 h-11 px-4 flex items-center rounded-2xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100/50 dark:border-amber-900/20">
-                        <span className="text-sm font-bold truncate">
-                            {convertedResult || '0'}
-                        </span>
-                    </div>
+                    <input
+                        type="number"
+                        value={displayTo}
+                        onChange={(e) => handleToChange(e.target.value)}
+                        className={cn(
+                            inputClass,
+                            'bg-amber-50/50 dark:bg-amber-900/10 border-amber-100/50 dark:border-amber-900/20 focus:border-amber-500/50 font-bold',
+                        )}
+                        placeholder="0"
+                    />
                     <select
                         value={validTo}
                         onChange={(e) => setToUnit(e.target.value)}
@@ -127,7 +160,7 @@ export default function UnitConverterWidget() {
             </div>
 
             {/* Rate summary */}
-            {fromValue && convertedResult && (
+            {conversionRate && (
                 <div className="mt-4 pt-4 border-t border-gray-50 dark:border-zinc-900">
                     <p className="text-center text-[11px] text-gray-400 dark:text-zinc-500 font-medium tracking-tight">
                         1 {validFrom} = {conversionRate} {validTo}

@@ -1,23 +1,42 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import hooksPlugin from 'eslint-plugin-react-hooks';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts',
-  ]),
+
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+
   {
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      'react-hooks': hooksPlugin,
+    },
+
+    languageOptions: {
+      parser: tsParser,
+    },
+
     rules: {
-      // "max-lines": ["warn", 250],
-      // "max-lines-per-function": ["warn", 80],
-      // "complexity": ["warn", 150],
+      ...tsPlugin.configs.recommended.rules,
+      ...hooksPlugin.configs.recommended.rules,
+
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+        },
+      ],
+
+      'react-compiler/react-compiler': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'max-depth': ['warn', 4],
     },
   },
