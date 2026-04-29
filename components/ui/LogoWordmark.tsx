@@ -1,4 +1,4 @@
-import { WebWidgetsIcon } from '@/Icons/WebWidgetsIcon';
+import { WebWidgetsIcon } from '@/icons/WebWidgetsIcon';
 
 export const LogoWordmark = () => {
     return (

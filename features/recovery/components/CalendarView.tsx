@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DayStatus } from '@/types/recovery';
 
 export default function CalendarView({
     startTime,
@@ -13,8 +14,6 @@ export default function CalendarView({
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
-
-    type DayStatus = 'clean' | 'relapse' | 'future' | 'before';
 
     const getDayStatus = (day: number): DayStatus => {
         const date = new Date(year, month, day);

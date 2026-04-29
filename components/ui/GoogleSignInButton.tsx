@@ -1,4 +1,4 @@
-import { GoogleIcon } from '@/Icons/GoogleIcon';
+import { GoogleIcon } from '@/icons/GoogleIcon';
 
 interface GoogleSignInButtonProps {
     onClick: () => void;

@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
 import { journalService } from '../api/journalService';
 import { JournalEntry } from '@/types/journal';
+import { Editor } from '@tiptap/react';
 
 export function useJournalManager(
-    user: any,
-    editor: any,
+    user: { id: string } | null,
+    editor: Editor | null,
     editorUtils: any,
     entryUtils: any,
     clearDraft: () => void,

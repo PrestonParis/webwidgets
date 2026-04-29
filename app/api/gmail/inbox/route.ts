@@ -150,7 +150,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({
             emails,
-            nextPageToken: nextPageToken || null, // ✅ FIXED
+            nextPageToken: nextPageToken || null,
         });
     } catch (err) {
         console.error('Gmail Fetch Error', err);

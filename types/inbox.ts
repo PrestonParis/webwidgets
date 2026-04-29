@@ -35,3 +35,17 @@ export type ClassifyHandler = (
 ) => void | Promise<void>;
 
 export type EmailInput = { idx: number; sender: string; subject: string };
+
+export interface EmailHeader {
+    name: string;
+    value: string;
+}
+
+export interface GmailMessage {
+    data: {
+        payload?: {
+            headers?: EmailHeader[];
+        };
+        snippet?: string;
+    };
+}
