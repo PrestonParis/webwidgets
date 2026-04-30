@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { LayoutDashboard, X, Mail, GitBranch } from 'lucide-react';
+import FooterTos from './FooterTos';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -37,28 +38,7 @@ export default function Footer() {
                             Navigation
                         </p>
 
-                        <div className="flex flex-col gap-2">
-                            <Link
-                                href="/privacy"
-                                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-[#4f6ef7] transition-colors"
-                            >
-                                Privacy Policy
-                            </Link>
-
-                            <Link
-                                href="/terms"
-                                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-[#4f6ef7] transition-colors"
-                            >
-                                Terms of Service
-                            </Link>
-
-                            <Link
-                                href="/settings"
-                                className="text-sm text-gray-600 dark:text-zinc-400 hover:text-[#4f6ef7] transition-colors"
-                            >
-                                Settings
-                            </Link>
-                        </div>
+                        <FooterTos />
                     </div>
 
                     {/* Connect */}

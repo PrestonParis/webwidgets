@@ -131,7 +131,6 @@ export function useWeather() {
         }
 
         fetchWeather();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return { weather, state, retry: fetchWeather };

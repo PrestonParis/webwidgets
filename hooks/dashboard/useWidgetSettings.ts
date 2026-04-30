@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/hooks/auth/useAuth';
 import {
@@ -13,11 +13,14 @@ import { useDebounce } from '@/hooks/dashboard/global/useDebounce';
 export function useWidgetSettings(widgetId: string, widgetType: string) {
     const { user } = useAuth();
 
-    const defaultSettings: WidgetSettings = {
-        ...DEFAULT_WIDGET_SETTINGS,
-        color:
-            WIDGET_COLOR_DEFAULTS[widgetType] ?? DEFAULT_WIDGET_SETTINGS.color,
-    };
+    const defaultSettings = useMemo(() => {
+        return {
+            ...DEFAULT_WIDGET_SETTINGS,
+            color:
+                WIDGET_COLOR_DEFAULTS[widgetType] ??
+                DEFAULT_WIDGET_SETTINGS.color,
+        };
+    }, [widgetType]);
 
     const [settings, setSettings] = useState<WidgetSettings>(defaultSettings);
     const [loading, setLoading] = useState(true);
@@ -48,8 +51,7 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
         return () => {
             cancelled = true;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.id, widgetId]);
+    }, [user, widgetId, defaultSettings]);
 
     // ── Debounced upsert ───────────────────────
     const persist = useDebounce(async (next: WidgetSettings) => {

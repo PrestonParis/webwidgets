@@ -13,12 +13,6 @@ export interface ChessGame {
     created_at: string;
     updated_at: string;
 }
-export interface ChessMove {
-    san: string; // "e4", "Nf3", "O-O", etc.
-    from: string; // "e2"
-    to: string; // "e4"
-    fenAfter: string;
-}
 export interface ChessStudy {
     id: string;
     user_id: string;
@@ -49,16 +43,8 @@ export interface GameVariation extends BaseVariation {
     branch_move_index: number; // Required for games to know where it split
 }
 
-export interface StudyVariation extends BaseVariation {
-    game_id: null;
-    study_id: string;
-    branch_move_index: null; // Studies often start from a custom FEN, not a branch
-}
-
-export type ChessVariation = GameVariation | StudyVariation;
-
 export type NewVariation = Omit<
-    ChessVariation,
+    BaseVariation,
     'id' | 'created_at' | 'updated_at' | 'practiced_count'
 >;
 
@@ -99,12 +85,12 @@ export interface BoardViewProps {
     moveIndex: number;
     movesLength: number;
     showControls: boolean;
-    activeVariation: ChessVariation | null;
+    activeVariation: BaseVariation | null;
     onMoveSelect: (i: number) => void;
 }
 
 export interface MoveTrainerProps {
-    variation: ChessVariation;
+    variation: BaseVariation;
     layout?: 'compact' | 'expanded';
     onBack?: () => void;
 }
@@ -112,14 +98,14 @@ export interface MoveTrainerProps {
 export interface TrainerSidebarProps {
     tab: Tab;
     moveIndex: number;
-    variations: ChessVariation[];
+    variations: BaseVariation[];
     moves: ParsedMove[];
     onMoveSelect: (i: number) => void;
-    onVariationSelect: (variation: ChessVariation) => void;
+    onVariationSelect: (variation: BaseVariation) => void;
     onAddVariation: () => void;
     onDeleteVariation: (variationId: string) => void;
-    activeVariation: ChessVariation | null;
-    setActiveVariation: (variation: ChessVariation | null) => void;
+    activeVariation: BaseVariation | null;
+    setActiveVariation: (variation: BaseVariation | null) => void;
     gameId: string;
 }
 
@@ -128,9 +114,9 @@ export interface StudiesSidebarProps {
 }
 
 export interface ReviewSidebarProps {
-    variations: ChessVariation[];
-    activeVariation: ChessVariation | null;
-    onSelect: (variation: ChessVariation) => void;
+    variations: BaseVariation[];
+    activeVariation: BaseVariation | null;
+    onSelect: (variation: BaseVariation) => void;
     onBack: () => void;
 }
 
@@ -138,14 +124,14 @@ export type AddVariationModalProps =
     | {
           studyId: string;
           onClose: () => void;
-          onSaved: (variation: ChessVariation) => void;
+          onSaved: (variation: BaseVariation) => void;
       }
     | {
           gameId: string;
           branchIndex: number;
           startFen: string;
           onClose: () => void;
-          onSaved: (variation: ChessVariation) => void;
+          onSaved: (variation: BaseVariation) => void;
       };
 
 export type VariationInsert = {

@@ -2,7 +2,7 @@
 
 import MoveList from '@/features/chess/components/MoveList';
 import { VariationPanel } from '@/features/chess/components/VariationPanel';
-import type { ChessVariation } from '@/types/chess';
+import type { GameVariation } from '@/types/chess';
 
 export function ReviewSidebar({
     variations,
@@ -13,11 +13,11 @@ export function ReviewSidebar({
     onAdd,
     onDelete,
 }: {
-    variations: ChessVariation[];
+    variations: GameVariation[];
     moveIndex: number;
     moves: any[];
     onMoveSelect: (i: number) => void;
-    onSelectVariation: (v: ChessVariation) => void;
+    onSelectVariation: (v: GameVariation) => void;
     onAdd: () => void;
     onDelete: (id: string) => void;
 }) {

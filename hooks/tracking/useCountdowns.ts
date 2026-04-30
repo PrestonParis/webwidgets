@@ -62,7 +62,7 @@ export function useCountdowns() {
                 );
             }
         },
-        [user?.id],
+        [user],
     );
 
     const deleteCountdown = useCallback(async (id: string) => {

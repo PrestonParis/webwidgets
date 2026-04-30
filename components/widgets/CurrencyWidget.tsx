@@ -4,25 +4,12 @@ import { useState } from 'react';
 import { DollarSign } from 'lucide-react';
 import WidgetShell from '@/components/widgets/WidgetShell';
 import { useWidgetSettings } from '@/hooks/dashboard/useWidgetSettings';
+import { useCurrency } from '@/hooks/dashboard/global/useCurrency';
 import {
-    useCurrency,
+    CURRENCY_SYMBOLS,
+    DISPLAY_TARGETS,
     POPULAR_CURRENCIES,
-} from '@/hooks/dashboard/global/useCurrency';
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-    USD: '$',
-    EUR: '€',
-    GBP: '£',
-    JPY: '¥',
-    CAD: '$',
-    AUD: '$',
-    CHF: '₣',
-    CNY: '¥',
-    INR: '₹',
-    MXN: '$',
-};
-
-const DISPLAY_TARGETS = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF'];
+} from '@/features/currency/constants';
 
 function formatRate(value: number, currency: string): string {
     if (currency === 'JPY' || currency === 'INR' || currency === 'CNY') {

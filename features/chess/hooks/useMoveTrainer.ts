@@ -4,9 +4,9 @@ import {
     parsePgnFromFen,
     isCorrectMove,
 } from '@/features/chess/lib/chessUtils';
-import type { ChessVariation, TrainerResult } from '@/types/chess';
+import type { GameVariation, TrainerResult } from '@/types/chess';
 
-export function useMoveTrainer(variation: ChessVariation) {
+export function useMoveTrainer(variation: GameVariation) {
     // 1. Parse the moves from the PGN
     const moves = useMemo(
         () => parsePgnFromFen(variation.pgn, variation.start_fen),

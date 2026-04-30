@@ -84,7 +84,7 @@ export function useHabits() {
         return () => {
             cancelled = true;
         };
-    }, [user?.id]);
+    }, [user]);
 
     const addHabit = useCallback(
         async (name: string, emoji: string) => {
@@ -96,7 +96,7 @@ export function useHabits() {
                 .single();
             if (!error && data) setHabits((prev) => [...prev, data]);
         },
-        [user?.id],
+        [user],
     );
 
     const deleteHabit = useCallback(async (id: string) => {
@@ -134,7 +134,7 @@ export function useHabits() {
                 if (!error && data) setCompletions((prev) => [...prev, data]);
             }
         },
-        [user?.id, completions],
+        [user, completions],
     );
 
     const isCompletedToday = useCallback(

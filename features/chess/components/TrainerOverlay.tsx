@@ -1,11 +1,11 @@
 import MoveTrainer from '@/features/chess/components/MoveTrainer';
-import type { ChessVariation } from '@/types/chess';
+import type { GameVariation } from '@/types/chess';
 
 interface TrainerOverlayProps {
-    activeVariation: ChessVariation;
-    otherVariations: ChessVariation[];
+    activeVariation: GameVariation;
+    otherVariations: GameVariation[];
     onBack: () => void;
-    onSelect: (v: ChessVariation) => void;
+    onSelect: (v: GameVariation) => void;
 }
 
 export function TrainerOverlay({

@@ -4,8 +4,7 @@ import { GmailMessage } from '@/types/inbox';
 
 export function parseEmails(batch: GmailMessage[], ids: string[]) {
     return batch.map((email, i) => {
-        const headers = email.data.payload?.headers || [];
-
+        const headers = email.payload?.headers || [];
         return {
             id: ids[i],
             subject:
@@ -18,7 +17,7 @@ export function parseEmails(batch: GmailMessage[], ids: string[]) {
                 cleanDate(
                     headers.find((h) => h.name === 'Date')?.value || '',
                 ) || 'No Date',
-            snippet: he.decode(email.data.snippet ?? ''),
+            snippet: he.decode(email.snippet ?? ''),
         };
     });
 }

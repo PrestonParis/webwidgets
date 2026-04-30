@@ -1,6 +1,6 @@
 'use client';
 
-import type { ChessVariation } from '@/types/chess';
+import type { GameVariation } from '@/types/chess';
 
 export function TrainerSidebar({
     variations,
@@ -8,9 +8,9 @@ export function TrainerSidebar({
     onSelect,
     onBack,
 }: {
-    variations: ChessVariation[];
-    activeVariation: ChessVariation | null;
-    onSelect: (v: ChessVariation) => void;
+    variations: GameVariation[];
+    activeVariation: GameVariation | null;
+    onSelect: (v: GameVariation) => void;
     onBack: () => void;
 }) {
     return (

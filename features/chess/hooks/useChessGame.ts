@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import type { ChessGame, ChessVariation } from '@/types/chess';
+import type { ChessGame, GameVariation } from '@/types/chess';
 
 // Used by app/chess/[id]/ChessGamesView and chess/studies/[studyId]/page
 // To be combined with useChessGames in future
 export function useChessGame(id: string) {
     const [game, setGame] = useState<ChessGame | null>(null);
     const [_, setMoveIndex] = useState(0);
-    const [variations, setVariations] = useState<ChessVariation[]>([]);
+    const [variations, setVariations] = useState<GameVariation[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export function useChessGame(id: string) {
                 setGame(gameRes.data as ChessGame);
                 setMoveIndex(gameRes.data.current_move_index ?? 0);
             }
-            if (varRes.data) setVariations(varRes.data as ChessVariation[]);
+            if (varRes.data) setVariations(varRes.data as GameVariation[]);
             setLoading(false);
 
             await supabase
@@ -52,7 +52,7 @@ export function useChessGame(id: string) {
         setVariations((prev) => prev.filter((v) => v.id !== vid));
     }, []);
 
-    const addVariation = useCallback((v: ChessVariation) => {
+    const addVariation = useCallback((v: GameVariation) => {
         setVariations((prev) => [...prev, v]);
     }, []);
 

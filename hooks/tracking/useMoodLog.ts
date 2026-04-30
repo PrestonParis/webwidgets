@@ -66,7 +66,7 @@ export function useMoodLog() {
                 ]);
             }
         },
-        [user?.id],
+        [user],
     );
 
     return { entries, loading, logMood };
