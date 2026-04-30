@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/db/supabase';
-import type { ChessStudy, ChessVariation } from '@/types/chess';
+import type { ChessStudy, GameVariation } from '@/types/chess';
 import MoveTrainer from '@/features/chess/components/MoveTrainer';
 import { AddVariationModal } from '@/features/chess/components/AddVariationModal';
 import LoadingState from '@/components/global/LoadingState';
@@ -13,10 +13,10 @@ export default function StudyDetailPage() {
     const router = useRouter();
 
     const [study, setStudy] = useState<ChessStudy | null>(null);
-    const [variations, setVariations] = useState<ChessVariation[]>([]);
+    const [variations, setVariations] = useState<GameVariation[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeVariation, setActiveVariation] =
-        useState<ChessVariation | null>(null);
+        useState<GameVariation | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
 
     useEffect(() => {
@@ -37,14 +37,14 @@ export default function StudyDetailPage() {
             ]);
 
             if (studyRes.data) setStudy(studyRes.data as ChessStudy);
-            if (varRes.data) setVariations(varRes.data as ChessVariation[]);
+            if (varRes.data) setVariations(varRes.data as GameVariation[]);
             setLoading(false);
         };
 
         fetchStudyData();
     }, [studyId]);
 
-    const handleVariationSaved = (v: ChessVariation) => {
+    const handleVariationSaved = (v: GameVariation) => {
         setVariations((prev) => [...prev, v]);
         setShowAddModal(false);
     };
@@ -60,7 +60,7 @@ export default function StudyDetailPage() {
         }
     };
 
-    if (loading) <LoadingState />;
+    if (loading) return <LoadingState />;
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 p-6 max-w-6xl mx-auto">

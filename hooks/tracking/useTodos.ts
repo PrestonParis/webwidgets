@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/hooks/auth/useAuth';
-
-export interface Todo {
-    id: string;
-    text: string;
-    completed: boolean;
-    created_at: string;
-    completed_at: string | null;
-}
+import { Todo } from '@/types/tracking';
 
 export function useTodos() {
     const { user } = useAuth();
@@ -49,7 +42,7 @@ export function useTodos() {
                 .single();
             if (!error && data) setTodos((prev) => [data, ...prev]);
         },
-        [user?.id],
+        [user],
     );
 
     const toggleTodo = useCallback(
