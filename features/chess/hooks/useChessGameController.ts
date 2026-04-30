@@ -4,7 +4,7 @@ import {
     fenAtIndex,
     buildLastMoveStyles,
 } from '@/features/chess/lib/chessUtils';
-import { ChessGame, ChessVariation } from '@/types/chess';
+import { ChessGame, GameVariation } from '@/types/chess';
 
 export function useChessGameController(
     game: ChessGame | null,
@@ -13,7 +13,7 @@ export function useChessGameController(
     const [tab, setTab] = useState<'review' | 'trainer' | 'studies'>('review');
     const [moveIndex, setMoveIndex] = useState(0);
     const [activeVariation, setActiveVariation] =
-        useState<ChessVariation | null>(null);
+        useState<GameVariation | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
 
     const moves = useMemo(() => (game?.pgn ? parsePgn(game.pgn) : []), [game]);

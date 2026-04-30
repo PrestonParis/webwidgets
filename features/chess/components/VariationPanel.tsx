@@ -1,4 +1,4 @@
-import type { ChessVariation } from '@/types/chess';
+import type { GameVariation } from '@/types/chess';
 
 // ─── Variation Panel ──────────────────────────────────────────────────────────
 export function VariationPanel({
@@ -8,9 +8,9 @@ export function VariationPanel({
     onAdd,
     onDelete,
 }: {
-    variations: ChessVariation[];
+    variations: GameVariation[];
     currentMoveIndex: number;
-    onSelect: (v: ChessVariation) => void;
+    onSelect: (v: GameVariation) => void;
     onAdd: () => void;
     onDelete: (id: string) => void;
 }) {

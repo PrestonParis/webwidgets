@@ -1,28 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-export interface CurrencyRates {
-    base: string;
-    date: string;
-    rates: Record<string, number>;
-}
-
-export const POPULAR_CURRENCIES = [
-    'USD',
-    'EUR',
-    'GBP',
-    'JPY',
-    'CAD',
-    'AUD',
-    'CHF',
-    'CNY',
-    'INR',
-    'MXN',
-];
-
-const CACHE_KEY = 'currency_rates_v1';
-const CACHE_TTL = 86_400_000; // 24 hours
+import {
+    POPULAR_CURRENCIES,
+    CACHE_KEY,
+    CACHE_TTL,
+} from '@/features/currency/constants';
+import { CurrencyRates } from '@/types/currency';
 
 export function useCurrency(base: string = 'USD') {
     const [rates, setRates] = useState<CurrencyRates | null>(null);

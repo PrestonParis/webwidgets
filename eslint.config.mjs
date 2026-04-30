@@ -4,7 +4,7 @@ import nextTs from 'eslint-config-next/typescript';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import hooksPlugin from 'eslint-plugin-react-hooks';
-import reactCompiler from 'eslint-plugin-react-compiler'
+import reactCompiler from 'eslint-plugin-react-compiler';
 
 const eslintConfig = defineConfig([
   ...nextVitals,

@@ -15,3 +15,28 @@ export type TimerAction =
     | { type: 'SWITCH_MODE'; mode: Mode }
     | { type: 'RESET' }
     | { type: 'TOGGLE_RUNNING' };
+
+export interface ModeSelectorProps {
+    mode: Mode;
+    onSwitch: (mode: Mode) => void;
+}
+
+export interface TimerDisplayProps {
+    mins: string;
+    secs: string;
+    mode: Mode;
+    cycles: number;
+    radius: number;
+    circumference: number;
+    strokeDashoffset: number;
+}
+
+export interface TimerControlsProps {
+    running: boolean;
+    onToggle: () => void;
+    onReset: () => void;
+}
+
+export interface TimerStatsProps {
+    cycles: number;
+}

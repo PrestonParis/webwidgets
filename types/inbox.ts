@@ -42,10 +42,12 @@ export interface EmailHeader {
 }
 
 export interface GmailMessage {
-    data: {
-        payload?: {
-            headers?: EmailHeader[];
-        };
-        snippet?: string;
+    id: string;
+    snippet?: string;
+    payload?: {
+        headers: {
+            name: string;
+            value: string;
+        }[];
     };
 }

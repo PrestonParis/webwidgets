@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { ChessVariation, VariationInsert } from '@/types/chess';
+import { GameVariation, VariationInsert } from '@/types/chess';
 import { AddVariationModalProps } from '@/types/chess';
 import { STARTING_FEN } from '@/features/chess/constants';
 
@@ -65,7 +65,7 @@ export function AddVariationModal(props: AddVariationModalProps) {
 
         setSaving(false);
         if (!error && data) {
-            props.onSaved(data as ChessVariation);
+            props.onSaved(data as GameVariation);
             props.onClose();
         }
     };

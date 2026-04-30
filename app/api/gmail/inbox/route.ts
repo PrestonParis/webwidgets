@@ -1,6 +1,6 @@
-import { google } from 'googleapis';
+import { google, gmail_v1 } from 'googleapis';
 import { NextResponse } from 'next/server';
-import { EmailInput, EmailCategory } from '@/types/inbox';
+import { EmailInput, EmailCategory, GmailMessage } from '@/types/inbox';
 import { classifyWithClaude } from '@/features/inbox/lib/claude';
 import { classifyWithMlService } from '@/features/inbox/lib/mlService';
 import { classifyWithRules } from '@/features/inbox/lib/rules';
@@ -10,6 +10,31 @@ import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
 import { fetchEmailBatch } from '@/features/inbox/hooks/useFetchEmails';
 import { parseEmails } from '@/features/inbox/lib/parseEmails';
+
+function hasHeaderValue(
+    h: gmail_v1.Schema$MessagePartHeader | undefined,
+): h is { name: string; value: string } {
+    return Boolean(h?.name && h?.value);
+}
+
+function normalizeMessage(res: {
+    data: gmail_v1.Schema$Message;
+}): GmailMessage {
+    const msg = res.data;
+
+    return {
+        id: msg.id ?? '',
+        snippet: msg.snippet ?? undefined,
+        payload: {
+            headers: (msg.payload?.headers ?? [])
+                .filter(hasHeaderValue)
+                .map((h) => ({
+                    name: h.name,
+                    value: h.value,
+                })),
+        },
+    };
+}
 
 // Classification Logic with Fallbacks
 async function classifyEmails(
@@ -60,7 +85,8 @@ export async function GET(req: Request) {
             ),
         );
 
-        const parsed = parseEmails(batch, ids);
+        const normalized = batch.map(normalizeMessage);
+        const parsed = parseEmails(normalized, ids);
 
         // ── Existing classifications ─────────────────────────────
         const emailIds = parsed.map((e) => e.id);
