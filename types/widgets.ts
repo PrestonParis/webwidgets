@@ -61,5 +61,30 @@ export interface WidgetShellProps {
     settingsSlot?: ReactNode;
     /** Optional — shell renders with defaults while useWidgetSettings is loading */
     settings?: WidgetSettings;
+    widgetId: string; // ← new required prop
+    widgetType: string; // ← new required prop
     onSettingsChange?: (patch: Partial<WidgetSettings>) => void;
+}
+
+export interface WidgetHeaderProps {
+    icon: React.ReactNode;
+    title: string;
+    badge: React.ReactNode;
+    settings: WidgetSettings;
+    settingsOpen: boolean;
+    onToggleSettings?: () => void;
+    showSettings: boolean;
+}
+
+export interface WidgetSettingsPanelProps {
+    open: boolean;
+    settings: WidgetSettings;
+    onUpdate: (partial: Partial<WidgetSettings>) => void;
+    settingsSlot?: React.ReactNode;
+}
+
+export interface WidgetFooterProps {
+    href: string;
+    label: string;
+    settings: WidgetSettings;
 }

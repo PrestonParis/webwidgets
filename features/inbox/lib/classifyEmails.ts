@@ -1,16 +1,20 @@
+import { EmailInput, EmailCategory } from '@/types/inbox';
 import { classifyWithClaude } from './claude';
 import { classifyWithMlService } from './mlService';
 import { classifyWithRules } from './rules';
-import { EmailInput } from '@/types/inbox';
 
-export async function classifyEmails(emails: EmailInput[]) {
+export async function classifyEmails(
+    emails: EmailInput[],
+): Promise<Map<number, EmailCategory>> {
     try {
         return await classifyWithClaude(emails);
-    } catch {}
-
+    } catch (e) {
+        console.warn('Claude classification failed, trying ML service:', e);
+    }
     try {
         return await classifyWithMlService(emails);
-    } catch {}
-
+    } catch (e) {
+        console.warn('ML service failed, using rule-based fallback:', e);
+    }
     return classifyWithRules(emails);
 }

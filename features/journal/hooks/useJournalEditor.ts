@@ -7,7 +7,7 @@ import { JournalEntry } from '@/types/journal';
 
 export function useJournalEditor() {
     const [title, setTitle] = useState('');
-    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editingId, setEditingId] = useState<string | number | null>(null);
     const isEditingRef = useRef(false);
     const originalContentRef = useRef<{
         title: string;

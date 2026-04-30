@@ -1,5 +1,5 @@
-import Header from '@/components/global/Header';
-import RecoveryPage from './RecoveryPage';
+import Header from '@/features/ui/components/Header';
+import RecoveryPage from '../../features/recovery/components/RecoveryPage';
 
 export default function Page() {
     return (

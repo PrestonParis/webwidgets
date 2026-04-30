@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useDebounce } from '@/hooks/dashboard/global/useDebounce';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useDebounce } from '@/hooks/global/useDebounce';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved';
 

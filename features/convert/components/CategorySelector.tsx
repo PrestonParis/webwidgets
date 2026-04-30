@@ -10,7 +10,7 @@ import {
     Square,
     HardDrive,
 } from 'lucide-react';
-import { categories } from '@/types/unitconvert';
+import { categories } from '@/features/convert/constants';
 
 function cn(...classes: (string | undefined | false | null)[]) {
     return classes.filter(Boolean).join(' ');
