@@ -1,4 +1,6 @@
 import { Editor } from '@tiptap/react';
+import { useJournalEditor } from '@/features/journal/hooks/useJournalEditor';
+import { useJournalEntries } from '@/features/journal/hooks/useJournalEntries';
 export interface JournalEntry {
     id: number;
     title: string;
@@ -29,3 +31,6 @@ export interface JournalFormProps {
     wordCount: number;
     autosaved: boolean;
 }
+
+export type JournalEditorUtils = ReturnType<typeof useJournalEditor>;
+export type JournalEntryUtils = ReturnType<typeof useJournalEntries>;

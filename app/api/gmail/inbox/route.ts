@@ -1,59 +1,15 @@
-import { google, gmail_v1 } from 'googleapis';
+import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
-import { EmailInput, EmailCategory, GmailMessage } from '@/types/inbox';
-import { classifyWithClaude } from '@/features/inbox/lib/claude';
-import { classifyWithMlService } from '@/features/inbox/lib/mlService';
-import { classifyWithRules } from '@/features/inbox/lib/rules';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
 import { fetchEmailBatch } from '@/features/inbox/hooks/useFetchEmails';
 import { parseEmails } from '@/features/inbox/lib/parseEmails';
+import { normalizeMessage } from '@/features/inbox/lib/normalizeMessage';
+import { resolveClassifications } from '@/features/inbox/lib/dbClassifications';
+import { buildEmailResponse } from '@/features/inbox/lib/buildResponse';
 
-function hasHeaderValue(
-    h: gmail_v1.Schema$MessagePartHeader | undefined,
-): h is { name: string; value: string } {
-    return Boolean(h?.name && h?.value);
-}
-
-function normalizeMessage(res: {
-    data: gmail_v1.Schema$Message;
-}): GmailMessage {
-    const msg = res.data;
-
-    return {
-        id: msg.id ?? '',
-        snippet: msg.snippet ?? undefined,
-        payload: {
-            headers: (msg.payload?.headers ?? [])
-                .filter(hasHeaderValue)
-                .map((h) => ({
-                    name: h.name,
-                    value: h.value,
-                })),
-        },
-    };
-}
-
-// Classification Logic with Fallbacks
-async function classifyEmails(
-    emails: EmailInput[],
-): Promise<Map<number, EmailCategory>> {
-    try {
-        return await classifyWithClaude(emails);
-    } catch (e) {
-        console.warn('Claude classification failed, trying ML service:', e);
-    }
-    try {
-        return await classifyWithMlService(emails);
-    } catch (e) {
-        console.warn('ML service failed, using rule-based fallback:', e);
-    }
-    return classifyWithRules(emails);
-}
-
-// Fetch a batch of email IDs from Gmail
 export async function GET(req: Request) {
     try {
         const { supabase, supabaseAdmin } = await createClients();
@@ -64,12 +20,10 @@ export async function GET(req: Request) {
         await auth.getAccessToken();
 
         const gmail = google.gmail({ version: 'v1', auth });
-
         const { searchParams } = new URL(req.url);
         const pageToken = searchParams.get('pageToken') || undefined;
 
         const { ids, nextPageToken } = await fetchEmailBatch(gmail, pageToken);
-
         if (ids.length === 0) {
             return NextResponse.json({ emails: [], nextPageToken: null });
         }
@@ -85,94 +39,13 @@ export async function GET(req: Request) {
             ),
         );
 
-        const normalized = batch.map(normalizeMessage);
-        const parsed = parseEmails(normalized, ids);
-
-        // ── Existing classifications ─────────────────────────────
-        const emailIds = parsed.map((e) => e.id);
-        const senders = [...new Set(parsed.map((e) => e.sender))];
-
-        const { data: existing } = await supabase
-            .from('email_classifications')
-            .select('email_id, sender, category, is_manual')
-            .eq('user_id', user.id)
-            .or(
-                `email_id.in.(${emailIds.map((id) => `"${id}"`).join(',')}),` +
-                    `sender.in.(${senders.map((s) => `"${s}"`).join(',')})`,
-            );
-
-        const byId = new Map(existing?.map((c) => [c.email_id, c]) ?? []);
-        const bySender = new Map(existing?.map((c) => [c.sender, c]) ?? []);
-
-        const categoryMap = new Map<
-            string,
-            { category: string; is_manual: boolean }
-        >();
-
-        const needsAI: {
-            idx: number;
-            id: string;
-            sender: string;
-            subject: string;
-        }[] = [];
-
-        for (let i = 0; i < parsed.length; i++) {
-            const email = parsed[i];
-            const hit = byId.get(email.id) ?? bySender.get(email.sender);
-
-            if (hit) {
-                categoryMap.set(email.id, {
-                    category: hit.category,
-                    is_manual: hit.is_manual,
-                });
-            } else {
-                needsAI.push({ idx: i, ...email });
-            }
-        }
-
-        // ── AI classification ────────────────────────────────────
-
-        if (needsAI.length > 0) {
-            const predictions = await classifyEmails(
-                needsAI.map(({ idx, sender, subject }) => ({
-                    idx,
-                    sender,
-                    subject,
-                })),
-            );
-
-            const toInsert = needsAI.map(({ idx, id, sender, subject }) => ({
-                user_id: user.id,
-                email_id: id,
-                sender,
-                subject,
-                category: predictions.get(idx) ?? 'other',
-                is_manual: false,
-            }));
-
-            await supabase.from('email_classifications').upsert(toInsert, {
-                onConflict: 'user_id,email_id',
-                ignoreDuplicates: true,
-            });
-
-            for (const row of toInsert) {
-                categoryMap.set(row.email_id, {
-                    category: row.category,
-                    is_manual: false,
-                });
-            }
-        }
-
-        // ── Final response ───────────────────────────────────────
-
-        const emails = parsed.map((e) => {
-            const hit = categoryMap.get(e.id);
-            return {
-                ...e,
-                category: hit?.category ?? 'other',
-                is_manual: hit?.is_manual ?? false,
-            };
-        });
+        const parsed = parseEmails(batch.map(normalizeMessage), ids);
+        const categoryMap = await resolveClassifications(
+            supabase,
+            user.id,
+            parsed,
+        );
+        const emails = buildEmailResponse(parsed, categoryMap);
 
         return NextResponse.json({
             emails,

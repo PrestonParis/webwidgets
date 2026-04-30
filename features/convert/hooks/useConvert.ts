@@ -1,4 +1,4 @@
-import { categories } from '@/types/unitconvert';
+import { categories } from '@/features/convert/constants';
 
 export function convert(
     category: string,

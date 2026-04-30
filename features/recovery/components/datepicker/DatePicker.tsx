@@ -1,6 +1,6 @@
 'use client';
 
-import { useDatePickerState } from '@/hooks/dashboard/global/useDatePickerState';
+import { useDatePickerState } from '@/hooks/global/useDatePickerState';
 import { getMonthMeta } from '@/lib/utils/time';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';

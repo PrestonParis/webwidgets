@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useEffect } from 'react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {

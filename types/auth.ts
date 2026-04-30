@@ -14,3 +14,7 @@ export interface UseEmailAuthProps {
     email: string;
     password: string;
 }
+
+export interface GoogleSignInButtonProps {
+    onClick: () => void;
+}

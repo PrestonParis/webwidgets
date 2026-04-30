@@ -2,7 +2,7 @@
 
 import MoveList from '@/features/chess/components/MoveList';
 import { VariationPanel } from '@/features/chess/components/VariationPanel';
-import type { GameVariation } from '@/types/chess';
+import type { GameVariation, ParsedMove } from '@/types/chess';
 
 export function ReviewSidebar({
     variations,
@@ -15,7 +15,7 @@ export function ReviewSidebar({
 }: {
     variations: GameVariation[];
     moveIndex: number;
-    moves: any[];
+    moves: ParsedMove[];
     onMoveSelect: (i: number) => void;
     onSelectVariation: (v: GameVariation) => void;
     onAdd: () => void;

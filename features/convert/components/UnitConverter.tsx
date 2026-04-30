@@ -2,14 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import { ArrowUpDown } from 'lucide-react';
-import { categories } from '@/types/unitconvert';
+import { categories } from '@/features/convert/constants';
 import { convert, formatResult } from '@/features/convert/hooks/useConvert';
+import { UnitConverterProps } from '@/types/unitconvert';
 
-interface Props {
-    category: string;
-}
-
-export default function UnitConverter({ category }: Props) {
+export default function UnitConverter({ category }: UnitConverterProps) {
     // Memoize units to prevent unnecessary recalculations
     const units = useMemo(() => categories[category]?.units ?? [], [category]);
 
