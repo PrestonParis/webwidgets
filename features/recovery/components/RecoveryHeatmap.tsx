@@ -1,12 +1,5 @@
 'use client';
 
-// ─────────────────────────────────────────────
-// components/Recovery/RecoveryHeatmap.tsx
-// A 52-week GitHub-style heatmap built from
-// the relapses table. Days with a relapse are
-// red, clean days are green, future days are empty.
-// ─────────────────────────────────────────────
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 

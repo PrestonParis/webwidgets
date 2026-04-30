@@ -6,7 +6,6 @@ export function useRecoveryActions(
     fetchTrackers: () => Promise<void>,
     setTrackers: Dispatch<SetStateAction<Tracker[]>>,
 ) {
-    // ── Page-level reset: logs relapse, updates DB, re-fetches list ──
     const handleReset = async (id: string) => {
         const confirmed = window.confirm('Reset this streak?');
         if (!confirmed) return;
@@ -21,7 +20,16 @@ export function useRecoveryActions(
         await fetchTrackers();
     };
 
-    // ── Widget-level reset: same DB writes, then syncs local state via callbacks ──
+    const handleTrackerCardReset = (
+        id: string,
+        setStartTime: (iso: string) => void,
+        onReset: (id: string) => void,
+    ) => {
+        const now = new Date().toISOString();
+        setStartTime(now);
+        onReset(id);
+    };
+
     const handleStreakReset = async (
         id: string,
         onReset: (id: string, now: string) => void,
@@ -72,6 +80,7 @@ export function useRecoveryActions(
 
     return {
         handleReset,
+        handleTrackerCardReset,
         handleStreakReset,
         handleDelete,
         handleAddTracker,
