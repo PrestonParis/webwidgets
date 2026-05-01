@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { getExactTimeParts } from '@/lib/utils/time';
-import { SoberWidgetProps } from '@/types/recovery';
-import { RecoveryView } from '@/types/widgets';
+import { SoberWidgetProps } from '@/features/recovery/types/recovery';
+import { RecoveryView } from '@/features/widgets/types/widgets';
 import TimeUnit from '@/features/recovery/components/TimeUnit';
 import RecoveryHeatmap from '@/features/recovery/components/RecoveryHeatmap';
 import WidgetShell from '@/features/widgets/components/WidgetShell';

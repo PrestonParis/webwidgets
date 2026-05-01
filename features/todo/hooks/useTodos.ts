@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Todo } from '@/types/todo';
+import { Todo } from '@/features/todo/types/todo';
 
 export function useTodos() {
     const { user } = useAuth();

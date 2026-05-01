@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { HabitListItemProps } from '@/types/habit';
+import { HabitListItemProps } from '@/features/habit/types/habit';
 
 export default function HabitListItem({
     habit,

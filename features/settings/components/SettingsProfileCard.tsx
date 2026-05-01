@@ -1,4 +1,4 @@
-import { SettingsProfileCardProps } from '@/types/settings';
+import { SettingsProfileCardProps } from '@/features/settings/types/settings';
 
 export function SettingsProfileCard({
     user,

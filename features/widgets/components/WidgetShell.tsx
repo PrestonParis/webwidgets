@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils/utils';
-import { WidgetShellProps } from '@/types/widgets';
+import { WidgetShellProps } from '@/features/widgets/types/widgets';
 import {
     colorMap,
     bgStyles,
     bgHoverStyles,
-} from '@/lib/constants/widget-styles';
+} from '@/features/widgets/constants';
 import { useWidgetSettings } from '../hooks/useWidgetSettings'; // ← your existing hook
 import { WidgetHeader } from './WidgetHeader';
 import { WidgetSettingsPanel } from './WidgetSettingsPanel';

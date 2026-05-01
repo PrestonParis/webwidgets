@@ -1,4 +1,4 @@
-import { ClassifyHandler, Email } from '@/types/inbox';
+import { ClassifyHandler, Email } from '@/features/inbox/types/inbox';
 import { EmailCard } from './EmailCard';
 
 export function EmailList({

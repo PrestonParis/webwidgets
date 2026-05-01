@@ -1,5 +1,5 @@
 import { TimerIcon } from '@/icons/TimerIcon';
-import { TimerDisplayProps } from '@/types/pomodoro';
+import { TimerDisplayProps } from '@/features/pomodoro/types/pomodoro';
 
 export function TimerDisplay({
     mins,

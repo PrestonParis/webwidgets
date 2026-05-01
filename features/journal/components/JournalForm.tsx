@@ -1,6 +1,6 @@
 import { EditorContent } from '@tiptap/react';
 import EditorToolbar from './EditorToolbar';
-import { JournalFormProps } from '@/types/journal';
+import { JournalFormProps } from '@/features/journal/types/journal';
 
 export function JournalForm({
     editor,

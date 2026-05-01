@@ -1,5 +1,5 @@
 import { DAYS } from '@/lib/utils/time';
-import { CalendarGridProps } from '@/types/recovery';
+import { CalendarGridProps } from '@/features/recovery/types/recovery';
 
 export function CalendarGrid({
     firstDay,

@@ -2,7 +2,7 @@
 
 import Header from '@/features/ui/components/Header';
 import Footer from '@/features/ui/components/Footer';
-import { ProfileStatusProps } from '@/types/settings';
+import { ProfileStatusProps } from '@/features/settings/types/settings';
 
 const messages = {
     loading: { text: 'Loading profile...', className: 'text-gray-400' },

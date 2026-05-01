@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils/utils';
-import { ConverterCategoryTabsProps } from '@/types/unitconvert';
+import { ConverterCategoryTabsProps } from '@/features/convert/types/unitconvert';
 
 export function ConverterCategoryTabs({
     categories,

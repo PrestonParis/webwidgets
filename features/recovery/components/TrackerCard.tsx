@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Tracker } from '@/types/recovery';
-import { fetchRelapses } from '../lib/relapses';
+import { Tracker } from '@/features/recovery/types/recovery';
 import { useUrgeForm } from '../hooks/useUrgeForm';
-import { useSecondsClean } from '../hooks/useSecondsClean';
 import { useRecoveryActions } from '../hooks/useRecoveryActions';
+import { useTrackerCardState } from '../hooks/useTrackerCardState';
 import CalendarView from './CalendarView';
 import MilestoneBadges from './MilestoneBadges';
 import StartTimeEditor from './StartTimeEditor';
@@ -18,16 +16,7 @@ export default function TrackerCard({
     onReset: (id: string) => void;
     onUpdateStart: (id: string, newStart: string) => void;
 }) {
-    const [startTime, setStartTime] = useState(tracker.start_time);
-    const [editingStart, setEditingStart] = useState(false);
-    const [relapses, setRelapses] = useState<string[]>([]);
-    const [expanded, setExpanded] = useState(false);
-
-    useEffect(() => {
-        fetchRelapses(tracker.id).then(setRelapses);
-    }, [tracker.id]);
-
-    const secondsClean = useSecondsClean(startTime);
+    const card = useTrackerCardState(tracker);
     const urgeForm = useUrgeForm(tracker.id);
     const { handleTrackerCardReset } = useRecoveryActions(
         async () => {},
@@ -42,10 +31,10 @@ export default function TrackerCard({
                         {tracker.addiction}
                     </span>
                     <button
-                        onClick={() => setExpanded(!expanded)}
+                        onClick={() => card.setExpanded(!card.expanded)}
                         className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                     >
-                        {expanded ? 'collapse ↑' : 'expand ↓'}
+                        {card.expanded ? 'collapse ↑' : 'expand ↓'}
                     </button>
                 </div>
 
@@ -54,32 +43,27 @@ export default function TrackerCard({
                         CURRENT STREAK
                     </p>
 
-                    {editingStart ? (
+                    {card.editingStart ? (
                         <StartTimeEditor
                             trackerId={tracker.id}
-                            startTime={startTime}
+                            startTime={card.startTime}
                             onUpdate={(iso) => {
-                                setStartTime(iso);
                                 onUpdateStart(tracker.id, iso);
-                                setEditingStart(false);
+                                card.setEditingStart(false);
                             }}
-                            onCancel={() => setEditingStart(false)}
+                            onCancel={() => card.setEditingStart(false)}
                         />
                     ) : (
                         <p
-                            onClick={() => setEditingStart(true)}
+                            onClick={() => card.setEditingStart(true)}
                             className="text-sm text-gray-500 dark:text-zinc-400 italic cursor-pointer hover:text-purple-500 transition-colors"
                         >
-                            Since {new Date(startTime).toLocaleDateString()} ·{' '}
-                            {new Date(startTime).toLocaleTimeString([], {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                            })}{' '}
-                            · edit
+                            Since {card.startDateLabel.date} ·{' '}
+                            {card.startDateLabel.time} · edit
                         </p>
                     )}
 
-                    <MilestoneBadges secondsClean={secondsClean} />
+                    <MilestoneBadges secondsClean={card.secondsClean} />
                 </div>
 
                 <SoberWidgetFooter
@@ -90,19 +74,16 @@ export default function TrackerCard({
                     onLogUrge={urgeForm.handleLogUrge}
                     onCancelUrge={urgeForm.handleCancel}
                     onShowUrgeForm={() => urgeForm.setShowUrgeForm(true)}
-                    onReset={() =>
-                        handleTrackerCardReset(
-                            tracker.id,
-                            setStartTime,
-                            onReset,
-                        )
-                    }
+                    onReset={() => handleTrackerCardReset(tracker.id, onReset)}
                 />
             </div>
 
-            {expanded && (
+            {card.expanded && (
                 <div className="border-t border-gray-100 dark:border-zinc-800 p-6">
-                    <CalendarView startTime={startTime} relapses={relapses} />
+                    <CalendarView
+                        startTime={card.startTime}
+                        relapses={card.relapses}
+                    />
                 </div>
             )}
         </div>

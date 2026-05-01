@@ -1,8 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
 import { journalService } from '../api/journalService';
-import { JournalEntry } from '@/types/journal';
+import { JournalEntry } from '@/features/journal/types/journal';
 import { Editor } from '@tiptap/react';
-import { JournalEditorUtils, JournalEntryUtils } from '@/types/journal';
+import {
+    JournalEditorUtils,
+    JournalEntryUtils,
+} from '@/features/journal/types/journal';
 
 export function useJournalManager(
     user: { id: string } | null,
@@ -25,7 +28,7 @@ export function useJournalManager(
             const { error } = editorUtils.isEditing
                 ? await journalService.updateEntry(
                       user.id,
-                      editorUtils.editingId!,
+                      String(editorUtils.editingId!),
                       editorUtils.title,
                       content,
                   )

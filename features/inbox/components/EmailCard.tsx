@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Email, EMAIL_CATEGORIES } from '@/types/inbox';
+import { Email, EMAIL_CATEGORIES } from '@/features/inbox/types/inbox';
 import { cn } from '@/lib/utils/utils';
 
 const CATEGORY_STYLES: Record<string, string> = {

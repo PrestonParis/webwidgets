@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils/utils';
-import { RecoveryView } from '@/types/widgets';
+import { RecoveryView } from '@/features/widgets/types/widgets';
 import { VIEW_OPTIONS } from '@/features/recovery/constants';
 
 interface ViewToggleProps {

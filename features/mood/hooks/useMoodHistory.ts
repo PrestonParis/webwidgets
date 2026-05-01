@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MoodEntry } from '@/types/mood';
+import { MoodEntry } from '@/features/mood/types/mood';
 
 // Computed once when the module loads — pure from React's perspective,
 // stable for the lifetime of the app session.

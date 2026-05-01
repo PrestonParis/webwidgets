@@ -1,5 +1,5 @@
 import { gmail_v1 } from 'googleapis';
-import { GmailMessage } from '@/types/inbox';
+import { GmailMessage } from '@/features/inbox/types/inbox';
 
 function hasHeaderValue(
     h: gmail_v1.Schema$MessagePartHeader | undefined,

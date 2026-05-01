@@ -1,4 +1,7 @@
-import { QuickActionsProps, QuickActionKey } from '@/types/recovery';
+import {
+    QuickActionsProps,
+    QuickActionKey,
+} from '@/features/recovery/types/recovery';
 
 const items: { key: QuickActionKey; label: string }[] = [
     { key: 'now', label: 'Now' },

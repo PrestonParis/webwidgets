@@ -1,6 +1,6 @@
 import he from 'he';
 import { cleanDate } from '@/lib/utils/time';
-import { GmailMessage } from '@/types/inbox';
+import { GmailMessage } from '@/features/inbox/types/inbox';
 
 export function parseEmails(batch: GmailMessage[], ids: string[]) {
     return batch.map((email, i) => {

@@ -11,7 +11,7 @@ import {
     arrayMove,
     rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { WidgetConfig } from '@/types/dashboard';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import WidgetWrapper from './WidgetWrapper';
 import JournalWidget from '@/widgets/JournalWidget';
 import EmailWidget from '@/widgets/EmailWidget';

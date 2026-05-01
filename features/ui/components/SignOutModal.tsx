@@ -1,5 +1,5 @@
 'use client';
-import { SignOutModalProps } from '@/types/ui';
+import { SignOutModalProps } from '@/features/ui/types/ui';
 
 export default function SignOutModal({
     loading,

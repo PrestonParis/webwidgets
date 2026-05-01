@@ -11,8 +11,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode } from 'react';
-import { WidgetConfig } from '@/types/dashboard';
-import { WidgetSize } from '@/types/widgets';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import { WidgetSize } from '@/features/widgets/types/widgets';
 import { cn } from '@/lib/utils/utils';
 
 interface Props {

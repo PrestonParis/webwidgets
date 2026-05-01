@@ -1,6 +1,6 @@
 // components/Dashboard/HiddenWidgetsTray.tsx
 import { Eye } from 'lucide-react';
-import { WidgetConfig } from '@/types/dashboard';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
 interface Props {
     hidden: WidgetConfig[];

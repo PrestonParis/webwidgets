@@ -1,4 +1,4 @@
-import { TimerControlsProps } from '@/types/pomodoro';
+import { TimerControlsProps } from '@/features/pomodoro/types/pomodoro';
 
 export function TimerControls({
     running,

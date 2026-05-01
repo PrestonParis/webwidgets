@@ -1,4 +1,4 @@
-import { Category } from '@/types/unitconvert';
+import { Category } from '@/features/convert/types/unitconvert';
 
 export const categories: Record<string, Category> = {
     Length: {

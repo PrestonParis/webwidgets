@@ -1,4 +1,4 @@
-import { EmailCategory, EmailInput } from '@/types/inbox';
+import { EmailCategory, EmailInput } from '@/features/inbox/types/inbox';
 import { RULES } from '../constants';
 
 export function classifyWithRules(

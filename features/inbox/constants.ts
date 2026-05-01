@@ -1,4 +1,4 @@
-import { EmailCategory } from '@/types/inbox';
+import { EmailCategory } from '@/features/inbox/types/inbox';
 
 export const RULES: { pattern: RegExp; category: EmailCategory }[] = [
     {

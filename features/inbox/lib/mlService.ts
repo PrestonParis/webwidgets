@@ -1,4 +1,8 @@
-import { EMAIL_CATEGORIES, EmailCategory, EmailInput } from '@/types/inbox';
+import {
+    EMAIL_CATEGORIES,
+    EmailCategory,
+    EmailInput,
+} from '@/features/inbox/types/inbox';
 
 export async function classifyWithMlService(
     emails: EmailInput[],

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils/utils';
-import { ConverterInputRowProps } from '@/types/unitconvert';
+import { ConverterInputRowProps } from '@/features/convert/types/unitconvert';
 import { baseInputClass } from '@/features/convert/constants';
 
 export function ConverterInputRow({

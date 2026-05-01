@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import CountdownDisplay from './CountdownDisplay';
 import { getTimeLeft } from '../lib/utils';
-import { CountdownHeroProps } from '@/types/countdown';
+import { CountdownHeroProps } from '@/features/countdown/types/countdown';
 
 export default function CountdownHero({
     countdown,

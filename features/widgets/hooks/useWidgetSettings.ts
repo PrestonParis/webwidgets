@@ -7,8 +7,8 @@ import {
     DEFAULT_WIDGET_SETTINGS,
     WIDGET_COLOR_DEFAULTS,
     WidgetSettings,
-} from '@/types/widgets';
-import { useDebounce } from '@/hooks/global/useDebounce';
+} from '@/features/widgets/types/widgets';
+import { useDebounce } from '@/features/ui/hooks/useDebounce';
 
 export function useWidgetSettings(widgetId: string, widgetType: string) {
     const { user } = useAuth();

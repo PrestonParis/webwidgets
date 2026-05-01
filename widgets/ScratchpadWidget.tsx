@@ -3,7 +3,7 @@
 import { FileText } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
-import { useQuickNote } from '@/hooks/tracking/useQuickNote';
+import { useQuickNote } from '@/features/scratchpad/hooks/useQuickNote';
 
 export default function ScratchpadWidget() {
     const { settings, updateSettings } = useWidgetSettings(

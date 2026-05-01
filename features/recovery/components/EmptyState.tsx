@@ -1,4 +1,4 @@
-import { EmptyStateProps } from '@/types/recovery';
+import { EmptyStateProps } from '@/features/recovery/types/recovery';
 
 export default function EmptyState({ onAddClick }: EmptyStateProps) {
     return (

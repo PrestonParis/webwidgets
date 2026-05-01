@@ -1,6 +1,34 @@
 import { useEditor } from '@tiptap/react';
 
-// A simple toolbar for the Tiptap editor, with buttons for bold, italic, strike, headings, lists, and blockquotes.
+function ToolbarButton({
+    active,
+    onClick,
+    children,
+}: {
+    active: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+}) {
+    return (
+        <button
+            type="button"
+            onMouseDown={(e) => {
+                e.preventDefault();
+                onClick();
+            }}
+            className={`px-2 py-1 rounded text-sm font-medium transition-colors ${
+                active
+                    ? 'bg-stone-800 text-amber-50 dark:bg-amber-50 dark:text-stone-900'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-zinc-200'
+            }`}
+        >
+            {children}
+        </button>
+    );
+}
+
+const divider = <span className="w-px bg-stone-200 dark:bg-zinc-700 mx-1" />;
+
 export default function EditorToolbar({
     editor,
 }: {
@@ -8,98 +36,64 @@ export default function EditorToolbar({
 }) {
     if (!editor) return null;
 
-    const btn = (active: boolean) =>
-        `px-2 py-1 rounded text-sm font-medium transition-colors ${
-            active
-                ? 'bg-stone-800 text-amber-50 dark:bg-amber-50 dark:text-stone-900'
-                : 'text-stone-500 hover:text-stone-800 dark:hover:text-zinc-200'
-        }`;
+    const ch = editor.chain().focus();
 
-    // Styling located in constants.ts for better readability and separation of concerns
     return (
         <div className="flex flex-wrap gap-1 border-b border-stone-200 dark:border-zinc-700 pb-2 mb-3">
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleBold().run();
-                }}
-                className={btn(editor.isActive('bold'))}
+            <ToolbarButton
+                active={editor.isActive('bold')}
+                onClick={() => ch.toggleBold().run()}
             >
                 <strong>B</strong>
-            </button>
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleItalic().run();
-                }}
-                className={btn(editor.isActive('italic'))}
+            </ToolbarButton>
+            <ToolbarButton
+                active={editor.isActive('italic')}
+                onClick={() => ch.toggleItalic().run()}
             >
                 <em>I</em>
-            </button>
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleStrike().run();
-                }}
-                className={btn(editor.isActive('strike'))}
+            </ToolbarButton>
+            <ToolbarButton
+                active={editor.isActive('strike')}
+                onClick={() => ch.toggleStrike().run()}
             >
                 <s>S</s>
-            </button>
-            <span className="w-px bg-stone-200 dark:bg-zinc-700 mx-1" />
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleHeading({ level: 2 }).run();
-                }}
-                className={btn(editor.isActive('heading', { level: 2 }))}
+            </ToolbarButton>
+
+            {divider}
+
+            <ToolbarButton
+                active={editor.isActive('heading', { level: 2 })}
+                onClick={() => ch.toggleHeading({ level: 2 }).run()}
             >
                 H2
-            </button>
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleHeading({ level: 3 }).run();
-                }}
-                className={btn(editor.isActive('heading', { level: 3 }))}
+            </ToolbarButton>
+            <ToolbarButton
+                active={editor.isActive('heading', { level: 3 })}
+                onClick={() => ch.toggleHeading({ level: 3 }).run()}
             >
                 H3
-            </button>
-            <span className="w-px bg-stone-200 dark:bg-zinc-700 mx-1" />
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleBulletList().run();
-                }}
-                className={btn(editor.isActive('bulletList'))}
+            </ToolbarButton>
+
+            {divider}
+
+            <ToolbarButton
+                active={editor.isActive('bulletList')}
+                onClick={() => ch.toggleBulletList().run()}
             >
                 • List
-            </button>
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleOrderedList().run();
-                }}
-                className={btn(editor.isActive('orderedList'))}
+            </ToolbarButton>
+            <ToolbarButton
+                active={editor.isActive('orderedList')}
+                onClick={() => ch.toggleOrderedList().run()}
             >
                 1. List
-            </button>
-            <button
-                type="button"
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                    editor.chain().focus().toggleBlockquote().run();
-                }}
-                className={btn(editor.isActive('blockquote'))}
+            </ToolbarButton>
+            <ToolbarButton
+                active={editor.isActive('blockquote')}
+                onClick={() => ch.toggleBlockquote().run()}
             >
                 ❝
-            </button>
+            </ToolbarButton>
         </div>
     );
 }

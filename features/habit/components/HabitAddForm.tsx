@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { EMOJI_OPTIONS } from '@/features/habit/constants';
-import { HabitAddFormProps } from '@/types/habit';
+import { HabitAddFormProps } from '@/features/habit/types/habit';
 
 export default function HabitAddForm({
     newName,

@@ -1,6 +1,6 @@
-import { WidgetConfig } from '@/types/dashboard';
-import { Tracker } from '@/types/recovery';
-import { base } from '@/lib/constants/dashboard';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import { Tracker } from '@/features/recovery/types/recovery';
+import { base } from '@/features/dashboard/constants';
 
 export function hydrateTrackers(
     layout: WidgetConfig[],
