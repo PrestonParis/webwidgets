@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { HabitAddButtonProps } from '@/types/habit';
+import { HabitAddButtonProps } from '@/features/habit/types/habit';
 
 export default function HabitAddButton({ onClick }: HabitAddButtonProps) {
     return (

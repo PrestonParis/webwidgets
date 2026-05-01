@@ -1,4 +1,4 @@
-import { PrivacySectionProps } from '@/types/privacy';
+import { PrivacySectionProps } from '@/features/privacy/types/privacy';
 
 export function PrivacySection({ title, children }: PrivacySectionProps) {
     return (

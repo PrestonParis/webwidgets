@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import EmojiPicker from './EmojiPicker';
-import { AddFormProps } from '@/types/countdown';
+import { AddFormProps } from '@/features/countdown/types/countdown';
 
 export default function AddForm({ onAdd, onCancel }: AddFormProps) {
     const [name, setName] = useState('');

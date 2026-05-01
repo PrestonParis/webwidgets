@@ -1,5 +1,5 @@
 import { EMOJI_OPTIONS } from '../constants';
-import { EmojiPickerProps } from '@/types/countdown';
+import { EmojiPickerProps } from '@/features/countdown/types/countdown';
 
 export default function EmojiPicker({ value, onChange }: EmojiPickerProps) {
     return (

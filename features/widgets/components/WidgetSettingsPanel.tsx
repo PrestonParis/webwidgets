@@ -3,13 +3,13 @@ import {
     WidgetSize,
     WidgetBackground,
     WidgetSettingsPanelProps,
-} from '@/types/widgets';
+} from '@/features/widgets/types/widgets';
 import {
     colorMap,
     COLORS,
     SIZE_LABELS,
     BG_LABELS,
-} from '@/lib/constants/widget-styles';
+} from '@/features/widgets/constants';
 
 export function WidgetSettingsPanel({
     open,

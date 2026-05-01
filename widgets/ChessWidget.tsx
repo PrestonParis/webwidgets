@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { ChessGame } from '@/types/chess';
+import { ChessGame } from '@/features/chess/types/chess';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import {
     fenAtIndex,

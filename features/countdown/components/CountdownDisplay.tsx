@@ -1,4 +1,4 @@
-import { CountdownDisplayProps } from '@/types/countdown';
+import { CountdownDisplayProps } from '@/features/countdown/types/countdown';
 
 export default function CountdownDisplay({ timeLeft }: CountdownDisplayProps) {
     const { days, hours, minutes, seconds } = timeLeft;

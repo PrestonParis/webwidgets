@@ -1,5 +1,5 @@
 import { ArrowDownUp } from 'lucide-react';
-import { ConverterSwapButtonProps } from '@/types/unitconvert';
+import { ConverterSwapButtonProps } from '@/features/convert/types/unitconvert';
 
 export function ConverterSwapButton({ onSwap }: ConverterSwapButtonProps) {
     return (

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { WidgetConfig } from '@/types/dashboard';
-import { Tracker } from '@/types/recovery';
-import { useDebounce } from '@/hooks/global/useDebounce';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import { Tracker } from '@/features/recovery/types/recovery';
+import { useDebounce } from '@/features/ui/hooks/useDebounce';
 import {
     buildDefaultLayout,
     reconcileLayout,
@@ -60,16 +60,14 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
     const persistToDb = useDebounce(
         async (next: WidgetConfig[], uid: string) => {
-            await supabase
-                .from('dashboard_layouts')
-                .upsert(
-                    {
-                        user_id: uid,
-                        layout: next,
-                        updated_at: new Date().toISOString(),
-                    },
-                    { onConflict: 'user_id' },
-                );
+            await supabase.from('dashboard_layouts').upsert(
+                {
+                    user_id: uid,
+                    layout: next,
+                    updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'user_id' },
+            );
         },
         1200,
     );

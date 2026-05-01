@@ -1,78 +1,24 @@
-import { useState } from 'react';
-import { supabase } from '@/lib/db/supabase';
-import { GameVariation, StudyVariation, VariationInsert } from '@/types/chess';
-import { AddVariationModalProps } from '@/types/chess';
-import { STARTING_FEN } from '@/features/chess/constants';
+import { AddVariationModalProps } from '@/features/chess/types/chess';
+import { useAddVariation } from '@/features/chess/hooks/useAddVariation';
+import { VariationFormFields } from './VariationFormFields';
 
 export function AddVariationModal(props: AddVariationModalProps) {
-    const isStudyMode = 'studyId' in props;
+    const {
+        title,
+        setTitle,
+        pgn,
+        setPgn,
+        annotation,
+        setAnnotation,
+        editableStartFen,
+        setEditableStartFen,
+        saving,
+        handleSave,
+        isStudyMode,
+    } = useAddVariation(props);
 
-    const [title, setTitle] = useState('');
-    const [pgn, setPgn] = useState('');
-    const [annotation, setAnnotation] = useState('');
-    const [editableStartFen, setEditableStartFen] = useState(STARTING_FEN);
-    const [saving, setSaving] = useState(false);
-
-    const handleSave = async () => {
-        if (!title.trim() || !pgn.trim()) return;
-        setSaving(true);
-
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-            setSaving(false);
-            return;
-        }
-
-        let insertData: VariationInsert;
-
-        if (isStudyMode) {
-            insertData = {
-                user_id: user.id,
-                title: title.trim(),
-                pgn: pgn.trim(),
-                annotation: annotation.trim() || null,
-                study_id: props.studyId,
-                start_fen: editableStartFen.trim() || STARTING_FEN,
-            };
-        } else {
-            insertData = {
-                user_id: user.id,
-                title: title.trim(),
-                pgn: pgn.trim(),
-                annotation: annotation.trim() || null,
-                game_id: props.gameId,
-                start_fen: props.startFen,
-                branch_move_index: props.branchIndex,
-            };
-        }
-
-        if (isStudyMode) {
-            insertData.study_id = props.studyId;
-            insertData.start_fen = editableStartFen.trim() || STARTING_FEN;
-        } else {
-            insertData.game_id = props.gameId;
-            insertData.start_fen = props.startFen;
-            insertData.branch_move_index = props.branchIndex;
-        }
-
-        const { data, error } = await supabase
-            .from('chess_variations')
-            .insert(insertData)
-            .select()
-            .single();
-
-        setSaving(false);
-        if (!error && data) {
-            if (isStudyMode) {
-                props.onSaved(data as StudyVariation);
-            } else {
-                props.onSaved(data as GameVariation);
-            }
-            props.onClose();
-        }
-    };
+    const branchIndex =
+        !isStudyMode && 'branchIndex' in props ? props.branchIndex : null;
 
     return (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
@@ -80,58 +26,19 @@ export function AddVariationModal(props: AddVariationModalProps) {
                 <h2 className="font-semibold text-zinc-100">
                     {isStudyMode
                         ? 'Add Variation to Study'
-                        : `Add Variation at Move ${props.branchIndex}`}
+                        : `Add Variation at Move ${branchIndex}`}
                 </h2>
 
-                <input
-                    placeholder="Title (e.g. 'Ruy Lopez: Berlin Defense')"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
-                />
-
-                {/* Show FEN input only for study mode */}
-                {isStudyMode && (
-                    <div>
-                        <label className="text-xs text-zinc-500 block mb-1">
-                            Starting FEN (leave blank for starting position)
-                        </label>
-                        <input
-                            placeholder={STARTING_FEN}
-                            value={
-                                editableStartFen === STARTING_FEN
-                                    ? ''
-                                    : editableStartFen
-                            }
-                            onChange={(e) =>
-                                setEditableStartFen(
-                                    e.target.value || STARTING_FEN,
-                                )
-                            }
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-blue-500"
-                        />
-                    </div>
-                )}
-
-                <div>
-                    <label className="text-xs text-zinc-500 block mb-1">
-                        PGN moves (just the moves, e.g. e4 e5 Nf3 Nc6)
-                    </label>
-                    <textarea
-                        placeholder="e4 e5 Nf3 Nc6 Bb5 a6..."
-                        value={pgn}
-                        onChange={(e) => setPgn(e.target.value)}
-                        rows={3}
-                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-blue-500"
-                    />
-                </div>
-
-                <textarea
-                    placeholder="Annotation / explanation (optional)"
-                    value={annotation}
-                    onChange={(e) => setAnnotation(e.target.value)}
-                    rows={2}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
+                <VariationFormFields
+                    title={title}
+                    onTitleChange={setTitle}
+                    pgn={pgn}
+                    onPgnChange={setPgn}
+                    annotation={annotation}
+                    onAnnotationChange={setAnnotation}
+                    isStudyMode={isStudyMode}
+                    editableStartFen={editableStartFen}
+                    onStartFenChange={setEditableStartFen}
                 />
 
                 <div className="flex justify-end gap-3">

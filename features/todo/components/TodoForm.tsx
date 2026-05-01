@@ -1,4 +1,4 @@
-import { TodoFormProps } from '@/types/todo';
+import { TodoFormProps } from '@/features/todo/types/todo';
 
 export function TodoForm({
     input,

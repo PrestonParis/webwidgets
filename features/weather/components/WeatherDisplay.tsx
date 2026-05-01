@@ -1,4 +1,4 @@
-import { WeatherDisplayProps } from '@/types/weather';
+import { WeatherDisplayProps } from '@/features/weather/types/weather';
 
 export function WeatherDisplay({ weather }: WeatherDisplayProps) {
     return (

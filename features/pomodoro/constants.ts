@@ -1,4 +1,4 @@
-import { Mode } from '@/types/pomodoro';
+import { Mode } from '@/features/pomodoro/types/pomodoro';
 
 export const DURATIONS: Record<Mode, number> = {
     focus: 25 * 60,

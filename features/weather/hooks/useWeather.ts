@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { WMO, CACHE_KEY, CACHE_TTL } from '../constants';
-import { WeatherData, WeatherState } from '@/types/weather';
+import { WeatherData, WeatherState } from '@/features/weather/types/weather';
 
 export function useWeather() {
     const [weather, setWeather] = useState<WeatherData | null>(null);

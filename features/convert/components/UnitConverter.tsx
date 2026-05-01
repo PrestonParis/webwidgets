@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ArrowUpDown } from 'lucide-react';
 import { categories } from '@/features/convert/constants';
 import { convert, formatResult } from '@/features/convert/hooks/useConvert';
-import { UnitConverterProps } from '@/types/unitconvert';
+import { UnitConverterProps } from '@/features/convert/types/unitconvert';
+import { UnitSelectorRow } from './UnitSelectorRow';
 
 export default function UnitConverter({ category }: UnitConverterProps) {
-    // Memoize units to prevent unnecessary recalculations
     const units = useMemo(() => categories[category]?.units ?? [], [category]);
 
     const [fromUnit, setFromUnit] = useState('');
@@ -15,7 +14,6 @@ export default function UnitConverter({ category }: UnitConverterProps) {
     const [value, setValue] = useState('1');
     const [prevCategory, setPrevCategory] = useState(category);
 
-    // Sync state during render if the category changed
     if (category !== prevCategory) {
         setPrevCategory(category);
         setFromUnit(units[0] || '');
@@ -23,7 +21,6 @@ export default function UnitConverter({ category }: UnitConverterProps) {
         setValue('1');
     }
 
-    // Derived State: Calculate result on the fly
     const result = useMemo(() => {
         const res = convert(category, value, fromUnit, toUnit);
         return formatResult(res);
@@ -45,7 +42,6 @@ export default function UnitConverter({ category }: UnitConverterProps) {
 
     return (
         <div className="w-full max-w-md mx-auto p-6 border rounded-2xl bg-card shadow-sm space-y-4 text-card-foreground">
-            {/* Input */}
             <div className="space-y-1">
                 <label className="text-xs font-semibold uppercase opacity-50 px-1">
                     Amount
@@ -59,51 +55,15 @@ export default function UnitConverter({ category }: UnitConverterProps) {
                 />
             </div>
 
-            {/* Selectors */}
-            <div className="flex items-center gap-2">
-                <select
-                    value={fromUnit}
-                    onChange={(e) => setFromUnit(e.target.value)}
-                    className="flex-1 h-10 px-2 border rounded-md bg-transparent cursor-pointer hover:border-primary transition-colors outline-none"
-                >
-                    {units.map((u) => (
-                        <option
-                            key={u}
-                            value={u}
-                            className="bg-background text-foreground"
-                        >
-                            {u}
-                        </option>
-                    ))}
-                </select>
+            <UnitSelectorRow
+                units={units}
+                fromUnit={fromUnit}
+                toUnit={toUnit}
+                onFromChange={setFromUnit}
+                onToChange={setToUnit}
+                onSwap={handleSwap}
+            />
 
-                <button
-                    type="button"
-                    onClick={handleSwap}
-                    className="p-2 hover:bg-accent rounded-full transition-all active:scale-95"
-                    title="Swap Units"
-                >
-                    <ArrowUpDown size={18} />
-                </button>
-
-                <select
-                    value={toUnit}
-                    onChange={(e) => setToUnit(e.target.value)}
-                    className="flex-1 h-10 px-2 border rounded-md bg-transparent cursor-pointer hover:border-primary transition-colors outline-none"
-                >
-                    {units.map((u) => (
-                        <option
-                            key={u}
-                            value={u}
-                            className="bg-background text-foreground"
-                        >
-                            {u}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {/* Result */}
             <div className="pt-4 border-t text-center space-y-1">
                 <p className="text-xs font-semibold uppercase opacity-50">
                     Result

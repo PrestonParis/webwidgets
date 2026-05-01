@@ -1,6 +1,6 @@
 'use client';
 
-import { ProfileFormProps } from '@/types/settings';
+import { ProfileFormProps } from '@/features/settings/types/settings';
 
 export default function ProfileForm({
     email,

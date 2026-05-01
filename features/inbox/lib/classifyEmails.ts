@@ -1,4 +1,4 @@
-import { EmailInput, EmailCategory } from '@/types/inbox';
+import { EmailInput, EmailCategory } from '@/features/inbox/types/inbox';
 import { classifyWithClaude } from './claude';
 import { classifyWithMlService } from './mlService';
 import { classifyWithRules } from './rules';

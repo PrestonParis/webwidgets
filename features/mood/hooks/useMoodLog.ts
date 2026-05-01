@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { MoodEntry } from '@/types/mood';
+import { MoodEntry } from '@/features/mood/types/mood';
 
 export function useMoodLog() {
     const { user } = useAuth();
