@@ -1,4 +1,4 @@
-import { ConverterRateSummaryProps } from '@/types/unitconvert';
+import { ConverterRateSummaryProps } from '@/features/convert/types/unitconvert';
 
 export function ConverterRateSummary({
     rate,

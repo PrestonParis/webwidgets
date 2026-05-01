@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { Tracker } from '@/types/recovery';
+import { Tracker } from '@/features/recovery/types/recovery';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import Header from '@/features/ui/components/Header';
 import DashboardGrid from './DashboardGrid';

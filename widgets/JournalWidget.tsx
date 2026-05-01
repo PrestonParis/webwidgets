@@ -3,7 +3,7 @@
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { JournalEntry } from '@/types/journal';
+import { JournalEntry } from '@/features/journal/types/journal';
 import { tiptapToPreviewText } from '@/lib/utils/tiptap';
 import { BookText } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';

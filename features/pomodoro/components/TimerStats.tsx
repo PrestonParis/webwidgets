@@ -1,4 +1,4 @@
-import { TimerStatsProps } from '@/types/pomodoro';
+import { TimerStatsProps } from '@/features/pomodoro/types/pomodoro';
 
 export function TimerStats({ cycles }: TimerStatsProps) {
     return (

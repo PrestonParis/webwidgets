@@ -1,5 +1,5 @@
-import ChessGamesPage from '@/features/chess/components/ChessGamesView';
+import ChessGamePage from '@/features/chess/review/components/ChessGamePage';
 
 export default function Page() {
-    return <ChessGamesPage />;
+    return <ChessGamePage />;
 }

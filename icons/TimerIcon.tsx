@@ -1,4 +1,4 @@
-import { TimerIconProps } from '@/types/timer';
+import { TimerIconProps } from '@/features/pomodoro/types/timer';
 
 export function TimerIcon({
     radius,

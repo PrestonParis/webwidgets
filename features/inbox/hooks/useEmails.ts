@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { Email } from '@/types/inbox';
+import { Email } from '@/features/inbox/types/inbox';
 
 export function useEmails() {
     const { user } = useAuth();

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { JournalEntry } from '@/types/journal';
+import { JournalEntry } from '@/features/journal/types/journal';
 
 export function useJournalEntries(userId: string | undefined) {
     const [entries, setEntries] = useState<JournalEntry[]>([]);

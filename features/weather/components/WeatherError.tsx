@@ -1,4 +1,4 @@
-import { WeatherErrorProps } from '@/types/weather';
+import { WeatherErrorProps } from '@/features/weather/types/weather';
 
 export function WeatherError({ state, onRetry }: WeatherErrorProps) {
     if (state === 'denied') {

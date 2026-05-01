@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { getTimeLeft } from '../lib/utils';
-import { CountdownItemProps } from '@/types/countdown';
+import { CountdownItemProps } from '@/features/countdown/types/countdown';
 
 export default function CountdownItem({
     countdown,

@@ -1,4 +1,4 @@
-import { HistoryItem } from '@/types/mood';
+import { HistoryItem } from '@/features/mood/types/mood';
 
 export function MoodHistoryBar({ history }: { history: HistoryItem[] }) {
     return (

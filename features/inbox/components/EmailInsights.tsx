@@ -1,4 +1,4 @@
-import { Email } from '@/types/inbox';
+import { Email } from '@/features/inbox/types/inbox';
 
 export function EmailInsights({ emails }: { emails: Email[] }) {
     const senderCounts = emails.reduce((acc: Record<string, number>, mail) => {

@@ -1,6 +1,10 @@
 import { useEffect, useCallback, useReducer } from 'react';
 import { DURATIONS } from '@/features/pomodoro/constants';
-import { TimerState, TimerAction, Mode } from '@/types/pomodoro';
+import {
+    TimerState,
+    TimerAction,
+    Mode,
+} from '@/features/pomodoro/types/pomodoro';
 
 function timerReducer(state: TimerState, action: TimerAction): TimerState {
     switch (action.type) {

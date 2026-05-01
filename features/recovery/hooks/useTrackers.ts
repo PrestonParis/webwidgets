@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { Tracker } from '@/types/recovery';
+import { Tracker } from '@/features/recovery/types/recovery';
 
 export function useTrackers() {
     const [trackers, setTrackers] = useState<Tracker[]>([]);

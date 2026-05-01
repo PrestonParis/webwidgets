@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { AUTH_ERRORS, AUTH_MODES } from '@/features/auth/constants';
-import { UseEmailAuthProps } from '@/types/auth';
+import { UseEmailAuthProps } from '@/features/auth/types/auth';
 
 export const useEmailAuth = () => {
     const [error, setError] = useState<string | null>(null);

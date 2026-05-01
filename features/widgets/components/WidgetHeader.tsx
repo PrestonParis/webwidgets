@@ -1,7 +1,7 @@
 import { Settings, X } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
-import { WidgetHeaderProps } from '@/types/widgets';
-import { colorMap } from '@/lib/constants/widget-styles';
+import { WidgetHeaderProps } from '@/features/widgets/types/widgets';
+import { colorMap } from '@/features/widgets/constants';
 
 export function WidgetHeader({
     icon,

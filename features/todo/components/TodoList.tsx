@@ -1,6 +1,6 @@
 import { CheckSquare, X } from 'lucide-react';
 import { Checkmark } from '@/icons/CheckMark';
-import { TodoListProps } from '@/types/todo';
+import { TodoListProps } from '@/features/todo/types/todo';
 
 export function TodoList({
     todos,

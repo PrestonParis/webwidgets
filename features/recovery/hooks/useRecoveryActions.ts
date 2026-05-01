@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/db/supabase';
-import { Tracker } from '@/types/recovery';
+import { Tracker } from '@/features/recovery/types/recovery';
 import { Dispatch, SetStateAction } from 'react';
 
 export function useRecoveryActions(
@@ -22,11 +22,8 @@ export function useRecoveryActions(
 
     const handleTrackerCardReset = (
         id: string,
-        setStartTime: (iso: string) => void,
         onReset: (id: string) => void,
     ) => {
-        const now = new Date().toISOString();
-        setStartTime(now);
         onReset(id);
     };
 

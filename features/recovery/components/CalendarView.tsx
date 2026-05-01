@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { DayStatus } from '@/types/recovery';
+import {
+    getDayStatus,
+    STATUS_CLASSES,
+} from '@/features/recovery/lib/calendarUtils';
+
+const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+const LEGEND = [
+    { bg: '#C0DD97', color: '#3B6D11', label: 'Clean' },
+    { bg: '#F7C1C1', color: '#A32D2D', label: 'Relapse' },
+] as const;
 
 export default function CalendarView({
     startTime,
@@ -14,15 +24,6 @@ export default function CalendarView({
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
-
-    const getDayStatus = (day: number): DayStatus => {
-        const date = new Date(year, month, day);
-        if (date > today) return 'future';
-        if (!startTime || date < new Date(startTime)) return 'before';
-        const dateStr = date.toISOString().split('T')[0];
-        if (relapses.includes(dateStr)) return 'relapse';
-        return 'clean';
-    };
 
     return (
         <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-100 dark:border-zinc-800">
@@ -48,8 +49,9 @@ export default function CalendarView({
                     </button>
                 </div>
             </div>
+
             <div className="grid grid-cols-7 gap-1 text-center">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                {DAY_LABELS.map((d, i) => (
                     <div
                         key={i}
                         className="text-xs text-gray-400 dark:text-zinc-500 py-1"
@@ -62,29 +64,27 @@ export default function CalendarView({
                 ))}
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                     const day = i + 1;
-                    const status = getDayStatus(day);
-                    const statusClasses = {
-                        clean: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
-                        relapse:
-                            'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-                        future: 'text-gray-300 dark:text-zinc-700',
-                        before: 'text-gray-200 dark:text-zinc-800 opacity-40',
-                    };
+                    const status = getDayStatus(
+                        day,
+                        year,
+                        month,
+                        today,
+                        startTime,
+                        relapses,
+                    );
                     return (
                         <div
                             key={day}
-                            className={`w-8 h-8 flex items-center justify-center rounded-full text-[10px] ${statusClasses[status]}`}
+                            className={`w-8 h-8 flex items-center justify-center rounded-full text-[10px] ${STATUS_CLASSES[status]}`}
                         >
                             {day}
                         </div>
                     );
                 })}
             </div>
+
             <div className="flex gap-4 mt-3">
-                {[
-                    ['#C0DD97', '#3B6D11', 'Clean'],
-                    ['#F7C1C1', '#A32D2D', 'Relapse'],
-                ].map(([bg, color, label]) => (
+                {LEGEND.map(({ bg, color, label }) => (
                     <div
                         key={label}
                         className="flex items-center gap-1.5 text-xs text-gray-500"
@@ -92,7 +92,7 @@ export default function CalendarView({
                         <span
                             style={{
                                 background: bg,
-                                color: color,
+                                color,
                                 width: 10,
                                 height: 10,
                                 borderRadius: '50%',

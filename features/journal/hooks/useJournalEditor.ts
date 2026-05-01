@@ -3,7 +3,7 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import { JournalEntry } from '@/types/journal';
+import { JournalEntry } from '@/features/journal/types/journal';
 
 export function useJournalEditor() {
     const [title, setTitle] = useState('');

@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { EmailCategory, EMAIL_CATEGORIES } from '@/types/inbox';
-import { EmailInput } from '@/types/inbox';
+import { EmailCategory, EMAIL_CATEGORIES } from '@/features/inbox/types/inbox';
+import { EmailInput } from '@/features/inbox/types/inbox';
 
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 

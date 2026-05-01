@@ -1,4 +1,4 @@
-import { Mode, ModeSelectorProps } from '@/types/pomodoro';
+import { Mode, ModeSelectorProps } from '@/features/pomodoro/types/pomodoro';
 import { LABELS } from '@/features/pomodoro/constants';
 
 export function ModeSelector({ mode, onSwitch }: ModeSelectorProps) {

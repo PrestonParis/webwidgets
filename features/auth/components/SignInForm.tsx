@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEmailAuth } from '@/features/auth/hooks/useEmailAuth';
 import { AUTH_MODES, AuthMode } from '@/features/auth/constants';
-import { SignInFormProps } from '@/types/auth';
+import { SignInFormProps } from '@/features/auth/types/auth';
 
 export const SignInForm = ({ onToggleMode }: SignInFormProps) => {
     const [email, setEmail] = useState('');

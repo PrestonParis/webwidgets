@@ -1,5 +1,5 @@
 import { GoogleIcon } from '@/icons/GoogleIcon';
-import { SettingsIntegrationCardProps } from '@/types/settings';
+import { SettingsIntegrationCardProps } from '@/features/settings/types/settings';
 
 export function SettingsIntegrationsCard({
     isGmailConnected,

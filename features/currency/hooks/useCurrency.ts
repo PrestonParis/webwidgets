@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useReducer } from 'react';
-import { CurrencyRates } from '@/types/currency';
+import { CurrencyRates } from '@/features/currency/types/currency';
 
 type State = {
     rates: CurrencyRates | null;

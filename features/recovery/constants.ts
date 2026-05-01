@@ -1,4 +1,4 @@
-import { RecoveryView } from '@/types/widgets';
+import { RecoveryView } from '@/features/widgets/types/widgets';
 
 export const ADDICTION_CATEGORIES: Record<string, string[]> = {
     Substances: [

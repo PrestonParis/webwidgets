@@ -1,4 +1,4 @@
-import { FooterActionsProps } from '@/types/recovery';
+import { FooterActionsProps } from '@/features/recovery/types/recovery';
 
 export function FooterActions({ onCancel, onSave }: FooterActionsProps) {
     return (

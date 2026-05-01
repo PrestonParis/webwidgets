@@ -1,4 +1,4 @@
-import { AuthCardProps } from '@/types/auth';
+import { AuthCardProps } from '@/features/auth/types/auth';
 
 export const AuthCard = ({ children }: AuthCardProps) => {
     return (

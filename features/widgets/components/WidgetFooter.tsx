@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils/utils';
-import { colorMap } from '@/lib/constants/widget-styles';
-import { WidgetFooterProps } from '@/types/widgets';
+import { colorMap } from '@/features/widgets/constants';
+import { WidgetFooterProps } from '@/features/widgets/types/widgets';
 
 export function WidgetFooter({ href, label, settings }: WidgetFooterProps) {
     const c = colorMap[settings.color];

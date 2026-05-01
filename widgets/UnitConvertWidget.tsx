@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowLeftRight } from 'lucide-react';
-import { getCategories } from '@/types/unitconvert';
+import { getCategories } from '@/features/convert/types/unitconvert';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { useConverterWidget } from '@/features/convert/hooks/useConverterWidget';
@@ -40,6 +40,8 @@ export default function UnitConverterWidget() {
             onSettingsChange={updateSettings}
             widgetId="converter"
             widgetType="converter"
+            footerHref="/unitconvert"
+            footerLabel="View full page →"
         >
             <ConverterCategoryTabs
                 categories={getCategories()}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Settings, User, LogOut, ChevronDown } from 'lucide-react';
-import { AccountDropdownProps } from '@/types/ui';
+import { AccountDropdownProps } from '@/features/ui/types/ui';
 
 export default function AccountDropdown({
     firstName,

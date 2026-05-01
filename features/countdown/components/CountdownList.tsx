@@ -1,5 +1,5 @@
 import CountdownItem from './CountdownItem';
-import { CountdownListProps } from '@/types/countdown';
+import { CountdownListProps } from '@/features/countdown/types/countdown';
 
 export default function CountdownList({
     countdowns,

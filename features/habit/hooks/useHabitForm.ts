@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UseHabitFormOptions } from '@/types/habit';
+import { UseHabitFormOptions } from '@/features/habit/types/habit';
 
 export function useHabitForm({ onAdd }: UseHabitFormOptions) {
     const [adding, setAdding] = useState(false);

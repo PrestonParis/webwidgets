@@ -1,88 +1,45 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useJournalEntries } from '@/features/journal/hooks/useJournalEntries';
-import { useJournalEditor } from '@/features/journal/hooks/useJournalEditor';
-import { useAutosave } from '@/features/journal/hooks/useAutosave';
-import { useJournalManager } from '@/features/journal/hooks/useJournalManager';
+import { useJournalPage } from '@/features/journal/hooks/useJournalPage';
 import { JournalHeader } from '@/features/journal/components/JournalHeader';
 import { JournalForm } from '@/features/journal/components/JournalForm';
 import { EmptyState } from '@/features/journal/components/EmptyState';
 import EntryCard from '@/features/journal/components/EntryCard';
 import { TIPTAP_STYLES } from '@/features/journal/constants';
-import { JournalEntry } from '@/types/journal';
+import { JournalEntry } from '@/features/journal/types/journal';
 
 export default function JournalPage() {
-    const { user } = useAuth();
-    const [focusMode, setFocusMode] = useState(false);
-
-    // Core Domain Hooks
-    const entryUtils = useJournalEntries(user?.id);
-    const editorUtils = useJournalEditor();
-    const { autosaved, restoreDraft, clearDraft } = useAutosave(
-        editorUtils.editor,
-        editorUtils.title,
-        !editorUtils.isEditing,
-    );
-
-    // Derived Logic Hook
-    const {
-        isSaving,
-        searchQuery,
-        setSearchQuery,
-        handleSubmit,
-        filteredEntries,
-    } = useJournalManager(
-        user,
-        editorUtils.editor,
-        editorUtils,
-        entryUtils,
-        clearDraft,
-    );
-
-    // Restore draft logic
-    useEffect(() => {
-        if (!editorUtils.isEditing && editorUtils.editor) {
-            const draft = restoreDraft();
-            if (draft) {
-                editorUtils.setTitle(draft.title);
-                editorUtils.editor.commands.setContent(draft.content);
-            }
-        }
-    }, [editorUtils.editor, restoreDraft, editorUtils]);
-
-    const wordCount = editorUtils.editor?.storage.characterCount.words() ?? 0;
+    const page = useJournalPage();
 
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: TIPTAP_STYLES }} />
-            {focusMode && (
+            {page.focusMode && (
                 <div
                     className="fixed inset-0 bg-stone-950/60 z-10 backdrop-blur-sm"
-                    onClick={() => setFocusMode(false)}
+                    onClick={() => page.setFocusMode(false)}
                 />
             )}
 
             <main className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
-                <JournalHeader entryCount={entryUtils.entries.length} />
+                <JournalHeader entryCount={page.entryUtils.entries.length} />
 
                 <JournalForm
-                    {...editorUtils}
-                    onTitleChange={editorUtils.setTitle}
-                    isSaving={isSaving}
-                    focusMode={focusMode}
-                    onFocusToggle={() => setFocusMode((v) => !v)}
+                    {...page.editorUtils}
+                    onTitleChange={page.editorUtils.setTitle}
+                    isSaving={page.isSaving}
+                    focusMode={page.focusMode}
+                    onFocusToggle={() => page.setFocusMode((v) => !v)}
                     onCancel={() => {
                         if (
-                            editorUtils.isDirty() &&
+                            page.editorUtils.isDirty() &&
                             !window.confirm('Discard changes?')
                         )
                             return;
-                        editorUtils.cancelEditing();
+                        page.editorUtils.cancelEditing();
                     }}
-                    onSubmit={handleSubmit}
-                    wordCount={wordCount}
-                    autosaved={autosaved}
+                    onSubmit={page.handleSubmit}
+                    wordCount={page.wordCount}
+                    autosaved={page.autosaved}
                 />
 
                 <section className="lg:col-span-8 space-y-6">
@@ -91,40 +48,42 @@ export default function JournalPage() {
                         {(['all', 'trash'] as const).map((v) => (
                             <button
                                 key={v}
-                                onClick={() => entryUtils.setView(v)}
-                                className={`text-sm font-medium capitalize ${entryUtils.view === v ? 'text-amber-600' : 'text-stone-400'}`}
+                                onClick={() => page.entryUtils.setView(v)}
+                                className={`text-sm font-medium capitalize ${page.entryUtils.view === v ? 'text-amber-600' : 'text-stone-400'}`}
                             >
                                 {v === 'all' ? 'Recent' : 'Trash'}
                             </button>
                         ))}
                     </div>
 
-                    {entryUtils.view === 'all' && (
+                    {page.entryUtils.view === 'all' && (
                         <div className="relative">
                             <input
                                 type="search"
                                 placeholder="Search entries…"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                value={page.searchQuery}
+                                onChange={(e) =>
+                                    page.setSearchQuery(e.target.value)
+                                }
                                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border dark:bg-zinc-900 text-sm outline-none focus:border-amber-500"
                             />
                         </div>
                     )}
 
-                    {filteredEntries.length === 0 ? (
+                    {page.filteredEntries.length === 0 ? (
                         <EmptyState
-                            view={entryUtils.view}
-                            hasSearchQuery={!!searchQuery}
+                            view={page.entryUtils.view}
+                            hasSearchQuery={!!page.searchQuery}
                         />
                     ) : (
-                        filteredEntries.map((entry: JournalEntry) => (
+                        page.filteredEntries.map((entry: JournalEntry) => (
                             <EntryCard
                                 key={entry.id}
                                 entry={entry}
-                                onDelete={entryUtils.handleDelete}
-                                onEdit={editorUtils.startEditing}
-                                onRestore={entryUtils.handleRestore}
-                                isTrash={entryUtils.view === 'trash'}
+                                onDelete={page.entryUtils.handleDelete}
+                                onEdit={page.editorUtils.startEditing}
+                                onRestore={page.entryUtils.handleRestore}
+                                isTrash={page.entryUtils.view === 'trash'}
                             />
                         ))
                     )}

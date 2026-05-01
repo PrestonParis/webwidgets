@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { getUnits } from '@/types/unitconvert';
+import { getUnits } from '@/features/convert/types/unitconvert';
 import { convert, formatResult } from './useConvert';
 
 export function useConverterWidget() {
