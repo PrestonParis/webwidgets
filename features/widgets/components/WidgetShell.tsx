@@ -52,9 +52,9 @@ export default function WidgetShell({
                 badge={badge}
                 settings={settings}
                 settingsOpen={settingsOpen}
-                onToggleSettings={
-                    showSettings ? () => setSettingsOpen((v) => !v) : undefined
-                }
+                {...(showSettings
+                    ? { onToggleSettings: () => setSettingsOpen((v) => !v) }
+                    : {})}
                 showSettings={showSettings}
             />
 

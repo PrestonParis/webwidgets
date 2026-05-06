@@ -143,6 +143,28 @@ export function getPgnData(pgn: string) {
     }
 }
 
+/**
+ * Rebuild a PGN by taking the first N moves and appending a new SAN move.
+ * Used when extending the main line via board analysis.
+ */
+export function extendPgn(
+    moves: ParsedMove[],
+    upToIndex: number,
+    newSan: string,
+): string {
+    try {
+        const chess = new Chess();
+        for (let i = 0; i < upToIndex && i < moves.length; i++) {
+            const move = moves[i];
+            if (move) chess.move(move.san);
+        }
+        chess.move(newSan);
+        return chess.pgn();
+    } catch {
+        return '';
+    }
+}
+
 export function validatePgn(pgn: string): string | null {
     return getPgnData(pgn).error;
 }

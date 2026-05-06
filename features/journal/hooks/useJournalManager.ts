@@ -2,16 +2,14 @@ import { useState, useCallback, useMemo } from 'react';
 import { journalService } from '../api/journalService';
 import { JournalEntry } from '@/features/journal/types/journal';
 import { Editor } from '@tiptap/react';
-import {
-    JournalEditorUtils,
-    JournalEntryUtils,
-} from '@/features/journal/types/journal';
+import { useJournalEditor } from './useJournalEditor';
+import { useJournalEntries } from './useJournalEntries';
 
 export function useJournalManager(
     user: { id: string } | null,
     editor: Editor | null,
-    editorUtils: JournalEditorUtils,
-    entryUtils: JournalEntryUtils,
+    editorUtils: ReturnType<typeof useJournalEditor>,
+    entryUtils: ReturnType<typeof useJournalEntries>,
     clearDraft: () => void,
 ) {
     const [isSaving, setIsSaving] = useState(false);

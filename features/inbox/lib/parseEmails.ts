@@ -6,7 +6,7 @@ export function parseEmails(batch: GmailMessage[], ids: string[]) {
     return batch.map((email, i) => {
         const headers = email.payload?.headers || [];
         return {
-            id: ids[i],
+            id: ids[i] ?? '',
             subject:
                 headers.find((h) => h.name === 'Subject')?.value ||
                 'No Subject',

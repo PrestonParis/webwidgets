@@ -1,27 +1,14 @@
 'use client';
 
-// ─────────────────────────────────────────────
-// components/Dashboard/WidgetWrapper.tsx
-//
-// Wraps each widget in a sortable DnD node and
-// applies the correct grid col/row span based
-// on the widget's persisted size setting.
-// ─────────────────────────────────────────────
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ReactNode } from 'react';
-import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import { motion } from 'framer-motion';
+import { WidgetWrapperProps } from '@/features/dashboard/types/dashboard';
 import { WidgetSize } from '@/features/widgets/types/widgets';
 import { cn } from '@/lib/utils/utils';
-
-interface Props {
-    config: WidgetConfig;
-    onToggleVisible: (id: string) => void;
-    children: ReactNode;
-    /** Provided by useWidgetSettings in the parent — avoids a second Supabase fetch */
-    size?: WidgetSize;
-}
+import { HideWidgetContext } from '@/features/dashboard/contexts/HideWidgetContext';
+import { StatusDot } from '@/features/notifications/components/StatusDot';
+import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 
 const sizeClasses: Record<WidgetSize, string> = {
     compact: 'col-span-1',
@@ -31,9 +18,9 @@ const sizeClasses: Record<WidgetSize, string> = {
 
 export default function WidgetWrapper({
     config,
+    onToggleVisible,
     children,
-    size = 'default',
-}: Props) {
+}: WidgetWrapperProps) {
     const {
         attributes,
         listeners,
@@ -43,25 +30,40 @@ export default function WidgetWrapper({
         isDragging,
     } = useSortable({ id: config.id });
 
+    const { settings } = useWidgetSettings(config.id, config.type);
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isDragging ? 0.4 : 1,
         zIndex: isDragging ? 10 : undefined,
     };
 
     return (
-        <div
+        <motion.div
             ref={setNodeRef}
             style={style}
             {...attributes}
             {...listeners}
-            className={cn(
-                sizeClasses[size],
-                'touch-none', // prevents scroll-fighting on mobile during drag
-            )}
+            className={cn(sizeClasses[settings.size], 'touch-none relative')}
+            layout={!isDragging}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isDragging ? 0.4 : 1 }}
+            transition={{
+                layout: { duration: 0.2, ease: 'easeInOut' },
+                opacity: { duration: 0.25 },
+            }}
         >
-            {children}
-        </div>
+            {config.type !== 'folder' && (
+                <StatusDot
+                    widgetId={config.id}
+                    className="absolute top-3 right-3 z-20"
+                />
+            )}
+            <HideWidgetContext.Provider
+                value={() => onToggleVisible(config.id)}
+            >
+                {children}
+            </HideWidgetContext.Provider>
+        </motion.div>
     );
 }

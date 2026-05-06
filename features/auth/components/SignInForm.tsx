@@ -27,7 +27,12 @@ export const SignInForm = ({ onToggleMode }: SignInFormProps) => {
 
     return (
         <>
-            <form onSubmit={onSubmit} className="space-y-3">
+            <form
+                onSubmit={(e) => {
+                    void onSubmit(e);
+                }}
+                className="space-y-3"
+            >
                 <input
                     type="email"
                     placeholder="Email address"

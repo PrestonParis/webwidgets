@@ -38,7 +38,9 @@ export default function MoodWidget() {
                     {MOODS.map((m) => (
                         <button
                             key={m.value}
-                            onClick={() => logMood(m.value)}
+                            onClick={() => {
+                                void logMood(m.value);
+                            }}
                             title={m.label}
                             className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl border-2 transition-all ${
                                 todayEntry?.score === m.value

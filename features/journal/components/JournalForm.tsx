@@ -17,7 +17,7 @@ export function JournalForm({
 }: JournalFormProps) {
     return (
         <div
-            className={`lg:col-span-4 transition-all duration-300 ${focusMode ? 'relative z-20' : ''}`}
+            className={`lg:col-span-8 transition-all duration-300 ${focusMode ? 'relative z-20' : ''}`}
         >
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-stone-200 dark:border-zinc-800 shadow-sm sticky top-8 overflow-hidden">
                 <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-stone-100 dark:border-zinc-800">
@@ -44,7 +44,12 @@ export function JournalForm({
                     </div>
                 </div>
 
-                <form onSubmit={onSubmit} className="p-6 flex flex-col gap-4">
+                <form
+                    onSubmit={(e) => {
+                        void onSubmit(e);
+                    }}
+                    className="p-6 flex flex-col gap-4"
+                >
                     <input
                         type="text"
                         placeholder="Entry title…"
@@ -54,7 +59,7 @@ export function JournalForm({
                         className="w-full font-serif text-lg font-semibold bg-transparent border-0 border-b border-stone-200 dark:border-zinc-700 pb-2 outline-none text-stone-900 dark:text-zinc-100 placeholder:text-stone-300 dark:placeholder:text-zinc-600 focus:border-amber-500 transition-colors"
                     />
 
-                    <div className="border border-stone-200 dark:border-zinc-700 rounded-xl p-3 focus-within:border-amber-500 transition-colors min-h-55">
+                    <div className="border border-stone-200 dark:border-zinc-700 rounded-xl p-3 focus-within:border-amber-500 transition-colors min-h-95">
                         {editor ? ( // ← Check editor directly instead of isMounted
                             <>
                                 <EditorToolbar editor={editor} />

@@ -17,7 +17,7 @@ export default function ViewToggle({ view, onViewChange }: ViewToggleProps) {
                 {VIEW_OPTIONS.map((opt) => (
                     <button
                         key={opt.value}
-                        onClick={() => onViewChange(opt.value as RecoveryView)}
+                        onClick={() => onViewChange(opt.value)}
                         className={cn(
                             'flex-1 py-1.5 rounded-xl text-xs font-bold transition-all',
                             view === opt.value

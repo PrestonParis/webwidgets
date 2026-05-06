@@ -1,12 +1,42 @@
+'use client';
+
+import { useState } from 'react';
 import type { Tab } from '@/features/chess/types/chess';
-import type { GameHeaderProps } from '@/features/chess/review/types/review';
+import type { ChessGame } from '@/features/chess/types/chess';
+
+interface GameHeaderProps {
+    game: ChessGame;
+    tab: Tab;
+    onBack: () => void;
+    onTabChange: (t: Tab) => void;
+    onTitleChange?: (title: string) => void;
+}
 
 export function GameHeader({
     game,
     tab,
     onBack,
     onTabChange,
+    onTitleChange,
 }: GameHeaderProps) {
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState('');
+
+    const displayTitle = game.title ?? game.event ?? 'Casual Game';
+
+    const startEdit = () => {
+        setDraft(game.title ?? game.event ?? '');
+        setEditing(true);
+    };
+
+    const commitEdit = () => {
+        setEditing(false);
+        const trimmed = draft.trim();
+        if (trimmed !== displayTitle) {
+            onTitleChange?.(trimmed);
+        }
+    };
+
     return (
         <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -17,12 +47,36 @@ export function GameHeader({
                     ← Library
                 </button>
                 <div>
-                    <h1 className="font-semibold text-zinc-100">
-                        {game.white} <span className="text-zinc-500">vs</span>{' '}
-                        {game.black}
-                    </h1>
+                    {editing ? (
+                        <input
+                            autoFocus
+                            value={draft}
+                            onChange={(e) => setDraft(e.target.value)}
+                            onBlur={commitEdit}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') commitEdit();
+                                if (e.key === 'Escape') setEditing(false);
+                            }}
+                            className="bg-zinc-800 text-zinc-100 rounded px-2 py-0.5 text-sm font-semibold outline-none border border-zinc-600 focus:border-blue-500 w-64"
+                        />
+                    ) : (
+                        <button
+                            onClick={onTitleChange ? startEdit : undefined}
+                            className={`font-semibold text-zinc-100 text-left ${onTitleChange ? 'hover:text-blue-400 cursor-pointer' : 'cursor-default'} transition-colors`}
+                            title={
+                                onTitleChange ? 'Click to rename' : undefined
+                            }
+                        >
+                            {displayTitle}
+                            {onTitleChange && (
+                                <span className="ml-1.5 text-zinc-600 text-xs font-normal">
+                                    ✎
+                                </span>
+                            )}
+                        </button>
+                    )}
                     <p className="text-xs text-zinc-500">
-                        {game.event || 'Casual Game'}
+                        {game.white} vs {game.black}
                         {game.played_at
                             ? ` · ${new Date(game.played_at).toLocaleDateString()}`
                             : ''}

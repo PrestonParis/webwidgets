@@ -13,6 +13,7 @@ export function ChessSidebar(props: TrainerSidebarProps) {
         onVariationSelect,
         onAddVariation,
         onDeleteVariation,
+        onUpdateAnnotation,
         activeVariation,
         setActiveVariation,
         gameId,
@@ -42,6 +43,7 @@ export function ChessSidebar(props: TrainerSidebarProps) {
             onSelectVariation={onVariationSelect}
             onAdd={onAddVariation}
             onDelete={onDeleteVariation}
+            onUpdateAnnotation={onUpdateAnnotation}
         />
     );
 }

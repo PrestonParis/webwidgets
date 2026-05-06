@@ -1,4 +1,4 @@
-import type { GameVariation } from '@/features/chess/types/chess';
+import type { GameVariation } from '@/features/chess/types/variation';
 import { VariationCard } from './VariationCard';
 
 export function VariationPanel({
@@ -7,12 +7,14 @@ export function VariationPanel({
     onSelect,
     onAdd,
     onDelete,
+    onUpdateAnnotation,
 }: {
     variations: GameVariation[];
     currentMoveIndex: number;
     onSelect: (v: GameVariation) => void;
     onAdd: () => void;
     onDelete: (id: string) => void;
+    onUpdateAnnotation?: ((id: string, annotation: string) => void) | undefined;
 }) {
     const relevant = variations.filter(
         (v) => v.branch_move_index === currentMoveIndex,
@@ -48,6 +50,7 @@ export function VariationPanel({
                         variation={v}
                         onSelect={onSelect}
                         onDelete={onDelete}
+                        onUpdateAnnotation={onUpdateAnnotation}
                     />
                 ))}
             </div>

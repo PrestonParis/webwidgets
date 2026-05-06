@@ -37,8 +37,12 @@ export default function SettingsHomePage() {
                 </div>
                 <SettingsIntegrationsCard
                     isGmailConnected={isGmailConnected}
-                    onConnect={handleGoogleConnect}
-                    onDisconnect={handleGoogleDisconnect}
+                    onConnect={() => {
+                        void handleGoogleConnect();
+                    }}
+                    onDisconnect={() => {
+                        void handleGoogleDisconnect();
+                    }}
                 />
                 {user && (
                     <SettingsProfileCard
@@ -46,7 +50,9 @@ export default function SettingsHomePage() {
                         fullName={fullName}
                         saving={saving}
                         onNameChange={setFullName}
-                        onSave={handleSave}
+                        onSave={() => {
+                            void handleSave();
+                        }}
                     />
                 )}
             </div>

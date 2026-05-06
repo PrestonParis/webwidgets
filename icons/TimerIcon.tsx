@@ -4,12 +4,20 @@ export function TimerIcon({
     radius,
     circumference,
     strokeDashoffset,
+    compact,
 }: TimerIconProps) {
+    const size = compact ? 136 : 256;
+    const center = size / 2;
     return (
-        <svg className="w-64 h-64 transform -rotate-90">
+        <svg
+            width={size}
+            height={size}
+            className="transform -rotate-90"
+            style={{ width: size, height: size }}
+        >
             <circle
-                cx="128"
-                cy="128"
+                cx={center}
+                cy={center}
                 r={radius}
                 stroke="currentColor"
                 strokeWidth="8"
@@ -17,8 +25,8 @@ export function TimerIcon({
                 className="text-gray-200 dark:text-gray-700"
             />
             <circle
-                cx="128"
-                cy="128"
+                cx={center}
+                cy={center}
                 r={radius}
                 stroke="currentColor"
                 strokeWidth="8"

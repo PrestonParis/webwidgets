@@ -70,7 +70,9 @@ export default function AddTrackerDrawer({
                         </p>
                     )}
                     <button
-                        onClick={handleAdd}
+                        onClick={() => {
+                            void handleAdd();
+                        }}
                         disabled={!selectedAddiction || isAdding}
                         className="w-full py-3 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 disabled:bg-gray-200 disabled:text-gray-400 transition-all"
                     >

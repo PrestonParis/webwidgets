@@ -49,7 +49,9 @@ export default function CountdownWidget() {
                     {nearest ? (
                         <CountdownHero
                             countdown={nearest}
-                            onDelete={deleteCountdown}
+                            onDelete={(id) => {
+                                void deleteCountdown(id);
+                            }}
                         />
                     ) : (
                         !adding && (
@@ -67,7 +69,9 @@ export default function CountdownWidget() {
 
                     <CountdownList
                         countdowns={rest}
-                        onDelete={deleteCountdown}
+                        onDelete={(id) => {
+                            void deleteCountdown(id);
+                        }}
                     />
 
                     {adding ? (

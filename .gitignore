@@ -66,3 +66,6 @@ coverage/
 .vscode/
 .husky/
 .claude/
+.cache/
+CLAUDE.md
+supabase

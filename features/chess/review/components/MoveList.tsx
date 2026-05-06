@@ -21,7 +21,9 @@ export default function MoveList({
 
     const pairs: [ParsedMove, ParsedMove | null][] = [];
     for (let i = 0; i < moves.length; i += 2) {
-        pairs.push([moves[i], moves[i + 1] ?? null]);
+        const first = moves[i];
+        if (!first) continue;
+        pairs.push([first, moves[i + 1] ?? null]);
     }
 
     return (

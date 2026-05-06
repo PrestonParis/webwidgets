@@ -4,7 +4,7 @@ import { Habit, HabitCompletion } from '@/features/habit/types/habit';
 import { toIsoDate } from '@/features/habit/hooks/useHabits.utils';
 
 export function useHabitActions(params: {
-    userId?: string;
+    userId?: string | undefined;
     completions: HabitCompletion[];
     setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
     setCompletions: React.Dispatch<React.SetStateAction<HabitCompletion[]>>;

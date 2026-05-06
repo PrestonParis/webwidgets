@@ -13,7 +13,7 @@ export function useChessGames() {
     const [, startTransition] = useTransition();
 
     useEffect(() => {
-        gameService
+        void gameService
             .fetchGames()
             .then(setGames)
             .finally(() => setLoading(false));

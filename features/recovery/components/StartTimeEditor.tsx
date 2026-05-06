@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/db/supabase';
-import DatePicker from './datepicker/DatePicker';
+import DatePicker from '@/features/ui/datepicker/DatePicker';
 
 interface StartTimeEditorProps {
     trackerId: string;
@@ -18,12 +18,14 @@ export default function StartTimeEditor({
         <div className="flex justify-center">
             <DatePicker
                 value={startTime}
-                onChange={async (iso) => {
-                    await supabase
-                        .from('recovery_profiles')
-                        .update({ start_time: iso })
-                        .eq('id', trackerId);
-                    onUpdate(iso);
+                onChange={(iso) => {
+                    void (async () => {
+                        await supabase
+                            .from('recovery_profiles')
+                            .update({ start_time: iso })
+                            .eq('id', trackerId);
+                        onUpdate(iso);
+                    })();
                 }}
                 onCancel={onCancel}
             />

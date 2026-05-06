@@ -1,6 +1,4 @@
 import { Editor } from '@tiptap/react';
-import { useJournalEditor } from '@/features/journal/hooks/useJournalEditor';
-import { useJournalEntries } from '@/features/journal/hooks/useJournalEntries';
 export interface JournalEntry {
     id: number;
     title: string;
@@ -32,5 +30,13 @@ export interface JournalFormProps {
     autosaved: boolean;
 }
 
-export type JournalEditorUtils = ReturnType<typeof useJournalEditor>;
-export type JournalEntryUtils = ReturnType<typeof useJournalEntries>;
+export interface EntryCardActionsProps {
+    entry: JournalEntry;
+    isTrash?: boolean | undefined;
+    isConfirming: boolean;
+    onEdit?: ((entry: JournalEntry) => void) | undefined;
+    onDelete: (id: number) => void;
+    onRestore?: ((id: number) => void) | undefined;
+    onConfirmStart: () => void;
+    onConfirmCancel: () => void;
+}

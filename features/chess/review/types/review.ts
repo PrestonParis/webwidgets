@@ -1,9 +1,6 @@
-import {
-    ChessGame,
-    GameVariation,
-    ParsedMove,
-    Tab,
-} from '@/features/chess/types/chess';
+import { ChessGame, ParsedMove, Tab } from '@/features/chess/types/chess';
+import { GameVariation } from '@/features/chess/types/variation';
+import { PieceDropHandlerArgs } from 'react-chessboard';
 
 export interface BoardViewProps {
     white: string;
@@ -15,6 +12,7 @@ export interface BoardViewProps {
     showControls: boolean;
     activeVariation: GameVariation | null;
     onMoveSelect: (i: number) => void;
+    onPieceDrop?: ((args: PieceDropHandlerArgs) => boolean) | undefined;
 }
 
 export interface GameHeaderProps {
@@ -33,6 +31,7 @@ export interface TrainerSidebarProps {
     onVariationSelect: (variation: GameVariation) => void;
     onAddVariation: () => void;
     onDeleteVariation: (variationId: string) => void;
+    onUpdateAnnotation?: ((id: string, annotation: string) => void) | undefined;
     activeVariation: GameVariation | null;
     setActiveVariation: (variation: GameVariation | null) => void;
     gameId: string;
@@ -53,3 +52,12 @@ export interface KeyboardNavProps {
     onStart: () => void;
     onEnd: () => void;
 }
+
+type VariationCardProps = {
+    variation: GameVariation;
+    onSelect: (v: GameVariation) => void;
+    onDelete: (id: string) => void;
+    onUpdateAnnotation?: ((id: string, annotation: string) => void) | undefined;
+};
+
+export type { VariationCardProps };

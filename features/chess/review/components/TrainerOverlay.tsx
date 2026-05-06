@@ -1,5 +1,5 @@
 import MoveTrainer from '@/features/chess/movetrainer/components/MoveTrainer';
-import type { GameVariation } from '@/features/chess/types/chess';
+import type { GameVariation } from '@/features/chess/types/variation';
 
 interface TrainerOverlayProps {
     activeVariation: GameVariation;

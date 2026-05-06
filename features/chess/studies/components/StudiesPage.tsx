@@ -10,13 +10,22 @@ export default function StudiesPage() {
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8 max-w-4xl mx-auto">
-            <StudiesHeader onCreateClick={handleCreate} />
+            <StudiesHeader
+                onCreateClick={() => {
+                    void handleCreate();
+                }}
+            />
             {loading ? (
                 <StudiesLoadingSkeleton />
             ) : studies.length === 0 ? (
                 <StudiesEmptyState />
             ) : (
-                <StudiesList studies={studies} onDelete={handleDelete} />
+                <StudiesList
+                    studies={studies}
+                    onDelete={(id) => {
+                        void handleDelete(id);
+                    }}
+                />
             )}
         </div>
     );
