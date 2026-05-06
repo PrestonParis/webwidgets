@@ -1,6 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { EmailCategory, EMAIL_CATEGORIES } from '@/features/inbox/types/inbox';
 import { EmailInput } from '@/features/inbox/types/inbox';
+import { z } from 'zod';
+
+const claudePredictionSchema = z.object({
+    idx: z.number(),
+    category: z.string(),
+});
+
+const claudePredictionsSchema = z.array(claudePredictionSchema);
 
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 
@@ -29,12 +37,18 @@ ${list}`,
         ],
     });
 
-    const text =
-        msg.content[0].type === 'text' ? msg.content[0].text.trim() : '[]';
-    const parsed: { idx: number; category: string }[] = JSON.parse(text);
+    const first = msg.content[0];
+    const raw = first?.type === 'text' ? first.text.trim() : '[]';
+    const text = raw
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+    const parsedJson: unknown = JSON.parse(text);
+    const parsed = claudePredictionsSchema.safeParse(parsedJson);
+    if (!parsed.success) return new Map<number, EmailCategory>();
 
     const out = new Map<number, EmailCategory>();
-    for (const item of parsed) {
+    for (const item of parsed.data) {
         const cat = EMAIL_CATEGORIES.includes(item.category as EmailCategory)
             ? (item.category as EmailCategory)
             : 'other';

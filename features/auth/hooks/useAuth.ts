@@ -46,7 +46,7 @@ export function useAuth() {
             if (active && data) setProfile(data);
         };
 
-        fetchProfile();
+        void fetchProfile();
 
         return () => {
             active = false;
@@ -85,7 +85,7 @@ export function useAuth() {
         status,
         loading: status === 'loading',
         profile,
-        firstName: profile?.full_name?.split(' ')[0] ?? 'User',
+        firstName: profile?.full_name?.split(' ')[0] ?? null,
         userId: user?.id,
 
         // actions

@@ -2,6 +2,22 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useRouter } from 'next/navigation';
 import { StudiesSidebarProps } from '@/features/chess/studies/types/studies';
+import { z } from 'zod';
+
+const sidebarStudySchema = z.object({
+    id: z.string(),
+    title: z.string(),
+});
+
+const sidebarStudyArraySchema = z.array(sidebarStudySchema);
+const authResponseSchema = z.object({
+    data: z.object({
+        user: z.object({ id: z.string() }).nullable(),
+    }),
+});
+const supabaseQuerySchema = z.object({
+    data: z.unknown().nullable(),
+});
 
 export function StudiesSidebar({ gameId }: StudiesSidebarProps) {
     const [studies, setStudies] = useState<{ id: string; title: string }[]>([]);
@@ -14,20 +30,23 @@ export function StudiesSidebar({ gameId }: StudiesSidebarProps) {
             .select('id, title')
             .eq('game_id', gameId) // Only fetch studies for this specific game
             .order('updated_at', { ascending: false })
-            .then(({ data }) => setStudies(data ?? []));
+            .then(({ data }) => {
+                const parsed = sidebarStudyArraySchema.safeParse(data);
+                setStudies(parsed.success ? parsed.data : []);
+            });
     }, [gameId]);
 
     const handleCreateStudy = async () => {
         const title = prompt('Study title?');
         if (!title) return;
 
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
+        const authUnknown: unknown = await supabase.auth.getUser();
+        const authResult = authResponseSchema.safeParse(authUnknown);
+        const user = authResult.success ? authResult.data.data.user : null;
         if (!user) return;
 
         // 2. Include game_id in the insert payload
-        const { data } = await supabase
+        const queryUnknown: unknown = await supabase
             .from('chess_studies')
             .insert({
                 user_id: user.id,
@@ -36,8 +55,13 @@ export function StudiesSidebar({ gameId }: StudiesSidebarProps) {
             })
             .select()
             .single();
+        const query = supabaseQuerySchema.safeParse(queryUnknown);
+        const data = query.success ? query.data.data : null;
 
-        if (data) setStudies((prev) => [data, ...prev]);
+        const parsed = sidebarStudySchema.safeParse(data);
+        if (parsed.success) {
+            setStudies((prev) => [parsed.data, ...prev]);
+        }
     };
     return (
         <div className="p-4 space-y-4">
@@ -72,23 +96,12 @@ export function StudiesSidebar({ gameId }: StudiesSidebarProps) {
                 </div>
             )}
             <button
-                onClick={async () => {
-                    const title = prompt('Study title?');
-                    if (!title) return;
-                    const {
-                        data: { user },
-                    } = await supabase.auth.getUser();
-                    if (!user) return;
-                    const { data } = await supabase
-                        .from('chess_studies')
-                        .insert({ user_id: user.id, title, game_id: gameId })
-                        .select()
-                        .single();
-                    if (data) setStudies((prev) => [data, ...prev]);
+                onClick={() => {
+                    void handleCreateStudy();
                 }}
-                className="w-full text-sm py-2 rounded-lg border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-colors"
+                className="w-full text-sm py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
             >
-                <button onClick={handleCreateStudy}>+ New Study</button>
+                + New Study
             </button>
         </div>
     );

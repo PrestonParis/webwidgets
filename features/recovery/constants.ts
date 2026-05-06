@@ -178,3 +178,43 @@ export const VIEW_OPTIONS: { value: RecoveryView; label: string }[] = [
     { value: 'timer', label: 'Timer' },
     { value: 'heatmap', label: 'Heatmap' },
 ];
+
+export const RESOURCES = [
+    {
+        label: 'SAMHSA Helpline',
+        detail: '1-800-662-4357 · Free, confidential, 24/7',
+        href: 'https://www.samhsa.gov/find-help/national-helpline',
+    },
+    {
+        label: 'Crisis Text Line',
+        detail: 'Text HOME to 741741',
+        href: 'https://www.crisistextline.org',
+    },
+    {
+        label: 'Alcoholics Anonymous',
+        detail: 'aa.org · worldwide meetings',
+        href: 'https://www.aa.org',
+    },
+    {
+        label: 'Narcotics Anonymous',
+        detail: 'na.org · any addiction',
+        href: 'https://www.na.org',
+    },
+    {
+        label: 'SMART Recovery',
+        detail: 'smartrecovery.org · science-based',
+        href: 'https://www.smartrecovery.org',
+    },
+    {
+        label: 'In The Rooms',
+        detail: 'Online meetings 24/7',
+        href: 'https://www.intherooms.com',
+    },
+];
+
+export const FACTS = [
+    'Recovery is not a straight line. Setbacks are part of the process.',
+    'The brain begins healing from addiction within days of sobriety.',
+    'Tracking your streak makes relapse prevention 3× more effective.',
+    'Each clean day rewires the reward system toward healthier habits.',
+];

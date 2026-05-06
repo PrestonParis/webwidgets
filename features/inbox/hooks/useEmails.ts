@@ -4,25 +4,59 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Email } from '@/features/inbox/types/inbox';
+import { z } from 'zod';
+
+const emailSchema = z.object({
+    id: z.string(),
+    subject: z.string(),
+    sender: z.string(),
+    snippet: z.string(),
+    date: z.string(),
+    category: z.string().optional(),
+    is_manual: z.boolean().optional(),
+});
+
+const inboxResponseSchema = z.object({
+    emails: z.array(emailSchema).default([]),
+    nextPageToken: z.string().nullable().optional(),
+});
+
+const CACHE_TTL = 5 * 60 * 1000;
+
+interface EmailsCache {
+    emails: Email[];
+    nextPageToken: string | null;
+    fetchedAt: number;
+}
+
+let cache: EmailsCache | null = null;
 
 export function useEmails() {
     const { user } = useAuth();
-    const [emails, setEmails] = useState<Email[]>([]);
-    const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+    const [emails, setEmails] = useState<Email[]>(() => cache?.emails ?? []);
+    const [nextPageToken, setNextPageToken] = useState<string | null>(
+        () => cache?.nextPageToken ?? null,
+    );
     const [loading, setLoading] = useState(false);
     const [isUnauthorized, setIsUnauthorized] = useState(false);
-    const hasFetched = useRef(false);
+    const inflightKey = useRef<string | null>(null);
+
+    const hasGoogleSync =
+        user?.identities?.some((id) => id.provider === 'google') ?? false;
 
     const loadEmails = useCallback(
         async (token?: string) => {
-            if (!user || isUnauthorized) return;
-            setLoading(true);
+            if (!user || !hasGoogleSync || isUnauthorized) return;
 
+            const key = token ?? '__initial__';
+            if (inflightKey.current === key) return;
+            inflightKey.current = key;
+
+            setLoading(true);
             try {
                 const url = token
                     ? `/api/gmail/inbox?pageToken=${token}`
                     : '/api/gmail/inbox';
-
                 const res = await fetch(url, {
                     credentials: 'include',
                     cache: 'no-store',
@@ -30,39 +64,49 @@ export function useEmails() {
 
                 if (res.status === 401 || res.status === 403) {
                     setIsUnauthorized(true);
-                    setLoading(false);
                     return;
                 }
-
                 if (!res.ok) throw new Error('Inbox API Fail');
 
-                const data = await res.json();
+                const json: unknown = await res.json();
+                const parsed = inboxResponseSchema.safeParse(json);
+                if (!parsed.success)
+                    throw new Error('Invalid inbox API response');
 
-                setEmails((prev) =>
-                    token
-                        ? [...prev, ...(data.emails || [])]
-                        : data.emails || [],
-                );
+                const data = parsed.data;
+                const existing = token ? (cache?.emails ?? []) : [];
+                const existingIds = new Set(existing.map((e) => e.id));
+                const newEmails = [
+                    ...existing,
+                    ...data.emails.filter((e) => !existingIds.has(e.id)),
+                ];
 
-                setNextPageToken(data.nextPageToken);
+                cache = {
+                    emails: newEmails,
+                    nextPageToken: data.nextPageToken ?? null,
+                    fetchedAt: Date.now(),
+                };
+                setEmails(newEmails);
+                setNextPageToken(data.nextPageToken ?? null);
             } catch (err) {
                 console.error(err);
             } finally {
+                inflightKey.current = null;
                 setLoading(false);
             }
         },
-        [user, isUnauthorized],
+        [user, hasGoogleSync, isUnauthorized],
     );
 
     useEffect(() => {
-        if (user && !hasFetched.current && !isUnauthorized) {
-            hasFetched.current = true;
-            loadEmails();
-        }
-        return () => {
-            if (user) hasFetched.current = false;
-        };
-    }, [user, loadEmails, isUnauthorized]);
+        if (!user || !hasGoogleSync || isUnauthorized) return;
+        const isFresh =
+            cache !== null && Date.now() - cache.fetchedAt < CACHE_TTL;
+        if (!isFresh)
+            queueMicrotask(() => {
+                void loadEmails();
+            });
+    }, [user, hasGoogleSync, loadEmails, isUnauthorized]);
 
     const handleManualClassify = async (
         email_id: string,
@@ -70,11 +114,16 @@ export function useEmails() {
         sender: string,
         subject: string,
     ) => {
-        setEmails((prev) =>
-            prev.map((m) =>
+        const update = (list: Email[]) =>
+            list.map((m) =>
                 m.id === email_id ? { ...m, category, is_manual: true } : m,
-            ),
-        );
+            );
+
+        setEmails((prev) => {
+            const updated = update(prev);
+            if (cache) cache = { ...cache, emails: updated };
+            return updated;
+        });
 
         await supabase.from('email_classifications').upsert(
             {
@@ -95,6 +144,7 @@ export function useEmails() {
         nextPageToken,
         loading,
         isUnauthorized,
+        hasGoogleSync,
         loadEmails,
         handleManualClassify,
     };

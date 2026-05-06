@@ -1,15 +1,4 @@
-import { JournalEntry } from '@/features/journal/types/journal';
-
-interface Props {
-    entry: JournalEntry;
-    isTrash?: boolean;
-    isConfirming: boolean;
-    onEdit?: (entry: JournalEntry) => void;
-    onDelete: (id: number) => void;
-    onRestore?: (id: number) => void;
-    onConfirmStart: () => void;
-    onConfirmCancel: () => void;
-}
+import { EntryCardActionsProps } from '@/features/journal/types/journal';
 
 export function EntryCardActions({
     entry,
@@ -20,7 +9,7 @@ export function EntryCardActions({
     onRestore,
     onConfirmStart,
     onConfirmCancel,
-}: Props) {
+}: EntryCardActionsProps) {
     if (isTrash) {
         return (
             <button

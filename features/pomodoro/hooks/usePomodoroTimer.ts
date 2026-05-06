@@ -54,7 +54,7 @@ function timerReducer(state: TimerState, action: TimerAction): TimerState {
     }
 }
 
-export function usePomodoroTimer() {
+export function usePomodoroTimer(compact?: boolean) {
     const [state, dispatch] = useReducer(timerReducer, {
         mode: 'focus',
         timeLeft: DURATIONS.focus,
@@ -80,7 +80,7 @@ export function usePomodoroTimer() {
     useEffect(() => {
         if (!state.running && state.timeLeft === 0) {
             if (Notification.permission === 'default')
-                Notification.requestPermission();
+                void Notification.requestPermission();
             if (Notification.permission === 'granted') {
                 new Notification('Pomodoro', {
                     body:
@@ -99,14 +99,14 @@ export function usePomodoroTimer() {
     const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
     const toggleRunning = useCallback(() => {
         if (Notification.permission === 'default')
-            Notification.requestPermission();
+            void Notification.requestPermission();
         dispatch({ type: 'TOGGLE_RUNNING' });
     }, []);
 
     const mins = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
     const secs = String(state.timeLeft % 60).padStart(2, '0');
     const progress = 1 - state.timeLeft / DURATIONS[state.mode];
-    const radius = 120;
+    const radius = compact ? 60 : 120;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference * (1 - progress);
 

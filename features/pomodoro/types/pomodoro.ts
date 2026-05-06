@@ -29,6 +29,7 @@ export interface TimerDisplayProps {
     radius: number;
     circumference: number;
     strokeDashoffset: number;
+    compact?: boolean;
 }
 
 export interface TimerControlsProps {

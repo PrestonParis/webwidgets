@@ -42,7 +42,7 @@ export default function JournalPage() {
                     autosaved={page.autosaved}
                 />
 
-                <section className="lg:col-span-8 space-y-6">
+                <section className="lg:col-span-4 space-y-6">
                     {/* View & Search Controls */}
                     <div className="flex gap-4 border-b border-stone-100 dark:border-zinc-800 pb-2">
                         {(['all', 'trash'] as const).map((v) => (
@@ -80,9 +80,13 @@ export default function JournalPage() {
                             <EntryCard
                                 key={entry.id}
                                 entry={entry}
-                                onDelete={page.entryUtils.handleDelete}
+                                onDelete={(id) => {
+                                    void page.entryUtils.handleDelete(id);
+                                }}
                                 onEdit={page.editorUtils.startEditing}
-                                onRestore={page.entryUtils.handleRestore}
+                                onRestore={(id) => {
+                                    void page.entryUtils.handleRestore(id);
+                                }}
                                 isTrash={page.entryUtils.view === 'trash'}
                             />
                         ))

@@ -88,6 +88,10 @@ export function makePersistKey(userId: string) {
     return `dashboard_layout_${userId}`;
 }
 
+export function makePersistTimestampKey(userId: string) {
+    return `dashboard_layout_ts_${userId}`;
+}
+
 export function readCachedLayout(userId: string): WidgetConfig[] | null {
     try {
         const raw = localStorage.getItem(makePersistKey(userId));
@@ -96,4 +100,8 @@ export function readCachedLayout(userId: string): WidgetConfig[] | null {
         console.error('Cache parse error', e);
         return null;
     }
+}
+
+export function readCachedTimestamp(userId: string): string | null {
+    return localStorage.getItem(makePersistTimestampKey(userId));
 }

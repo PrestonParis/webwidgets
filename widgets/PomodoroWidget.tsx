@@ -14,6 +14,7 @@ export default function PomodoroWidget() {
         'pomodoro',
         'pomodoro',
     );
+    const compact = settings.size === 'compact';
     const {
         state,
         mins,
@@ -24,7 +25,7 @@ export default function PomodoroWidget() {
         switchMode,
         reset,
         toggleRunning,
-    } = usePomodoroTimer();
+    } = usePomodoroTimer(compact);
 
     return (
         <WidgetShell
@@ -35,7 +36,9 @@ export default function PomodoroWidget() {
             widgetId="pomodoro"
             widgetType="pomodoro"
         >
-            <div className="flex flex-col items-center justify-center p-4 space-y-6">
+            <div
+                className={`flex flex-col items-center justify-center ${compact ? 'p-2 space-y-3' : 'p-4 space-y-6'}`}
+            >
                 <ModeSelector mode={state.mode} onSwitch={switchMode} />
                 <TimerDisplay
                     mins={mins}
@@ -45,6 +48,7 @@ export default function PomodoroWidget() {
                     radius={radius}
                     circumference={circumference}
                     strokeDashoffset={strokeDashoffset}
+                    compact={compact}
                 />
                 <TimerControls
                     running={state.running}

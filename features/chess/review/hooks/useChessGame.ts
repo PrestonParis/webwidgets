@@ -1,14 +1,27 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import type { ChessGame, GameVariation } from '@/features/chess/types/chess';
+import type { ChessGame } from '@/features/chess/types/chess';
+import { z } from 'zod';
+import { useGameVariations } from './useGameVariations';
 
-// Used by app/chess/[id]/ChessGamesView and chess/studies/[studyId]/page
-// To be combined with useChessGames in future
+const chessGameSchema = z.object({
+    id: z.string(),
+    current_move_index: z.number().nullable().optional(),
+});
+
 export function useChessGame(id: string) {
     const [game, setGame] = useState<ChessGame | null>(null);
     const [_, setMoveIndex] = useState(0);
-    const [variations, setVariations] = useState<GameVariation[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const {
+        variations,
+        setVariations,
+        deleteVariation,
+        addVariation,
+        createVariationFromMove,
+        updateVariationAnnotation,
+    } = useGameVariations(id);
 
     useEffect(() => {
         if (!id) return;
@@ -23,18 +36,27 @@ export function useChessGame(id: string) {
             ]);
             if (gameRes.data) {
                 setGame(gameRes.data as ChessGame);
-                setMoveIndex(gameRes.data.current_move_index ?? 0);
+                const parsedGame = chessGameSchema.safeParse(gameRes.data);
+                setMoveIndex(
+                    parsedGame.success
+                        ? (parsedGame.data.current_move_index ?? 0)
+                        : 0,
+                );
             }
-            if (varRes.data) setVariations(varRes.data as GameVariation[]);
+            if (varRes.data)
+                setVariations(
+                    varRes.data as ReturnType<
+                        typeof useGameVariations
+                    >['variations'],
+                );
             setLoading(false);
-
             await supabase
                 .from('chess_games')
                 .update({ last_viewed_at: new Date().toISOString() })
                 .eq('id', id);
         }
-        load();
-    }, [id]);
+        void load();
+    }, [id, setVariations]);
 
     const persistMoveIndex = useCallback(
         async (index: number) => {
@@ -47,21 +69,37 @@ export function useChessGame(id: string) {
         [id],
     );
 
-    const deleteVariation = useCallback(async (vid: string) => {
-        await supabase.from('chess_variations').delete().eq('id', vid);
-        setVariations((prev) => prev.filter((v) => v.id !== vid));
-    }, []);
+    const updateGamePgn = useCallback(
+        async (newPgn: string) => {
+            if (!id) return;
+            setGame((prev) => (prev ? { ...prev, pgn: newPgn } : prev));
+            await supabase
+                .from('chess_games')
+                .update({ pgn: newPgn })
+                .eq('id', id);
+        },
+        [id],
+    );
 
-    const addVariation = useCallback((v: GameVariation) => {
-        setVariations((prev) => [...prev, v]);
-    }, []);
+    const updateGameTitle = useCallback(
+        async (title: string) => {
+            if (!id) return;
+            setGame((prev) => (prev ? { ...prev, title } : prev));
+            await supabase.from('chess_games').update({ title }).eq('id', id);
+        },
+        [id],
+    );
 
     return {
         game,
         variations,
         loading,
         persistMoveIndex,
+        updateGamePgn,
+        updateGameTitle,
         deleteVariation,
         addVariation,
+        createVariationFromMove,
+        updateVariationAnnotation,
     };
 }

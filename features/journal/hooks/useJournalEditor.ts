@@ -3,7 +3,12 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import { JournalEntry } from '@/features/journal/types/journal';
+
+type EditableJournalEntry = {
+    id: number;
+    title: string;
+    content: string;
+};
 
 export function useJournalEditor() {
     const [title, setTitle] = useState('');
@@ -15,7 +20,8 @@ export function useJournalEditor() {
     } | null>(null);
 
     const editor = useEditor({
-        immediatelyRender: false, // This already handles SSR correctly
+        immediatelyRender: false,
+        autofocus: false,
         editable: true,
         extensions: [
             StarterKit,
@@ -27,12 +33,12 @@ export function useJournalEditor() {
         content: '',
         editorProps: {
             attributes: {
-                class: 'min-h-[180px] outline-none prose prose-stone dark:prose-invert max-w-none text-sm leading-relaxed',
+                class: 'min-h-[320px] outline-none prose prose-stone dark:prose-invert max-w-none text-sm leading-relaxed',
             },
         },
     });
 
-    const startEditing = (entry: JournalEntry) => {
+    const startEditing = (entry: EditableJournalEntry) => {
         isEditingRef.current = true;
         setEditingId(entry.id);
         setTitle(entry.title);

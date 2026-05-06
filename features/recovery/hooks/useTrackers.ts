@@ -63,7 +63,7 @@ export function useTrackers() {
             }
         };
 
-        initialize();
+        void initialize();
 
         return () => {
             cancelled = true;

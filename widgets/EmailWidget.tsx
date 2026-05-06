@@ -27,7 +27,7 @@ export default function EmailWidget() {
         >
             {loading ? (
                 <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
+                    {Array.from({ length: 3 }).map((_, i) => (
                         <div
                             key={i}
                             className="h-10 bg-gray-100 dark:bg-zinc-800 rounded animate-pulse"

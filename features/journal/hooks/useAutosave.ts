@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tiptap/react';
+import { z } from 'zod';
+
+const draftSchema = z.object({
+    title: z.string().optional(),
+    content: z.string().optional(),
+});
 
 export function useAutosave(
     editor: Editor | null,
@@ -31,14 +37,18 @@ export function useAutosave(
         };
     }, [editor, title, enabled]);
 
-    const restoreDraft = () => {
-        if (!editor) return;
+    const restoreDraft = (): { title: string; content: string } | null => {
+        if (!editor) return null;
 
         try {
             const raw = localStorage.getItem('journal_draft');
-            if (!raw) return;
-            const { title: t, content: c } = JSON.parse(raw);
-            return { title: t || '', content: c || '' };
+            if (!raw) return null;
+            const parsed = draftSchema.safeParse(JSON.parse(raw) as unknown);
+            if (!parsed.success) return null;
+            return {
+                title: parsed.data.title || '',
+                content: parsed.data.content || '',
+            };
         } catch {
             return null;
         }

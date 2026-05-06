@@ -1,12 +1,27 @@
-import type { GameVariation } from '@/features/chess/types/chess';
+'use client';
 
-interface Props {
-    variation: GameVariation;
-    onSelect: (v: GameVariation) => void;
-    onDelete: (id: string) => void;
-}
+import { useState } from 'react';
+import { VariationCardProps } from '../types/review';
 
-export function VariationCard({ variation, onSelect, onDelete }: Props) {
+export function VariationCard({
+    variation,
+    onSelect,
+    onDelete,
+    onUpdateAnnotation,
+}: VariationCardProps) {
+    const [editingAnnotation, setEditingAnnotation] = useState(false);
+    const [annotationDraft, setAnnotationDraft] = useState(
+        variation.annotation ?? '',
+    );
+
+    const commitAnnotation = () => {
+        setEditingAnnotation(false);
+        const trimmed = annotationDraft.trim();
+        if (trimmed !== (variation.annotation ?? '')) {
+            onUpdateAnnotation?.(variation.id, trimmed);
+        }
+    };
+
     return (
         <div className="bg-zinc-800 rounded-lg p-3 group">
             <div className="flex justify-between items-start mb-1">
@@ -18,16 +33,49 @@ export function VariationCard({ variation, onSelect, onDelete }: Props) {
                 </button>
                 <button
                     onClick={() => onDelete(variation.id)}
-                    className="text-zinc-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs"
+                    className="text-zinc-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-xs ml-2 shrink-0"
                 >
                     ✕
                 </button>
             </div>
 
-            {variation.annotation && (
-                <p className="text-[11px] text-zinc-500 leading-relaxed">
-                    {variation.annotation}
-                </p>
+            {editingAnnotation ? (
+                <textarea
+                    autoFocus
+                    value={annotationDraft}
+                    onChange={(e) => setAnnotationDraft(e.target.value)}
+                    onBlur={commitAnnotation}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                            setAnnotationDraft(variation.annotation ?? '');
+                            setEditingAnnotation(false);
+                        }
+                    }}
+                    placeholder="Add annotation…"
+                    rows={2}
+                    className="w-full text-[11px] bg-zinc-700 text-zinc-300 rounded px-2 py-1 outline-none border border-zinc-600 focus:border-blue-500 resize-none"
+                />
+            ) : (
+                <button
+                    onClick={
+                        onUpdateAnnotation
+                            ? () => {
+                                  setAnnotationDraft(
+                                      variation.annotation ?? '',
+                                  );
+                                  setEditingAnnotation(true);
+                              }
+                            : undefined
+                    }
+                    className={`w-full text-left text-[11px] leading-relaxed min-h-5 ${
+                        variation.annotation
+                            ? 'text-zinc-500'
+                            : 'text-zinc-700 italic'
+                    } ${onUpdateAnnotation ? 'hover:text-zinc-400 cursor-text' : ''}`}
+                >
+                    {variation.annotation ||
+                        (onUpdateAnnotation ? 'Add annotation…' : '')}
+                </button>
             )}
 
             <div className="flex gap-3 mt-2 text-[10px] text-zinc-600">

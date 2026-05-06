@@ -58,8 +58,12 @@ export default function HabitWidget() {
                                 done={isCompletedToday(habit.id)}
                                 streak={getHabitStreak(habit.id)}
                                 days={getLast7Days(habit.id)}
-                                onToggle={() => toggleCompletion(habit.id)}
-                                onDelete={() => deleteHabit(habit.id)}
+                                onToggle={() => {
+                                    void toggleCompletion(habit.id);
+                                }}
+                                onDelete={() => {
+                                    void deleteHabit(habit.id);
+                                }}
                             />
                         ))}
                     </ul>
@@ -70,7 +74,9 @@ export default function HabitWidget() {
                             newEmoji={newEmoji}
                             onNameChange={setNewName}
                             onEmojiChange={setNewEmoji}
-                            onSubmit={handleSubmit}
+                            onSubmit={(e) => {
+                                void handleSubmit(e);
+                            }}
                             onCancel={handleCancel}
                         />
                     ) : (

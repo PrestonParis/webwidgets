@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import { z } from 'zod';
+
+const profileSchema = z.object({
+    full_name: z.string().nullable().optional(),
+});
 
 export function useSettings() {
     const [user, setUser] = useState<User | null>(null);
@@ -30,12 +35,13 @@ export function useSettings() {
                 .eq('id', u.id)
                 .single();
 
-            setFullName(profile?.full_name ?? '');
+            const parsed = profileSchema.safeParse(profile);
+            setFullName(parsed.success ? (parsed.data.full_name ?? '') : '');
             setLoading(false);
             return;
         };
 
-        load();
+        void load();
     }, []);
 
     const handleGoogleConnect = async () => {

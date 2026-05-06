@@ -10,21 +10,11 @@ import {
     Square,
     HardDrive,
 } from 'lucide-react';
-import { categories } from '@/features/convert/constants';
+import { getCategories } from '@/features/convert/types/unitconvert';
+import { CategorySelectorProps } from '@/features/convert/types/unitconvert';
 
 function cn(...classes: (string | undefined | false | null)[]) {
     return classes.filter(Boolean).join(' ');
-}
-
-export interface Category {
-    units: string[];
-    base: string;
-    conversions?: Record<string, number>;
-    custom?: boolean;
-}
-
-export function getCategories(): string[] {
-    return Object.keys(categories);
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -37,12 +27,10 @@ const iconMap: Record<string, LucideIcon> = {
     Data: HardDrive,
 };
 
-interface Props {
-    selected: string;
-    onSelect: (cat: string) => void;
-}
-
-export default function CategorySelector({ selected, onSelect }: Props) {
+export default function CategorySelector({
+    selected,
+    onSelect,
+}: CategorySelectorProps) {
     const categories = getCategories();
 
     return (

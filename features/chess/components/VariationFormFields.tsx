@@ -1,16 +1,5 @@
 import { STARTING_FEN } from '@/features/chess/constants';
-
-interface Props {
-    title: string;
-    onTitleChange: (v: string) => void;
-    pgn: string;
-    onPgnChange: (v: string) => void;
-    annotation: string;
-    onAnnotationChange: (v: string) => void;
-    isStudyMode: boolean;
-    editableStartFen: string;
-    onStartFenChange: (v: string) => void;
-}
+import type { VariationFormFieldProps } from '../types/variation';
 
 const inputClass =
     'w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-blue-500';
@@ -25,7 +14,7 @@ export function VariationFormFields({
     isStudyMode,
     editableStartFen,
     onStartFenChange,
-}: Props) {
+}: VariationFormFieldProps) {
     return (
         <>
             <input

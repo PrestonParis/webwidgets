@@ -1,17 +1,4 @@
-import type { ParsedMove, Variation } from '@/features/chess/types/chess';
-import type { TrainerResult } from '@/features/chess/movetrainer/types/movetrainer';
-
-interface Props {
-    variation: Variation;
-    result: TrainerResult | null;
-    done: boolean;
-    index: number;
-    moves: ParsedMove[];
-    isExpanded: boolean;
-    onBack?: () => void;
-    showHint: () => void;
-    reset: () => void;
-}
+import type { TrainerControlsProps } from '../types/movetrainer';
 
 export function TrainerControls({
     variation,
@@ -23,7 +10,7 @@ export function TrainerControls({
     onBack,
     showHint,
     reset,
-}: Props) {
+}: TrainerControlsProps) {
     return (
         <div
             className={`${isExpanded ? 'lg:w-80' : 'w-full'} flex flex-col gap-4`}

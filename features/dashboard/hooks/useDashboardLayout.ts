@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import { Tracker } from '@/features/recovery/types/recovery';
-import { useDebounce } from '@/features/ui/hooks/useDebounce';
+import { useLayoutPersistence } from './useLayoutPersistence';
 import {
     buildDefaultLayout,
     reconcileLayout,
     makePersistKey,
     readCachedLayout,
+    readCachedTimestamp,
 } from '../lib/dashboardLayout';
 
 export function useDashboardLayout(trackers: Tracker[] | null) {
@@ -18,24 +19,40 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
     const hasLoadedInitial = useRef(false);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id));
+        void supabase.auth
+            .getUser()
+            .then(({ data }) => setUserId(data.user?.id));
     }, []);
 
     useEffect(() => {
         if (!userId || trackers === null || hasLoadedInitial.current) return;
 
         async function load() {
+            let showedCached = false;
             try {
                 const cached = readCachedLayout(userId!);
+                const cachedTs = readCachedTimestamp(userId!);
+
+                if (cached) {
+                    setLayout(reconcileLayout(cached, safeTrackers));
+                    setReady(true);
+                    showedCached = true;
+                }
 
                 const { data } = await supabase
                     .from('dashboard_layouts')
-                    .select('layout')
+                    .select('layout, updated_at')
                     .eq('user_id', userId)
                     .maybeSingle();
 
                 const remoteLayout = data?.layout as WidgetConfig[] | null;
-                const source = remoteLayout ?? cached;
+                const remoteTs = data?.updated_at as string | undefined;
+
+                const source = (() => {
+                    if (!remoteLayout) return cached;
+                    if (!cached || !cachedTs) return remoteLayout;
+                    return cachedTs > (remoteTs ?? '') ? cached : remoteLayout;
+                })();
 
                 const finalLayout = source
                     ? reconcileLayout(source, safeTrackers)
@@ -49,37 +66,16 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 hasLoadedInitial.current = true;
             } catch (err) {
                 console.error('Critical layout load error:', err);
-                setLayout(buildDefaultLayout(safeTrackers));
+                if (!showedCached) setLayout(buildDefaultLayout(safeTrackers));
             } finally {
                 setReady(true);
             }
         }
 
-        load();
+        void load();
     }, [userId, trackers, safeTrackers]);
 
-    const persistToDb = useDebounce(
-        async (next: WidgetConfig[], uid: string) => {
-            await supabase.from('dashboard_layouts').upsert(
-                {
-                    user_id: uid,
-                    layout: next,
-                    updated_at: new Date().toISOString(),
-                },
-                { onConflict: 'user_id' },
-            );
-        },
-        1200,
-    );
-
-    const persistLayout = useCallback(
-        (next: WidgetConfig[]) => {
-            if (!userId) return;
-            localStorage.setItem(makePersistKey(userId), JSON.stringify(next));
-            persistToDb(next, userId);
-        },
-        [userId, persistToDb],
-    );
+    const persistLayout = useLayoutPersistence(userId);
 
     const updateLayout = useCallback(
         (next: WidgetConfig[]) => {

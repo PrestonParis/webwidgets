@@ -10,7 +10,7 @@ export default function ChessLibraryState({
     if (loading) {
         return (
             <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
+                {Array.from({ length: 4 }).map((_, i) => (
                     <div
                         key={i}
                         className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"

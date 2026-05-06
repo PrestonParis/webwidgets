@@ -3,7 +3,7 @@ import { Email } from '@/features/inbox/types/inbox';
 export function EmailInsights({ emails }: { emails: Email[] }) {
     const senderCounts = emails.reduce((acc: Record<string, number>, mail) => {
         const sender = mail.sender
-            ? mail.sender.split('<')[0].trim()
+            ? (mail.sender.split('<')[0] ?? mail.sender).trim()
             : 'Unknown Sender';
 
         acc[sender] = (acc[sender] || 0) + 1;

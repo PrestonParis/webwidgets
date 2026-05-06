@@ -14,5 +14,6 @@ export async function chessGameFetch<T>(
         throw new Error(`API error: ${res.status}`);
     }
 
-    return res.json();
+    const json: unknown = await res.json();
+    return json as T;
 }

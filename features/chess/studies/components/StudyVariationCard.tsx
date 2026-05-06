@@ -1,12 +1,10 @@
-import type { StudyVariation } from '@/features/chess/types/chess';
+import type { StudyVariationCardProps } from '@/features/chess/studies/types/studies';
 
-interface Props {
-    variation: StudyVariation;
-    onTrain: (v: StudyVariation) => void;
-    onDelete: (id: string) => void;
-}
-
-export function StudyVariationCard({ variation, onTrain, onDelete }: Props) {
+export function StudyVariationCard({
+    variation,
+    onTrain,
+    onDelete,
+}: StudyVariationCardProps) {
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3 group hover:border-zinc-700 transition-all">
             <div className="flex justify-between items-start">

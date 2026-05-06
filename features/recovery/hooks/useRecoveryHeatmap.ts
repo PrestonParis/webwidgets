@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { toDateKey } from '@/features/recovery/lib/relapses';
+import { z } from 'zod';
 
 const WEEKS = 26;
 const DAYS = WEEKS * 7;
@@ -11,6 +12,11 @@ export const CELL = 10;
 interface Relapse {
     relapsed_at: string;
 }
+
+const relapseSchema: z.ZodType<Relapse> = z.object({
+    relapsed_at: z.string(),
+});
+const relapseArraySchema = z.array(relapseSchema);
 
 function buildWeeks(): (Date | null)[][] {
     const today = new Date();
@@ -24,7 +30,7 @@ function buildWeeks(): (Date | null)[][] {
     }
 
     const padded: (Date | null)[] = [
-        ...Array(days[0].getDay()).fill(null),
+        ...Array.from({ length: days[0]?.getDay() ?? 0 }, () => null),
         ...days,
     ];
 
@@ -68,9 +74,11 @@ export function useRecoveryHeatmap(trackerId: string) {
             .eq('tracker_id', trackerId)
             .then(({ data }) => {
                 if (!data) return;
+                const parsed = relapseArraySchema.safeParse(data);
+                if (!parsed.success) return;
                 setRelapseDays(
                     new Set(
-                        (data as Relapse[]).map((r) =>
+                        parsed.data.map((r) =>
                             toDateKey(new Date(r.relapsed_at)),
                         ),
                     ),

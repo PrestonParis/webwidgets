@@ -33,15 +33,21 @@ export default function TodoWidget() {
             <TodoForm
                 input={input}
                 onChange={setInput}
-                onSubmit={handleSubmit}
+                onSubmit={(e) => {
+                    void handleSubmit(e);
+                }}
                 inputRef={inputRef}
             />
             <TodoList
                 todos={visible}
                 loading={loading}
                 overflow={overflow}
-                onToggle={toggleTodo}
-                onDelete={deleteTodo}
+                onToggle={(id) => {
+                    void toggleTodo(id);
+                }}
+                onDelete={(id) => {
+                    void deleteTodo(id);
+                }}
             />
         </WidgetShell>
     );

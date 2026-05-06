@@ -4,7 +4,7 @@ import {
     parsePgnFromFen,
     isCorrectMove,
 } from '@/features/chess/lib/chessUtils';
-import type { Variation } from '@/features/chess/types/chess';
+import type { Variation } from '@/features/chess/types/variation';
 import type { TrainerResult } from '@/features/chess/movetrainer/types/movetrainer';
 
 export function useMoveTrainer(variation: Variation) {

@@ -9,6 +9,26 @@ import {
     WidgetSettings,
 } from '@/features/widgets/types/widgets';
 import { useDebounce } from '@/features/ui/hooks/useDebounce';
+import { z } from 'zod';
+
+const widgetSettingsObjectSchema = z.object({
+    color: z.enum([
+        'blue',
+        'green',
+        'amber',
+        'purple',
+        'red',
+        'emerald',
+        'zinc',
+        'pink',
+        'orange',
+    ]),
+    size: z.enum(['compact', 'default', 'large']),
+    background: z.enum(['default', 'glass', 'solid']),
+    view: z.enum(['timer', 'heatmap']).optional(),
+});
+
+const widgetSettingsPatchSchema = widgetSettingsObjectSchema.partial();
 
 export function useWidgetSettings(widgetId: string, widgetType: string) {
     const { user } = useAuth();
@@ -31,7 +51,7 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
 
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             const { data, error } = await supabase
                 .from('widget_settings')
                 .select('settings')
@@ -43,7 +63,22 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
             if (error) console.error('useWidgetSettings load error:', error);
 
             if (data?.settings) {
-                setSettings({ ...defaultSettings, ...data.settings });
+                const parsed = widgetSettingsPatchSchema.safeParse(
+                    data.settings,
+                );
+                if (parsed.success) {
+                    const mergedSettings: WidgetSettings = {
+                        color: parsed.data.color ?? defaultSettings.color,
+                        size: parsed.data.size ?? defaultSettings.size,
+                        background:
+                            parsed.data.background ??
+                            defaultSettings.background,
+                        ...(parsed.data.view !== undefined
+                            ? { view: parsed.data.view }
+                            : {}),
+                    };
+                    setSettings(mergedSettings);
+                }
             }
             setLoading(false);
         })();
@@ -54,17 +89,22 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
     }, [user, widgetId, defaultSettings]);
 
     // ── Debounced upsert ───────────────────────
-    const persist = useDebounce(async (next: WidgetSettings) => {
+    const persist = useDebounce((next: WidgetSettings) => {
         if (!user?.id) return;
-        const { error } = await supabase.from('widget_settings').upsert(
-            {
-                user_id: user.id,
-                widget_id: widgetId,
-                settings: next,
-            },
-            { onConflict: 'user_id,widget_id' },
-        );
-        if (error) console.error('useWidgetSettings upsert error:', error);
+        void supabase
+            .from('widget_settings')
+            .upsert(
+                {
+                    user_id: user.id,
+                    widget_id: widgetId,
+                    settings: next,
+                },
+                { onConflict: 'user_id,widget_id' },
+            )
+            .then(({ error }) => {
+                if (error)
+                    console.error('useWidgetSettings upsert error:', error);
+            });
     }, 800);
 
     // ── Update helper (merges partial) ────────

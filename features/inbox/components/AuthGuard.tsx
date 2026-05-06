@@ -8,7 +8,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (status !== 'loading' && !user) {
-            signInWithGoogle();
+            void signInWithGoogle();
         }
     });
 

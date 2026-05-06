@@ -4,8 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useDebounce } from '@/features/ui/hooks/useDebounce';
+import { z } from 'zod';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved';
+
+const quickNoteSchema = z.object({
+    content: z.string().nullable().optional(),
+});
 
 export function useQuickNote() {
     const { user } = useAuth();
@@ -17,7 +22,7 @@ export function useQuickNote() {
         if (!user?.id) return;
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             const { data } = await supabase
                 .from('quick_notes')
                 .select('content')
@@ -25,7 +30,8 @@ export function useQuickNote() {
                 .maybeSingle();
 
             if (!cancelled) {
-                setContent(data?.content ?? '');
+                const parsed = quickNoteSchema.safeParse(data);
+                setContent(parsed.success ? (parsed.data.content ?? '') : '');
                 setLoaded(true);
             }
         })();
@@ -35,19 +41,23 @@ export function useQuickNote() {
         };
     }, [user?.id]);
 
-    const persist = useDebounce(async (text: string) => {
+    const persist = useDebounce((text: string) => {
         if (!user?.id) return;
         setStatus('saving');
-        await supabase.from('quick_notes').upsert(
-            {
-                user_id: user.id,
-                content: text,
-                updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'user_id' },
-        );
-        setStatus('saved');
-        setTimeout(() => setStatus('idle'), 2000);
+        void supabase
+            .from('quick_notes')
+            .upsert(
+                {
+                    user_id: user.id,
+                    content: text,
+                    updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'user_id' },
+            )
+            .then(() => {
+                setStatus('saved');
+                setTimeout(() => setStatus('idle'), 2000);
+            });
     }, 1000);
 
     const updateContent = useCallback(

@@ -2,7 +2,8 @@
 
 import MoveList from '@/features/chess/review/components/MoveList';
 import { VariationPanel } from '@/features/chess/review/components/VariationPanel';
-import type { GameVariation, ParsedMove } from '@/features/chess/types/chess';
+import type { ParsedMove } from '@/features/chess/types/chess';
+import type { GameVariation } from '@/features/chess/types/variation';
 
 export function ReviewSidebar({
     variations,
@@ -12,6 +13,7 @@ export function ReviewSidebar({
     onSelectVariation,
     onAdd,
     onDelete,
+    onUpdateAnnotation,
 }: {
     variations: GameVariation[];
     moveIndex: number;
@@ -20,6 +22,7 @@ export function ReviewSidebar({
     onSelectVariation: (v: GameVariation) => void;
     onAdd: () => void;
     onDelete: (id: string) => void;
+    onUpdateAnnotation?: ((id: string, annotation: string) => void) | undefined;
 }) {
     return (
         <div className="flex flex-col h-full p-4 gap-4">
@@ -36,6 +39,7 @@ export function ReviewSidebar({
                     onSelect={onSelectVariation}
                     onAdd={onAdd}
                     onDelete={onDelete}
+                    onUpdateAnnotation={onUpdateAnnotation}
                 />
             </div>
         </div>

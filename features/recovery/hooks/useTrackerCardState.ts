@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Tracker } from '@/features/recovery/types/recovery';
-import { fetchRelapses } from '@/features/recovery/lib/relapses';
+import {
+    fetchRelapses,
+    computeLongestStreakDays,
+} from '@/features/recovery/lib/relapses';
 import { useSecondsClean } from '@/features/recovery/hooks/useSecondsClean';
 
 export function useTrackerCardState(tracker: Tracker) {
@@ -9,7 +12,7 @@ export function useTrackerCardState(tracker: Tracker) {
     const [expanded, setExpanded] = useState(false);
 
     useEffect(() => {
-        fetchRelapses(tracker.id).then(setRelapses);
+        void fetchRelapses(tracker.id).then(setRelapses);
     }, [tracker.id]);
 
     const startTime = tracker.start_time;
@@ -26,6 +29,11 @@ export function useTrackerCardState(tracker: Tracker) {
         };
     }, [startTime]);
 
+    const longestDays = useMemo(
+        () => computeLongestStreakDays(tracker.created_at, relapses),
+        [tracker.created_at, relapses],
+    );
+
     return {
         startTime,
         editingStart,
@@ -35,5 +43,6 @@ export function useTrackerCardState(tracker: Tracker) {
         setExpanded,
         secondsClean,
         startDateLabel,
+        longestDays,
     };
 }

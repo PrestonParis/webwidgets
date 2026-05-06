@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { Tracker } from '@/features/recovery/types/recovery';
 
 export type WidgetType =
@@ -15,7 +16,8 @@ export type WidgetType =
     | 'mood'
     | 'habit'
     | 'scratchpad'
-    | 'countdown';
+    | 'countdown'
+    | 'folder';
 
 export interface WidgetConfig {
     id: string;
@@ -27,6 +29,27 @@ export interface WidgetConfig {
     props?: {
         tracker?: Tracker; // recovery
         initialUnit?: string; // converter
-        // recovery-empty doesn't need any props
+        folderName?: string; // folder
     };
+}
+
+export interface DashboardGridProps {
+    layout: WidgetConfig[];
+    onLayoutChange: (next: WidgetConfig[]) => void;
+    onToggleVisible: (id: string) => void;
+    onReset: (id: string, newStart: string) => void;
+    onOpenFolder: (id: string) => void;
+    onRenameFolder: (id: string, name: string) => void;
+    onDeleteFolder: (id: string) => void;
+}
+
+export interface HiddenWidgetsTrayProps {
+    hidden: WidgetConfig[];
+    onRestore: (id: string) => void;
+}
+
+export interface WidgetWrapperProps {
+    config: WidgetConfig;
+    onToggleVisible: (id: string) => void;
+    children: ReactNode;
 }

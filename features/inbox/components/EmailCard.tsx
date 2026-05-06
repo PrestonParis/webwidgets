@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Email, EMAIL_CATEGORIES } from '@/features/inbox/types/inbox';
+import { EMAIL_CATEGORIES, EmailCardProps } from '@/features/inbox/types/inbox';
 import { cn } from '@/lib/utils/utils';
 
 const CATEGORY_STYLES: Record<string, string> = {
@@ -20,20 +20,10 @@ const CATEGORY_STYLES: Record<string, string> = {
     other: 'bg-zinc-100   dark:bg-zinc-800      text-zinc-500   dark:text-zinc-400',
 };
 
-type Props = {
-    mail: Email;
-    onClassify: (
-        id: string,
-        cat: string,
-        sender: string,
-        subject: string,
-    ) => void;
-};
-
-export function EmailCard({ mail, onClassify }: Props) {
+export function EmailCard({ mail, onClassify }: EmailCardProps) {
     const [open, setOpen] = useState(false);
 
-    const category = (mail.category ?? 'other') as string;
+    const category = mail.category ?? 'other';
     const badgeStyle = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.other;
 
     return (
@@ -84,7 +74,7 @@ export function EmailCard({ mail, onClassify }: Props) {
                             <button
                                 key={cat}
                                 onClick={() => {
-                                    onClassify(
+                                    void onClassify(
                                         mail.id,
                                         cat,
                                         mail.sender,

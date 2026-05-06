@@ -1,6 +1,6 @@
 'use client';
 
-import type { GameVariation } from '@/features/chess/types/chess';
+import type { GameVariation } from '@/features/chess/types/variation';
 
 export function TrainerSidebar({
     variations,

@@ -20,7 +20,12 @@ export async function GET() {
         return Response.json({ error: text }, { status: 500 });
     }
 
-    const data = await res.json();
+    const data = (await res.json()) as {
+        white: unknown;
+        draws: unknown;
+        black: unknown;
+        moves: unknown;
+    };
 
     /*return Response.json(data);
     Option for limiting data given*/

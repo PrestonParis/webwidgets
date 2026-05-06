@@ -13,7 +13,7 @@ export function normalizeMessage(res: {
     const msg = res.data;
     return {
         id: msg.id ?? '',
-        snippet: msg.snippet ?? undefined,
+        ...(msg.snippet != null ? { snippet: msg.snippet } : {}),
         payload: {
             headers: (msg.payload?.headers ?? [])
                 .filter(hasHeaderValue)
