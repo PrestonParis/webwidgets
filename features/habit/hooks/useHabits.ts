@@ -21,7 +21,7 @@ export function useHabits() {
         if (!user?.id) return;
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             const thirtyDaysAgo = getThirtyDaysAgoIsoDate();
             const res = await fetchHabitsAndCompletions(user.id, thirtyDaysAgo);
 

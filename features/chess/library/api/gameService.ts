@@ -22,13 +22,13 @@ export const gameService = {
     },
 
     async importGame(userId: string, pgn: string, headers: Partial<ChessGame>) {
-        const { data, error } = await supabase
+        const result = await supabase
             .from('chess_games')
             .insert({ user_id: userId, pgn, ...headers })
             .select()
             .single();
 
-        if (error) throw error;
-        return data as ChessGame;
+        if (result.error) throw result.error;
+        return result.data as ChessGame;
     },
 };

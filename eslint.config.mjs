@@ -26,8 +26,8 @@ const eslintConfig = defineConfig([
       parser: tsParser,
       parserOptions: {
         projectService: {
-      allowDefaultProject: ['./eslint.config.mjs'], 
-    },
+          allowDefaultProject: ['./eslint.config.mjs'],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -53,6 +53,7 @@ const eslintConfig = defineConfig([
           args: 'after-used',
         },
       ],
+      '@typescript-eslint/no-unsafe-return': 'error',
 
       'react-compiler/react-compiler': 'error',
       'react-hooks/rules-of-hooks': 'error',
@@ -76,18 +77,18 @@ const eslintConfig = defineConfig([
         {
           selector: "TSInterfaceDeclaration[id.name='Props']",
           message:
-            "Do not declare a `Props` interface in component files. Import it from `@/types`.",
+            'Do not declare a `Props` interface in component files. Import it from `@/types`.',
         },
         {
           selector: "TSTypeAliasDeclaration[id.name='Props']",
           message:
-            "Do not declare a `Props` type in component files. Import it from `@/types`.",
+            'Do not declare a `Props` type in component files. Import it from `@/types`.',
         },
         {
           selector:
             "ImportDeclaration[source.value!=/^@\\/types(\\/|$)/] > ImportSpecifier[local.name='Props']",
           message:
-            "Import `Props` from `@/types` rather than local feature type files.",
+            'Import `Props` from `@/types` rather than local feature type files.',
         },
       ],
     },

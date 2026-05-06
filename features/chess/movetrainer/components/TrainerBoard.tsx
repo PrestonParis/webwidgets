@@ -1,20 +1,7 @@
 'use client';
 
 import { Chessboard } from 'react-chessboard';
-import type { PieceDropHandlerArgs } from 'react-chessboard';
-import type React from 'react';
-import type { ParsedMove } from '@/features/chess/types/chess';
-
-type SquareStyles = Record<string, React.CSSProperties>;
-
-interface Props {
-    fen: string;
-    boardOrientation: 'white' | 'black';
-    squareStyles: SquareStyles;
-    moves: ParsedMove[];
-    index: number;
-    onPieceDrop: (args: PieceDropHandlerArgs) => boolean;
-}
+import { TrainingBoardProps } from '../types/movetrainer';
 
 export function TrainerBoard({
     fen,
@@ -23,7 +10,7 @@ export function TrainerBoard({
     moves,
     index,
     onPieceDrop,
-}: Props) {
+}: TrainingBoardProps) {
     return (
         <div className="flex-1 w-full space-y-4">
             <div className="rounded-xl overflow-hidden shadow-2xl border border-zinc-800">

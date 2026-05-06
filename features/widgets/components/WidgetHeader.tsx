@@ -1,7 +1,8 @@
-import { Settings, X } from 'lucide-react';
+import { Settings, X, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { WidgetHeaderProps } from '@/features/widgets/types/widgets';
 import { colorMap } from '@/features/widgets/constants';
+import { useHideWidget } from '@/features/dashboard/contexts/HideWidgetContext';
 
 export function WidgetHeader({
     icon,
@@ -12,6 +13,7 @@ export function WidgetHeader({
     onToggleSettings,
     showSettings,
 }: WidgetHeaderProps) {
+    const onHide = useHideWidget();
     const c = colorMap[settings.color];
     const isCompact = settings.size === 'compact';
 
@@ -47,11 +49,26 @@ export function WidgetHeader({
                 </h3>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
                 {badge && (
                     <div className="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider">
                         {badge}
                     </div>
+                )}
+
+                {onHide && (
+                    <button
+                        onClick={onHide}
+                        title="Hide widget"
+                        className={cn(
+                            'opacity-0 group-hover:opacity-100 transition-opacity',
+                            'w-7 h-7 rounded-xl flex items-center justify-center',
+                            'text-gray-400 dark:text-zinc-500',
+                            'hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300',
+                        )}
+                    >
+                        <EyeOff className="w-3.5 h-3.5" />
+                    </button>
                 )}
 
                 {showSettings && onToggleSettings && (

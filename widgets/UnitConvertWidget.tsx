@@ -63,7 +63,6 @@ export default function UnitConverterWidget() {
                     units={units}
                     onValueChange={handleToChange}
                     onUnitChange={setToUnit}
-                    highlight
                 />
             </div>
             <ConverterRateSummary

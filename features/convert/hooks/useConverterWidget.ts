@@ -4,8 +4,8 @@ import { convert, formatResult } from './useConvert';
 
 export function useConverterWidget() {
     const [category, setCategory] = useState('Length');
-    const [fromUnit, setFromUnit] = useState(() => getUnits('Length')[0]);
-    const [toUnit, setToUnit] = useState(() => getUnits('Length')[1]);
+    const [fromUnit, setFromUnit] = useState(() => getUnits('Length')[0] ?? '');
+    const [toUnit, setToUnit] = useState(() => getUnits('Length')[1] ?? '');
     const [fromValue, setFromValue] = useState('1');
     const [toValue, setToValue] = useState('');
     const [lastEdited, setLastEdited] = useState<'from' | 'to'>('from');

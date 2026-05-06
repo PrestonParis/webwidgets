@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer } from 'react';
 import { CurrencyRates } from '@/features/currency/types/currency';
+import { CACHE_KEY, CACHE_TTL } from '@/features/currency/constants';
 
 type State = {
     rates: CurrencyRates | null;
@@ -33,27 +34,68 @@ function reducer(state: State, action: Action): State {
     }
 }
 
+interface CachedEntry {
+    data: CurrencyRates;
+    timestamp: number;
+}
+
+function readCache(base: string): CurrencyRates | null {
+    try {
+        const raw = localStorage.getItem(`${CACHE_KEY}_${base}`);
+        if (!raw) return null;
+        const entry = JSON.parse(raw) as CachedEntry;
+        if (Date.now() - entry.timestamp > CACHE_TTL) return null;
+        return entry.data;
+    } catch {
+        return null;
+    }
+}
+
+function writeCache(base: string, data: CurrencyRates) {
+    try {
+        const entry: CachedEntry = { data, timestamp: Date.now() };
+        localStorage.setItem(`${CACHE_KEY}_${base}`, JSON.stringify(entry));
+    } catch {
+        // localStorage unavailable — non-fatal
+    }
+}
+
 export function useCurrency(base: string = 'USD') {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        let isMounted = true;
+        let cancelled = false;
 
         const fetchRates = async () => {
+            // Serve from cache if still fresh
+            const cached = readCache(base);
+            if (cached) {
+                dispatch({ type: 'FETCH_SUCCESS', payload: cached });
+                return;
+            }
+
             dispatch({ type: 'FETCH_START' });
 
-            // Check cache...
-            // Fetch data...
+            try {
+                const res = await fetch(
+                    `https://api.frankfurter.app/latest?from=${base}`,
+                );
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = (await res.json()) as CurrencyRates;
 
-            if (isMounted) {
-                // dispatch FETCH_SUCCESS or FETCH_ERROR
+                if (!cancelled) {
+                    dispatch({ type: 'FETCH_SUCCESS', payload: json });
+                    writeCache(base, json);
+                }
+            } catch {
+                if (!cancelled) dispatch({ type: 'FETCH_ERROR' });
             }
         };
 
-        fetchRates();
+        void fetchRates();
 
         return () => {
-            isMounted = false;
+            cancelled = true;
         };
     }, [base]);
 

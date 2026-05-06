@@ -11,11 +11,12 @@ export default function Emails() {
         nextPageToken,
         loading,
         isUnauthorized,
+        hasGoogleSync,
         loadEmails,
         handleManualClassify,
     } = useEmails();
 
-    if (isUnauthorized) return <EmailUnauthorized />;
+    if (!hasGoogleSync || isUnauthorized) return <EmailUnauthorized />;
 
     return (
         <div className="max-w-2xl mx-auto p-4 space-y-6">
@@ -30,10 +31,13 @@ export default function Emails() {
 
             {nextPageToken && (
                 <button
-                    onClick={() => loadEmails(nextPageToken)}
-                    className="w-full py-4 border-dashed border rounded-2xl"
+                    onClick={() => {
+                        void loadEmails(nextPageToken);
+                    }}
+                    disabled={loading}
+                    className="w-full py-4 border-dashed border rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Load Older Messages
+                    {loading ? 'Loading…' : 'Load Older Messages'}
                 </button>
             )}
         </div>

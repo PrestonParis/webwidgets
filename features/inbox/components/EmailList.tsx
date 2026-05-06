@@ -11,7 +11,13 @@ export function EmailList({
     return (
         <div className="space-y-3">
             {emails.map((mail) => (
-                <EmailCard key={mail.id} mail={mail} onClassify={onClassify} />
+                <EmailCard
+                    key={mail.id}
+                    mail={mail}
+                    onClassify={(...args) => {
+                        void onClassify(...args);
+                    }}
+                />
             ))}
         </div>
     );

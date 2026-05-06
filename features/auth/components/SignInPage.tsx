@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BackgroundGrid } from './BackgroundGrid';
 import { RadialGlow } from '@/features/ui/components/RadialGlow';
@@ -19,14 +20,31 @@ export default function SignInPage() {
                 <LogoWordmark />
 
                 <AuthCard>
-                    <GoogleSignInButton onClick={signInWithGoogle} />
+                    <GoogleSignInButton
+                        onClick={() => {
+                            void signInWithGoogle();
+                        }}
+                    />
                     <AuthDivider />
                     <SignInForm onToggleMode={() => {}} />
                 </AuthCard>
 
                 <p className="text-center text-zinc-700 text-xs mt-6">
-                    By continuing, you agree to our Terms of Service and Privacy
-                    Policy.
+                    By continuing, you agree to our{' '}
+                    <Link
+                        href="/terms"
+                        className="text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-2"
+                    >
+                        Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                        href="/privacy"
+                        className="text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-2"
+                    >
+                        Privacy Policy
+                    </Link>
+                    .
                 </p>
             </div>
         </div>

@@ -43,9 +43,19 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
         <SoberWidgetFooter
             showUrgeForm={urgeForm.showUrgeForm}
             trigger={urgeForm.trigger}
+            replacement={urgeForm.replacement}
+            selectedTags={urgeForm.selectedTags}
+            intensity={urgeForm.intensity}
             isSaving={urgeForm.isSaving}
+            canSave={urgeForm.canSave}
+            linkHref={`/recovery#${tracker.id}`}
             onTriggerChange={urgeForm.setTrigger}
-            onLogUrge={urgeForm.handleLogUrge}
+            onReplacementChange={urgeForm.setReplacement}
+            onToggleTag={urgeForm.toggleTag}
+            onIntensityChange={urgeForm.setIntensity}
+            onLogUrge={() => {
+                void urgeForm.handleLogUrge();
+            }}
             onCancelUrge={urgeForm.handleCancel}
             onShowUrgeForm={() => urgeForm.setShowUrgeForm(true)}
             onReset={handleResetClick}

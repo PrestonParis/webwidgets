@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { EntryCardProps } from '@/features/journal/types/journal';
 import { EntryCardActions } from './EntryCardActions';
 
@@ -22,12 +23,14 @@ export default function EntryCard({
     return (
         <article className="group bg-white dark:bg-zinc-900 rounded-2xl border border-stone-100 dark:border-zinc-800 hover:border-stone-300 dark:hover:border-zinc-600 transition-all duration-200 overflow-hidden">
             {entry.image_url && (
-                <div className="h-36 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                <div className="relative h-36 overflow-hidden">
+                    <Image
                         src={entry.image_url}
                         alt=""
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                 </div>
             )}

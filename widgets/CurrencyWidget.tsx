@@ -63,7 +63,7 @@ export default function CurrencyWidget() {
 
             {loading && (
                 <div className="space-y-2">
-                    {[...Array(6)].map((_, i) => (
+                    {Array.from({ length: 6 }).map((_, i) => (
                         <div
                             key={i}
                             className="h-7 bg-stone-100 dark:bg-zinc-800 rounded-lg animate-pulse"

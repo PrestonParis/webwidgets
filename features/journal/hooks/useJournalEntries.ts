@@ -1,6 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { JournalEntry } from '@/features/journal/types/journal';
+import { z } from 'zod';
+
+const journalEntrySchema: z.ZodType<JournalEntry> = z.object({
+    id: z.number(),
+    title: z.string(),
+    content: z.string(),
+    image_url: z.string().nullable(),
+    deleted_at: z.string().nullable(),
+    created_at: z.string(),
+});
+
+const journalEntryArraySchema = z.array(journalEntrySchema);
 
 export function useJournalEntries(userId: string | undefined) {
     const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -21,7 +33,10 @@ export function useJournalEntries(userId: string | undefined) {
 
         const { data, error } = await query;
         if (error) console.error('Fetch error:', error.message, error.hint);
-        else return data || [];
+        else {
+            const parsed = journalEntryArraySchema.safeParse(data);
+            return parsed.success ? parsed.data : [];
+        }
     }, [userId, view]);
 
     useEffect(() => {
@@ -32,7 +47,7 @@ export function useJournalEntries(userId: string | undefined) {
             if (isMounted && data) setEntries(data);
         };
 
-        load();
+        void load();
         return () => {
             isMounted = false;
         };

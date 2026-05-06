@@ -21,8 +21,11 @@ export function getStreak(
 
     let streak = 1;
     for (let i = 1; i < dates.length; i++) {
-        const prev = new Date(dates[i - 1]).getTime();
-        const curr = new Date(dates[i]).getTime();
+        const prevDate = dates[i - 1];
+        const currDate = dates[i];
+        if (!prevDate || !currDate) break;
+        const prev = new Date(prevDate).getTime();
+        const curr = new Date(currDate).getTime();
         if (Math.round((prev - curr) / 86_400_000) === 1) {
             streak++;
         } else {

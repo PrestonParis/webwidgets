@@ -4,6 +4,12 @@ import { useJournalEntries } from '@/features/journal/hooks/useJournalEntries';
 import { useJournalEditor } from '@/features/journal/hooks/useJournalEditor';
 import { useAutosave } from '@/features/journal/hooks/useAutosave';
 import { useJournalManager } from '@/features/journal/hooks/useJournalManager';
+import { z } from 'zod';
+
+const draftSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+});
 
 export function useJournalPage() {
     const { user } = useAuth();
@@ -29,9 +35,10 @@ export function useJournalPage() {
     useEffect(() => {
         if (!editorUtils.isEditing && editorUtils.editor) {
             const draft = restoreDraft();
-            if (draft) {
-                editorUtils.setTitle(draft.title);
-                editorUtils.editor.commands.setContent(draft.content);
+            const parsed = draftSchema.safeParse(draft);
+            if (parsed.success) {
+                editorUtils.setTitle(parsed.data.title);
+                editorUtils.editor.commands.setContent(parsed.data.content);
             }
         }
     }, [editorUtils.editor, restoreDraft, editorUtils]);

@@ -7,6 +7,11 @@ import Footer from '@/features/ui/components/Footer';
 import ProfileForm from './ProfileForm';
 import ProfileStatus from './ProfileStatus';
 import { User } from '@supabase/supabase-js';
+import { z } from 'zod';
+
+const profileSchema = z.object({
+    full_name: z.string().nullable().optional(),
+});
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -32,11 +37,12 @@ export default function ProfilePage() {
                 .eq('id', u.id)
                 .single();
 
-            setFullName(profile?.full_name ?? '');
+            const parsed = profileSchema.safeParse(profile);
+            setFullName(parsed.success ? (parsed.data.full_name ?? '') : '');
             setLoading(false);
         };
 
-        load();
+        void load();
     }, []);
 
     const save = async () => {
@@ -74,7 +80,9 @@ export default function ProfilePage() {
                     fullName={fullName}
                     saving={saving}
                     onNameChange={setFullName}
-                    onSave={save}
+                    onSave={() => {
+                        void save();
+                    }}
                 />
             </main>
             <Footer />

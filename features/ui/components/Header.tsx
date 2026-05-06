@@ -1,39 +1,25 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
 import { LayoutDashboard } from 'lucide-react';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { useRecoveryReviewNotifications } from '@/features/recovery/hooks/useRecoveryReviewNotifications';
+import { useAccountDropdown } from '@/features/ui/hooks/useAccountDropdown';
 import AccountDropdown from './AccountDropdown';
 import SignOutModal from './SignOutModal';
 
 export default function Header() {
-    const { signOut, firstName } = useAuth();
-    const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    const handleSignOut = async () => {
-        setLoading(true);
-        try {
-            await signOut();
-        } catch (err) {
-            console.error('Sign out failed:', err);
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        function handleClickOutside(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
-                setOpen(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-            document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    useRecoveryReviewNotifications();
+    const {
+        firstName,
+        open,
+        setOpen,
+        loading,
+        confirmOpen,
+        setConfirmOpen,
+        ref,
+        handleSignOut,
+    } = useAccountDropdown();
 
     return (
         <header className="sticky top-0 z-30 w-full border-b border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
@@ -47,17 +33,20 @@ export default function Header() {
                     </span>
                 </Link>
 
-                <div className="relative" ref={ref}>
-                    <AccountDropdown
-                        firstName={firstName}
-                        open={open}
-                        loading={loading}
-                        onToggle={() => setOpen((prev) => !prev)}
-                        onSignOut={() => {
-                            setOpen(false);
-                            setConfirmOpen(true);
-                        }}
-                    />
+                <div className="flex items-center gap-1">
+                    <NotificationBell />
+                    <div className="relative" ref={ref}>
+                        <AccountDropdown
+                            firstName={firstName}
+                            open={open}
+                            loading={loading}
+                            onToggle={() => setOpen((prev) => !prev)}
+                            onSignOut={() => {
+                                setOpen(false);
+                                setConfirmOpen(true);
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -65,9 +54,9 @@ export default function Header() {
                 <SignOutModal
                     loading={loading}
                     onCancel={() => setConfirmOpen(false)}
-                    onConfirm={async () => {
+                    onConfirm={() => {
                         setConfirmOpen(false);
-                        await handleSignOut();
+                        void handleSignOut();
                     }}
                 />
             )}

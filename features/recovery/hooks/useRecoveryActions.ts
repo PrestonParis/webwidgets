@@ -3,13 +3,13 @@ import { Tracker } from '@/features/recovery/types/recovery';
 import { Dispatch, SetStateAction } from 'react';
 
 export function useRecoveryActions(
-    fetchTrackers: () => Promise<void>,
     setTrackers: Dispatch<SetStateAction<Tracker[]>>,
 ) {
     const handleReset = async (id: string) => {
-        const confirmed = window.confirm('Reset this streak?');
-        if (!confirmed) return;
         const now = new Date().toISOString();
+        setTrackers((prev) =>
+            prev.map((t) => (t.id === id ? { ...t, start_time: now } : t)),
+        );
         await supabase
             .from('relapses')
             .insert({ relapsed_at: now, tracker_id: id });
@@ -17,7 +17,6 @@ export function useRecoveryActions(
             .from('recovery_profiles')
             .update({ start_time: now })
             .eq('id', id);
-        await fetchTrackers();
     };
 
     const handleTrackerCardReset = (
@@ -32,8 +31,6 @@ export function useRecoveryActions(
         onReset: (id: string, now: string) => void,
         resetSeconds: () => void,
     ) => {
-        const confirmed = window.confirm('Reset your streak?');
-        if (!confirmed) return;
         const now = new Date().toISOString();
         await supabase
             .from('relapses')
@@ -47,10 +44,8 @@ export function useRecoveryActions(
     };
 
     const handleDelete = async (id: string) => {
-        const confirmed = window.confirm('Delete this tracker permanently?');
-        if (!confirmed) return;
+        setTrackers((prev) => prev.filter((t) => t.id !== id));
         await supabase.from('recovery_profiles').delete().eq('id', id);
-        await fetchTrackers();
     };
 
     const handleAddTracker = async (selectedAddiction: string) => {
@@ -60,13 +55,18 @@ export function useRecoveryActions(
             data: { user },
         } = await supabase.auth.getUser();
         if (!user) throw new Error('No user logged in');
-        const { error } = await supabase.from('recovery_profiles').insert({
-            start_time: now,
-            addiction: selectedAddiction,
-            user_id: user.id,
-        });
-        if (error) throw error;
-        await fetchTrackers();
+        const insertResult = await supabase
+            .from('recovery_profiles')
+            .insert({
+                start_time: now,
+                addiction: selectedAddiction,
+                user_id: user.id,
+            })
+            .select()
+            .single();
+        if (insertResult.error) throw insertResult.error;
+        const newTracker = insertResult.data as unknown as Tracker;
+        setTrackers((prev) => [...prev, newTracker]);
     };
 
     const handleUpdateStart = (id: string, newStart: string) => {

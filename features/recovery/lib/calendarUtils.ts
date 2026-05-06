@@ -18,7 +18,7 @@ export function getDayStatus(
     const date = new Date(year, month, day);
     if (date > today) return 'future';
     if (!startTime || date < new Date(startTime)) return 'before';
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = date.toISOString().split('T')[0] ?? '';
     if (relapses.includes(dateStr)) return 'relapse';
     return 'clean';
 }

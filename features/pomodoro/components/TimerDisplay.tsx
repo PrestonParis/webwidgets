@@ -9,6 +9,7 @@ export function TimerDisplay({
     radius,
     circumference,
     strokeDashoffset,
+    compact,
 }: TimerDisplayProps) {
     const label =
         mode === 'focus'
@@ -23,12 +24,17 @@ export function TimerDisplay({
                 radius={radius}
                 circumference={circumference}
                 strokeDashoffset={strokeDashoffset}
+                compact={compact ?? false}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-5xl font-mono font-bold tabular-nums">
+                <div
+                    className={`${compact ? 'text-3xl' : 'text-5xl'} font-mono font-bold tabular-nums`}
+                >
                     {mins}:{secs}
                 </div>
-                <div className="text-sm text-muted-foreground mt-2">
+                <div
+                    className={`${compact ? 'text-xs' : 'text-sm'} text-muted-foreground mt-1`}
+                >
                     {label}
                 </div>
             </div>

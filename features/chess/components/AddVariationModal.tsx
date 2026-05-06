@@ -1,4 +1,4 @@
-import { AddVariationModalProps } from '@/features/chess/types/chess';
+import { AddVariationModalProps } from '@/features/chess/types/variation';
 import { useAddVariation } from '@/features/chess/hooks/useAddVariation';
 import { VariationFormFields } from './VariationFormFields';
 
@@ -49,7 +49,9 @@ export function AddVariationModal(props: AddVariationModalProps) {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={() => {
+                            void handleSave();
+                        }}
                         disabled={saving || !title.trim() || !pgn.trim()}
                         className="text-sm px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50 transition-colors"
                     >

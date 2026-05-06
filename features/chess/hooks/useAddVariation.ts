@@ -5,7 +5,7 @@ import {
     GameVariation,
     StudyVariation,
     VariationInsert,
-} from '@/features/chess/types/chess';
+} from '@/features/chess/types/variation';
 import { STARTING_FEN } from '@/features/chess/constants';
 import { studyService } from '@/features/chess/studies/api/studyService';
 

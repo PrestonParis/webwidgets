@@ -1,10 +1,5 @@
 import { categories } from '@/features/convert/constants';
-export type Category = {
-    units: string[];
-    base: string;
-    conversions?: Record<string, number>;
-    custom?: boolean;
-};
+export type { Category } from '@/features/convert/constants';
 
 export interface UnitConverterProps {
     category: string;
@@ -41,4 +36,18 @@ export interface ConverterRateSummaryProps {
     rate: string;
     fromUnit: string;
     toUnit: string;
+}
+
+export interface CategorySelectorProps {
+    selected: string;
+    onSelect: (cat: string) => void;
+}
+
+export interface UnitSelectorRowProps {
+    units: string[];
+    fromUnit: string;
+    toUnit: string;
+    onFromChange: (v: string) => void;
+    onToChange: (v: string) => void;
+    onSwap: () => void;
 }

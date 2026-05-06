@@ -17,8 +17,8 @@ export type Email = {
     sender: string;
     snippet: string;
     date: string;
-    category?: EmailCategory | string;
-    is_manual?: boolean;
+    category?: string | undefined;
+    is_manual?: boolean | undefined;
 };
 
 export type TokenUpdate = {
@@ -33,6 +33,11 @@ export type ClassifyHandler = (
     sender: string,
     subject: string,
 ) => void | Promise<void>;
+
+export interface EmailCardProps {
+    mail: Email;
+    onClassify: ClassifyHandler;
+}
 
 export type EmailInput = { idx: number; sender: string; subject: string };
 

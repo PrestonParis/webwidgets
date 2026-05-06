@@ -11,6 +11,7 @@ export function BoardView({
     showControls,
     activeVariation,
     onMoveSelect,
+    onPieceDrop,
 }: BoardViewProps) {
     return (
         <div className="w-full max-w-140 space-y-4">
@@ -22,9 +23,11 @@ export function BoardView({
             <div className="rounded-xl overflow-hidden shadow-2xl">
                 <Chessboard
                     options={{
-                        position: activeVariation ? undefined : boardFen,
+                        ...(activeVariation ? {} : { position: boardFen }),
                         squareStyles,
-                        allowDragging: false,
+                        allowDragging: !!onPieceDrop,
+                        ...(onPieceDrop ? { onPieceDrop } : {}),
+                        animationDurationInMs: 200,
                     }}
                 />
             </div>
@@ -77,7 +80,9 @@ export function BoardView({
             )}
 
             <p className="text-center text-[10px] text-zinc-600">
-                {showControls ? 'Use ← → arrow keys to navigate' : ''}
+                {showControls
+                    ? 'Use ← → arrow keys to navigate · Drag pieces to analyze'
+                    : ''}
             </p>
         </div>
     );

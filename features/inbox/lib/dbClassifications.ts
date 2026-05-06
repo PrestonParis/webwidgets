@@ -1,8 +1,17 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { classifyEmails } from './classifyEmails';
+import { z } from 'zod';
 
 type ParsedEmail = { id: string; sender: string; subject: string };
 type CategoryEntry = { category: string; is_manual: boolean };
+
+const classificationSchema = z.object({
+    email_id: z.string(),
+    sender: z.string(),
+    category: z.string(),
+    is_manual: z.boolean(),
+});
+const classificationsSchema = z.array(classificationSchema);
 
 export async function resolveClassifications(
     supabase: SupabaseClient,
@@ -21,8 +30,10 @@ export async function resolveClassifications(
                 `sender.in.(${senders.map((s) => `"${s}"`).join(',')})`,
         );
 
-    const byId = new Map(existing?.map((c) => [c.email_id, c]) ?? []);
-    const bySender = new Map(existing?.map((c) => [c.sender, c]) ?? []);
+    const parsedExisting = classificationsSchema.safeParse(existing);
+    const rows = parsedExisting.success ? parsedExisting.data : [];
+    const byId = new Map(rows.map((c) => [c.email_id, c]));
+    const bySender = new Map(rows.map((c) => [c.sender, c]));
 
     const categoryMap = new Map<string, CategoryEntry>();
     const needsAI: {
@@ -34,6 +45,7 @@ export async function resolveClassifications(
 
     for (let i = 0; i < parsed.length; i++) {
         const email = parsed[i];
+        if (!email) continue;
         const hit = byId.get(email.id) ?? bySender.get(email.sender);
         if (hit) {
             categoryMap.set(email.id, {

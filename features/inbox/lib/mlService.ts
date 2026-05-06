@@ -3,6 +3,14 @@ import {
     EmailCategory,
     EmailInput,
 } from '@/features/inbox/types/inbox';
+import { z } from 'zod';
+
+const predictionSchema = z.object({
+    id: z.string(),
+    category: z.string(),
+});
+
+const predictionsSchema = z.array(predictionSchema);
 
 export async function classifyWithMlService(
     emails: EmailInput[],
@@ -25,9 +33,12 @@ export async function classifyWithMlService(
 
     if (!res.ok) throw new Error(`ML service ${res.status}`);
 
-    const predictions: { id: string; category: string }[] = await res.json();
+    const json: unknown = await res.json();
+    const parsed = predictionsSchema.safeParse(json);
+    if (!parsed.success) throw new Error('Invalid ML response');
+
     const out = new Map<number, EmailCategory>();
-    for (const p of predictions) {
+    for (const p of parsed.data) {
         const cat = EMAIL_CATEGORIES.includes(p.category as EmailCategory)
             ? (p.category as EmailCategory)
             : 'other';

@@ -1,13 +1,5 @@
 import { ArrowUpDown } from 'lucide-react';
-
-interface Props {
-    units: string[];
-    fromUnit: string;
-    toUnit: string;
-    onFromChange: (v: string) => void;
-    onToChange: (v: string) => void;
-    onSwap: () => void;
-}
+import { UnitSelectorRowProps } from '@/features/convert/types/unitconvert';
 
 const selectClass =
     'flex-1 h-10 px-2 border rounded-md bg-transparent cursor-pointer hover:border-primary transition-colors outline-none';
@@ -47,7 +39,7 @@ export function UnitSelectorRow({
     onFromChange,
     onToChange,
     onSwap,
-}: Props) {
+}: UnitSelectorRowProps) {
     return (
         <div className="flex items-center gap-2">
             <UnitSelect

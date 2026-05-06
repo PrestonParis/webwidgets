@@ -1,24 +1,32 @@
-// components/Dashboard/HiddenWidgetsTray.tsx
-import { Eye } from 'lucide-react';
-import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+'use client';
 
-interface Props {
-    hidden: WidgetConfig[];
-    onRestore: (id: string) => void;
-}
+import { Eye } from 'lucide-react';
+import {
+    HiddenWidgetsTrayProps,
+    WidgetConfig,
+} from '@/features/dashboard/types/dashboard';
+import { StatusDot } from '@/features/notifications/components/StatusDot';
 
 const BASE_LABELS: Record<string, string> = {
     journal: 'Journal',
     email: 'Email',
     recovery: 'Recovery',
-    'recovery-empty': 'Recovery (Setup)', // Handles your missing label
+    'recovery-empty': 'Recovery (Setup)',
     converter: 'Converter',
+    folder: 'Folder',
 };
 
-export default function HiddenWidgetsTray({ hidden, onRestore }: Props) {
+export default function HiddenWidgetsTray({
+    hidden,
+    onRestore,
+}: HiddenWidgetsTrayProps) {
     // Helper to determine the specific label for a widget instance
     const getWidgetLabel = (w: WidgetConfig) => {
         const base = BASE_LABELS[w.type] ?? w.type;
+
+        if (w.type === 'folder' && w.props?.folderName) {
+            return w.props.folderName;
+        }
 
         // 1. If it's a recovery widget with a specific tracker name, use that
         if (w.type === 'recovery' && w.props?.tracker?.addiction) {
@@ -50,6 +58,7 @@ export default function HiddenWidgetsTray({ hidden, onRestore }: Props) {
                         onClick={() => onRestore(w.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                     >
+                        <StatusDot widgetId={w.id} />
                         <Eye size={13} />
                         {getWidgetLabel(w)}
                     </button>

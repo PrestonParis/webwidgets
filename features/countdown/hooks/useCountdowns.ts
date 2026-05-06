@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { z } from 'zod';
 
 export interface Countdown {
     id: string;
@@ -10,6 +11,14 @@ export interface Countdown {
     target_date: string;
     emoji: string;
 }
+
+const countdownSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    target_date: z.string(),
+    emoji: z.string(),
+});
+const countdownArraySchema = z.array(countdownSchema);
 
 export function useCountdowns() {
     const { user } = useAuth();
@@ -20,7 +29,7 @@ export function useCountdowns() {
         if (!user?.id) return;
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             const { data } = await supabase
                 .from('countdowns')
                 .select('id, name, target_date, emoji')
@@ -29,7 +38,8 @@ export function useCountdowns() {
                 .order('target_date', { ascending: true });
 
             if (!cancelled) {
-                setCountdowns(data || []);
+                const parsed = countdownArraySchema.safeParse(data);
+                setCountdowns(parsed.success ? parsed.data : []);
                 setLoading(false);
             }
         })();
@@ -53,8 +63,10 @@ export function useCountdowns() {
                 .select('id, name, target_date, emoji')
                 .single();
             if (!error && data) {
+                const parsed = countdownSchema.safeParse(data);
+                if (!parsed.success) return;
                 setCountdowns((prev) =>
-                    [...prev, data].sort(
+                    [...prev, parsed.data].sort(
                         (a, b) =>
                             new Date(a.target_date).getTime() -
                             new Date(b.target_date).getTime(),

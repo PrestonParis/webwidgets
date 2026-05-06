@@ -27,7 +27,9 @@ export default function PrivacyPage() {
                 <PrivacySection title="3. How We Use Information">
                     We use your data to operate the service, sync your
                     dashboard, store preferences, and enable integrations such
-                    as Google services when authorized.
+                    as Google services when authorized. At your discretion, we
+                    generate productive insights based on data you allow us to
+                    access.
                 </PrivacySection>
 
                 {/* ... Add other sections similarly ... */}

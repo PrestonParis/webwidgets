@@ -14,7 +14,7 @@ export function useTodos() {
         if (!user?.id) return;
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             const { data } = await supabase
                 .from('todos')
                 .select('id, text, completed, created_at, completed_at')
