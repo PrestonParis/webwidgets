@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/adminClient';
 
 interface Check {
     status: 'ok' | 'error';
@@ -9,23 +8,30 @@ interface Check {
 export async function GET(): Promise<Response> {
     const checks: Record<string, Check> = {};
 
-    // Database connectivity
-    const dbStart = performance.now();
-    try {
-        const supabase = createAdminClient();
-        await supabase.from('user_tokens').select('user_id').limit(1);
-        checks.database = {
-            status: 'ok',
-            latencyMs: Math.round(performance.now() - dbStart),
-        };
-    } catch {
-        checks.database = {
-            status: 'error',
-            latencyMs: Math.round(performance.now() - dbStart),
-        };
+    // Database — ping the Supabase REST endpoint with the public anon key.
+    // Avoids importing the service-role admin client (no secret key needed).
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (supabaseUrl && supabaseAnon) {
+        const dbStart = performance.now();
+        try {
+            const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+                headers: { apikey: supabaseAnon },
+                signal: AbortSignal.timeout(3000),
+            });
+            checks.database = {
+                status: res.ok ? 'ok' : 'error',
+                latencyMs: Math.round(performance.now() - dbStart),
+            };
+        } catch {
+            checks.database = {
+                status: 'error',
+                latencyMs: Math.round(performance.now() - dbStart),
+            };
+        }
     }
 
-    // ML service connectivity
+    // ML service — optional, only checked when configured
     const mlUrl = process.env.ML_SERVICE_URL;
     if (mlUrl) {
         const mlStart = performance.now();
@@ -45,7 +51,9 @@ export async function GET(): Promise<Response> {
         }
     }
 
-    const allHealthy = Object.values(checks).every((c) => c.status === 'ok');
+    const allHealthy =
+        Object.keys(checks).length === 0 ||
+        Object.values(checks).every((c) => c.status === 'ok');
 
     return NextResponse.json(
         {

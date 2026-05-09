@@ -35,16 +35,16 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
     );
 
     useEffect(() => {
-        const task = taskQuery.trim();
-        if (!task) {
-            setNlpSuggestions([]);
-            setSuggestAi(false);
-            return;
-        }
-
         if (debounceRef.current) clearTimeout(debounceRef.current);
 
         debounceRef.current = setTimeout(() => {
+            const task = taskQuery.trim();
+            if (!task) {
+                setNlpSuggestions([]);
+                setSuggestAi(false);
+                return;
+            }
+
             setNlpLoading(true);
 
             async function fetchSuggestions() {
