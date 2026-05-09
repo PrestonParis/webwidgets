@@ -7,6 +7,7 @@ import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
 import { fetchEmailBatch } from '@/features/inbox/hooks/useFetchEmails';
 import { enqueueMessages } from '@/features/inbox/lib/queueManager';
+import { createAdminClient } from '@/lib/supabase/adminClient';
 
 // Polling fallback: enqueues recent inbox messages for background processing.
 // Called on a cron schedule or as a recovery mechanism when watch expires.
@@ -80,7 +81,6 @@ async function pollUser(
 }
 
 async function pollAllUsers(): Promise<Response> {
-    const { createAdminClient } = await import('@/lib/supabase/adminClient');
     const supabase = createAdminClient();
 
     const now = new Date().toISOString();
