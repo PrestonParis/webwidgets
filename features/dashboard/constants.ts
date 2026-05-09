@@ -105,4 +105,12 @@ export const base: WidgetConfig[] = [
         containerId: 'main',
         order: 12,
     },
+    {
+        id: 'widget-calendar',
+        type: 'calendar',
+        visible: true,
+        columnSpan: 1,
+        containerId: 'main',
+        order: 13,
+    },
 ];

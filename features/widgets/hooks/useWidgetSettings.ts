@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
+import type { Json } from '@/types/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
     DEFAULT_WIDGET_SETTINGS,
@@ -97,7 +98,7 @@ export function useWidgetSettings(widgetId: string, widgetType: string) {
                 {
                     user_id: user.id,
                     widget_id: widgetId,
-                    settings: next,
+                    settings: next as unknown as Json,
                 },
                 { onConflict: 'user_id,widget_id' },
             )

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
-import { useNotificationStore } from '@/features/notifications/store/useNotificationStore';
+import { useNotificationStore } from '@/features/notifications/hooks/useNotificationStore';
 import { StatusDot } from '@/features/notifications/components/StatusDot';
 
 const WIDGET_LABELS: Partial<Record<string, string>> = {
@@ -124,6 +124,53 @@ function FolderHeader({
     );
 }
 
+function WidgetList({ widgetsInFolder }: { widgetsInFolder: WidgetConfig[] }) {
+    if (widgetsInFolder.length === 0) {
+        return (
+            <p className="text-xs text-zinc-400 italic">Drag widgets here</p>
+        );
+    }
+    return (
+        <>
+            {widgetsInFolder.slice(0, 5).map((w) => {
+                const route = WIDGET_ROUTES[w.type];
+                const label =
+                    w.type === 'recovery' && w.props?.tracker?.addiction
+                        ? w.props.tracker.addiction
+                        : (WIDGET_LABELS[w.type] ?? w.type);
+                return (
+                    <div
+                        key={w.id}
+                        className="flex items-center justify-between gap-2 text-xs"
+                    >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                            <StatusDot widgetId={w.id} reserveSpace />
+                            <span className="text-zinc-600 dark:text-zinc-300 truncate">
+                                {label}
+                            </span>
+                        </div>
+                        {route && (
+                            <Link
+                                href={route}
+                                onClick={(e) => e.stopPropagation()}
+                                className="shrink-0 text-blue-400 hover:text-blue-500 flex items-center gap-0.5 transition-colors"
+                                title={`Open ${label}`}
+                            >
+                                <ExternalLink size={10} />
+                            </Link>
+                        )}
+                    </div>
+                );
+            })}
+            {widgetsInFolder.length > 5 && (
+                <p className="text-xs text-zinc-400">
+                    +{widgetsInFolder.length - 5} more
+                </p>
+            )}
+        </>
+    );
+}
+
 interface FolderWidgetProps {
     folder: WidgetConfig;
     layout: WidgetConfig[];
@@ -191,51 +238,9 @@ export default function FolderWidget({
                     onDelete();
                 }}
             />
-
             <div className="flex-1 space-y-1.5 cursor-pointer" onClick={onOpen}>
-                {widgetsInFolder.length === 0 ? (
-                    <p className="text-xs text-zinc-400 italic">
-                        Drag widgets here
-                    </p>
-                ) : (
-                    widgetsInFolder.slice(0, 5).map((w) => {
-                        const route = WIDGET_ROUTES[w.type];
-                        const label =
-                            w.type === 'recovery' && w.props?.tracker?.addiction
-                                ? w.props.tracker.addiction
-                                : (WIDGET_LABELS[w.type] ?? w.type);
-                        return (
-                            <div
-                                key={w.id}
-                                className="flex items-center justify-between gap-2 text-xs"
-                            >
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                    <StatusDot widgetId={w.id} reserveSpace />
-                                    <span className="text-zinc-600 dark:text-zinc-300 truncate">
-                                        {label}
-                                    </span>
-                                </div>
-                                {route && (
-                                    <Link
-                                        href={route}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="shrink-0 text-blue-400 hover:text-blue-500 flex items-center gap-0.5 transition-colors"
-                                        title={`Open ${label}`}
-                                    >
-                                        <ExternalLink size={10} />
-                                    </Link>
-                                )}
-                            </div>
-                        );
-                    })
-                )}
-                {widgetsInFolder.length > 5 && (
-                    <p className="text-xs text-zinc-400">
-                        +{widgetsInFolder.length - 5} more
-                    </p>
-                )}
+                <WidgetList widgetsInFolder={widgetsInFolder} />
             </div>
-
             <button
                 onClick={onOpen}
                 className="mt-4 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-500 transition-colors"

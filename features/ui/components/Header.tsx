@@ -7,6 +7,7 @@ import { useRecoveryReviewNotifications } from '@/features/recovery/hooks/useRec
 import { useAccountDropdown } from '@/features/ui/hooks/useAccountDropdown';
 import AccountDropdown from './AccountDropdown';
 import SignOutModal from './SignOutModal';
+import SearchBar from '@/features/search/components/SearchBar';
 
 export default function Header() {
     useRecoveryReviewNotifications();
@@ -23,8 +24,11 @@ export default function Header() {
 
     return (
         <header className="sticky top-0 z-30 w-full border-b border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-2 group">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 h-14 flex items-center gap-4">
+                <Link
+                    href="/"
+                    className="flex items-center gap-2 group shrink-0"
+                >
                     <div className="w-7 h-7 rounded-lg bg-[#4f6ef7] flex items-center justify-center shadow-sm group-hover:bg-[#3a58e0] transition-colors">
                         <LayoutDashboard className="w-3.5 h-3.5 text-white" />
                     </div>
@@ -33,7 +37,11 @@ export default function Header() {
                     </span>
                 </Link>
 
-                <div className="flex items-center gap-1">
+                <div className="flex-1 flex justify-center">
+                    <SearchBar />
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
                     <NotificationBell />
                     <div className="relative" ref={ref}>
                         <AccountDropdown

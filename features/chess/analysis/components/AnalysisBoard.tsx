@@ -82,6 +82,65 @@ function AnalysisBoardNav({
     );
 }
 
+function AnalysisSidepanel({
+    moves,
+    moveIndex,
+    currentPgn,
+    showExport,
+    onExportPgn,
+    goTo,
+}: {
+    moves: unknown[];
+    moveIndex: number;
+    currentPgn: string;
+    showExport: boolean | undefined;
+    onExportPgn: ((pgn: string) => void) | undefined;
+    goTo: (i: number) => void;
+}) {
+    const [showPgn, setShowPgn] = useState(false);
+    return (
+        <div className="w-60 flex flex-col gap-4 min-h-0">
+            <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl p-3 min-h-48 max-h-96 overflow-y-auto">
+                {moves.length === 0 ? (
+                    <p className="text-xs text-zinc-600 italic text-center mt-4">
+                        Make a move to start analysis
+                    </p>
+                ) : (
+                    <MoveList
+                        moves={moves as Parameters<typeof MoveList>[0]['moves']}
+                        currentIndex={moveIndex}
+                        onSelect={goTo}
+                    />
+                )}
+            </div>
+            <div className="space-y-2">
+                {(showExport || onExportPgn) && (
+                    <button
+                        onClick={() => onExportPgn?.(currentPgn)}
+                        disabled={moves.length === 0}
+                        className="w-full text-sm py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium disabled:opacity-40 transition-colors"
+                    >
+                        Export PGN to Study
+                    </button>
+                )}
+                <button
+                    onClick={() => setShowPgn(!showPgn)}
+                    className="w-full text-xs py-1.5 rounded-lg border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                    {showPgn ? 'Hide PGN' : 'Show PGN'}
+                </button>
+                {showPgn && (
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
+                        <pre className="text-xs text-zinc-400 whitespace-pre-wrap break-all select-all">
+                            {currentPgn || '(empty)'}
+                        </pre>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 export function AnalysisBoard({
     storageKey,
     pgn,
@@ -101,7 +160,6 @@ export function AnalysisBoard({
     } = useAnalysisBoard({ storageKey, pgn, onPgnChange });
 
     const [stockfishEnabled, setStockfishEnabled] = useState(false);
-    const [showPgn, setShowPgn] = useState(false);
 
     return (
         <div className="flex gap-6 items-start">
@@ -116,7 +174,6 @@ export function AnalysisBoard({
                         }}
                     />
                 </div>
-
                 <div className="flex items-center justify-between">
                     <AnalysisBoardNav
                         moveIndex={moveIndex}
@@ -140,7 +197,6 @@ export function AnalysisBoard({
                         </button>
                     </div>
                 </div>
-
                 {stockfishEnabled && (
                     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-500">
                         Engine analysis — add{' '}
@@ -150,47 +206,14 @@ export function AnalysisBoard({
                     </div>
                 )}
             </div>
-
-            <div className="w-60 flex flex-col gap-4 min-h-0">
-                <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl p-3 min-h-48 max-h-96 overflow-y-auto">
-                    {moves.length === 0 ? (
-                        <p className="text-xs text-zinc-600 italic text-center mt-4">
-                            Make a move to start analysis
-                        </p>
-                    ) : (
-                        <MoveList
-                            moves={moves}
-                            currentIndex={moveIndex}
-                            onSelect={goTo}
-                        />
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    {(showExport || onExportPgn) && (
-                        <button
-                            onClick={() => onExportPgn?.(currentPgn)}
-                            disabled={moves.length === 0}
-                            className="w-full text-sm py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium disabled:opacity-40 transition-colors"
-                        >
-                            Export PGN to Study
-                        </button>
-                    )}
-                    <button
-                        onClick={() => setShowPgn(!showPgn)}
-                        className="w-full text-xs py-1.5 rounded-lg border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-colors"
-                    >
-                        {showPgn ? 'Hide PGN' : 'Show PGN'}
-                    </button>
-                    {showPgn && (
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
-                            <pre className="text-xs text-zinc-400 whitespace-pre-wrap break-all select-all">
-                                {currentPgn || '(empty)'}
-                            </pre>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <AnalysisSidepanel
+                moves={moves}
+                moveIndex={moveIndex}
+                currentPgn={currentPgn}
+                showExport={showExport}
+                onExportPgn={onExportPgn}
+                goTo={goTo}
+            />
         </div>
     );
 }

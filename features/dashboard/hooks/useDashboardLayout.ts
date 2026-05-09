@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { supabase } from '@/lib/db/supabase';
+import { clientLogger } from '@/lib/observability/clientLogger';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import { Tracker } from '@/features/recovery/types/recovery';
 import { useLayoutPersistence } from './useLayoutPersistence';
@@ -10,6 +11,7 @@ import {
     readCachedLayout,
     readCachedTimestamp,
 } from '../lib/dashboardLayout';
+import { useFolderRegistry } from '@/features/search/store/useFolderRegistry';
 
 export function useDashboardLayout(trackers: Tracker[] | null) {
     const safeTrackers = useMemo(() => trackers ?? [], [trackers]);
@@ -42,11 +44,11 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 const { data } = await supabase
                     .from('dashboard_layouts')
                     .select('layout, updated_at')
-                    .eq('user_id', userId)
+                    .eq('user_id', userId!)
                     .maybeSingle();
 
                 const remoteLayout = data?.layout as WidgetConfig[] | null;
-                const remoteTs = data?.updated_at as string | undefined;
+                const remoteTs = data?.updated_at;
 
                 const source = (() => {
                     if (!remoteLayout) return cached;
@@ -65,7 +67,7 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 );
                 hasLoadedInitial.current = true;
             } catch (err) {
-                console.error('Critical layout load error:', err);
+                clientLogger.error('Critical layout load error', { err });
                 if (!showedCached) setLayout(buildDefaultLayout(safeTrackers));
             } finally {
                 setReady(true);
@@ -74,6 +76,15 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
         void load();
     }, [userId, trackers, safeTrackers]);
+
+    const registerFolders = useFolderRegistry((s) => s.register);
+
+    useEffect(() => {
+        const folders = layout
+            .filter((w) => w.type === 'folder' && w.props?.folderName)
+            .map((w) => ({ id: w.id, name: w.props!.folderName! }));
+        registerFolders(folders);
+    }, [layout, registerFolders]);
 
     const persistLayout = useLayoutPersistence(userId);
 

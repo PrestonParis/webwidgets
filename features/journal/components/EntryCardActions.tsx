@@ -25,7 +25,7 @@ export function EntryCardActions({
         <>
             <button
                 onClick={() => onEdit?.(entry)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 hover:text-amber-500 dark:text-zinc-600 dark:hover:text-amber-400 text-sm"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg text-stone-300 hover:text-amber-500 dark:text-zinc-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-base"
                 title="Edit entry"
             >
                 ✎
@@ -52,7 +52,7 @@ export function EntryCardActions({
             ) : (
                 <button
                     onClick={onConfirmStart}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-500 text-lg leading-none"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg text-stone-300 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 text-base leading-none"
                     title="Move to trash"
                 >
                     ×

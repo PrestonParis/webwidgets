@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import type { Json } from '@/types/supabase';
 import { useDebounce } from '@/features/ui/hooks/useDebounce';
 import {
     makePersistKey,
@@ -12,7 +13,7 @@ export function useLayoutPersistence(userId: string | undefined) {
         void supabase.from('dashboard_layouts').upsert(
             {
                 user_id: uid,
-                layout: next,
+                layout: next as unknown as Json,
                 updated_at: new Date().toISOString(),
             },
             { onConflict: 'user_id' },

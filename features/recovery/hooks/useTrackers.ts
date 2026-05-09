@@ -23,7 +23,22 @@ export function useTrackers() {
             .order('created_at', { ascending: true });
 
         if (!error) {
-            setTrackers(data || []);
+            setTrackers(
+                (data ?? []).flatMap((t) =>
+                    t.addiction !== null &&
+                    t.start_time !== null &&
+                    t.created_at !== null
+                        ? [
+                              {
+                                  id: t.id,
+                                  addiction: t.addiction,
+                                  start_time: t.start_time,
+                                  created_at: t.created_at,
+                              },
+                          ]
+                        : [],
+                ),
+            );
         } else {
             setTrackers([]);
         }
@@ -55,7 +70,22 @@ export function useTrackers() {
 
             if (!cancelled) {
                 if (!error) {
-                    setTrackers(data || []);
+                    setTrackers(
+                        (data ?? []).flatMap((t) =>
+                            t.addiction !== null &&
+                            t.start_time !== null &&
+                            t.created_at !== null
+                                ? [
+                                      {
+                                          id: t.id,
+                                          addiction: t.addiction,
+                                          start_time: t.start_time,
+                                          created_at: t.created_at,
+                                      },
+                                  ]
+                                : [],
+                        ),
+                    );
                 } else {
                     setTrackers([]);
                 }

@@ -31,6 +31,42 @@ interface EmailsCache {
 
 let cache: EmailsCache | null = null;
 
+function updateEmailsOptimistically(
+    email_id: string,
+    category: string,
+    setEmails: (updater: (prev: Email[]) => Email[]) => void,
+) {
+    setEmails((prev) => {
+        const updated = prev.map((m) =>
+            m.id === email_id ? { ...m, category, is_manual: true } : m,
+        );
+        if (cache) cache = { ...cache, emails: updated };
+        return updated;
+    });
+}
+
+async function persistClassification(
+    userId: string,
+    email_id: string,
+    category: string,
+    sender: string,
+    subject: string,
+) {
+    await supabase
+        .from('email_classifications')
+        .upsert(
+            {
+                user_id: userId,
+                email_id,
+                category,
+                sender,
+                subject,
+                is_manual: true,
+            },
+            { onConflict: 'user_id,email_id' },
+        );
+}
+
 export function useEmails() {
     const { user } = useAuth();
     const [emails, setEmails] = useState<Email[]>(() => cache?.emails ?? []);
@@ -47,11 +83,9 @@ export function useEmails() {
     const loadEmails = useCallback(
         async (token?: string) => {
             if (!user || !hasGoogleSync || isUnauthorized) return;
-
             const key = token ?? '__initial__';
             if (inflightKey.current === key) return;
             inflightKey.current = key;
-
             setLoading(true);
             try {
                 const url = token
@@ -61,18 +95,15 @@ export function useEmails() {
                     credentials: 'include',
                     cache: 'no-store',
                 });
-
                 if (res.status === 401 || res.status === 403) {
                     setIsUnauthorized(true);
                     return;
                 }
                 if (!res.ok) throw new Error('Inbox API Fail');
-
                 const json: unknown = await res.json();
                 const parsed = inboxResponseSchema.safeParse(json);
                 if (!parsed.success)
                     throw new Error('Invalid inbox API response');
-
                 const data = parsed.data;
                 const existing = token ? (cache?.emails ?? []) : [];
                 const existingIds = new Set(existing.map((e) => e.id));
@@ -80,7 +111,6 @@ export function useEmails() {
                     ...existing,
                     ...data.emails.filter((e) => !existingIds.has(e.id)),
                 ];
-
                 cache = {
                     emails: newEmails,
                     nextPageToken: data.nextPageToken ?? null,
@@ -114,27 +144,14 @@ export function useEmails() {
         sender: string,
         subject: string,
     ) => {
-        const update = (list: Email[]) =>
-            list.map((m) =>
-                m.id === email_id ? { ...m, category, is_manual: true } : m,
-            );
-
-        setEmails((prev) => {
-            const updated = update(prev);
-            if (cache) cache = { ...cache, emails: updated };
-            return updated;
-        });
-
-        await supabase.from('email_classifications').upsert(
-            {
-                user_id: user?.id,
-                email_id,
-                category,
-                sender,
-                subject,
-                is_manual: true,
-            },
-            { onConflict: 'user_id,email_id' },
+        if (!user?.id) return;
+        updateEmailsOptimistically(email_id, category, setEmails);
+        await persistClassification(
+            user.id,
+            email_id,
+            category,
+            sender,
+            subject,
         );
     };
 

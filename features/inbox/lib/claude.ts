@@ -10,12 +10,14 @@ const claudePredictionSchema = z.object({
 
 const claudePredictionsSchema = z.array(claudePredictionSchema);
 
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
+const defaultClient = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 
 export async function classifyWithClaude(
     emails: EmailInput[],
+    apiKey?: string,
 ): Promise<Map<number, EmailCategory>> {
-    if (!anthropic) throw new Error('No ANTHROPIC_API_KEY');
+    const anthropic = apiKey ? new Anthropic({ apiKey }) : defaultClient;
+    if (!anthropic) throw new Error('No Anthropic client');
 
     const list = emails
         .map((e) => `${e.idx}. From: ${e.sender}\n   Subject: ${e.subject}`)

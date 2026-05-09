@@ -1,4 +1,7 @@
+'use client';
+
 import { FolderPlus } from 'lucide-react';
+import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import Header from '@/features/ui/components/Header';
 import DashboardGrid from './DashboardGrid';
@@ -9,6 +12,46 @@ import Footer from '@/features/ui/components/Footer';
 import { useGreeting } from '@/features/dashboard/hooks/useGreeting';
 import { useTrackers } from '@/features/dashboard/hooks/useTrackers';
 import { useFolderActions } from '@/features/dashboard/hooks/useFolderActions';
+import { WidgetConfig } from '@/features/dashboard/types/dashboard';
+
+function DashboardHeader({
+    greeting,
+    firstName,
+    folderAdded,
+    onAddFolder,
+}: {
+    greeting: string | null;
+    firstName: string | null;
+    folderAdded: boolean;
+    onAddFolder: () => void;
+}) {
+    return (
+        <div className="flex justify-between items-end mb-8">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-zinc-100">
+                    Command Center
+                </h1>
+                <p className="text-gray-500 dark:text-zinc-400">
+                    {greeting || `Welcome back, ${firstName}.`}
+                </p>
+            </div>
+            <div className="flex items-center gap-3">
+                {folderAdded && (
+                    <span className="text-sm font-medium text-emerald-500 animate-fade-in">
+                        Folder added
+                    </span>
+                )}
+                <button
+                    onClick={onAddFolder}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                >
+                    <FolderPlus size={16} />
+                    Add Folder
+                </button>
+            </div>
+        </div>
+    );
+}
 
 export default function Dashboard() {
     const { firstName } = useAuth();
@@ -25,8 +68,17 @@ export default function Dashboard() {
         removeFromFolder,
     } = useFolderActions(layout, updateLayout);
 
+    const [folderAdded, setFolderAdded] = useState(false);
+
+    function handleAddFolder() {
+        addFolder();
+        setFolderAdded(true);
+        setTimeout(() => setFolderAdded(false), 2500);
+    }
+
     const activeFolder = activeFolderId
-        ? (layout.find((w) => w.id === activeFolderId) ?? null)
+        ? ((layout as WidgetConfig[]).find((w) => w.id === activeFolderId) ??
+          null)
         : null;
     const hiddenWidgets = layout.filter(
         (w) => !w.visible && w.containerId === 'main',
@@ -53,25 +105,12 @@ export default function Dashboard() {
                         )
                     ) : (
                         <>
-                            <div className="flex justify-between items-end mb-8">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-zinc-100">
-                                        Command Center
-                                    </h1>
-                                    <p className="text-gray-500 dark:text-zinc-400">
-                                        {greeting ||
-                                            `Welcome back, ${firstName}.`}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={addFolder}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                                >
-                                    <FolderPlus size={16} />
-                                    Add Folder
-                                </button>
-                            </div>
-
+                            <DashboardHeader
+                                greeting={greeting}
+                                firstName={firstName}
+                                folderAdded={folderAdded}
+                                onAddFolder={handleAddFolder}
+                            />
                             {ready ? (
                                 <DashboardGrid
                                     layout={layout}
@@ -89,7 +128,6 @@ export default function Dashboard() {
                                     <div className="w-5 h-5 border-2 border-[#4f6ef7] border-t-transparent rounded-full animate-spin" />
                                 </div>
                             )}
-
                             {hiddenWidgets.length > 0 && (
                                 <HiddenWidgetsTray
                                     hidden={hiddenWidgets}

@@ -2,7 +2,7 @@ import { Settings, X, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { WidgetHeaderProps } from '@/features/widgets/types/widgets';
 import { colorMap } from '@/features/widgets/constants';
-import { useHideWidget } from '@/features/dashboard/contexts/HideWidgetContext';
+import { useHideWidget } from '@/features/dashboard/lib/HideWidgetContext';
 
 export function WidgetHeader({
     icon,
