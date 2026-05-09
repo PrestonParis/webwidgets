@@ -12,7 +12,6 @@ import Footer from '@/features/ui/components/Footer';
 import { useGreeting } from '@/features/dashboard/hooks/useGreeting';
 import { useTrackers } from '@/features/dashboard/hooks/useTrackers';
 import { useFolderActions } from '@/features/dashboard/hooks/useFolderActions';
-import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
 function DashboardHeader({
     greeting,
@@ -77,8 +76,7 @@ export default function Dashboard() {
     }
 
     const activeFolder = activeFolderId
-        ? ((layout as WidgetConfig[]).find((w) => w.id === activeFolderId) ??
-          null)
+        ? (layout.find((w) => w.id === activeFolderId) ?? null)
         : null;
     const hiddenWidgets = layout.filter(
         (w) => !w.visible && w.containerId === 'main',
