@@ -49,6 +49,71 @@ function handleFolderDragEnd(
     ]);
 }
 
+function FolderGrid({
+    widgetsInFolder,
+    layout,
+    onLayoutChange,
+    onToggleVisible,
+    onReset,
+    onRemoveFromFolder,
+    sensors,
+}: {
+    widgetsInFolder: WidgetConfig[];
+    layout: WidgetConfig[];
+    onLayoutChange: (next: WidgetConfig[]) => void;
+    onToggleVisible: (id: string) => void;
+    onReset: (id: string, newStart: string) => void;
+    onRemoveFromFolder: (widgetId: string) => void;
+    sensors: ReturnType<typeof useSensors>;
+}) {
+    if (widgetsInFolder.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 text-zinc-400">
+                <FolderOpen size={48} className="mb-3 opacity-30" />
+                <p className="text-sm">This folder is empty</p>
+                <p className="text-xs mt-1 text-zinc-500">
+                    Drag widgets onto the folder card to add them here
+                </p>
+            </div>
+        );
+    }
+    return (
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(e) =>
+                handleFolderDragEnd(e, widgetsInFolder, layout, onLayoutChange)
+            }
+        >
+            <SortableContext
+                items={widgetsInFolder.map((w) => w.id)}
+                strategy={rectSortingStrategy}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {widgetsInFolder.map((config) => (
+                        <div key={config.id} className="relative group/fi">
+                            <WidgetWrapper
+                                config={config}
+                                onToggleVisible={onToggleVisible}
+                            >
+                                {renderWidgetContent(config, onReset)}
+                            </WidgetWrapper>
+                            <button
+                                onClick={() => onRemoveFromFolder(config.id)}
+                                className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-500 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 opacity-0 group-hover/fi:opacity-100 transition-all"
+                                title="Remove from folder"
+                            >
+                                <LogOut size={11} />
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </SortableContext>
+        </DndContext>
+    );
+}
+
 export default function FolderSubScreen({
     folder,
     layout,
@@ -97,59 +162,15 @@ export default function FolderSubScreen({
                 </div>
             </div>
 
-            {widgetsInFolder.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-zinc-400">
-                    <FolderOpen size={48} className="mb-3 opacity-30" />
-                    <p className="text-sm">This folder is empty</p>
-                    <p className="text-xs mt-1 text-zinc-500">
-                        Drag widgets onto the folder card to add them here
-                    </p>
-                </div>
-            ) : (
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={(e) =>
-                        handleFolderDragEnd(
-                            e,
-                            widgetsInFolder,
-                            layout,
-                            onLayoutChange,
-                        )
-                    }
-                >
-                    <SortableContext
-                        items={widgetsInFolder.map((w) => w.id)}
-                        strategy={rectSortingStrategy}
-                    >
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {widgetsInFolder.map((config) => (
-                                <div
-                                    key={config.id}
-                                    className="relative group/fi"
-                                >
-                                    <WidgetWrapper
-                                        config={config}
-                                        onToggleVisible={onToggleVisible}
-                                    >
-                                        {renderWidgetContent(config, onReset)}
-                                    </WidgetWrapper>
-                                    <button
-                                        onClick={() =>
-                                            onRemoveFromFolder(config.id)
-                                        }
-                                        className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-500 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 opacity-0 group-hover/fi:opacity-100 transition-all"
-                                        title="Remove from folder"
-                                    >
-                                        <LogOut size={11} />
-                                        Remove
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </SortableContext>
-                </DndContext>
-            )}
+            <FolderGrid
+                widgetsInFolder={widgetsInFolder}
+                layout={layout}
+                onLayoutChange={onLayoutChange}
+                onToggleVisible={onToggleVisible}
+                onReset={onReset}
+                onRemoveFromFolder={onRemoveFromFolder}
+                sensors={sensors}
+            />
 
             <HiddenWidgetsTray
                 hidden={hiddenInFolder}

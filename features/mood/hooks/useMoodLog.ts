@@ -36,16 +36,13 @@ export function useMoodLog() {
         let cancelled = false;
 
         void (async () => {
-            const { data } = await supabase.from('mood_logs').select(`
-                id,
-                user_id,
-                mood,
-                note,
-                tags,
-                logged_date,
-                created_at,
-                updated_at
-            `);
+            const { data } = await supabase
+                .from('mood_logs')
+                .select(
+                    'id, user_id, mood, note, tags, logged_date, created_at, updated_at',
+                )
+                .eq('user_id', user.id)
+                .order('logged_date', { ascending: false });
             const parsed = moodLogArraySchema.safeParse(data);
             const formatted = (parsed.success ? parsed.data : []).map((d) => ({
                 ...d,
@@ -65,7 +62,7 @@ export function useMoodLog() {
     const logMood = useCallback(
         async (mood: number, note?: string) => {
             if (!user?.id) return;
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toISOString().slice(0, 10);
 
             const { data, error } = await supabase
                 .from('mood_logs')

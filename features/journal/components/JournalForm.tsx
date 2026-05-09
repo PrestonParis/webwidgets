@@ -20,16 +20,26 @@ export function JournalForm({
             className={`lg:col-span-8 transition-all duration-300 ${focusMode ? 'relative z-20' : ''}`}
         >
             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-stone-200 dark:border-zinc-800 shadow-sm sticky top-8 overflow-hidden">
-                <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-stone-100 dark:border-zinc-800">
-                    <h2 className="font-serif text-lg font-semibold text-stone-900 dark:text-zinc-100">
-                        {isEditing ? 'Edit Entry' : 'New Entry'}
-                    </h2>
-                    <div className="flex items-center gap-3">
+                <form
+                    onSubmit={(e) => {
+                        void onSubmit(e);
+                    }}
+                    className="p-6 flex flex-col gap-4"
+                >
+                    <div className="flex items-center gap-2 border-b border-stone-200 dark:border-zinc-700 pb-2 focus-within:border-amber-500 transition-colors">
+                        <input
+                            type="text"
+                            placeholder="Entry title…"
+                            value={title}
+                            onChange={(e) => onTitleChange(e.target.value)}
+                            required
+                            className="flex-1 font-serif text-lg font-semibold bg-transparent border-0 outline-none text-stone-900 dark:text-zinc-100 placeholder:text-stone-300 dark:placeholder:text-zinc-600"
+                        />
                         {isEditing && (
                             <button
                                 type="button"
                                 onClick={onCancel}
-                                className="text-xs text-stone-400 hover:text-red-400 transition-colors"
+                                className="text-xs text-stone-400 hover:text-red-400 transition-colors shrink-0"
                             >
                                 Cancel
                             </button>
@@ -37,27 +47,11 @@ export function JournalForm({
                         <button
                             type="button"
                             onClick={onFocusToggle}
-                            className="text-xs text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 transition-colors"
+                            className="text-xs text-stone-400 hover:text-stone-700 dark:hover:text-zinc-200 transition-colors shrink-0"
                         >
                             {focusMode ? '✕ Exit focus' : '⊡ Focus'}
                         </button>
                     </div>
-                </div>
-
-                <form
-                    onSubmit={(e) => {
-                        void onSubmit(e);
-                    }}
-                    className="p-6 flex flex-col gap-4"
-                >
-                    <input
-                        type="text"
-                        placeholder="Entry title…"
-                        value={title}
-                        onChange={(e) => onTitleChange(e.target.value)}
-                        required
-                        className="w-full font-serif text-lg font-semibold bg-transparent border-0 border-b border-stone-200 dark:border-zinc-700 pb-2 outline-none text-stone-900 dark:text-zinc-100 placeholder:text-stone-300 dark:placeholder:text-zinc-600 focus:border-amber-500 transition-colors"
-                    />
 
                     <div className="border border-stone-200 dark:border-zinc-700 rounded-xl p-3 focus-within:border-amber-500 transition-colors min-h-95">
                         {editor ? ( // ← Check editor directly instead of isMounted

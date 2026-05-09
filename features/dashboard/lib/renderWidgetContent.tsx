@@ -20,6 +20,7 @@ const MoodWidget = lazy(() => import('@/widgets/MoodWidget'));
 const HabitWidget = lazy(() => import('@/widgets/HabitWidget'));
 const ScratchpadWidget = lazy(() => import('@/widgets/ScratchpadWidget'));
 const CountdownWidget = lazy(() => import('@/widgets/CountdownWidget'));
+const CalendarWidget = lazy(() => import('@/widgets/CalendarWidget'));
 
 function wrap(node: ReactNode): ReactNode {
     return <Suspense fallback={<WidgetSkeleton />}>{node}</Suspense>;
@@ -63,6 +64,8 @@ export function renderWidgetContent(
             return wrap(<ScratchpadWidget />);
         case 'countdown':
             return wrap(<CountdownWidget />);
+        case 'calendar':
+            return wrap(<CalendarWidget />);
         case 'folder':
             return null;
         default:

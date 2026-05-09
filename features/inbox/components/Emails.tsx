@@ -1,9 +1,14 @@
 'use client';
 
 import { useEmails } from '@/features/inbox/hooks/useEmails';
+import { useCalendarConnection } from '@/features/inbox/hooks/useCalendarConnection';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { EmailList } from './EmailList';
 import { EmailInsights } from './EmailInsights';
 import { EmailUnauthorized } from './EmailUnauthorized';
+import { EmailActionsPanel } from './EmailActionsPanel';
+import { EmailActionLog } from './EmailActionLog';
+import { CalendarConnect } from './CalendarConnect';
 
 export default function Emails() {
     const {
@@ -16,6 +21,10 @@ export default function Emails() {
         handleManualClassify,
     } = useEmails();
 
+    const { connectCalendar } = useAuth();
+    const { isCalendarConnected, loading: calendarLoading } =
+        useCalendarConnection();
+
     if (!hasGoogleSync || isUnauthorized) return <EmailUnauthorized />;
 
     return (
@@ -25,9 +34,21 @@ export default function Emails() {
                 {loading && <span>Syncing...</span>}
             </div>
 
+            {emails.length > 0 && <EmailActionsPanel emails={emails} />}
+
+            {!calendarLoading && !isCalendarConnected && (
+                <CalendarConnect
+                    onConnect={() => {
+                        void connectCalendar();
+                    }}
+                />
+            )}
+
             <EmailInsights emails={emails} />
 
             <EmailList emails={emails} onClassify={handleManualClassify} />
+
+            <EmailActionLog />
 
             {nextPageToken && (
                 <button

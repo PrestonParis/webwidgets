@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNotificationStore } from '../store/useNotificationStore';
+import { useNotificationStore } from '../hooks/useNotificationStore';
 import { cn } from '@/lib/utils/utils';
 import type {
     Notification,
@@ -23,7 +23,7 @@ function timeAgo(timestamp: number): string {
     if (mins < 1) return 'just now';
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
+    if (hrs < 48) return `${hrs}h ago`;
     return `${Math.floor(hrs / 24)}d ago`;
 }
 

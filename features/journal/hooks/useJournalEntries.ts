@@ -60,7 +60,7 @@ export function useJournalEntries(userId: string | undefined) {
             const { error } = await supabase
                 .from('journals')
                 .update({ deleted_at: new Date().toISOString() })
-                .eq('id', id)
+                .eq('id', String(id))
                 .eq('user_id', userId);
 
             if (error) console.error('Delete error:', error.message);
@@ -78,7 +78,7 @@ export function useJournalEntries(userId: string | undefined) {
             const { error } = await supabase
                 .from('journals')
                 .update({ deleted_at: null })
-                .eq('id', id)
+                .eq('id', String(id))
                 .eq('user_id', userId);
 
             if (!error) setRefreshKey((k) => k + 1);

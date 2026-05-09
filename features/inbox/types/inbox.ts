@@ -1,3 +1,17 @@
+export type ActionType = 'action' | 'event' | 'deadline';
+
+export interface EmailAction {
+    id: string;
+    email_id: string;
+    type: ActionType;
+    title: string;
+    description: string | null;
+    due_date: string | null;
+    action_url: string | null;
+    completed: boolean;
+    created_at: string;
+}
+
 export const EMAIL_CATEGORIES = [
     'work',
     'personal',

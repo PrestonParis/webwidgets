@@ -5,6 +5,7 @@ import Footer from '@/features/ui/components/Footer';
 import { useSettings } from '@/features/settings/hooks/useSettings';
 import { SettingsIntegrationsCard } from './SettingsIntegrationsCard';
 import { SettingsProfileCard } from './SettingsProfileCard';
+import { EmailIntelligenceCard } from './EmailIntelligenceCard';
 
 export default function SettingsHomePage() {
     const {
@@ -14,9 +15,16 @@ export default function SettingsHomePage() {
         loading,
         saving,
         isGmailConnected,
+        isCalendarConnected,
+        useAIEmail,
+        anthropicApiKey,
+        setAnthropicApiKey,
         handleGoogleConnect,
+        handleConnectCalendar,
         handleGoogleDisconnect,
         handleSave,
+        handleToggleAIEmail,
+        handleSaveApiKey,
     } = useSettings();
 
     if (loading) {
@@ -35,13 +43,27 @@ export default function SettingsHomePage() {
                         Manage your account and preferences
                     </p>
                 </div>
+                <EmailIntelligenceCard
+                    useAI={useAIEmail}
+                    apiKey={anthropicApiKey}
+                    saving={saving}
+                    onToggleAI={handleToggleAIEmail}
+                    onApiKeyChange={setAnthropicApiKey}
+                    onSave={() => {
+                        void handleSaveApiKey();
+                    }}
+                />
                 <SettingsIntegrationsCard
                     isGmailConnected={isGmailConnected}
+                    isCalendarConnected={isCalendarConnected}
                     onConnect={() => {
                         void handleGoogleConnect();
                     }}
                     onDisconnect={() => {
                         void handleGoogleDisconnect();
+                    }}
+                    onConnectCalendar={() => {
+                        void handleConnectCalendar();
                     }}
                 />
                 {user && (

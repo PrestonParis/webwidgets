@@ -89,6 +89,7 @@ export type Database = {
                 Row: {
                     created_at: string;
                     description: string | null;
+                    game_id: string | null;
                     id: string;
                     title: string;
                     updated_at: string;
@@ -97,6 +98,7 @@ export type Database = {
                 Insert: {
                     created_at?: string;
                     description?: string | null;
+                    game_id?: string | null;
                     id?: string;
                     title: string;
                     updated_at?: string;
@@ -105,6 +107,7 @@ export type Database = {
                 Update: {
                     created_at?: string;
                     description?: string | null;
+                    game_id?: string | null;
                     id?: string;
                     title?: string;
                     updated_at?: string;
@@ -374,22 +377,28 @@ export type Database = {
             };
             profiles: {
                 Row: {
+                    anthropic_api_key: string | null;
                     created_at: string | null;
                     full_name: string | null;
                     id: string;
                     updated_at: string | null;
+                    use_ai_email: boolean;
                 };
                 Insert: {
+                    anthropic_api_key?: string | null;
                     created_at?: string | null;
                     full_name?: string | null;
                     id: string;
                     updated_at?: string | null;
+                    use_ai_email?: boolean;
                 };
                 Update: {
+                    anthropic_api_key?: string | null;
                     created_at?: string | null;
                     full_name?: string | null;
                     id?: string;
                     updated_at?: string | null;
+                    use_ai_email?: boolean;
                 };
                 Relationships: [];
             };
@@ -570,10 +579,68 @@ export type Database = {
                     },
                 ];
             };
+            email_actions: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    email_id: string;
+                    type: 'action' | 'event' | 'deadline';
+                    title: string;
+                    description: string | null;
+                    due_date: string | null;
+                    action_url: string | null;
+                    completed: boolean;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    email_id: string;
+                    type: 'action' | 'event' | 'deadline';
+                    title: string;
+                    description?: string | null;
+                    due_date?: string | null;
+                    action_url?: string | null;
+                    completed?: boolean;
+                    created_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    email_id?: string;
+                    type?: 'action' | 'event' | 'deadline';
+                    title?: string;
+                    description?: string | null;
+                    due_date?: string | null;
+                    action_url?: string | null;
+                    completed?: boolean;
+                    created_at?: string;
+                };
+                Relationships: [];
+            };
+            email_processing_log: {
+                Row: {
+                    user_id: string;
+                    email_id: string;
+                    processed_at: string;
+                };
+                Insert: {
+                    user_id: string;
+                    email_id: string;
+                    processed_at?: string;
+                };
+                Update: {
+                    user_id?: string;
+                    email_id?: string;
+                    processed_at?: string;
+                };
+                Relationships: [];
+            };
             user_tokens: {
                 Row: {
                     access_token: string;
                     expires_at: number | null;
+                    has_calendar: boolean;
                     provider: string | null;
                     refresh_token: string | null;
                     updated_at: string;
@@ -582,6 +649,7 @@ export type Database = {
                 Insert: {
                     access_token: string;
                     expires_at?: number | null;
+                    has_calendar?: boolean;
                     provider?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;
@@ -590,6 +658,7 @@ export type Database = {
                 Update: {
                     access_token?: string;
                     expires_at?: number | null;
+                    has_calendar?: boolean;
                     provider?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;
@@ -724,9 +793,9 @@ export type TablesUpdate<
       : never;
 
 export type Enums<
-    DefaultSchemaEnumNameOrOptions extends
-        | keyof DefaultSchema['Enums']
-        | { schema: keyof DatabaseWithoutInternals },
+    DefaultSchemaEnumNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals;
+    },
     EnumName extends DefaultSchemaEnumNameOrOptions extends {
         schema: keyof DatabaseWithoutInternals;
     }
@@ -736,14 +805,12 @@ export type Enums<
     schema: keyof DatabaseWithoutInternals;
 }
     ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-    : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-      ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
-      : never;
+    : never;
 
 export type CompositeTypes<
-    PublicCompositeTypeNameOrOptions extends
-        | keyof DefaultSchema['CompositeTypes']
-        | { schema: keyof DatabaseWithoutInternals },
+    PublicCompositeTypeNameOrOptions extends {
+        schema: keyof DatabaseWithoutInternals;
+    },
     CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
         schema: keyof DatabaseWithoutInternals;
     }
@@ -753,9 +820,7 @@ export type CompositeTypes<
     schema: keyof DatabaseWithoutInternals;
 }
     ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-    : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-      ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
-      : never;
+    : never;
 
 export const Constants = {
     graphql_public: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useNotificationStore } from '../store/useNotificationStore';
+import { useNotificationStore } from '../hooks/useNotificationStore';
 import { cn } from '@/lib/utils/utils';
 import type { NotificationCategory } from '../types/notifications';
 

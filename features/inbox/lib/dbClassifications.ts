@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { classifyEmails } from './classifyEmails';
+import { classifyEmails, ClassifyOptions } from './classifyEmails';
 import { z } from 'zod';
 
 type ParsedEmail = { id: string; sender: string; subject: string };
@@ -17,6 +17,7 @@ export async function resolveClassifications(
     supabase: SupabaseClient,
     userId: string,
     parsed: ParsedEmail[],
+    classifyOptions: ClassifyOptions = { useAI: false },
 ): Promise<Map<string, CategoryEntry>> {
     const emailIds = parsed.map((e) => e.id);
     const senders = [...new Set(parsed.map((e) => e.sender))];
@@ -64,6 +65,7 @@ export async function resolveClassifications(
                 sender,
                 subject,
             })),
+            classifyOptions,
         );
 
         const toInsert = needsAI.map(({ idx, id, sender, subject }) => ({

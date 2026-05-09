@@ -1,0 +1,94 @@
+import { describe, it, expect } from 'vitest';
+import {
+    hydrateTrackers,
+    makePersistKey,
+    makePersistTimestampKey,
+} from '@/features/dashboard/lib/dashboardLayout';
+import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import type { Tracker } from '@/features/recovery/types/recovery';
+
+function makeTracker(id: string): Tracker {
+    return {
+        id,
+        addiction: 'alcohol',
+        start_time: '2026-01-01T00:00:00Z',
+        created_at: '2026-01-01T00:00:00Z',
+    };
+}
+
+function makeRecoveryWidget(trackerId: string): WidgetConfig {
+    return {
+        id: `widget-recovery-${trackerId}`,
+        type: 'recovery',
+        visible: true,
+        columnSpan: 1,
+        containerId: 'main',
+        order: 0,
+        props: { tracker: makeTracker('old-data') },
+    };
+}
+
+describe('hydrateTrackers', () => {
+    it('replaces tracker props with fresh data', () => {
+        const fresh = makeTracker('abc');
+        const layout: WidgetConfig[] = [makeRecoveryWidget('abc')];
+        const result = hydrateTrackers(layout, [fresh]);
+        expect(result[0]?.props?.tracker).toEqual(fresh);
+    });
+
+    it('converts to recovery-empty when tracker is not found', () => {
+        const layout: WidgetConfig[] = [makeRecoveryWidget('abc')];
+        const result = hydrateTrackers(layout, []);
+        expect(result[0]?.type).toBe('recovery-empty');
+        expect(result[0]?.props).toEqual({});
+    });
+
+    it('leaves non-recovery widgets untouched', () => {
+        const journalWidget: WidgetConfig = {
+            id: 'widget-journal',
+            type: 'journal',
+            visible: true,
+            columnSpan: 1,
+            containerId: 'main',
+            order: 0,
+        };
+        const result = hydrateTrackers([journalWidget], [makeTracker('x')]);
+        expect(result[0]).toEqual(journalWidget);
+    });
+
+    it('handles an empty layout', () => {
+        expect(hydrateTrackers([], [makeTracker('x')])).toEqual([]);
+    });
+
+    it('hydrates multiple recovery widgets independently', () => {
+        const t1 = makeTracker('t1');
+        const t2 = makeTracker('t2');
+        const layout: WidgetConfig[] = [
+            makeRecoveryWidget('t1'),
+            makeRecoveryWidget('t2'),
+        ];
+        const result = hydrateTrackers(layout, [t1, t2]);
+        expect(result[0]?.props?.tracker?.id).toBe('t1');
+        expect(result[1]?.props?.tracker?.id).toBe('t2');
+    });
+});
+
+describe('makePersistKey', () => {
+    it('includes the userId', () => {
+        expect(makePersistKey('user-123')).toContain('user-123');
+    });
+
+    it('produces different keys for different users', () => {
+        expect(makePersistKey('a')).not.toBe(makePersistKey('b'));
+    });
+});
+
+describe('makePersistTimestampKey', () => {
+    it('differs from the layout key for the same user', () => {
+        expect(makePersistTimestampKey('u')).not.toBe(makePersistKey('u'));
+    });
+
+    it('includes the userId', () => {
+        expect(makePersistTimestampKey('user-456')).toContain('user-456');
+    });
+});

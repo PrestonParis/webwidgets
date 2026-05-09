@@ -10,7 +10,7 @@ export const SignInForm = ({ onToggleMode }: SignInFormProps) => {
 
     const { handleEmailAuth, error, loading, setError } = useEmailAuth();
 
-    const onSubmit = async (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await handleEmailAuth({ mode, email, password });
     };

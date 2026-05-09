@@ -17,6 +17,7 @@ export type WidgetType =
     | 'habit'
     | 'scratchpad'
     | 'countdown'
+    | 'calendar'
     | 'folder';
 
 export interface WidgetConfig {
