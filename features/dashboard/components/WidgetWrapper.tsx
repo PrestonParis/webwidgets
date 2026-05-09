@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { WidgetWrapperProps } from '@/features/dashboard/types/dashboard';
 import { WidgetSize } from '@/features/widgets/types/widgets';
 import { cn } from '@/lib/utils/utils';
-import { HideWidgetContext } from '@/features/dashboard/contexts/HideWidgetContext';
+import { HideWidgetContext } from '@/features/dashboard/lib/HideWidgetContext';
 import { StatusDot } from '@/features/notifications/components/StatusDot';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 

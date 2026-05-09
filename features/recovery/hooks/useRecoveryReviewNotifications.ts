@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { useNotificationStore } from '@/features/notifications/store/useNotificationStore';
+import { useNotificationStore } from '@/features/notifications/hooks/useNotificationStore';
 
 function trackerNeedsReview(trackerId: string): boolean {
     const last = localStorage.getItem(`recovery_last_reviewed_${trackerId}`);

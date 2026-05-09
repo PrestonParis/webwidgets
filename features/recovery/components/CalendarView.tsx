@@ -12,10 +12,10 @@ const LEGEND = [
 ] as const;
 
 export default function CalendarView({
-    startTime,
+    createdAt,
     relapses,
 }: {
-    startTime: string | null;
+    createdAt: string;
     relapses: string[];
 }) {
     const [viewDate, setViewDate] = useState(new Date());
@@ -69,7 +69,7 @@ export default function CalendarView({
                         year,
                         month,
                         today,
-                        startTime,
+                        createdAt,
                         relapses,
                     );
                     return (

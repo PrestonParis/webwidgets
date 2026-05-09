@@ -6,3 +6,4 @@ numpy==1.26.4
 python-dotenv==1.0.1
 pydantic==2.11.7
 pandas==2.2.2
+sentry-sdk[fastapi]>=2.0

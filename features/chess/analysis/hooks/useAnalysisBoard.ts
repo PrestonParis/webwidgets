@@ -7,10 +7,39 @@ import { parsePgn, buildLastMoveStyles } from '@/features/chess/lib/chessUtils';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+type ParsedMove = ReturnType<typeof parsePgn>[number];
+
 interface UseAnalysisBoardOptions {
     storageKey?: string | undefined;
     pgn?: string | undefined;
     onPgnChange?: ((pgn: string) => void) | undefined;
+}
+
+function applyDrop(
+    boardFen: string,
+    moveIndex: number,
+    moves: ParsedMove[],
+    sourceSquare: string,
+    targetSquare: string,
+): { pgn: string; newIndex: number } | null {
+    try {
+        const chess = new Chess(boardFen);
+        const move = chess.move({
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: 'q',
+        });
+        if (!move) return null;
+        const builder = new Chess();
+        for (let i = 0; i < moveIndex && i < moves.length; i++) {
+            const m = moves[i];
+            if (m) builder.move(m.san);
+        }
+        builder.move(move.san);
+        return { pgn: builder.pgn(), newIndex: moveIndex + 1 };
+    } catch {
+        return null;
+    }
 }
 
 export function useAnalysisBoard({
@@ -20,21 +49,20 @@ export function useAnalysisBoard({
 }: UseAnalysisBoardOptions = {}) {
     const isControlled = externalPgn !== undefined;
 
-    // Lazy-initialize from localStorage so no setState-in-effect is needed.
-    const [internalPgn, setInternalPgn] = useState(() => {
-        if (isControlled || !storageKey || typeof window === 'undefined')
-            return '';
-        return localStorage.getItem(`${storageKey}:pgn`) ?? '';
-    });
+    const [internalPgn, setInternalPgn] = useState<string>(() =>
+        !isControlled && storageKey && typeof window !== 'undefined'
+            ? (localStorage.getItem(`${storageKey}:pgn`) ?? '')
+            : '',
+    );
+    const [moveIndex, setMoveIndex] = useState<number>(() =>
+        isControlled
+            ? parsePgn(externalPgn ?? '').length
+            : storageKey && typeof window !== 'undefined'
+              ? parseInt(localStorage.getItem(`${storageKey}:idx`) ?? '0', 10)
+              : 0,
+    );
 
-    const [moveIndex, setMoveIndex] = useState(() => {
-        if (isControlled) return parsePgn(externalPgn ?? '').length;
-        if (!storageKey || typeof window === 'undefined') return 0;
-        return parseInt(localStorage.getItem(`${storageKey}:idx`) ?? '0', 10);
-    });
-
-    // React 18 "setState during render" pattern: reset moveIndex when the external PGN
-    // changes. React discards the current render and immediately re-renders with new state.
+    // React 18 "setState during render" pattern: sync moveIndex when external PGN changes.
     const [prevExternalPgn, setPrevExternalPgn] = useState(externalPgn);
     if (isControlled && externalPgn !== prevExternalPgn) {
         setPrevExternalPgn(externalPgn);
@@ -42,7 +70,6 @@ export function useAnalysisBoard({
     }
 
     const pgn = isControlled ? (externalPgn ?? '') : internalPgn;
-
     const moves = useMemo(() => parsePgn(pgn), [pgn]);
 
     const boardFen = useMemo(() => {
@@ -63,9 +90,8 @@ export function useAnalysisBoard({
                 onPgnChange?.(newPgn);
             } else {
                 setInternalPgn(newPgn);
-                if (storageKey) {
+                if (storageKey)
                     localStorage.setItem(`${storageKey}:pgn`, newPgn);
-                }
             }
         },
         [isControlled, onPgnChange, storageKey],
@@ -74,33 +100,22 @@ export function useAnalysisBoard({
     const handlePieceDrop = useCallback(
         ({ sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
             if (!sourceSquare || !targetSquare) return false;
-            try {
-                const chess = new Chess(boardFen);
-                const move = chess.move({
-                    from: sourceSquare,
-                    to: targetSquare,
-                    promotion: 'q',
-                });
-                if (!move) return false;
-
-                const builder = new Chess();
-                for (let i = 0; i < moveIndex && i < moves.length; i++) {
-                    const move = moves[i];
-                    if (move) builder.move(move.san);
-                }
-                builder.move(move.san);
-
-                const newPgn = builder.pgn();
-                const newIndex = moveIndex + 1;
-                setPgn(newPgn);
-                setMoveIndex(newIndex);
-                if (storageKey && !isControlled) {
-                    localStorage.setItem(`${storageKey}:idx`, String(newIndex));
-                }
-                return true;
-            } catch {
-                return false;
-            }
+            const result = applyDrop(
+                boardFen,
+                moveIndex,
+                moves,
+                sourceSquare,
+                targetSquare,
+            );
+            if (!result) return false;
+            setPgn(result.pgn);
+            setMoveIndex(result.newIndex);
+            if (storageKey && !isControlled)
+                localStorage.setItem(
+                    `${storageKey}:idx`,
+                    String(result.newIndex),
+                );
+            return true;
         },
         [boardFen, moveIndex, moves, setPgn, storageKey, isControlled],
     );
@@ -109,9 +124,8 @@ export function useAnalysisBoard({
         (index: number) => {
             const clamped = Math.max(0, Math.min(moves.length, index));
             setMoveIndex(clamped);
-            if (storageKey && !isControlled) {
+            if (storageKey && !isControlled)
                 localStorage.setItem(`${storageKey}:idx`, String(clamped));
-            }
         },
         [moves.length, storageKey, isControlled],
     );

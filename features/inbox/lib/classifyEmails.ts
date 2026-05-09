@@ -1,20 +1,17 @@
-import { EmailInput, EmailCategory } from '@/features/inbox/types/inbox';
-import { classifyWithClaude } from './claude';
-import { classifyWithMlService } from './mlService';
-import { classifyWithRules } from './rules';
+import type { EmailInput, EmailCategory } from '@/features/inbox/types/inbox';
+import { routeInference } from './modelRouter';
+
+export interface ClassifyOptions {
+    useAI: boolean;
+    apiKey?: string;
+}
 
 export async function classifyEmails(
     emails: EmailInput[],
+    { useAI, apiKey }: ClassifyOptions = { useAI: false },
 ): Promise<Map<number, EmailCategory>> {
-    try {
-        return await classifyWithClaude(emails);
-    } catch (e) {
-        console.warn('Claude classification failed, trying ML service:', e);
-    }
-    try {
-        return await classifyWithMlService(emails);
-    } catch (e) {
-        console.warn('ML service failed, using rule-based fallback:', e);
-    }
-    return classifyWithRules(emails);
+    return routeInference(emails, {
+        allowHosted: useAI,
+        ...(apiKey ? { apiKey } : {}),
+    });
 }

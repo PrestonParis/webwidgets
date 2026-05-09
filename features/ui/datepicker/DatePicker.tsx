@@ -29,6 +29,58 @@ const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 const selectCls =
     'h-8 px-2 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 outline-none focus:border-purple-400 cursor-pointer appearance-none text-center';
 
+function TimeSelector({
+    hour,
+    minute,
+    ampm,
+    setHour,
+    setMinute,
+    setAmpm,
+}: {
+    hour: number;
+    minute: number;
+    ampm: 'AM' | 'PM';
+    setHour: (v: number) => void;
+    setMinute: (v: number) => void;
+    setAmpm: (v: 'AM' | 'PM') => void;
+}) {
+    return (
+        <div className="flex items-center justify-center gap-1.5 px-3 pb-3 border-b border-gray-100 dark:border-zinc-800">
+            <select
+                value={hour}
+                onChange={(e) => setHour(Number(e.target.value))}
+                className={selectCls}
+            >
+                {HOURS.map((h) => (
+                    <option key={h} value={h}>
+                        {h}
+                    </option>
+                ))}
+            </select>
+            <span className="text-gray-400 dark:text-zinc-500 font-bold text-sm">
+                :
+            </span>
+            <select
+                value={minute}
+                onChange={(e) => setMinute(Number(e.target.value))}
+                className={selectCls}
+            >
+                {MINUTES.map((m) => (
+                    <option key={m} value={m}>
+                        {String(m).padStart(2, '0')}
+                    </option>
+                ))}
+            </select>
+            <button
+                onClick={() => setAmpm(ampm === 'AM' ? 'PM' : 'AM')}
+                className="h-8 px-3 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
+            >
+                {ampm}
+            </button>
+        </div>
+    );
+}
+
 export default function DatePicker({
     value,
     onChange,
@@ -87,41 +139,14 @@ export default function DatePicker({
                 }}
                 allowFuture={allowFuture}
             />
-            <div className="flex items-center justify-center gap-1.5 px-3 pb-3 border-b border-gray-100 dark:border-zinc-800">
-                <select
-                    value={state.hour}
-                    onChange={(e) => state.setHour(Number(e.target.value))}
-                    className={selectCls}
-                >
-                    {HOURS.map((h) => (
-                        <option key={h} value={h}>
-                            {h}
-                        </option>
-                    ))}
-                </select>
-                <span className="text-gray-400 dark:text-zinc-500 font-bold text-sm">
-                    :
-                </span>
-                <select
-                    value={state.minute}
-                    onChange={(e) => state.setMinute(Number(e.target.value))}
-                    className={selectCls}
-                >
-                    {MINUTES.map((m) => (
-                        <option key={m} value={m}>
-                            {String(m).padStart(2, '0')}
-                        </option>
-                    ))}
-                </select>
-                <button
-                    onClick={() =>
-                        state.setAmpm(state.ampm === 'AM' ? 'PM' : 'AM')
-                    }
-                    className="h-8 px-3 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
-                >
-                    {state.ampm}
-                </button>
-            </div>
+            <TimeSelector
+                hour={state.hour}
+                minute={state.minute}
+                ampm={state.ampm}
+                setHour={state.setHour}
+                setMinute={state.setMinute}
+                setAmpm={state.setAmpm}
+            />
             {showQuickActions && <QuickActions onSelect={handleQuickAction} />}
             <FooterActions
                 onCancel={onCancel}

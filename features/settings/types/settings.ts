@@ -2,8 +2,10 @@ import { User } from '@supabase/supabase-js';
 
 export interface SettingsIntegrationCardProps {
     isGmailConnected: boolean;
+    isCalendarConnected: boolean;
     onConnect: () => void;
     onDisconnect: () => void;
+    onConnectCalendar: () => void;
 }
 
 export interface SettingsProfileCardProps {

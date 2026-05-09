@@ -10,6 +10,8 @@ import {
 import { ChessGame } from '@/features/chess/types/chess';
 import { GameVariation } from '@/features/chess/types/variation';
 
+type ParsedMove = ReturnType<typeof parsePgn>[number];
+
 interface ControllerCallbacks {
     persistMoveIndex: (index: number) => void;
     updateGamePgn: (pgn: string) => Promise<void>;
@@ -19,6 +21,47 @@ interface ControllerCallbacks {
         startFen: string,
         title: string,
     ) => Promise<GameVariation | null>;
+}
+
+type DropAction =
+    | { type: 'follow'; nextIndex: number }
+    | { type: 'extend'; newPgn: string; newIndex: number }
+    | { type: 'diverge'; san: string; fen: string }
+    | null;
+
+function resolveBoardDrop(
+    boardFen: string,
+    moves: ParsedMove[],
+    moveIndex: number,
+    sourceSquare: string,
+    targetSquare: string,
+): DropAction {
+    try {
+        const chess = new Chess(boardFen);
+        const move = chess.move({
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: 'q',
+        });
+        if (!move) return null;
+
+        const nextMove = moves[moveIndex];
+        if (
+            nextMove &&
+            nextMove.from === move.from &&
+            nextMove.to === move.to
+        ) {
+            return { type: 'follow', nextIndex: moveIndex + 1 };
+        }
+        if (moveIndex === moves.length) {
+            const newPgn = extendPgn(moves, moveIndex, move.san);
+            if (!newPgn) return null;
+            return { type: 'extend', newPgn, newIndex: moveIndex + 1 };
+        }
+        return { type: 'diverge', san: move.san, fen: boardFen };
+    } catch {
+        return null;
+    }
 }
 
 export function useChessGameController(
@@ -34,8 +77,6 @@ export function useChessGameController(
         useState<GameVariation | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
 
-    // Local pgn so we can extend the main line without waiting for a DB round-trip.
-    // Lazy-init from game.pgn and use setState-during-render to sync on prop changes.
     const [localPgn, setLocalPgn] = useState(() => game?.pgn ?? '');
     const [prevGamePgn, setPrevGamePgn] = useState(game?.pgn);
     if (game?.pgn !== prevGamePgn) {
@@ -44,12 +85,10 @@ export function useChessGameController(
     }
 
     const moves = useMemo(() => parsePgn(localPgn), [localPgn]);
-
     const boardFen = useMemo(
         () => fenAtIndex(moves, moveIndex),
         [moves, moveIndex],
     );
-
     const squareStyles = useMemo(
         () => buildLastMoveStyles(moves, moveIndex),
         [moves, moveIndex],
@@ -66,49 +105,32 @@ export function useChessGameController(
     const handleBoardDrop = useCallback(
         ({ sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
             if (!sourceSquare || !targetSquare) return false;
-            try {
-                const chess = new Chess(boardFen);
-                const move = chess.move({
-                    from: sourceSquare,
-                    to: targetSquare,
-                    promotion: 'q',
-                });
-                if (!move) return false;
-
-                // Follows the main line?
-                const nextMove = moves[moveIndex];
-                if (
-                    nextMove &&
-                    nextMove.from === move.from &&
-                    nextMove.to === move.to
-                ) {
-                    handleMoveSelect(moveIndex + 1);
-                    return true;
-                }
-
-                // Past the end of the main line → extend game pgn
-                if (moveIndex === moves.length) {
-                    const newPgn = extendPgn(moves, moveIndex, move.san);
-                    if (!newPgn) return false;
-                    setLocalPgn(newPgn);
-                    const newIndex = moveIndex + 1;
-                    setMoveIndex(newIndex);
-                    void updateGamePgn(newPgn);
-                    void persistMoveIndex(newIndex);
-                    return true;
-                }
-
-                // Diverging move → auto-create variation from this point
-                void createVariationFromMove(
-                    moveIndex,
-                    move.san,
-                    boardFen,
-                    move.san,
-                );
-                return false; // snap piece back; variation appears in sidebar
-            } catch {
-                return false;
+            const action = resolveBoardDrop(
+                boardFen,
+                moves,
+                moveIndex,
+                sourceSquare,
+                targetSquare,
+            );
+            if (!action) return false;
+            if (action.type === 'follow') {
+                handleMoveSelect(action.nextIndex);
+                return true;
             }
+            if (action.type === 'extend') {
+                setLocalPgn(action.newPgn);
+                setMoveIndex(action.newIndex);
+                void updateGamePgn(action.newPgn);
+                void persistMoveIndex(action.newIndex);
+                return true;
+            }
+            void createVariationFromMove(
+                moveIndex,
+                action.san,
+                action.fen,
+                action.san,
+            );
+            return false;
         },
         [
             boardFen,

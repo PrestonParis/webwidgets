@@ -26,6 +26,53 @@ const MONTH_SHORT = [
 ];
 const GAP = 2;
 
+function HeatmapGrid({
+    weeks,
+    startTime,
+    relapseDays,
+    setTooltip,
+}: {
+    weeks: (Date | null)[][];
+    startTime: string;
+    relapseDays: Set<string>;
+    setTooltip: (t: { text: string; x: number; y: number } | null) => void;
+}) {
+    return (
+        <div className="flex" style={{ gap: GAP }}>
+            {weeks.map((week, wi) => (
+                <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
+                    {week.map((day, di) => (
+                        <div
+                            key={di}
+                            style={{
+                                width: CELL,
+                                height: CELL,
+                                borderRadius: 2,
+                                background: cellColor(
+                                    day,
+                                    startTime,
+                                    relapseDays,
+                                ),
+                                cursor: day ? 'pointer' : 'default',
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!day) return;
+                                const key = toDateKey(day);
+                                setTooltip({
+                                    text: `${day.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} — ${relapseDays.has(key) ? 'relapsed' : 'clean'}`,
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                });
+                            }}
+                            onMouseLeave={() => setTooltip(null)}
+                        />
+                    ))}
+                </div>
+            ))}
+        </div>
+    );
+}
+
 export default function RecoveryHeatmap({
     trackerId,
     startTime,
@@ -36,7 +83,6 @@ export default function RecoveryHeatmap({
     return (
         <div className="relative">
             <div className="flex gap-1 items-start">
-                {/* Day-of-week labels on the left */}
                 <div className="flex flex-col mt-5" style={{ gap: GAP }}>
                     {DAY_LABELS.map((d, i) => (
                         <span
@@ -53,10 +99,7 @@ export default function RecoveryHeatmap({
                         </span>
                     ))}
                 </div>
-
-                {/* Month labels + grid */}
                 <div>
-                    {/* Month labels row */}
                     <div className="relative h-5 mb-0.5">
                         {weeks.map((week, wi) => {
                             const firstDay = week.find((d) => d !== null);
@@ -82,52 +125,15 @@ export default function RecoveryHeatmap({
                             );
                         })}
                     </div>
-
-                    {/* Grid */}
-                    <div className="flex" style={{ gap: GAP }}>
-                        {weeks.map((week, wi) => (
-                            <div
-                                key={wi}
-                                className="flex flex-col"
-                                style={{ gap: GAP }}
-                            >
-                                {week.map((day, di) => (
-                                    <div
-                                        key={di}
-                                        style={{
-                                            width: CELL,
-                                            height: CELL,
-                                            borderRadius: 2,
-                                            background: cellColor(
-                                                day,
-                                                startTime,
-                                                relapseDays,
-                                            ),
-                                            cursor: day ? 'pointer' : 'default',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (!day) return;
-                                            const key = toDateKey(day);
-                                            const status = relapseDays.has(key)
-                                                ? 'relapsed'
-                                                : 'clean';
-                                            setTooltip({
-                                                text: `${day.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} — ${status}`,
-                                                x: e.clientX,
-                                                y: e.clientY,
-                                            });
-                                        }}
-                                        onMouseLeave={() => setTooltip(null)}
-                                    />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                    <HeatmapGrid
+                        weeks={weeks}
+                        startTime={startTime}
+                        relapseDays={relapseDays}
+                        setTooltip={setTooltip}
+                    />
                 </div>
             </div>
-
             <HeatmapLegend />
-
             {tooltip && (
                 <div
                     className="fixed z-50 px-2 py-1 bg-zinc-900 text-white text-[10px] rounded-lg pointer-events-none shadow-lg whitespace-nowrap"

@@ -17,6 +17,58 @@ const DAY_FMT: Intl.DateTimeFormatOptions = {
     day: 'numeric',
 };
 
+function ReviewDayRow({
+    day,
+    onToggle,
+    onSetTime,
+}: {
+    day: ReviewDay;
+    onToggle: (date: Date) => void;
+    onSetTime: (date: Date, time: string) => void;
+}) {
+    return (
+        <div className="flex items-center gap-3 px-5 py-3">
+            <span className="text-xs text-gray-500 dark:text-zinc-400 w-24 shrink-0">
+                {day.date.toLocaleDateString(undefined, DAY_FMT)}
+            </span>
+            <div className="flex items-center gap-2 flex-1">
+                <button
+                    onClick={() => {
+                        if (day.relapsed) onToggle(day.date);
+                    }}
+                    className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors ${
+                        !day.relapsed
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                    }`}
+                >
+                    ✓ Clean
+                </button>
+                <button
+                    onClick={() => {
+                        if (!day.relapsed) onToggle(day.date);
+                    }}
+                    className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors ${
+                        day.relapsed
+                            ? 'bg-red-600 text-white'
+                            : 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                    }`}
+                >
+                    Relapsed
+                </button>
+                {day.relapsed && (
+                    <input
+                        type="time"
+                        value={day.time}
+                        onChange={(e) => onSetTime(day.date, e.target.value)}
+                        className="text-xs px-2 py-1 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 outline-none focus:border-red-400"
+                    />
+                )}
+            </div>
+        </div>
+    );
+}
+
 export default function ReviewModal({
     days,
     saving,
@@ -54,58 +106,12 @@ export default function ReviewModal({
                         </div>
                     ) : (
                         days.map((day) => (
-                            <div
+                            <ReviewDayRow
                                 key={day.date.toISOString()}
-                                className="flex items-center gap-3 px-5 py-3"
-                            >
-                                <span className="text-xs text-gray-500 dark:text-zinc-400 w-24 shrink-0">
-                                    {day.date.toLocaleDateString(
-                                        undefined,
-                                        DAY_FMT,
-                                    )}
-                                </span>
-                                <div className="flex items-center gap-2 flex-1">
-                                    <button
-                                        onClick={() => {
-                                            if (day.relapsed)
-                                                onToggle(day.date);
-                                        }}
-                                        className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors ${
-                                            !day.relapsed
-                                                ? 'bg-green-600 text-white'
-                                                : 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-gray-200 dark:hover:bg-zinc-700'
-                                        }`}
-                                    >
-                                        ✓ Clean
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (!day.relapsed)
-                                                onToggle(day.date);
-                                        }}
-                                        className={`px-3 py-1 text-xs rounded-lg font-bold transition-colors ${
-                                            day.relapsed
-                                                ? 'bg-red-600 text-white'
-                                                : 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-gray-200 dark:hover:bg-zinc-700'
-                                        }`}
-                                    >
-                                        Relapsed
-                                    </button>
-                                    {day.relapsed && (
-                                        <input
-                                            type="time"
-                                            value={day.time}
-                                            onChange={(e) =>
-                                                onSetTime(
-                                                    day.date,
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="text-xs px-2 py-1 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 outline-none focus:border-red-400"
-                                        />
-                                    )}
-                                </div>
-                            </div>
+                                day={day}
+                                onToggle={onToggle}
+                                onSetTime={onSetTime}
+                            />
                         ))
                     )}
                 </div>

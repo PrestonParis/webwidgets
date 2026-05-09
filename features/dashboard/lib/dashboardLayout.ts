@@ -97,7 +97,11 @@ export function readCachedLayout(userId: string): WidgetConfig[] | null {
         const raw = localStorage.getItem(makePersistKey(userId));
         return raw ? (JSON.parse(raw) as WidgetConfig[]) : null;
     } catch (e) {
-        console.error('Cache parse error', e);
+        // clientLogger is not imported here to keep this file server-importable;
+        // the error is surfaced to the caller which handles the fallback.
+        if (typeof window !== 'undefined') {
+            console.error('[dashboard] Cache parse error', e);
+        }
         return null;
     }
 }

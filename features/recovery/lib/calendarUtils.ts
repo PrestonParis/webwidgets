@@ -12,13 +12,15 @@ export function getDayStatus(
     year: number,
     month: number,
     today: Date,
-    startTime: string | null,
+    createdAt: string,
     relapses: string[],
 ): DayStatus {
     const date = new Date(year, month, day);
     if (date > today) return 'future';
-    if (!startTime || date < new Date(startTime)) return 'before';
-    const dateStr = date.toISOString().split('T')[0] ?? '';
+    // Use the tracker's creation date as the history boundary, not the current
+    // streak start — so relapse days before the latest reset remain visible.
+    if (date < new Date(createdAt)) return 'before';
+    const dateStr = `${String(year)}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     if (relapses.includes(dateStr)) return 'relapse';
     return 'clean';
 }
