@@ -34,9 +34,7 @@ Sentry.init({
 
     beforeSend(event) {
         if (Array.isArray(event.breadcrumbs)) {
-            event.breadcrumbs = (event.breadcrumbs as Breadcrumb[]).map(
-                sanitizeBreadcrumb,
-            );
+            event.breadcrumbs = event.breadcrumbs.map(sanitizeBreadcrumb);
         }
         return event;
     },
