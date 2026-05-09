@@ -13,6 +13,7 @@ import {
 import { processQueueItem } from '@/features/inbox/lib/pipeline';
 import { getLogger, runWithContext } from '@/lib/observability/logger';
 import { captureError } from '@/lib/observability/sentry';
+import { createAdminClient } from '@/lib/supabase/adminClient';
 
 // Queue worker trigger.
 // User-authenticated: drains queue items belonging to the requesting user.
@@ -120,7 +121,6 @@ async function processForUser(
 }
 
 async function processAll(): Promise<Response> {
-    const { createAdminClient } = await import('@/lib/supabase/adminClient');
     const supabase = createAdminClient();
 
     const { data: pendingRows } = await supabase
