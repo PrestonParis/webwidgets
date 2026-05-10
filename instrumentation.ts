@@ -1,16 +1,11 @@
-import './sentry.server.config';
-import './sentry.edge.config';
-
-import { getLogger } from './lib/observability/logger';
 import { captureError } from './lib/observability/sentry';
 
-export function register() {
-    // Runs once when the Next.js server boots. Use this file to initialize
-    // any server-side singletons that need to be set up before request handling.
-
+export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
-        const log = getLogger({ operation: 'server.boot' });
+        await import('./sentry.server.config');
 
+        const { getLogger } = await import('./lib/observability/logger');
+        const log = getLogger({ operation: 'server.boot' });
         log.info(
             {
                 nodeVersion: process.version,
@@ -19,6 +14,8 @@ export function register() {
             },
             'Server instrumentation registered',
         );
+    } else if (process.env.NEXT_RUNTIME === 'edge') {
+        await import('./sentry.edge.config');
     }
 }
 
