@@ -68,5 +68,5 @@ coverage/
 .claude/
 .cache/
 CLAUDE.md
-supabase
+/supabase
 AGENTS.md
