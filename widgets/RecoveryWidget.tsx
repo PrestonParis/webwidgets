@@ -13,9 +13,11 @@ import { useUrgeForm } from '@/features/recovery/hooks/useUrgeForm';
 import SoberWidgetFooter from '@/features/recovery/components/SoberWidgetFooter';
 import ViewToggle from '@/features/recovery/components/ViewToggle';
 import { useSecondsClean } from '@/features/recovery/hooks/useSecondsClean';
+import ConfirmModal from '@/features/recovery/components/ConfirmModal';
 
 export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     const [startTime, setStartTime] = useState(tracker.start_time);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const { settings, updateSettings } = useWidgetSettings(
         tracker.id,
@@ -33,10 +35,11 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
         />
     );
 
-    const handleResetClick = () => {
+    const handleConfirmReset = () => {
         const now = new Date().toISOString();
         setStartTime(now);
         onReset(tracker.id, now);
+        setConfirmOpen(false);
     };
 
     const footerSlot = (
@@ -58,7 +61,7 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
             }}
             onCancelUrge={urgeForm.handleCancel}
             onShowUrgeForm={() => urgeForm.setShowUrgeForm(true)}
-            onReset={handleResetClick}
+            onReset={() => setConfirmOpen(true)}
         />
     );
 
@@ -83,33 +86,48 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     }
 
     return (
-        <WidgetShell
-            icon={<HeartIcon />}
-            title="Sober Time"
-            badge={tracker.addiction || undefined}
-            settings={settings}
-            onSettingsChange={updateSettings}
-            settingsSlot={settingsSlot}
-            footerSlot={footerSlot}
-            widgetId={tracker.id}
-            widgetType="recovery"
-        >
-            {view === 'timer' && time ? (
-                <div className="flex flex-wrap gap-3 items-end">
-                    {time.years > 0 && (
-                        <TimeUnit value={time.years} label="y" />
-                    )}
-                    {time.months > 0 && (
-                        <TimeUnit value={time.months} label="mo" />
-                    )}
-                    <TimeUnit value={time.days} label="d" />
-                    <TimeUnit value={time.hours} label="h" />
-                    <TimeUnit value={time.minutes} label="m" />
-                    <TimeUnit value={secondsClean % 60} label="s" />
-                </div>
-            ) : (
-                <RecoveryHeatmap trackerId={tracker.id} startTime={startTime} />
+        <>
+            <WidgetShell
+                icon={<HeartIcon />}
+                title="Sober Time"
+                badge={tracker.addiction || undefined}
+                settings={settings}
+                onSettingsChange={updateSettings}
+                settingsSlot={settingsSlot}
+                footerSlot={footerSlot}
+                widgetId={tracker.id}
+                widgetType="recovery"
+            >
+                {view === 'timer' && time ? (
+                    <div className="flex flex-wrap gap-3 items-end">
+                        {time.years > 0 && (
+                            <TimeUnit value={time.years} label="y" />
+                        )}
+                        {time.months > 0 && (
+                            <TimeUnit value={time.months} label="mo" />
+                        )}
+                        <TimeUnit value={time.days} label="d" />
+                        <TimeUnit value={time.hours} label="h" />
+                        <TimeUnit value={time.minutes} label="m" />
+                        <TimeUnit value={secondsClean % 60} label="s" />
+                    </div>
+                ) : (
+                    <RecoveryHeatmap
+                        trackerId={tracker.id}
+                        startTime={startTime}
+                    />
+                )}
+            </WidgetShell>
+            {confirmOpen && (
+                <ConfirmModal
+                    title="Reset streak?"
+                    message="This will set your start time to right now. Your logged urges will remain."
+                    confirmLabel="Reset"
+                    destructive
+                    onConfirm={handleConfirmReset}
+                    onCancel={() => setConfirmOpen(false)}
+                />
             )}
-        </WidgetShell>
+        </>
     );
 }

@@ -37,8 +37,11 @@ export function useJournalPage() {
             const draft = restoreDraft();
             const parsed = draftSchema.safeParse(draft);
             if (parsed.success) {
-                editorUtils.setTitle(parsed.data.title);
+                if (parsed.data.title) editorUtils.setTitle(parsed.data.title);
                 editorUtils.editor.commands.setContent(parsed.data.content);
+                // setContent dispatches a ProseMirror transaction that can claim focus;
+                // blur immediately so the title input stays usable on page load.
+                editorUtils.editor.commands.blur();
             }
         }
     }, [editorUtils.editor, restoreDraft, editorUtils]);

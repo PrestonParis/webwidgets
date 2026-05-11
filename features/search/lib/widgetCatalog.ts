@@ -236,6 +236,24 @@ export const WIDGET_CATALOG: WidgetEntry[] = [
             'agenda',
         ],
     },
+    {
+        type: 'form-filler',
+        name: 'Form Filler',
+        emoji: '📋',
+        description:
+            'Auto-fill web forms using Playwright with your saved info',
+        href: '/form-filler',
+        keywords: [
+            'form',
+            'autofill',
+            'fill',
+            'playwright',
+            'automation',
+            'address',
+            'profile',
+            'browser',
+        ],
+    },
 ];
 
 export function searchWidgets(query: string): WidgetEntry[] {
