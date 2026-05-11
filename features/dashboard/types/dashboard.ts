@@ -18,6 +18,7 @@ export type WidgetType =
     | 'scratchpad'
     | 'countdown'
     | 'calendar'
+    | 'form-filler'
     | 'folder';
 
 export interface WidgetConfig {

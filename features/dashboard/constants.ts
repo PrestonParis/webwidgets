@@ -113,4 +113,12 @@ export const base: WidgetConfig[] = [
         containerId: 'main',
         order: 13,
     },
+    {
+        id: 'widget-form-filler',
+        type: 'form-filler',
+        visible: true,
+        columnSpan: 1,
+        containerId: 'main',
+        order: 14,
+    },
 ];

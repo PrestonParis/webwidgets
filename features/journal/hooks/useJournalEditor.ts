@@ -11,7 +11,7 @@ type EditableJournalEntry = {
 };
 
 export function useJournalEditor() {
-    const [title, setTitle] = useState('');
+    const [title, setTitle] = useState('New entry');
     const [editingId, setEditingId] = useState<string | number | null>(null);
     const isEditingRef = useRef(false);
     const originalContentRef = useRef<{
@@ -61,7 +61,7 @@ export function useJournalEditor() {
     const cancelEditing = () => {
         isEditingRef.current = false;
         setEditingId(null);
-        setTitle('');
+        setTitle('New entry');
         originalContentRef.current = null;
         editor?.commands.clearContent();
     };
@@ -69,7 +69,7 @@ export function useJournalEditor() {
     const resetForm = () => {
         isEditingRef.current = false;
         setEditingId(null);
-        setTitle('');
+        setTitle('New entry');
         originalContentRef.current = null;
         editor?.commands.clearContent();
     };

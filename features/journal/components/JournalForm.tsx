@@ -1,6 +1,7 @@
 import { EditorContent } from '@tiptap/react';
 import EditorToolbar from './EditorToolbar';
 import { JournalFormProps } from '@/features/journal/types/journal';
+import { useTranscription } from '@/features/journal/hooks/useTranscription';
 
 export function JournalForm({
     editor,
@@ -15,6 +16,8 @@ export function JournalForm({
     wordCount,
     autosaved,
 }: JournalFormProps) {
+    const transcription = useTranscription(editor);
+
     return (
         <div
             className={`lg:col-span-8 transition-all duration-300 ${focusMode ? 'relative z-20' : ''}`}
@@ -32,7 +35,6 @@ export function JournalForm({
                             placeholder="Entry title…"
                             value={title}
                             onChange={(e) => onTitleChange(e.target.value)}
-                            required
                             className="flex-1 font-serif text-lg font-semibold bg-transparent border-0 outline-none text-stone-900 dark:text-zinc-100 placeholder:text-stone-300 dark:placeholder:text-zinc-600"
                         />
                         {isEditing && (
@@ -56,7 +58,10 @@ export function JournalForm({
                     <div className="border border-stone-200 dark:border-zinc-700 rounded-xl p-3 focus-within:border-amber-500 transition-colors min-h-95">
                         {editor ? ( // ← Check editor directly instead of isMounted
                             <>
-                                <EditorToolbar editor={editor} />
+                                <EditorToolbar
+                                    editor={editor}
+                                    transcription={transcription}
+                                />
                                 <EditorContent editor={editor} />
                             </>
                         ) : (
@@ -70,11 +75,17 @@ export function JournalForm({
                         <span>
                             {wordCount} {wordCount === 1 ? 'word' : 'words'}
                         </span>
-                        <span
-                            className={`transition-opacity duration-500 ${autosaved ? 'opacity-100 text-emerald-500' : 'opacity-0'}`}
-                        >
-                            Draft saved
-                        </span>
+                        {transcription.isListening && transcription.interim ? (
+                            <span className="italic text-stone-400 dark:text-zinc-500 max-w-[60%] truncate">
+                                {transcription.interim}
+                            </span>
+                        ) : (
+                            <span
+                                className={`transition-opacity duration-500 ${autosaved ? 'opacity-100 text-emerald-500' : 'opacity-0'}`}
+                            >
+                                Draft saved
+                            </span>
+                        )}
                     </div>
 
                     <button
