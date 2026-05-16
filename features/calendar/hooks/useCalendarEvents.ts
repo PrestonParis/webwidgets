@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import type { CalendarEvent } from '@/features/calendar/types/calendar';
 
@@ -50,7 +50,13 @@ export function useCalendarEvents(year: number, month: number) {
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(false);
     const [isNotConnected, setIsNotConnected] = useState(false);
+    const [fetchVersion, setFetchVersion] = useState(0);
     const inflightRef = useRef<string | null>(null);
+
+    const refresh = useCallback(() => {
+        cache.delete(`${year}-${month}`);
+        setFetchVersion((v) => v + 1);
+    }, [year, month]);
 
     useEffect(() => {
         const key = `${year}-${month}`;
@@ -94,7 +100,7 @@ export function useCalendarEvents(year: number, month: number) {
         }
 
         void load();
-    }, [year, month]);
+    }, [year, month, fetchVersion]);
 
-    return { events, loading, isNotConnected };
+    return { events, loading, isNotConnected, refresh };
 }

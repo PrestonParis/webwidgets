@@ -15,6 +15,7 @@ const actionSchema = z.object({
     due_date: z.string().nullable(),
     action_url: z.string().nullable(),
     completed: z.boolean(),
+    synced: z.boolean().default(false),
     created_at: z.string(),
 });
 

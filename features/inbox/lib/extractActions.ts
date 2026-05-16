@@ -28,6 +28,8 @@ export interface EmailInput {
     subject: string;
     sender: string;
     snippet: string;
+    date?: string;
+    body?: string;
 }
 
 export interface ExtractOptions {
@@ -47,7 +49,7 @@ export async function extractEmailActions(
     const emailList = emails
         .map(
             (e, i) =>
-                `${i}. From: ${e.sender}\n   Subject: ${e.subject}\n   Preview: ${e.snippet}`,
+                `${i}. From: ${e.sender}\n   Received: ${e.date ?? today}\n   Subject: ${e.subject}\n   Body: ${e.body ?? e.snippet}`,
         )
         .join('\n\n');
 
@@ -57,19 +59,31 @@ export async function extractEmailActions(
         messages: [
             {
                 role: 'user',
-                content: `Today is ${today}. Extract actionable items from these emails. Ignore newsletters, marketing, and automated notifications with no user action needed.
+                content: `Today is ${today}. Extract actionable items from these emails.
 
 Return a JSON object mapping the 0-based email index (as a string key) to an array of items:
 {"0": [{"type": "action|event|deadline", "title": "short title", "description": "brief context or null", "due_date": "ISO 8601 UTC datetime or null", "action_url": "URL to complete the action or null"}], "1": []}
 
 Types:
-- action: user must do something (reply, sign, submit, schedule, etc.)
-- event: a specific meeting, appointment, or event with a date/time
-- deadline: something that expires or is due by a specific date
+- action: user must do something (reply, sign, submit, schedule, cancel, evaluate, etc.)
+- event: a specific meeting, appointment, or scheduled event with a date/time
+- deadline: something that expires, renews, or is due by a specific date
 
-For action_url: extract any URL from the snippet that would directly complete the action (e.g. a link to sign a document, join a meeting, view an invoice, track a package). Only include real URLs visible in the snippet — never invent URLs.
+For action_url: extract any URL from the body that would directly complete the action. Only include real URLs visible in the text — never invent URLs.
 
-Return {} if no emails have actionable content. Be selective — only include genuine user actions.
+Date calculation: when an email mentions a relative time period (e.g. "14-day trial", "expires in 30 days", "renews next month"), calculate the absolute date using the email's "Received" date as the reference — NOT today. Example: "14-day trial" email received 2026-05-01 → deadline 2026-05-15.
+
+Always extract from these patterns even if the email looks automated:
+- Free trials / trial periods → deadline item for when trial ends + action item to evaluate or cancel before it does
+- Subscription renewals → deadline for renewal date
+- Bills / invoices due → deadline item
+- Meeting invites / calendar events → event item
+- Tasks explicitly assigned to the user → action item
+- Documents awaiting signature → action item
+
+Skip: pure marketing promotions with no deadline, social media notifications, shipping confirmations with no action needed, and password-change confirmations.
+
+Return {} only if the email has no genuine deadline, expiry, event, or task for the user.
 
 Emails:
 ${emailList}`,

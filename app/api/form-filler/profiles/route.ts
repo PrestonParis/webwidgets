@@ -1,20 +1,32 @@
+import { unstable_cache, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
+import { createAdminClient } from '@/lib/supabase/adminClient';
 import type { FormFillerProfile } from '@/features/form-filler/types';
 
+const PROFILES_TAG = 'form-filler-profiles';
+
 type QueryResult<T> = { data: T | null; error: { message: string } | null };
+
+const getCachedProfiles = unstable_cache(
+    async (userId: string) => {
+        const admin = createAdminClient();
+        return admin
+            .from('form_filler_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true });
+    },
+    [PROFILES_TAG],
+    { revalidate: 60, tags: [PROFILES_TAG] },
+);
 
 export async function GET(): Promise<Response> {
     const { supabase } = await createClients();
     const user = await getUserOrThrow(supabase);
 
-    const { data, error } = await supabase
-        .from('form_filler_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-
+    const { data, error } = await getCachedProfiles(user.id);
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
@@ -40,6 +52,7 @@ export async function POST(req: Request): Promise<Response> {
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag(PROFILES_TAG, {});
     return NextResponse.json(data, { status: 201 });
 }
 
@@ -66,6 +79,7 @@ export async function PATCH(req: Request): Promise<Response> {
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag(PROFILES_TAG, {});
     return NextResponse.json(data);
 }
 
@@ -85,5 +99,6 @@ export async function DELETE(req: Request): Promise<Response> {
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag(PROFILES_TAG, {});
     return NextResponse.json({ ok: true });
 }

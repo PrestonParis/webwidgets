@@ -8,7 +8,8 @@ import {
     bgStyles,
     bgHoverStyles,
 } from '@/features/widgets/constants';
-import { useWidgetSettings } from '../hooks/useWidgetSettings'; // ← your existing hook
+import { useWidgetSettings } from '../hooks/useWidgetSettings';
+import { useBackground } from '@/features/settings/hooks/useBackground';
 import { WidgetHeader } from './WidgetHeader';
 import { WidgetSettingsPanel } from './WidgetSettingsPanel';
 import { WidgetFooter } from './WidgetFooter';
@@ -31,8 +32,14 @@ export default function WidgetShell({
         widgetType,
     );
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const { isDefault: bgIsDefault } = useBackground();
 
     const c = colorMap[settings.color];
+
+    // When a custom dashboard background is active, use translucent glass so the background shows through.
+    const shellBg = bgIsDefault
+        ? cn(bgStyles[settings.background], bgHoverStyles[settings.background])
+        : 'bg-white/75 dark:bg-zinc-950/75 backdrop-blur-md hover:bg-white/85 dark:hover:bg-zinc-950/85';
 
     return (
         <div
@@ -40,8 +47,7 @@ export default function WidgetShell({
                 'group relative rounded-3xl border-2 border-transparent',
                 c.hoverBorder,
                 'shadow-sm hover:shadow-xl hover:scale-[1.02]',
-                bgStyles[settings.background],
-                bgHoverStyles[settings.background],
+                shellBg,
                 'transition-all duration-300 flex flex-col h-full overflow-hidden',
                 settings.size === 'compact' ? 'p-4' : 'p-6',
             )}

@@ -46,7 +46,7 @@ export default function ChessWidget() {
             settings={settings}
             onSettingsChange={updateSettings}
             footerHref="/chess"
-            footerLabel="View All Games →"
+            footerLabel="View Chess →"
             widgetId="chess"
             widgetType="chess"
         >

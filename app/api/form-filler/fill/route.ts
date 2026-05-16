@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
@@ -63,6 +64,20 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ jobId: job.id }, { status: 202 });
 }
 
+const getCachedJobList = unstable_cache(
+    async (userId: string) => {
+        const admin = createAdminClient();
+        return admin
+            .from('form_filler_jobs')
+            .select('id, url, status, fields_filled, error, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(20);
+    },
+    ['form-filler-jobs'],
+    { revalidate: 10, tags: ['form-filler-jobs'] },
+);
+
 export async function GET(req: Request): Promise<Response> {
     const { supabase } = await createClients();
     const user = await getUserOrThrow(supabase);
@@ -70,6 +85,7 @@ export async function GET(req: Request): Promise<Response> {
     const { searchParams } = new URL(req.url);
     const jobId = searchParams.get('jobId');
 
+    // Single-job polling must always be fresh — no cache
     if (jobId) {
         const { data, error } = await supabase
             .from('form_filler_jobs')
@@ -84,14 +100,7 @@ export async function GET(req: Request): Promise<Response> {
         return NextResponse.json(data);
     }
 
-    // List recent jobs (no screenshots to keep response small)
-    const { data, error } = await supabase
-        .from('form_filler_jobs')
-        .select('id, url, status, fields_filled, error, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
-
+    const { data, error } = await getCachedJobList(user.id);
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);

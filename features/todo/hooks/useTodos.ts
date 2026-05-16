@@ -27,8 +27,29 @@ export function useTodos() {
             }
         })();
 
+        const channel = supabase
+            .channel(`todos:${user.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'todos',
+                    filter: `user_id=eq.${user.id}`,
+                },
+                (payload) => {
+                    const newTodo = payload.new as Todo;
+                    setTodos((prev) => {
+                        if (prev.some((t) => t.id === newTodo.id)) return prev;
+                        return [newTodo, ...prev];
+                    });
+                },
+            )
+            .subscribe();
+
         return () => {
             cancelled = true;
+            void supabase.removeChannel(channel);
         };
     }, [user?.id]);
 
