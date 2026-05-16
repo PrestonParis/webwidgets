@@ -1,9 +1,118 @@
 'use client';
 
-import { useState } from 'react';
-import { EMAIL_CATEGORIES, EmailCardProps } from '@/features/inbox/types/inbox';
+import { useEffect, useRef, useState } from 'react';
+import {
+    EMAIL_CATEGORIES,
+    EmailAction,
+    EmailCardProps,
+} from '@/features/inbox/types/inbox';
 import { fetchEmailBody } from '@/features/inbox/lib/inboxApiService';
 import { cn } from '@/lib/utils/utils';
+
+const ACTION_ICONS: Record<string, string> = {
+    action: '✓',
+    event: '📅',
+    deadline: '⏰',
+};
+
+function formatDue(iso: string | null): string | null {
+    if (!iso) return null;
+    const date = new Date(iso);
+    const diffDays = Math.ceil((date.getTime() - Date.now()) / 86_400_000);
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Tomorrow';
+    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
+    if (diffDays < 7)
+        return date.toLocaleDateString('en-US', { weekday: 'short' });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+const ACTION_DEST: Record<string, string> = {
+    action: 'To-Do',
+    deadline: 'To-Do',
+    event: 'Calendar',
+};
+
+function InlineActions({
+    actions,
+    onConfirm,
+    onConfirmAll,
+    onReject,
+}: {
+    actions: EmailAction[];
+    onConfirm: (id: string) => void;
+    onConfirmAll: () => void;
+    onReject: (id: string) => void;
+}) {
+    return (
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 space-y-2">
+            {actions.map((a) => {
+                const due = formatDue(a.due_date);
+                const isOverdue =
+                    !!a.due_date && new Date(a.due_date) < new Date();
+                const dest = ACTION_DEST[a.type] ?? 'Widget';
+                return (
+                    <div key={a.id} className="flex items-start gap-2 text-xs">
+                        <span className="shrink-0 mt-0.5 text-gray-400">
+                            {ACTION_ICONS[a.type] ?? '·'}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                            <span className="font-medium text-gray-800 dark:text-zinc-200 leading-snug">
+                                {a.title}
+                            </span>
+                            {a.description && (
+                                <span className="text-gray-400 dark:text-zinc-500 ml-1">
+                                    — {a.description}
+                                </span>
+                            )}
+                            {due && (
+                                <span
+                                    className={cn(
+                                        'ml-2 font-medium',
+                                        isOverdue
+                                            ? 'text-red-500'
+                                            : 'text-gray-400 dark:text-zinc-500',
+                                    )}
+                                >
+                                    {due}
+                                </span>
+                            )}
+                            <span className="ml-2 text-[10px] text-gray-300 dark:text-zinc-600">
+                                → {dest}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <button
+                                onClick={() => onConfirm(a.id)}
+                                title={`Add to ${dest}`}
+                                className="w-6 h-6 flex items-center justify-center rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-[11px] font-bold"
+                            >
+                                ✓
+                            </button>
+                            <button
+                                onClick={() => onReject(a.id)}
+                                title="Dismiss"
+                                className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-colors text-[11px]"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                );
+            })}
+            {actions.length > 1 && (
+                <div className="pt-1">
+                    <button
+                        onClick={onConfirmAll}
+                        className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+                    >
+                        Confirm all ({actions.length})
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
 
 const CATEGORY_STYLES: Record<string, string> = {
     work: 'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
@@ -82,11 +191,42 @@ function CategoryPicker({
     );
 }
 
-export function EmailCard({ mail, onClassify }: EmailCardProps) {
+export function EmailCard({
+    mail,
+    emailActions = [],
+    extracting,
+    onClassify,
+    onExtract,
+    onConfirmAction,
+    onConfirmAll,
+    onRejectAction,
+}: EmailCardProps & {
+    emailActions?: EmailAction[];
+    extracting?: boolean;
+    onExtract: () => void;
+    onConfirmAction: (id: string) => void;
+    onConfirmAll: () => void;
+    onRejectAction: (id: string) => void;
+}) {
     const [open, setOpen] = useState(false);
     const [bodyOpen, setBodyOpen] = useState(false);
     const [body, setBody] = useState<string | null>(null);
     const [bodyLoading, setBodyLoading] = useState(false);
+    const [showActions, setShowActions] = useState(emailActions.length > 0);
+    const prevExtracting = useRef(false);
+
+    // Auto-show actions when extraction finishes
+    useEffect(() => {
+        if (prevExtracting.current && !extracting && emailActions.length > 0) {
+            setShowActions(true);
+        }
+        prevExtracting.current = extracting ?? false;
+    }, [extracting, emailActions.length]);
+
+    // Keep visible if new actions arrive
+    useEffect(() => {
+        if (emailActions.length > 0) setShowActions(true);
+    }, [emailActions.length]);
 
     const category = mail.category ?? 'other';
     const badgeStyle =
@@ -143,7 +283,7 @@ export function EmailCard({ mail, onClassify }: EmailCardProps) {
                 </div>
             )}
 
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center gap-3">
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center gap-3 flex-wrap">
                 <button
                     onClick={() => {
                         void handleReadEmail();
@@ -158,7 +298,33 @@ export function EmailCard({ mail, onClassify }: EmailCardProps) {
                 >
                     {open ? 'Cancel' : 'Change category'}
                 </button>
+                <button
+                    onClick={onExtract}
+                    disabled={extracting}
+                    className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-wait transition-colors"
+                >
+                    {extracting ? 'Extracting…' : 'Extract actions'}
+                </button>
+                {emailActions.length > 0 && !extracting && (
+                    <button
+                        onClick={() => setShowActions((v) => !v)}
+                        className="text-[10px] text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors ml-auto"
+                    >
+                        {showActions
+                            ? 'Hide actions'
+                            : `${emailActions.length} action${emailActions.length === 1 ? '' : 's'}`}
+                    </button>
+                )}
             </div>
+
+            {showActions && emailActions.length > 0 && (
+                <InlineActions
+                    actions={emailActions}
+                    onConfirm={onConfirmAction}
+                    onConfirmAll={onConfirmAll}
+                    onReject={onRejectAction}
+                />
+            )}
 
             {open && (
                 <CategoryPicker

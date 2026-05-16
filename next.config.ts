@@ -17,5 +17,4 @@ export default withSentryConfig(nextConfig, {
         : {}),
     silent: true,
     widenClientFileUpload: true,
-    automaticVercelMonitors: false,
 });

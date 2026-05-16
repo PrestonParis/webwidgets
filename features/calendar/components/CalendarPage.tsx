@@ -7,6 +7,9 @@ import {
     Video,
     MapPin,
     ExternalLink,
+    Plus,
+    Pencil,
+    Trash2,
 } from 'lucide-react';
 import { useCalendarEvents } from '@/features/calendar/hooks/useCalendarEvents';
 import {
@@ -17,6 +20,8 @@ import {
     isAllDay,
 } from '@/features/calendar/types/calendar';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { EventFormModal } from '@/features/calendar/components/EventFormModal';
+import { deleteCalendarEvent } from '@/features/calendar/api/calendarMutations';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -38,7 +43,6 @@ function buildGrid(year: number, month: number): Date[] {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const days: Date[] = [];
-
     for (let i = 0; i < firstDay.getDay(); i++) {
         days.push(new Date(year, month, -firstDay.getDay() + i + 1));
     }
@@ -138,7 +142,17 @@ function DayCell({
     );
 }
 
-function EventDetail({ event }: { event: CalendarEvent }) {
+function EventDetail({
+    event,
+    onEdit,
+    onDelete,
+}: {
+    event: CalendarEvent;
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+
     return (
         <div className="py-3 border-b border-gray-100 dark:border-zinc-800 last:border-0">
             <div className="flex items-start gap-2">
@@ -146,9 +160,52 @@ function EventDetail({ event }: { event: CalendarEvent }) {
                     className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${eventColor(event.colorId)}`}
                 />
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold leading-snug text-gray-800 dark:text-zinc-100">
-                        {event.summary}
-                    </p>
+                    <div className="flex items-start justify-between gap-1">
+                        <p className="text-sm font-semibold leading-snug text-gray-800 dark:text-zinc-100">
+                            {event.summary}
+                        </p>
+                        <div className="flex items-center gap-0.5 shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={onEdit}
+                                title="Edit event"
+                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                            >
+                                <Pencil size={11} className="text-zinc-400" />
+                            </button>
+                            {confirmingDelete ? (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            setConfirmingDelete(false);
+                                            void onDelete();
+                                        }}
+                                        className="text-[10px] font-medium text-red-400 hover:text-red-300 px-1"
+                                    >
+                                        Delete
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            setConfirmingDelete(false)
+                                        }
+                                        className="text-[10px] text-zinc-500 hover:text-zinc-300 px-1"
+                                    >
+                                        Cancel
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => setConfirmingDelete(true)}
+                                    title="Delete event"
+                                    className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                >
+                                    <Trash2
+                                        size={11}
+                                        className="text-zinc-400 hover:text-red-400 transition-colors"
+                                    />
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
                         {formatEventTime(event)}
                     </p>
@@ -221,8 +278,12 @@ export function CalendarPage() {
     const [viewYear, setViewYear] = useState(today.getFullYear());
     const [viewMonth, setViewMonth] = useState(today.getMonth());
     const [selectedDate, setSelectedDate] = useState<Date>(today);
+    const [formOpen, setFormOpen] = useState(false);
+    const [editingEvent, setEditingEvent] = useState<
+        CalendarEvent | undefined
+    >();
 
-    const { events, loading, isNotConnected } = useCalendarEvents(
+    const { events, loading, isNotConnected, refresh } = useCalendarEvents(
         viewYear,
         viewMonth,
     );
@@ -263,13 +324,37 @@ export function CalendarPage() {
         } else setViewMonth((m) => m + 1);
     }
 
-    const selectedEvents = getDayEvents(selectedDate);
+    function openCreate() {
+        setEditingEvent(undefined);
+        setFormOpen(true);
+    }
 
+    function openEdit(event: CalendarEvent) {
+        setEditingEvent(event);
+        setFormOpen(true);
+    }
+
+    async function handleDelete(event: CalendarEvent) {
+        try {
+            await deleteCalendarEvent(event.id);
+            refresh();
+        } catch {
+            // swallow — stale UI will correct on next refresh
+        }
+    }
+
+    const selectedEvents = getDayEvents(selectedDate);
     const selectedLabel = selectedDate.toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
     });
+
+    // Pre-fill start date from selected day when creating
+    const createInitialData = {
+        startDate: `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`,
+        endDate: `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`,
+    };
 
     if (isNotConnected) return <CalendarNotConnected />;
 
@@ -279,17 +364,25 @@ export function CalendarPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
                     Calendar
                 </h2>
-                {loading && (
-                    <span className="text-xs text-gray-400 dark:text-zinc-500">
-                        Syncing…
-                    </span>
-                )}
+                <div className="flex items-center gap-3">
+                    {loading && (
+                        <span className="text-xs text-gray-400 dark:text-zinc-500">
+                            Syncing…
+                        </span>
+                    )}
+                    <button
+                        onClick={openCreate}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#4f6ef7] hover:bg-[#3d5ce0] text-white text-xs font-medium transition-colors"
+                    >
+                        <Plus size={13} />
+                        New event
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
                 {/* Calendar Grid */}
                 <div className="rounded-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden">
-                    {/* Month nav */}
                     <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 dark:border-zinc-800">
                         <button
                             onClick={prevMonth}
@@ -325,7 +418,6 @@ export function CalendarPage() {
                         </button>
                     </div>
 
-                    {/* Day headers */}
                     <div className="grid grid-cols-7 border-b border-gray-100 dark:border-zinc-800">
                         {WEEKDAYS.map((d) => (
                             <div
@@ -337,7 +429,6 @@ export function CalendarPage() {
                         ))}
                     </div>
 
-                    {/* Grid */}
                     <div className="grid grid-cols-7 divide-x divide-y divide-gray-100 dark:divide-zinc-800/60">
                         {grid.map((date, i) => (
                             <DayCell
@@ -355,16 +446,28 @@ export function CalendarPage() {
 
                 {/* Day detail panel */}
                 <div className="rounded-2xl border border-gray-100 dark:border-zinc-800 flex flex-col">
-                    <div className="px-4 py-3.5 border-b border-gray-100 dark:border-zinc-800">
-                        <p className="text-sm font-bold text-gray-800 dark:text-zinc-100">
-                            {selectedLabel}
-                        </p>
-                        {selectedEvents.length > 0 && (
-                            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
-                                {selectedEvents.length} event
-                                {selectedEvents.length !== 1 ? 's' : ''}
+                    <div className="px-4 py-3.5 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-bold text-gray-800 dark:text-zinc-100">
+                                {selectedLabel}
                             </p>
-                        )}
+                            {selectedEvents.length > 0 && (
+                                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+                                    {selectedEvents.length} event
+                                    {selectedEvents.length !== 1 ? 's' : ''}
+                                </p>
+                            )}
+                        </div>
+                        <button
+                            onClick={openCreate}
+                            title="Add event on this day"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                        >
+                            <Plus
+                                size={14}
+                                className="text-zinc-400 hover:text-zinc-200 transition-colors"
+                            />
+                        </button>
                     </div>
                     <div className="px-4 py-2 flex-1 overflow-y-auto">
                         {selectedEvents.length === 0 ? (
@@ -372,13 +475,29 @@ export function CalendarPage() {
                                 No events
                             </p>
                         ) : (
-                            selectedEvents.map((e) => (
-                                <EventDetail key={e.id} event={e} />
-                            ))
+                            <div className="divide-y divide-gray-100 dark:divide-zinc-800/60">
+                                {selectedEvents.map((e) => (
+                                    <div key={e.id} className="group">
+                                        <EventDetail
+                                            event={e}
+                                            onEdit={() => openEdit(e)}
+                                            onDelete={() => handleDelete(e)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            <EventFormModal
+                open={formOpen}
+                onClose={() => setFormOpen(false)}
+                onSaved={refresh}
+                editEvent={editingEvent}
+                initialData={editingEvent ? undefined : createInitialData}
+            />
         </div>
     );
 }

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import type { Email, EmailAction } from '@/features/inbox/types/inbox';
+import { supabase } from '@/lib/db/supabase';
 
 // Using constants so the regex-based linter doesn't flag these as "direct API calls"
 const emailBodyEndpoint = (id: string) => `/api/gmail/email/${id}`;
@@ -16,12 +17,27 @@ const emailActionSchema = z.object({
     due_date: z.string().nullable(),
     action_url: z.string().nullable(),
     completed: z.boolean(),
+    synced: z.boolean().default(false),
     created_at: z.string(),
 });
 
 const extractActionsResponseSchema = z.object({
     actions: z.array(emailActionSchema),
 });
+
+export async function confirmActions(actionIds: string[]): Promise<void> {
+    if (actionIds.length === 0) return;
+    await fetch('/api/gmail/actions/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ actionIds }),
+    });
+}
+
+export async function rejectAction(actionId: string): Promise<void> {
+    await supabase.from('email_actions').delete().eq('id', actionId);
+}
 
 export async function fetchEmailBody(emailId: string): Promise<string | null> {
     try {
@@ -37,7 +53,8 @@ export async function fetchEmailBody(emailId: string): Promise<string | null> {
 }
 
 export async function fetchExtractedActions(
-    emails: Pick<Email, 'id' | 'subject' | 'sender' | 'snippet'>[],
+    emails: Pick<Email, 'id' | 'subject' | 'sender' | 'snippet' | 'date'>[],
+    options?: { force?: boolean },
 ): Promise<EmailAction[]> {
     try {
         const res = await fetch(extractActionsEndpoint, {
@@ -50,7 +67,9 @@ export async function fetchExtractedActions(
                     subject: e.subject,
                     sender: e.sender,
                     snippet: e.snippet,
+                    date: e.date,
                 })),
+                ...(options?.force ? { force: true } : {}),
             }),
         });
         if (!res.ok) return [];

@@ -1,0 +1,64 @@
+# Normalize line endings to LF on commit for everyone
+* text=auto eol=lf
+
+# ── Web / JS / TS ──────────────────────────────────────────
+*.ts        text eol=lf diff=typescript
+*.tsx       text eol=lf diff=typescript
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.toml      text eol=lf
+*.md        text eol=lf diff=markdown
+*.mdx       text eol=lf diff=markdown
+*.txt       text eol=lf
+*.env*      text eol=lf
+
+# ── Python ─────────────────────────────────────────────────
+*.py        text eol=lf diff=python
+*.pyi       text eol=lf
+*.cfg       text eol=lf
+*.ini       text eol=lf
+requirements*.txt text eol=lf
+
+# ── Shell / config ─────────────────────────────────────────
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+Procfile    text eol=lf
+*.sql       text eol=lf
+
+# ── Binary — never diff or mangle ──────────────────────────
+*.pkl       binary
+*.pyc       binary
+*.pyo       binary
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.eot       binary
+*.otf       binary
+*.pdf       binary
+*.zip       binary
+*.tar.gz    binary
+
+# SVG — text but no diffs (noisy)
+*.svg       text eol=lf -diff
+
+# Lock files — treat as binary to suppress noisy diffs;
+# conflicts are always resolved by regenerating, not merging
+package-lock.json binary
+
+# ── GitHub language stats ───────────────────────────────────
+# Don't count the HTML logo preview as the project language
+icons/testlogos.html linguist-detectable=false

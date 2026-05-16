@@ -3,6 +3,7 @@
 import { ReviewDay } from '../hooks/useReviewModal';
 
 interface ReviewModalProps {
+    addiction: string;
     days: ReviewDay[];
     saving: boolean;
     onToggle: (date: Date) => void;
@@ -70,6 +71,7 @@ function ReviewDayRow({
 }
 
 export default function ReviewModal({
+    addiction,
     days,
     saving,
     onToggle,
@@ -86,6 +88,7 @@ export default function ReviewModal({
                             Review Days
                         </h2>
                         <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+                            {addiction} ·{' '}
                             {days.length === 0
                                 ? "You're all caught up!"
                                 : `${days.length} day${days.length !== 1 ? 's' : ''} to review`}

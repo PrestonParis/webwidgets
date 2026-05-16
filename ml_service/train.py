@@ -1,33 +1,26 @@
+import json
 import joblib
 import os
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
-# Training data — expand this with your own examples
-training_data = [
-    ("amazon@amazon.com order confirmation", "shopping"),
-    ("shipping@ups.com your package is on the way", "shopping"),
-    ("noreply@github.com pull request merged", "work"),
-    ("calendar@google.com meeting tomorrow", "work"),
-    ("newsletter@medium.com top stories this week", "newsletters"),
-    ("offers@doordash.com 50% off your next order", "promotions"),
-    ("security@google.com new sign in detected", "important"),
-    ("bank@chase.com your statement is ready", "finance"),
-    ("noreply@linkedin.com you have new connections", "social"),
-    ("friend@gmail.com hey are you free this weekend", "personal"),
-]
+data_path = os.path.join(os.path.dirname(__file__), "data", "email_classifier.json")
 
-texts = [t for t, _ in training_data]
-labels = [l for _, l in training_data]
+with open(data_path) as f:
+    training_data = json.load(f)
+
+texts = [d["text"] for d in training_data]
+labels = [d["label"] for d in training_data]
 
 pipeline = Pipeline([
-    ("tfidf", TfidfVectorizer()),
-    ("clf", LogisticRegression(max_iter=1000))
+    ("tfidf", TfidfVectorizer(ngram_range=(1, 2), max_features=10000, sublinear_tf=True)),
+    ("clf", LogisticRegression(C=5, max_iter=1000, solver="lbfgs", multi_class="multinomial")),
 ])
 
 pipeline.fit(texts, labels)
 
 os.makedirs("models", exist_ok=True)
 joblib.dump(pipeline, "models/email_classifier.pkl")
-print("Model trained and saved.")
+print(f"Trained on {len(texts)} examples across {len(set(labels))} categories.")
+print("Saved → models/email_classifier.pkl")

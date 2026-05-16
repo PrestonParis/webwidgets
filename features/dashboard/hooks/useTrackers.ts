@@ -4,38 +4,60 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { Tracker } from '@/features/recovery/types/recovery';
 
+async function fetchTrackersFromDB(userId: string): Promise<Tracker[]> {
+    const { data } = await supabase
+        .from('recovery_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+
+    if (!data || data.length === 0) return [];
+
+    const trackerIds = data.map((t) => t.id as string);
+
+    const { data: relapseData } = await supabase
+        .from('relapses')
+        .select('tracker_id, relapsed_at')
+        .in('tracker_id', trackerIds)
+        .order('relapsed_at', { ascending: false });
+
+    const latestRelapse = new Map<string, string>();
+    for (const r of (relapseData ?? []) as {
+        tracker_id: string;
+        relapsed_at: string;
+    }[]) {
+        if (!latestRelapse.has(r.tracker_id)) {
+            latestRelapse.set(r.tracker_id, r.relapsed_at);
+        }
+    }
+
+    return data.flatMap((t) =>
+        t.addiction !== null && t.start_time !== null && t.created_at !== null
+            ? [
+                  {
+                      id: t.id,
+                      addiction: t.addiction,
+                      start_time: latestRelapse.get(t.id) ?? t.start_time,
+                      created_at: t.created_at,
+                  },
+              ]
+            : [],
+    );
+}
+
 export function useTrackers() {
     const [trackers, setTrackers] = useState<Tracker[] | null>(null);
 
     useEffect(() => {
-        async function fetchTrackers() {
+        async function load() {
             const {
                 data: { user },
             } = await supabase.auth.getUser();
             if (!user) return;
-            const { data } = await supabase
-                .from('recovery_profiles')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: true });
-            setTrackers(
-                (data ?? []).flatMap((t) =>
-                    t.addiction !== null &&
-                    t.start_time !== null &&
-                    t.created_at !== null
-                        ? [
-                              {
-                                  id: t.id,
-                                  addiction: t.addiction,
-                                  start_time: t.start_time,
-                                  created_at: t.created_at,
-                              },
-                          ]
-                        : [],
-                ),
-            );
+            const result = await fetchTrackersFromDB(user.id);
+            setTrackers(result);
         }
-        void fetchTrackers();
+        void load();
     }, []);
 
     const handleReset = async (id: string, newStartTime: string) => {

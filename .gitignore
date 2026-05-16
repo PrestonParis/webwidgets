@@ -19,11 +19,13 @@ ml_service/__pycache__/
 ml_service/**/*.pyc
 ml_service/**/*.pyo
 ml_service/.env
+ml_service/data/
+ml_service/.pytest_cache/
 
 # =========================
 # Logs
 # =========================
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -55,14 +57,30 @@ next-env.d.ts
 # OS / misc
 # =========================
 .DS_Store
+Thumbs.db
+Desktop.ini
 *.pem
+
+# =========================
+# Editor
+# =========================
+.idea/
+*.swp
+*.swo
+*~
 
 # =========================
 # Coverage / testing
 # =========================
 coverage/
 .nyc_output/
+junit.xml
+test-results/
+playwright-report/
 
+# =========================
+# Tooling
+# =========================
 .vscode/
 .husky/
 .claude/
@@ -70,3 +88,6 @@ coverage/
 CLAUDE.md
 /supabase
 AGENTS.md
+
+# Sentry Config File
+.env.sentry-build-plugin

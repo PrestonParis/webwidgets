@@ -1,0 +1,1532 @@
+[
+  {
+    "text": "GitHub Copilot trial ends in 3 days Your 14-day free trial of GitHub Copilot ends on May 17. Add a payment method to continue using AI-powered code suggestions.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your Notion Plus trial is ending You have 5 days remaining on your 30-day Notion Plus trial. Upgrade now to keep access to unlimited blocks and team collaboration.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Figma Professional trial expiring Your 30-day free trial of Figma Professional expires in 2 days. After your trial ends, you'll lose access to unlimited projects and team features.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Linear trial ends soon Your 14-day Linear trial is ending on May 21. Upgrade to a paid plan to keep your workspace data and team collaboration.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Sentry Business trial Your 14-day free trial of Sentry Business expires in 24 hours. Please add a payment method to continue monitoring without interruption.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Vercel Pro trial ending Your 14-day Vercel Pro trial is expiring. Upgrade to keep bandwidth limits, preview deployments, and team features.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Datadog free trial Your 14-day Datadog trial expires tomorrow. Subscribe now to maintain access to your dashboards and monitoring alerts.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Intercom 14-day trial Your free trial of Intercom will expire in 7 days. Start a subscription to keep customer conversations and automation workflows.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your Slack Pro trial ends May 28 Your 90-day trial of Slack Pro is coming to an end. After the trial your workspace will be downgraded unless you start a paid plan.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Amplitude trial expiring You're 3 days away from the end of your 14-day free trial. Upgrade to retain your analytics data and team access.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Mixpanel trial — 3 days remaining Your Mixpanel Growth trial expires in 3 days. Add billing information to continue tracking user events and building funnels.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Hotjar trial ending Your 15-day free trial of Hotjar Business is ending on May 20. Upgrade to keep session recordings and heatmaps.",
+    "label": "trial_end"
+  },
+  {
+    "text": "LaunchDarkly trial Your 14-day free trial is about to expire. Upgrade now to maintain access to all feature flags and environments.",
+    "label": "trial_end"
+  },
+  {
+    "text": "PagerDuty trial Your 14-day PagerDuty trial ends in 2 days. Subscribe to keep on-call schedules and incident management workflows.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Cloudflare Pro trial expiring Your 30-day trial of Cloudflare Pro expires tomorrow. Add a payment method to keep DDoS protection and performance features.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your Loom Business trial is ending Your 14-day Loom Business trial expires in 5 days. Upgrade to keep unlimited video creation and team features.",
+    "label": "trial_end"
+  },
+  {
+    "text": "CircleCI trial Your 30-day CircleCI free trial ends in 4 days. Start a paid plan to keep your CI/CD pipelines running without interruption.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Atlassian Jira Software trial Your 7-day Jira Software trial is expiring. You have until May 22 to upgrade before your projects are archived.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Retool 14-day trial expiring Your free trial of Retool expires in 3 days on May 19. Upgrade to continue building internal tools for your team.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Postman Pro trial Your 30-day Postman Pro trial ends on May 25. Subscribe to keep workspace collaborators and API monitoring.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Monday.com trial Your 14-day Monday.com Pro trial is ending soon. Add a payment method to continue managing your team's projects.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Airtable Pro trial ending Your free 14-day Airtable Pro trial ends in 7 days. Upgrade to maintain access to advanced features and increased records.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Webflow team trial ending Your 14-day team trial for Webflow ends in 3 days. Subscribe before May 18 to keep publishing access for all your sites.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your HubSpot trial is about to expire Your 30-day HubSpot Marketing Hub trial expires in 5 days. Upgrade to Professional to keep your automation workflows.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Supabase Pro trial Your 14-day Supabase Pro trial is ending on May 30. Upgrade to keep dedicated resources and point-in-time recovery.",
+    "label": "trial_end"
+  },
+  {
+    "text": "GitLab Ultimate trial Your 30-day GitLab Ultimate trial expires in 10 days. Downgrade or upgrade before June 3 to choose your plan.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Zoom Pro trial expiring Your 30-day Zoom Pro trial ends in 2 days. Upgrade to host meetings longer than 40 minutes and access advanced features.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your free trial of Asana Premium expires in 5 days After your trial, your team will be moved to the free plan. Upgrade to keep timelines and custom rules.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Tableau Creator trial Your 14-day Tableau Creator trial expires next week. Start your subscription to keep connecting to live data sources.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Okta trial Your 30-day free trial of Okta Workforce ends in 5 days. Set up your subscription to keep SSO and MFA policies active.",
+    "label": "trial_end"
+  },
+  {
+    "text": "New Relic trial expiring Your New Relic full-stack observability trial expires in 3 days. Upgrade to avoid gaps in your monitoring data.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Klaviyo free trial Your 30-day Klaviyo trial ends on May 28. Subscribe to continue sending campaigns to your email list.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Trial ending reminder — Cypress Cloud Your 30-day free trial of Cypress Cloud expires in 7 days. Subscribe to keep CI recordings and analytics.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Elastic Cloud trial Your 14-day Elastic Cloud trial expires on May 24. Upgrade to a production cluster before your data is deleted.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your ActiveCampaign trial expires in 3 days Your 14-day ActiveCampaign trial is almost over. Upgrade to keep all your automations and contacts.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Free trial expiring — Miro Team Your 30-day Miro Team trial ends in 2 days. Upgrade before May 17 to keep your boards and templates.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Pendo free trial Your 14-day Pendo Starter trial expires in 4 days. Start a subscription to keep your product analytics and NPS surveys.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Customer.io trial Your 14-day trial expires in 3 days. Upgrade to keep your messaging workflows and customer data synced.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Heap trial expiring Your 14-day Heap free trial ends in 5 days. Upgrade to Growth to retain your session data and user paths.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Segment trial Your 14-day Segment Business trial ends in 7 days. Upgrade to keep sending data to all your downstream destinations.",
+    "label": "trial_end"
+  },
+  {
+    "text": "FullStory trial ending Your 14-day FullStory trial is expiring on May 22. Subscribe to keep session replay and DX Data access.",
+    "label": "trial_end"
+  },
+  {
+    "text": "DBT Cloud trial Your 14-day dbt Cloud trial ends in 2 days. Upgrade to a team plan to keep collaborative development and scheduling.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Contentful trial Your 30-day Contentful Compose trial ends in 5 days. Upgrade to continue using multi-space publishing workflows.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Semrush trial Your 7-day Semrush Pro trial expires tomorrow. Subscribe to keep tracking keyword rankings and competitor data.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your Typeform trial is ending Your 14-day Typeform Business trial expires in 6 days. Subscribe to keep logic jumps and advanced analytics.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Zendesk Suite trial Your 30-day Zendesk Suite trial ends in 4 days. Add billing information to keep your support tickets and macros.",
+    "label": "trial_end"
+  },
+  {
+    "text": "StatusPage trial ending Your 14-day Atlassian Statuspage trial ends on May 21. Subscribe to keep your status page live for users.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Render trial Your 30-day Render Individual trial is ending. Add a payment method to keep your web services and cron jobs running.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Brevo premium trial expiring Your 30-day Brevo premium trial ends in 6 days. Add billing details to keep unlimited contacts and advanced segmentation.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Shortcut trial Your 30-day trial of Shortcut Business ends next week. Subscribe to keep unlimited members and advanced reporting.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Loggly trial expiring Your 30-day SolarWinds Loggly trial ends in 3 days. Upgrade to keep log ingestion and alerting for your systems.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your free trial is ending in 48 hours This is a reminder that your unlimited access trial converts to a paid subscription in 2 days. Cancel or upgrade now.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Trial conversion notice Your complimentary access period ends in 72 hours. To continue without interruption, please add a payment method before the deadline.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Free tier expiring — upgrade required Your 30-day free trial has ended. To continue accessing the platform, please select a paid plan.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Last chance to upgrade Your free trial expires at midnight tonight. Upgrade now to keep your projects, settings, and integrations intact.",
+    "label": "trial_end"
+  },
+  {
+    "text": "Your trial period is over Your 14-day trial has come to an end. Add billing details to reactivate your account or your data will be removed in 30 days.",
+    "label": "trial_end"
+  },
+
+  {
+    "text": "Klarna upcoming payment Please make sure you have $9.71 available in your bank before May 15. This payment is scheduled for your recent purchase.",
+    "label": "payment_due"
+  },
+  {
+    "text": "AWS Invoice Your AWS invoice for April is ready. Your account will be charged $127.43 on May 5. Log in to review your usage breakdown.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice due Your invoice for $299.00 is due by June 1st. Please log in to your billing portal to pay before the due date.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Stripe billing Your Stripe subscription renewal for $49/month is scheduled for May 18. Update your payment method if needed.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your subscription renews May 20 Your annual GitHub Teams subscription of $48 will be charged to your card ending in 4242 on May 20.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Payment reminder — DigitalOcean Your DigitalOcean invoice of $36.80 is due in 3 days. Ensure your payment method is valid to avoid service suspension.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Bill due notice Your Comcast bill of $89.99 is due on May 25. Log in to pay your bill or set up autopay.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Heroku charges Your Heroku charges for the billing period total $18.50. Payment will be processed on June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Afterpay payment due You have a payment of $43.75 due in 2 days for your Afterpay plan. Make sure funds are available.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Upcoming charge from Shopify Your Shopify subscription of $29/month will be charged on May 22. Ensure your credit card is up to date.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your Notion invoice Your Notion invoice for $16.00 is due May 31. Log in to your billing settings to manage your plan.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Adobe subscription renewal Your Adobe Creative Cloud subscription renews on May 19 for $54.99/month. Update your payment method if needed.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Payment due — Figma Your Figma subscription of $12/month renews on May 22. Ensure your payment method is valid.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Atlassian invoice Your Atlassian invoice for $210.00 is ready. Payment is due by May 30 to maintain your Jira and Confluence access.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice from Linear Linear invoice for $8.00 is due on June 1. Log in to your billing portal to pay.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Microsoft 365 renewal Your Microsoft 365 Family subscription of $99.99 renews automatically on May 31.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Google Workspace invoice Your Google Workspace invoice for $12.00 is available. Payment due May 15. Log in to download your invoice.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Dropbox renewal Your Dropbox Plus subscription of $119.99/year renews on May 28.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your payment is due — Squarespace Your Squarespace website plan renews for $16/month on June 1. Update your billing to avoid downtime.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Zoom invoice Your Zoom Pro invoice for $14.99 is attached. Payment due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "BILL payment reminder Your outstanding invoice of $350.00 is due in 5 days. Log in to pay and avoid late fees.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your Webflow site subscription Your Webflow CMS plan subscription of $23/month is due for renewal on May 20.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Render invoice Your Render billing invoice for May is ready. $12.50 will be charged to your card on June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Supabase invoice Your Supabase Pro invoice of $25.00 is ready for payment by May 31.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your PlanetScale invoice PlanetScale invoice for $29/month is due May 25. Log in to review or pay.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Cloudflare billing Your Cloudflare Pro plan charges for April total $20.00 and are due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice due — Datadog Your Datadog invoice for $125.80 is due in 7 days. Log in to your billing portal.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Namecheap domain renewal Your domain renewal for yourdomain.com ($12.98) is due on May 30. Renew now to keep your domain.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Upcoming payment — Klarna Your payment of $23.44 is due May 18 for your Klarna purchase at ASOS.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Splitit payment due Your next Splitit installment of $67.50 is due in 3 days for your recent purchase.",
+    "label": "payment_due"
+  },
+  {
+    "text": "PayPal invoice You have a PayPal invoice for $199.00 pending. Please review and pay by May 28.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice — HubSpot Your HubSpot Starter invoice for $50/month is due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Sentry billing Your Sentry Team plan will renew on May 25 for $29/month. Ensure your card is current.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Twilio invoice Your Twilio usage invoice for $34.20 is ready. Payment due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "WP Engine renewal Your WP Engine hosting plan renews May 25 for $30/month. Ensure your billing info is current.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice — Contentful Your Contentful Team plan invoice for $489/month is due in 7 days.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Algolia invoice Your Algolia Search plan invoice for $35.00 is ready. Due May 31.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Brex card statement Your Brex card statement for $1,240.50 is ready. Payment due June 3.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Gusto payroll invoice Your Gusto Core plan invoice for $43.00 is due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Spectrum internet bill Your Spectrum internet bill of $74.99 is due May 26. Log in or call to pay.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your T-Mobile bill is ready Your T-Mobile statement for $85.00 is ready. Payment due June 1. Sign in to AutoPay.",
+    "label": "payment_due"
+  },
+  {
+    "text": "OpenAI invoice Your OpenAI API invoice for $18.44 is ready for payment. Due June 1.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Replicate billing Your Replicate usage invoice for $12.30 is due at end of month.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Invoice from Zapier Your Zapier Professional plan invoice for $49/month is due on May 25.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Payment overdue — please pay immediately Your account balance of $156.00 is overdue by 7 days. Pay now to restore full service.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Final notice before suspension Your invoice of $89.00 is 14 days overdue. Please pay immediately to prevent service interruption.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Subscription renewal — action required Your payment method was declined for your subscription renewal of $24.99. Please update your card to continue.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your credit card will be charged You have a scheduled payment of $45.00 on May 20. Ensure sufficient funds are available.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Outstanding balance reminder You have an outstanding balance of $72.50 due on May 22. Please log in to settle your account.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Upcoming auto-renewal Your annual subscription renews in 5 days for $149.00. To cancel, go to your billing settings before the renewal date.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Your bill is now available Your latest bill of $38.95 is available in your account. Due date: May 28.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Reminder: invoice unpaid Invoice #INV-2094 for $234.00 remains unpaid. Please settle by May 30 to avoid a late fee.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Security deposit payment due Your security deposit of $1,200.00 is due by May 31. Please wire the funds to the account on file.",
+    "label": "payment_due"
+  },
+  {
+    "text": "Installment due — financing plan Your next financing installment of $112.50 is due on May 19. Log in to make your payment.",
+    "label": "payment_due"
+  },
+
+  {
+    "text": "Google Calendar invitation: Weekly team standup You're invited to the Weekly Team Standup on May 20 at 10:00 AM. Join via Google Meet.",
+    "label": "meeting"
+  },
+  {
+    "text": "Interview scheduled — Software Engineer Your technical interview has been scheduled for May 22 at 2:00 PM. You'll receive a Zoom link 15 minutes before.",
+    "label": "meeting"
+  },
+  {
+    "text": "Meeting invitation: Product review Your presence is requested at the Q2 Product Review on May 25 at 3:00 PM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Zoom meeting invite You're invited to a Zoom call with the design team on May 19 at 11:00 AM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Calendar invite: 1:1 with manager Your weekly 1:1 has been scheduled for Monday May 20 at 9:00 AM. Video call link included.",
+    "label": "meeting"
+  },
+  {
+    "text": "You've been invited to a Microsoft Teams meeting Join us for the Engineering All Hands on May 22 at 4:00 PM. Open in Teams.",
+    "label": "meeting"
+  },
+  {
+    "text": "Webinar: Building with AI APIs Join us for a live webinar on May 23 at 1:00 PM. Register to receive your Zoom link.",
+    "label": "meeting"
+  },
+  {
+    "text": "Demo call confirmed Your product demo with Salesforce is confirmed for May 21 at 3:00 PM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Reminder: Board meeting tomorrow Your board meeting is scheduled for tomorrow, May 20 at 9:00 AM at HQ.",
+    "label": "meeting"
+  },
+  {
+    "text": "Interview confirmation — Backend Engineer Role Your interview at Stripe is confirmed for May 24 at 10:00 AM PST via Zoom.",
+    "label": "meeting"
+  },
+  {
+    "text": "Your call is scheduled Your consultation call with the team is confirmed for May 22 at 2:30 PM. Zoom link included.",
+    "label": "meeting"
+  },
+  {
+    "text": "Team sync — Friday 2 PM You've been added to the Friday engineering sync on May 23 at 2:00 PM. Google Meet link included.",
+    "label": "meeting"
+  },
+  {
+    "text": "On-site interview scheduled Your on-site interview at Figma's San Francisco office is scheduled for May 27.",
+    "label": "meeting"
+  },
+  {
+    "text": "Sales demo: Tomorrow 3 PM Your sales demo with the prospect is confirmed for tomorrow. Zoom link included.",
+    "label": "meeting"
+  },
+  {
+    "text": "Kickoff meeting invitation The project kickoff meeting has been scheduled for May 21 at 10:00 AM. Please add it to your calendar.",
+    "label": "meeting"
+  },
+  {
+    "text": "You're invited: Monthly all-hands Join the company all-hands on May 28 at 12:00 PM PST. Zoom link will be shared 30 minutes before.",
+    "label": "meeting"
+  },
+  {
+    "text": "Google Meet invite You have a Google Meet call with the UX team on May 19 at 4:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Panel interview confirmed Your panel interview with the hiring team is confirmed for May 25 at 2:00 PM via Zoom.",
+    "label": "meeting"
+  },
+  {
+    "text": "Webinar registration confirmed You're registered for the AWS virtual session on May 24 at 11:00 AM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Sprint planning meeting You've been added to the sprint planning session on Monday May 20 at 10:00 AM via Google Meet.",
+    "label": "meeting"
+  },
+  {
+    "text": "Coffee chat scheduled Your coffee chat with the recruiter is set for May 23 at 3:00 PM PST. Zoom invite attached.",
+    "label": "meeting"
+  },
+  {
+    "text": "Design review: Thursday 11 AM You're invited to the design review session on Thursday May 23 at 11:00 AM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Candidate phone screen scheduled Your phone screen with a hiring manager is scheduled for May 22 at 1:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Investor meeting — May 28 Your investor update meeting is scheduled for May 28 at 2:00 PM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Partnership call confirmed Your partnership call with the BD team is confirmed for May 24 at 10:00 AM PST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Azure DevOps daily standup You've been added to the daily standup meeting on weekdays at 9:30 AM PST.",
+    "label": "meeting"
+  },
+  {
+    "text": "New calendar event: Code review session Code review session added to your calendar for May 21 at 11:00 AM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Client call reminder Your client call with Acme Corp is tomorrow at 10:00 AM EST. Please review the agenda beforehand.",
+    "label": "meeting"
+  },
+  {
+    "text": "HR screening call Your HR phone screen is confirmed for May 20 at 2:00 PM. Please be available at the number on file.",
+    "label": "meeting"
+  },
+  {
+    "text": "Team retrospective scheduled Sprint retrospective is on Friday May 24 at 4:00 PM. Video call link in the description.",
+    "label": "meeting"
+  },
+  {
+    "text": "You've been added to a calendar event Team building event scheduled for May 28 at 2:00 PM. Location: Rooftop Bar.",
+    "label": "meeting"
+  },
+  {
+    "text": "Sales call booked A sales call with your prospect has been booked for May 22 at 1:00 PM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "Zoom call: Product feedback Your product feedback session with the customer is scheduled for May 23 at 3:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Conference registration confirmed Your attendance at DevSummit 2026 on May 29–30 is confirmed. Add to your calendar.",
+    "label": "meeting"
+  },
+  {
+    "text": "Workshop: Building with LLMs You're registered for the hands-on workshop on May 27 at 10:00 AM. Zoom details will follow.",
+    "label": "meeting"
+  },
+  {
+    "text": "Interview: Final round confirmation Your final round interview at OpenAI is confirmed for May 28 at 10:00 AM PST.",
+    "label": "meeting"
+  },
+  {
+    "text": "New meeting added to calendar Budget review Q2 meeting added for May 22 at 3:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Job interview confirmed — Lead Engineer Your job interview with the CTO is confirmed for May 24. Please prepare for technical and leadership questions.",
+    "label": "meeting"
+  },
+  {
+    "text": "Advisory board meeting The advisory board quarterly meeting is scheduled for May 30 at 9:00 AM EST. Agenda attached.",
+    "label": "meeting"
+  },
+  {
+    "text": "Screensharing session scheduled Your support screensharing session is confirmed for May 21 at 2:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Architecture review meeting Architecture review for the new payments service is scheduled for May 24 at 10:00 AM.",
+    "label": "meeting"
+  },
+  {
+    "text": "Sync call tomorrow Your sync call with the API team is scheduled for tomorrow at 11:00 AM. Google Meet link included.",
+    "label": "meeting"
+  },
+  {
+    "text": "New calendar event: Client onboarding call Client onboarding call scheduled for May 20 at 2:00 PM EST.",
+    "label": "meeting"
+  },
+  {
+    "text": "QA review meeting You're invited to the QA review on May 23 at 11:00 AM via Zoom.",
+    "label": "meeting"
+  },
+  {
+    "text": "Standup reminder Your daily standup is at 9:00 AM tomorrow. Join the usual video call link.",
+    "label": "meeting"
+  },
+  {
+    "text": "Appointment confirmed Your dentist appointment is confirmed for May 23 at 2:30 PM at 123 Main Street.",
+    "label": "meeting"
+  },
+  {
+    "text": "Interview: Phone screen — Product Manager Your 30-minute phone screen with the PM team has been scheduled for May 20 at 11:00 AM.",
+    "label": "meeting"
+  },
+  {
+    "text": "You're invited: quarterly planning session Please join the Q3 planning session on May 27 at 10:00 AM. Video call link attached.",
+    "label": "meeting"
+  },
+  {
+    "text": "Demo scheduled Your personalized product demo is scheduled for May 22 at 2:00 PM EST. A calendar invite has been sent.",
+    "label": "meeting"
+  },
+  {
+    "text": "New event invitation: Team offsite You're invited to the team offsite on May 30–31. RSVP to confirm your attendance.",
+    "label": "meeting"
+  },
+  {
+    "text": "Mentor call confirmed Your session with your mentor is confirmed for May 25 at 4:00 PM via Zoom.",
+    "label": "meeting"
+  },
+  {
+    "text": "Lunch meeting confirmed Your lunch meeting with the sales team is confirmed for May 22 at noon.",
+    "label": "meeting"
+  },
+  {
+    "text": "Calendar invite: Pair programming session Pair programming session with your colleague scheduled for May 21 at 3:00 PM.",
+    "label": "meeting"
+  },
+  {
+    "text": "On-call incident review scheduled Incident post-mortem meeting scheduled for May 22 at 2:00 PM. Zoom link included.",
+    "label": "meeting"
+  },
+
+  {
+    "text": "Verify your email address Thank you for signing up. Please verify your email address by clicking the link below within 24 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your GitHub account Please verify your email address for GitHub. Click the link to complete registration.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Reset your password We received a password reset request for your account. Click the link to create a new password. The link expires in 1 hour.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Action required: Confirm your email A new device tried to log into your account. Please verify your email to approve access.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Two-step verification Your two-factor authentication code is 847291. This code expires in 10 minutes. Do not share it.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your identity Unusual sign-in activity detected on your account. Please verify your identity by clicking the link in this email.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Verify your Stripe account Before you can receive payouts, you must verify your identity. Upload a government-issued ID in the dashboard.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Email confirmation required Complete your Notion account setup by clicking the confirmation link in this email.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "New sign-in detected We noticed a sign-in to your account from an unrecognized device. If this wasn't you, please secure your account immediately.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Activate your account Your Slack workspace invite has been sent. Click the link to activate your account within 48 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Account verification required To use all features of your new account, please verify your email address by clicking the confirmation link.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your Coinbase email Before you can buy crypto, please confirm your email address by clicking the verification link.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Enable two-factor authentication Your account does not have 2FA enabled. Enable it now to protect your account from unauthorized access.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Your signup confirmation Before you can start using the app, please confirm your email address to activate your account.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Verify your phone number Add a verified phone number to your account for added security. Click to verify now.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Security alert: Unrecognized login A login was detected from an unrecognized IP address. Verify it was you or lock your account.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your LinkedIn email Your LinkedIn account requires email verification to send messages and connect with professionals.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Magic link login You requested a sign-in link. Click here to log in. This link expires in 15 minutes.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "DocuSign signature required You've been sent a document to sign. Click the link to review and complete your electronic signature.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Action required: Verify your Airbnb account To continue booking on Airbnb, please verify your government-issued ID.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your PayPal email Your PayPal account requires email confirmation. Click the link to verify your address.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Apple ID: Verification required For security reasons, Apple requires you to verify your account. Sign in to verify.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Bank account verification To link your bank account, verify two small deposits made within 1–3 business days.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Phone verification needed Please verify your phone number to continue using the app's messaging features.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your email — Discord To finish setting up your Discord account, please verify your email address.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Account activation email Click to activate your new Asana account. The activation link expires in 48 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Email update confirmation You've requested to change your email. Please click the link to confirm the new email address.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Plaid identity verification To link your financial accounts, Plaid requires identity verification. Complete the process now.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "E-signature required You have a contract pending your electronic signature. Open the document and sign by May 22.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Please verify your Dropbox account Your Dropbox account needs verification. Click the link to confirm your email.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm email for Figma Your Figma invitation requires email confirmation. Click to join the team workspace.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "OAuth authorization required A third-party app is requesting access to your GitHub account. Click to approve or deny.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "New device sign-in A new device signed into your Microsoft account. Confirm it was you or block access.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Verify your developer account Your Google Play developer account requires ID verification. Upload your ID to continue.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Please verify your Airtable account Before accessing your workspace, please click the link to verify your email address.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Link your payment method To start accepting payments, verify your bank account in the Stripe dashboard.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Confirm your Calendly email Please verify your email address to activate your Calendly scheduling link.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Action required on your account Your account has been flagged for review. Please complete identity verification within 48 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "AWS account verification Your AWS account requires phone verification. Enter the pin sent to your registered phone.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Auth0 email confirmation Your Auth0 account has been created. Please verify your email within 72 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Okta verification required Before your first sign-in, Okta needs to verify your identity. Please follow the setup wizard.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Supabase: Confirm your email Welcome to Supabase! Confirm your email to activate your project dashboard.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Verify your identity to unlock full access To comply with KYC requirements, please verify your identity before May 25.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Two-factor authentication setup required Your organization requires you to set up 2FA by May 23. Complete the setup in your security settings.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Pending identity check Your account verification is incomplete. Please submit your ID documents within 48 hours.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Sign and verify your document A document requiring your signature and identity verification has been sent. Complete by May 24.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Your account is pending verification We received your registration. Please complete verification to activate your account.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Verify your email to receive updates You registered with an unconfirmed email. Click to confirm and receive important notifications.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Security check required A security check is required before your next login. Follow the link to verify your identity.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Click to confirm your subscription You've been added to a mailing list. Please confirm your subscription by clicking the link.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Webhook delivery: confirm your endpoint Please verify your webhook endpoint by responding to the challenge request.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Account recovery: verify your backup email Please click the link to verify your backup email for account recovery.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "New API key: verify your account A new API key was generated for your account. Please verify your identity to activate it.",
+    "label": "verification_needed"
+  },
+  {
+    "text": "Domain ownership verification To use custom domain sending, verify ownership of your domain in the DNS settings.",
+    "label": "verification_needed"
+  },
+
+  {
+    "text": "Can you review this proposal? Hi, I've attached the project proposal for your review. Please let me know your thoughts by Friday.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Waiting for your input Your response is needed before we can move forward with the contract. Please reply at your earliest convenience.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Follow-up: outstanding questions Hi, following up on my last email. I still need answers before we can hit the deadline.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please respond to the meeting request The client is waiting for you to confirm the meeting. Please respond to the calendar invite.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Your feedback is requested We need your input on the Q2 roadmap. Please review the document and reply with your priorities.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Action required: Sign the agreement Your signature is required on the partnership agreement. Please reply with any questions or proceed to sign.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RE: Job offer — response needed Congratulations! Please confirm whether you accept the offer by May 20. Reply to this email.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Survey: Your opinion matters Please complete this 5-minute survey about your experience. Your response helps us improve.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RE: Invoice dispute Please respond to the dispute on invoice #4521 by May 22. We need your account details to process the refund.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Awaiting your approval The engineering spec is ready for your review. Please approve or request changes in the document.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Response needed: Budget approval The finance team is waiting for your sign-off on the Q3 budget. Please reply with your decision.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Can you confirm attendance? The event is on May 25. Please let me know if you'll be attending by May 20.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please review and respond I've sent the updated contract to your email. Kindly review and respond with any changes needed.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Your input is needed on the design The design team needs your feedback before end of the week. Please review the Figma link.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Recruiter outreach: Are you open to opportunities? We came across your profile and think you'd be a great fit. Are you open to a quick call this week?",
+    "label": "reply_required"
+  },
+  {
+    "text": "Request for comment The PR needs your review. Please leave your comments or approve before end of day.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Reference check — please respond Hi, I'm completing a reference check for a candidate. Could you reply with your availability this week?",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please acknowledge receipt Please confirm you received this message and the attached documents by replying to this email.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Team decision needed We're at an impasse on the product direction. Please share your perspective by May 22 so we can move forward.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Your response is overdue Hi, I've sent you two emails without a response. Could you please reply at your earliest convenience?",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please confirm your shipping address We need your shipping address to send your conference package. Please reply by May 24.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Pending approval: Expense report Your expense report of $420 is pending approval. Please review and approve it in Expensify.",
+    "label": "reply_required"
+  },
+  {
+    "text": "We need your decision on the vendor We've shortlisted two vendors. Please share your preference by May 28 so we can move to contract.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please fill out the onboarding form Before your start date, please complete the onboarding form. Reply with any questions.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Can you provide more details? We reviewed your application and need clarification on your prior experience. Please respond.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RSVP required: Company retreat Please RSVP to the company retreat by May 23. We need headcount for catering and accommodation.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Awaiting your security acknowledgment Please review and acknowledge the new security policy by May 25. Reply to confirm you've read it.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please review the pull request This PR has been open for 5 days. Could you leave a review or delegate to someone else?",
+    "label": "reply_required"
+  },
+  {
+    "text": "Request for proposal response We're requesting your proposal for the project. Please submit your response by May 30.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Reply needed: Interview time preference We'd like to schedule your interview. Please reply with your available time slots.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Final approval needed before launch We need your sign-off on the launch plan before we can proceed. Please reply today.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please confirm your direct deposit info To process payroll, we need you to confirm your bank details. Reply at your earliest convenience.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Feedback requested on the blog post We're publishing next week. Could you review the draft and send feedback by May 22?",
+    "label": "reply_required"
+  },
+  {
+    "text": "Urgent: Need your response today The client has asked for a response by end of business today. Please review and reply.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Your input on the hiring decision The hiring committee needs your vote on the top candidate. Please reply with your assessment.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please confirm your NDA signature Before we can share the roadmap, please confirm you've signed the NDA and return it.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RE: Partnership agreement revisions The legal team has revised the partnership agreement. Please review and confirm the changes work for you.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Awaiting your reply re: project kickoff The kickoff can't proceed without your confirmation. Please reply by May 22.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please respond: Remote work policy update HR needs you to acknowledge and sign the updated remote work policy. Reply to confirm.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RE: Pricing question I sent over pricing details last week. Have you had a chance to review? Looking forward to your response.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Candidate feedback requested Please submit your interview feedback for the candidate in Lever by end of day.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Response required: Data access request An internal data access request is pending your approval. Please log in and respond within 48 hours.",
+    "label": "reply_required"
+  },
+  {
+    "text": "We need your signature Your lease renewal is ready. Please sign and return the document by May 31.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Can you help with this support escalation? A customer escalation has been assigned to you. Please respond to the ticket by end of day.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please confirm your travel arrangements We need to know if you're attending the conference. Please confirm by May 25.",
+    "label": "reply_required"
+  },
+  {
+    "text": "RE: Outstanding tasks There are tasks assigned to you that haven't been updated this week. Please add a status update.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please respond to the vendor agreement The vendor needs your counter-signature. Reply with any questions or return the signed document.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Team async update needed Please add your weekly status update to the team doc by Friday afternoon.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Your answer is needed on the architecture proposal The team needs direction on the proposed microservice split. Please share your decision.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Action required: Respond to compliance questionnaire The auditors need your responses to the compliance questionnaire by May 24.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Please weigh in on the naming discussion The team has been debating two options for the new product name. Please share your preference.",
+    "label": "reply_required"
+  },
+  {
+    "text": "Checking in — no response received I sent this document 3 days ago and haven't received a reply. Could you let me know your timeline?",
+    "label": "reply_required"
+  },
+
+  {
+    "text": "Last day to register for the conference Early bird registration for DevSummit closes on May 22. Register before the deadline.",
+    "label": "deadline"
+  },
+  {
+    "text": "Application deadline: Software Engineer The application window for the Senior Engineer role closes May 28. Submit your application today.",
+    "label": "deadline"
+  },
+  {
+    "text": "Tax filing deadline reminder The federal tax filing deadline is May 31. Don't miss it or you'll face penalties.",
+    "label": "deadline"
+  },
+  {
+    "text": "Scholarship application closes June 1 The scholarship application deadline is June 1. All materials must be submitted by 11:59 PM.",
+    "label": "deadline"
+  },
+  {
+    "text": "Open enrollment ends May 25 Health insurance open enrollment closes on May 25. Make your selections before the deadline.",
+    "label": "deadline"
+  },
+  {
+    "text": "Grant application deadline Your grant proposal must be submitted by May 30. Late submissions will not be accepted.",
+    "label": "deadline"
+  },
+  {
+    "text": "Competition entry deadline Entries for the hackathon must be submitted by May 24 at 11:59 PM.",
+    "label": "deadline"
+  },
+  {
+    "text": "Last chance: Early access signup Early access signup for the new product closes at midnight on May 21.",
+    "label": "deadline"
+  },
+  {
+    "text": "Submit your expense report Your monthly expense report is due by May 31 for timely reimbursement.",
+    "label": "deadline"
+  },
+  {
+    "text": "Deadline reminder: Performance review Self-review submissions are due by May 22. Please complete before the deadline.",
+    "label": "deadline"
+  },
+  {
+    "text": "GDPR deletion request deadline Under GDPR, this data deletion request must be processed by May 27.",
+    "label": "deadline"
+  },
+  {
+    "text": "File your quarterly report Your Q1 financial report must be filed with the board by June 2.",
+    "label": "deadline"
+  },
+  {
+    "text": "Program application: Last week to apply The accelerator application closes May 28. Apply now before spots are filled.",
+    "label": "deadline"
+  },
+  {
+    "text": "Tender response due May 23 Your response to the tender document is due on May 23. Submit via the procurement portal.",
+    "label": "deadline"
+  },
+  {
+    "text": "Insurance claim filing deadline Your insurance claim must be filed within 30 days of the incident. The deadline is May 31.",
+    "label": "deadline"
+  },
+  {
+    "text": "Last day to withdraw from the course The course withdrawal deadline is May 21. After this date, a W grade will be recorded.",
+    "label": "deadline"
+  },
+  {
+    "text": "Product release sign-off due The final sign-off for the v2.0 release is due by May 24 to hit the launch date.",
+    "label": "deadline"
+  },
+  {
+    "text": "Legal response deadline You have until May 29 to respond to the legal notice. Please consult your attorney.",
+    "label": "deadline"
+  },
+  {
+    "text": "Your annual performance review is due Please complete your self-assessment in Lattice by May 26 to prepare for your review.",
+    "label": "deadline"
+  },
+  {
+    "text": "Migration deadline All legacy accounts must be migrated to the new system by June 1.",
+    "label": "deadline"
+  },
+  {
+    "text": "Beta feedback submission Your beta testing feedback form must be submitted by May 20 to be included in the report.",
+    "label": "deadline"
+  },
+  {
+    "text": "Government form submission deadline Your annual compliance form is due to the portal by May 31.",
+    "label": "deadline"
+  },
+  {
+    "text": "Renew your professional license Your professional license must be renewed before May 30 to remain in good standing.",
+    "label": "deadline"
+  },
+  {
+    "text": "Contractor invoice submission deadline All contractor invoices for May must be submitted by May 28 for processing.",
+    "label": "deadline"
+  },
+  {
+    "text": "Last day to add courses The deadline to add courses for the summer semester is May 21.",
+    "label": "deadline"
+  },
+  {
+    "text": "Sign and return the lease Please sign and return the lease agreement by May 22 to secure your unit.",
+    "label": "deadline"
+  },
+  {
+    "text": "Regulatory filing Your annual regulatory compliance filing is due June 2. Submit via the compliance portal.",
+    "label": "deadline"
+  },
+  {
+    "text": "Year-end bonus submission deadline Submit your goal completion documentation to HR by May 29 to qualify for your annual bonus.",
+    "label": "deadline"
+  },
+  {
+    "text": "Close all open tickets before sprint ends Please resolve or reassign all open tickets before the sprint closes on May 24.",
+    "label": "deadline"
+  },
+  {
+    "text": "Submit quarterly VAT return Your quarterly VAT return is due by May 31. File through the HMRC portal.",
+    "label": "deadline"
+  },
+  {
+    "text": "Final project submission Your final project is due on June 5. Submissions after this date will receive a 10% grade penalty.",
+    "label": "deadline"
+  },
+  {
+    "text": "Renew your domain before expiration Your domain expires on May 26. Renew it now to avoid losing your domain name.",
+    "label": "deadline"
+  },
+  {
+    "text": "HR: Enrollment deadline for retirement plan If you wish to join the company 401(k) plan, you must enroll by June 1.",
+    "label": "deadline"
+  },
+  {
+    "text": "End-of-quarter goals due Submit your updated OKRs to Lattice by end of day May 31 to complete the Q2 review.",
+    "label": "deadline"
+  },
+  {
+    "text": "Notice of appeal deadline You have 30 days from today to file an appeal. The deadline is June 13.",
+    "label": "deadline"
+  },
+  {
+    "text": "Employee engagement survey due The annual employee engagement survey must be completed by May 24. Anonymous and mandatory.",
+    "label": "deadline"
+  },
+  {
+    "text": "Translation deadline All localization strings for the 2.0 release must be submitted by May 23 for the build.",
+    "label": "deadline"
+  },
+  {
+    "text": "Pitch deck submission deadline Pitch deck submissions for the seed round are due by May 28. Send to investors@vc.com.",
+    "label": "deadline"
+  },
+  {
+    "text": "HIPAA training completion deadline All staff must complete HIPAA training by May 31. Check your training portal.",
+    "label": "deadline"
+  },
+  {
+    "text": "Proof of insurance deadline Submit proof of current insurance coverage to HR by May 25.",
+    "label": "deadline"
+  },
+  {
+    "text": "Warranty claim filing Your warranty claim must be filed within 90 days of purchase. Deadline: May 30.",
+    "label": "deadline"
+  },
+  {
+    "text": "Feature freeze for release v4.0 Feature freeze for v4.0 is May 23. All PRs must be merged before this date.",
+    "label": "deadline"
+  },
+  {
+    "text": "Submit timesheet for payroll All employee timesheets for the week must be submitted by Friday May 24 for payroll.",
+    "label": "deadline"
+  },
+  {
+    "text": "Form I-9 completion deadline New hire paperwork including Form I-9 must be completed by May 24 per legal requirements.",
+    "label": "deadline"
+  },
+  {
+    "text": "Portfolio submission deadline Your design portfolio must be submitted by May 28 to be considered for the residency program.",
+    "label": "deadline"
+  },
+  {
+    "text": "Contest submission deadline Submit your entry to the design contest by May 25 at midnight. All formats accepted.",
+    "label": "deadline"
+  },
+  {
+    "text": "Last day to claim your reward Your rewards points expire on May 31. Redeem before then to avoid losing them.",
+    "label": "deadline"
+  },
+  {
+    "text": "Final notice: complete your profile Your account profile must be completed by May 25 or your account will be deactivated.",
+    "label": "deadline"
+  },
+  {
+    "text": "Respond to RFP by May 27 Your response to the Request for Proposal is due May 27. Late submissions will be disqualified.",
+    "label": "deadline"
+  },
+  {
+    "text": "Board resolution due Your signed board resolution must be submitted to the secretary by May 22.",
+    "label": "deadline"
+  },
+  {
+    "text": "Certification exam registration closes Registration for the AWS certification exam closes on May 28. Book your seat now.",
+    "label": "deadline"
+  },
+  {
+    "text": "Bug bounty submission window The bug bounty submission window closes on May 30. All reports must be submitted by then.",
+    "label": "deadline"
+  },
+  {
+    "text": "Design asset handoff due Please have all design assets for the v3 launch ready in Figma by May 22.",
+    "label": "deadline"
+  },
+  {
+    "text": "Deadline to submit your tax documents Please upload your W-2 and 1099 forms to the tax portal by May 28.",
+    "label": "deadline"
+  },
+  {
+    "text": "Registration closes Friday Conference registration for the fall summit closes this Friday. Register now to secure your spot.",
+    "label": "deadline"
+  },
+
+  {
+    "text": "New arrivals — Shop our spring collection Discover the latest styles from our spring collection. Free shipping on orders over $50.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your order has shipped Your order #84729 from Amazon has shipped. Expected delivery: May 16–17. Track your package.",
+    "label": "ignore"
+  },
+  {
+    "text": "New message on Facebook You have a new message from John Smith. Log in to see your conversation.",
+    "label": "ignore"
+  },
+  {
+    "text": "Weekly digest — Product Hunt Check out the most upvoted products from this week on Product Hunt.",
+    "label": "ignore"
+  },
+  {
+    "text": "You've got a new follower on Instagram Alex Martinez just followed you. Check out their profile.",
+    "label": "ignore"
+  },
+  {
+    "text": "Thank you for your purchase Your order of $54.99 from Shopify is confirmed. You'll receive a shipping notification shortly.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your receipt from Apple $9.99 — Apple TV+ Monthly Subscription. Transaction ID: ABCDE12345.",
+    "label": "ignore"
+  },
+  {
+    "text": "LinkedIn: 5 people viewed your profile 5 people viewed your profile this week. See who's looking at your profile.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your Medium newsletter: Top stories this week Hi, here are the top stories curated for you this week on Medium.",
+    "label": "ignore"
+  },
+  {
+    "text": "Dev.to weekly: Top posts Here are the most popular posts from the developer community this week.",
+    "label": "ignore"
+  },
+  {
+    "text": "Hacker News digest — Weekly top stories Here are this week's most discussed threads from Hacker News. Enjoy your weekend reading.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your Spotify Wrapped is here See your top songs and artists from the past year. Share your Wrapped on social media.",
+    "label": "ignore"
+  },
+  {
+    "text": "New comment on your pull request Someone left a comment on your PR. View it on GitHub.",
+    "label": "ignore"
+  },
+  {
+    "text": "Congratulations! You've unlocked a badge You've earned the 100-day streak badge on Duolingo. Keep going!",
+    "label": "ignore"
+  },
+  {
+    "text": "Your weekly GitHub summary You pushed 12 commits this week. View your contribution graph.",
+    "label": "ignore"
+  },
+  {
+    "text": "We launched dark mode Exciting product update: dark mode is now available for all users. Log in to try it.",
+    "label": "ignore"
+  },
+  {
+    "text": "Monthly newsletter — May 2026 Read our May newsletter featuring product updates, team news, and upcoming events.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your Uber receipt Your Uber trip on May 14 cost $12.50. Download the receipt from your app.",
+    "label": "ignore"
+  },
+  {
+    "text": "Security alert: Your password was changed Your password was successfully updated. If you made this change, no action is required.",
+    "label": "ignore"
+  },
+  {
+    "text": "Thanks for subscribing You're now subscribed to the weekly tech newsletter. Expect your first issue on Monday.",
+    "label": "ignore"
+  },
+  {
+    "text": "Product update: We've improved search Our search is now 3x faster and more accurate. No action needed — it's live for all users.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your GitHub issue was closed Issue #1021 in your repo has been closed by a maintainer. View the closure comment.",
+    "label": "ignore"
+  },
+  {
+    "text": "New release: v2.4.0 changelog Version 2.4.0 is live. Check the changelog for new features and bug fixes.",
+    "label": "ignore"
+  },
+  {
+    "text": "Customer story: How Airbnb uses our platform Read how Airbnb scaled their notification infrastructure using our product.",
+    "label": "ignore"
+  },
+  {
+    "text": "Monthly billing confirmation Your subscription of $9/month was successfully charged. No further action is needed.",
+    "label": "ignore"
+  },
+  {
+    "text": "App tip: Did you know you can export? Export your data anytime from Settings > Data. No action required.",
+    "label": "ignore"
+  },
+  {
+    "text": "Referral bonus: $10 credit added You earned a $10 referral credit. It's been added to your account balance automatically.",
+    "label": "ignore"
+  },
+  {
+    "text": "Welcome to the community Thanks for joining our Slack community. Introduce yourself in #introductions to get started.",
+    "label": "ignore"
+  },
+  {
+    "text": "Check out our new integrations We've added 12 new integrations this month. See what connects with your workflow.",
+    "label": "ignore"
+  },
+  {
+    "text": "You've been mentioned in a post You've been tagged in a LinkedIn post. Click to see the post.",
+    "label": "ignore"
+  },
+  {
+    "text": "Read our year in review 2025 was a big year for us. Read our annual recap to see what we shipped.",
+    "label": "ignore"
+  },
+  {
+    "text": "You won 500 loyalty points Your recent purchase earned you 500 loyalty points. Use them on your next order.",
+    "label": "ignore"
+  },
+  {
+    "text": "New blog post: Scaling to 10M users We published a new post on how we scaled from 100K to 10M users.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your weekly email activity report Here's your inbox summary from last week: 43 emails received, 31 read.",
+    "label": "ignore"
+  },
+  {
+    "text": "Promotion: 30% off this weekend Use code SAVE30 for 30% off your next purchase. Offer valid this weekend only.",
+    "label": "ignore"
+  },
+  {
+    "text": "Changelog: New keyboard shortcuts We've added 8 new keyboard shortcuts. Check the docs for the full list.",
+    "label": "ignore"
+  },
+  {
+    "text": "Nightly build: Tests passing CI/CD status: All 247 tests passing. No action required.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your Figma file was accessed We noticed your shared Figma file was viewed by 3 people today.",
+    "label": "ignore"
+  },
+  {
+    "text": "Daily crypto portfolio summary Bitcoin is up 2.3% today. Here's your daily portfolio summary.",
+    "label": "ignore"
+  },
+  {
+    "text": "We're hiring! Check out our open roles We're growing the team! View exciting opportunities at our company.",
+    "label": "ignore"
+  },
+  {
+    "text": "The Pragmatic Engineer newsletter Read this week's issue. Topics: system design and engineering orgs.",
+    "label": "ignore"
+  },
+  {
+    "text": "Delivery update: Order out for delivery Your DoorDash order is out for delivery. Estimated arrival: 5–15 minutes.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your transaction was successful $25.00 was sent to John via Venmo. No further action needed.",
+    "label": "ignore"
+  },
+  {
+    "text": "New release notes: Kubernetes 1.30 Kubernetes 1.30 has been released. Read the changelog to see what's new.",
+    "label": "ignore"
+  },
+  {
+    "text": "Community update: Forum changes We've updated the forum guidelines. No action required.",
+    "label": "ignore"
+  },
+  {
+    "text": "Product announcement: Offline mode now available Offline mode is now available in our mobile app. Update to the latest version to try it.",
+    "label": "ignore"
+  },
+  {
+    "text": "Happy birthday from our team Wishing you a wonderful birthday! As a thank you, here's a coupon for 15% off.",
+    "label": "ignore"
+  },
+  {
+    "text": "Shipping update: Out for delivery Your package from UPS is out for delivery today between 2–6 PM. No action needed.",
+    "label": "ignore"
+  },
+  {
+    "text": "New connection on LinkedIn You and Sarah Johnson are now connected on LinkedIn.",
+    "label": "ignore"
+  },
+  {
+    "text": "Order delivered Your Amazon order was delivered. Leave a review to help other shoppers.",
+    "label": "ignore"
+  },
+  {
+    "text": "Payment received — thank you Thank you for your payment of $149.00. Your receipt is attached for your records.",
+    "label": "ignore"
+  },
+  {
+    "text": "Your profile is 100% complete Your Notion profile is now complete. Nicely done!",
+    "label": "ignore"
+  },
+  {
+    "text": "App store review: 5 stars received You received a new 5-star review for your app. View it in App Store Connect.",
+    "label": "ignore"
+  },
+  {
+    "text": "Post notifications from a group You have 7 new posts in the Developer Tools group you follow.",
+    "label": "ignore"
+  },
+  {
+    "text": "New feature: AI autocomplete We've added AI autocomplete to the editor. Try it out — no setup needed.",
+    "label": "ignore"
+  },
+  {
+    "text": "Subscription confirmed You're now subscribed to Spotify Premium. Enjoy ad-free music and offline listening.",
+    "label": "ignore"
+  }
+]

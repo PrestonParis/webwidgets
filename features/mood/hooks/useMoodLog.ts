@@ -11,10 +11,8 @@ const moodLogSchema = z.object({
     user_id: z.string(),
     mood: z.number(),
     note: z.string().nullable(),
-    tags: z.array(z.string()).nullable(),
     logged_date: z.string(),
-    created_at: z.string(),
-    updated_at: z.string(),
+    logged_at: z.string(),
 });
 
 const moodLogArraySchema = z.array(moodLogSchema);
@@ -24,6 +22,7 @@ const moodUpsertSchema = z.object({
     mood: z.number(),
     note: z.string().nullable(),
     logged_date: z.string(),
+    logged_at: z.string(),
 });
 
 export function useMoodLog() {
@@ -38,9 +37,7 @@ export function useMoodLog() {
         void (async () => {
             const { data } = await supabase
                 .from('mood_logs')
-                .select(
-                    'id, user_id, mood, note, tags, logged_date, created_at, updated_at',
-                )
+                .select('id, user_id, mood, note, logged_at, logged_date')
                 .eq('user_id', user.id)
                 .order('logged_date', { ascending: false });
             const parsed = moodLogArraySchema.safeParse(data);
@@ -60,9 +57,10 @@ export function useMoodLog() {
     }, [user?.id]);
 
     const logMood = useCallback(
-        async (mood: number, note?: string) => {
+        async (mood: number, date?: string) => {
             if (!user?.id) return;
-            const today = new Date().toISOString().slice(0, 10);
+            const logged_date = date ?? new Date().toISOString().slice(0, 10);
+            const logged_at = new Date().toISOString();
 
             const { data, error } = await supabase
                 .from('mood_logs')
@@ -70,31 +68,27 @@ export function useMoodLog() {
                     {
                         user_id: user.id,
                         mood,
-                        note: note || null,
-                        logged_date: today,
-                        logged_at: new Date().toISOString(),
+                        note: null,
+                        logged_date,
+                        logged_at,
                     },
                     { onConflict: 'user_id,logged_date' },
                 )
-                .select('id, mood, note, logged_date')
+                .select('id, mood, note, logged_at, logged_date')
                 .single();
 
             if (!error && data) {
                 const parsed = moodUpsertSchema.safeParse(data);
                 if (!parsed.success) return;
-                // Format the returned data to match MoodEntry type
                 const formattedEntry: MoodEntry = {
                     ...parsed.data,
                     score: parsed.data.mood,
-                    tags: null, // or appropriate default
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
                     user_id: user.id,
                 };
 
                 setEntries((prev) => [
                     formattedEntry,
-                    ...prev.filter((e) => e.logged_date !== today),
+                    ...prev.filter((e) => e.logged_date !== logged_date),
                 ]);
             }
         },

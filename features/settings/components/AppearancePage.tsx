@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import Header from '@/features/ui/components/Header';
 import Footer from '@/features/ui/components/Footer';
+import { BackgroundPickerPanel } from './BackgroundPickerPanel';
 
 export default function AppearancePage() {
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-        // Check localStorage during initial render
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('theme') as
                 | 'light'
@@ -18,7 +18,6 @@ export default function AppearancePage() {
     });
 
     useEffect(() => {
-        // Apply theme to document when it changes
         if (theme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
@@ -42,6 +41,7 @@ export default function AppearancePage() {
                     </p>
                 </div>
 
+                {/* Theme */}
                 <div className="p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 space-y-4">
                     <p className="text-sm font-semibold">Theme</p>
                     <div className="flex gap-3">
@@ -55,7 +55,6 @@ export default function AppearancePage() {
                         >
                             Light
                         </button>
-
                         <button
                             onClick={() => toggleTheme('dark')}
                             className={`px-4 py-2 rounded-xl text-sm border transition ${
@@ -67,6 +66,11 @@ export default function AppearancePage() {
                             Dark
                         </button>
                     </div>
+                </div>
+
+                {/* Background */}
+                <div className="p-6 rounded-2xl border border-gray-200 dark:border-zinc-800">
+                    <BackgroundPickerPanel />
                 </div>
             </main>
             <Footer />

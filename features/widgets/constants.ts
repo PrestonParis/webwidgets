@@ -13,6 +13,7 @@ export const colorMap: Record<
         hoverBorder: string;
         footerHover: string;
         swatch: string;
+        linkText: string;
     }
 > = {
     blue: {
@@ -22,6 +23,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400',
         swatch: 'bg-blue-500',
+        linkText:
+            'text-blue-400 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300',
     },
     green: {
         iconBg: 'bg-green-50 dark:bg-green-900/20',
@@ -30,6 +33,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-green-50 dark:hover:bg-green-900/40 hover:text-green-600 dark:hover:text-green-400',
         swatch: 'bg-green-500',
+        linkText:
+            'text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300',
     },
     amber: {
         iconBg: 'bg-amber-50 dark:bg-amber-900/20',
@@ -38,6 +43,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-amber-50 dark:hover:bg-amber-900/40 hover:text-amber-600 dark:hover:text-amber-400',
         swatch: 'bg-amber-500',
+        linkText:
+            'text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300',
     },
     purple: {
         iconBg: 'bg-purple-50 dark:bg-purple-900/20',
@@ -46,6 +53,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-purple-50 dark:hover:bg-purple-900/40 hover:text-purple-600 dark:hover:text-purple-400',
         swatch: 'bg-purple-500',
+        linkText:
+            'text-purple-500 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300',
     },
     red: {
         iconBg: 'bg-red-50 dark:bg-red-900/20',
@@ -54,6 +63,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-red-50 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400',
         swatch: 'bg-red-500',
+        linkText:
+            'text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300',
     },
     emerald: {
         iconBg: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -62,6 +73,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-emerald-50 dark:hover:bg-emerald-900/40 hover:text-emerald-600 dark:hover:text-emerald-400',
         swatch: 'bg-emerald-500',
+        linkText:
+            'text-emerald-500 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300',
     },
     zinc: {
         iconBg: 'bg-zinc-100 dark:bg-zinc-800',
@@ -70,6 +83,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300',
         swatch: 'bg-zinc-500',
+        linkText:
+            'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300',
     },
     pink: {
         iconBg: 'bg-pink-50 dark:bg-pink-900/20',
@@ -78,6 +93,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-pink-50 dark:hover:bg-pink-900/40 hover:text-pink-600 dark:hover:text-pink-400',
         swatch: 'bg-pink-500',
+        linkText:
+            'text-pink-400 hover:text-pink-600 dark:text-pink-400 dark:hover:text-pink-300',
     },
     orange: {
         iconBg: 'bg-orange-50 dark:bg-orange-900/20',
@@ -86,6 +103,8 @@ export const colorMap: Record<
         footerHover:
             'hover:bg-orange-50 dark:hover:bg-orange-900/40 hover:text-orange-600 dark:hover:text-orange-400',
         swatch: 'bg-orange-500',
+        linkText:
+            'text-orange-400 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300',
     },
 };
 

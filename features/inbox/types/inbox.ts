@@ -9,6 +9,7 @@ export interface EmailAction {
     due_date: string | null;
     action_url: string | null;
     completed: boolean;
+    synced: boolean;
     created_at: string;
 }
 

@@ -4,30 +4,8 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
-
-function decodeBase64Url(data: string): string {
-    const base64 = data.replace(/-/g, '+').replace(/_/g, '/');
-    return Buffer.from(base64, 'base64').toString('utf-8');
-}
-
-interface GmailPart {
-    mimeType?: string;
-    body?: { data?: string };
-    parts?: GmailPart[];
-}
-
-function extractText(part: GmailPart): string {
-    if (part.mimeType === 'text/plain' && part.body?.data) {
-        return decodeBase64Url(part.body.data);
-    }
-    if (part.parts) {
-        for (const child of part.parts) {
-            const text = extractText(child);
-            if (text) return text;
-        }
-    }
-    return '';
-}
+import { extractText } from '@/features/inbox/lib/gmailBody';
+import type { GmailPart } from '@/features/inbox/lib/gmailBody';
 
 export async function GET(
     _req: Request,

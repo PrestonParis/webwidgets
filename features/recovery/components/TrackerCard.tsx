@@ -338,6 +338,7 @@ export default function TrackerCard({
             </div>
             {review.isOpen && (
                 <ReviewModal
+                    addiction={tracker.addiction}
                     days={review.days}
                     saving={review.saving}
                     onToggle={review.toggle}
