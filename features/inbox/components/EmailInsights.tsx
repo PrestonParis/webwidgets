@@ -1,6 +1,14 @@
 import { Email } from '@/features/inbox/types/inbox';
 
-export function EmailInsights({ emails }: { emails: Email[] }) {
+export function EmailInsights({
+    emails,
+    extractingAll,
+    onExtractAll,
+}: {
+    emails: Email[];
+    extractingAll: boolean;
+    onExtractAll: () => void;
+}) {
     const senderCounts = emails.reduce((acc: Record<string, number>, mail) => {
         const sender = mail.sender
             ? (mail.sender.split('<')[0] ?? mail.sender).trim()
@@ -18,9 +26,18 @@ export function EmailInsights({ emails }: { emails: Email[] }) {
 
     return (
         <div className="p-5 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-zinc-900 border border-blue-100 dark:border-blue-900/30 rounded-2xl">
-            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider">
-                Top Senders
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider">
+                    Top Senders
+                </h3>
+                <button
+                    onClick={onExtractAll}
+                    disabled={extractingAll}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-wait transition-colors"
+                >
+                    {extractingAll ? 'Extracting…' : 'Extract all actions'}
+                </button>
+            </div>
 
             <div className="flex flex-wrap gap-2">
                 {topSenders.map(([sender, count]) => (

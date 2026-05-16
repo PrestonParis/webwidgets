@@ -10,7 +10,7 @@ export function useMoodHistory(entries: MoodEntry[]) {
         return Array.from({ length: 7 }, (_, i) => {
             const date = new Date(SESSION_START - (6 - i) * 86_400_000)
                 .toISOString()
-                .split('T')[0];
+                .split('T')[0]!;
             const entry = entries.find((e) => e.logged_date === date);
             return { date, entry };
         });
@@ -18,6 +18,6 @@ export function useMoodHistory(entries: MoodEntry[]) {
 
     return {
         last7,
-        today: new Date(SESSION_START).toISOString().split('T')[0],
+        today: new Date(SESSION_START).toISOString().split('T')[0]!,
     };
 }

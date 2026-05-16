@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Email, EmailAction, ActionType } from '@/features/inbox/types/inbox';
-import { useEmailActions } from '@/features/inbox/hooks/useEmailActions';
+import { EmailAction, ActionType } from '@/features/inbox/types/inbox';
 import { supabase } from '@/lib/db/supabase';
+import { createCalendarEvent } from '@/features/calendar/api/calendarMutations';
 
 const TYPE_CONFIG: Record<
     ActionType,
@@ -53,6 +53,58 @@ async function addToTodo(action: EmailAction): Promise<void> {
     await supabase.from('todos').insert({ text, user_id: user.id });
 }
 
+function formatCalendarLabel(start: {
+    dateTime?: string;
+    date?: string;
+}): string {
+    if (start.dateTime) {
+        const d = new Date(start.dateTime);
+        const time = d.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+        });
+        const date = d.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+        });
+        return `at ${time} ${date}`;
+    }
+    if (start.date) {
+        const d = new Date(start.date + 'T12:00:00');
+        return `on ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    }
+    return '';
+}
+
+async function addToCalendar(action: EmailAction): Promise<string> {
+    const startTime: { dateTime?: string; date?: string } = {};
+    const endTime: { dateTime?: string; date?: string } = {};
+    if (action.due_date) {
+        const isAllDay = /T00:00:00(\.000)?Z$/.test(action.due_date);
+        if (isAllDay) {
+            const dateOnly = action.due_date.slice(0, 10);
+            startTime.date = dateOnly;
+            endTime.date = dateOnly;
+        } else {
+            startTime.dateTime = action.due_date;
+            endTime.dateTime = new Date(
+                new Date(action.due_date).getTime() + 60 * 60 * 1000,
+            ).toISOString();
+        }
+    } else {
+        const today = new Date().toISOString().slice(0, 10);
+        startTime.date = today;
+        endTime.date = today;
+    }
+    const event = await createCalendarEvent({
+        summary: action.title,
+        ...(action.description ? { description: action.description } : {}),
+        start: startTime,
+        end: endTime,
+    });
+    return formatCalendarLabel(event.start);
+}
+
 function ActionRow({
     action,
     onToggle,
@@ -65,6 +117,7 @@ function ActionRow({
     const isOverdue =
         action.due_date !== null && new Date(action.due_date) < new Date();
     const [added, setAdded] = useState(false);
+    const [calAdded, setCalAdded] = useState<string | null>(null);
 
     return (
         <div className="flex items-start gap-3 py-2.5 border-b border-gray-100 dark:border-zinc-800 last:border-0">
@@ -111,6 +164,25 @@ function ActionRow({
                     >
                         {added ? '+ Added to To-Do' : '+ To-Do'}
                     </button>
+                    {action.type === 'event' && (
+                        <button
+                            onClick={() => {
+                                if (calAdded) return;
+                                void addToCalendar(action).then((label) =>
+                                    setCalAdded(label || 'on calendar'),
+                                );
+                            }}
+                            className={`text-[10px] font-semibold transition-colors ${
+                                calAdded
+                                    ? 'text-green-500 dark:text-green-400 cursor-default'
+                                    : 'text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300'
+                            }`}
+                        >
+                            {calAdded
+                                ? `+ Added to calendar ${calAdded}`
+                                : '+ Calendar'}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -132,8 +204,15 @@ function ActionRow({
 
 const INITIAL_VISIBLE = 4;
 
-export function EmailActionsPanel({ emails }: { emails: Email[] }) {
-    const { actions, loading, toggleComplete } = useEmailActions(emails);
+export function EmailActionsPanel({
+    actions,
+    loading,
+    onToggle,
+}: {
+    actions: EmailAction[];
+    loading: boolean;
+    onToggle: (id: string) => void;
+}) {
     const [expanded, setExpanded] = useState(false);
 
     const activeActions = actions.filter((a) => !a.completed);
@@ -159,7 +238,7 @@ export function EmailActionsPanel({ emails }: { emails: Email[] }) {
     if (activeActions.length === 0) return null;
 
     return (
-        <div className="p-5 bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-amber-900/10 dark:to-zinc-900 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
+        <div className="p-5 bg-linear-to-br from-amber-50/60 to-orange-50/40 dark:from-amber-900/10 dark:to-zinc-900 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
             <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-zinc-300">
                     Action Items
@@ -174,9 +253,7 @@ export function EmailActionsPanel({ emails }: { emails: Email[] }) {
                     <ActionRow
                         key={action.id}
                         action={action}
-                        onToggle={(id) => {
-                            void toggleComplete(id);
-                        }}
+                        onToggle={onToggle}
                     />
                 ))}
             </div>

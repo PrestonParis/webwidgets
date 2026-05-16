@@ -4,6 +4,17 @@ export interface CalendarEventTime {
     timeZone?: string;
 }
 
+// Structured input accepted by POST /api/calendar/events and PATCH.
+// Used by the event form and by email actions to create calendar events programmatically.
+export interface CalendarEventInput {
+    summary: string;
+    description?: string | null;
+    location?: string | null;
+    start: CalendarEventTime;
+    end: CalendarEventTime;
+    colorId?: string | null;
+}
+
 export interface CalendarEvent {
     id: string;
     summary: string;

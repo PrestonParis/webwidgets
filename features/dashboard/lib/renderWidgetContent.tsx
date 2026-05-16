@@ -3,25 +3,53 @@ import type { ReactNode } from 'react';
 import { WidgetSkeleton } from '@/features/widgets/components/WidgetSkeleton';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
-const JournalWidget = lazy(() => import('@/widgets/JournalWidget'));
-const EmailWidget = lazy(() => import('@/widgets/EmailWidget'));
-const SoberWidget = lazy(() => import('@/widgets/RecoveryWidget'));
-const UnitConverterWidget = lazy(() => import('@/widgets/UnitConvertWidget'));
+const JournalWidget = lazy(
+    () => import('@/features/journal/components/JournalWidget'),
+);
+const EmailWidget = lazy(
+    () => import('@/features/inbox/components/EmailWidget'),
+);
+const SoberWidget = lazy(
+    () => import('@/features/recovery/components/RecoveryWidget'),
+);
+const UnitConverterWidget = lazy(
+    () => import('@/features/convert/components/UnitConvertWidget'),
+);
 const EmptyRecovery = lazy(
     () => import('@/features/dashboard/components/EmptyRecovery'),
 );
-const ChessWidget = lazy(() => import('@/widgets/ChessWidget'));
-const PomodoroWidget = lazy(() => import('@/widgets/PomodoroWidget'));
-const TodoWidget = lazy(() => import('@/widgets/TodoWidget'));
-const WeatherWidget = lazy(() => import('@/widgets/WeatherWidget'));
-const WorldClockWidget = lazy(() => import('@/widgets/WorldClockWidget'));
-const CurrencyWidget = lazy(() => import('@/widgets/CurrencyWidget'));
-const MoodWidget = lazy(() => import('@/widgets/MoodWidget'));
-const HabitWidget = lazy(() => import('@/widgets/HabitWidget'));
-const ScratchpadWidget = lazy(() => import('@/widgets/ScratchpadWidget'));
-const CountdownWidget = lazy(() => import('@/widgets/CountdownWidget'));
-const CalendarWidget = lazy(() => import('@/widgets/CalendarWidget'));
-const FormFillerWidget = lazy(() => import('@/widgets/FormFillerWidget'));
+const ChessWidget = lazy(
+    () => import('@/features/chess/components/ChessWidget'),
+);
+const PomodoroWidget = lazy(
+    () => import('@/features/pomodoro/components/PomodoroWidget'),
+);
+const TodoWidget = lazy(() => import('@/features/todo/components/TodoWidget'));
+const WeatherWidget = lazy(
+    () => import('@/features/weather/components/WeatherWidget'),
+);
+const WorldClockWidget = lazy(
+    () => import('@/features/worldclock/components/WorldClockWidget'),
+);
+const CurrencyWidget = lazy(
+    () => import('@/features/currency/components/CurrencyWidget'),
+);
+const MoodWidget = lazy(() => import('@/features/mood/components/MoodWidget'));
+const HabitWidget = lazy(
+    () => import('@/features/habit/components/HabitWidget'),
+);
+const ScratchpadWidget = lazy(
+    () => import('@/features/scratchpad/components/ScratchpadWidget'),
+);
+const CountdownWidget = lazy(
+    () => import('@/features/countdown/components/CountdownWidget'),
+);
+const CalendarWidget = lazy(
+    () => import('@/features/calendar/components/CalendarWidget'),
+);
+const FormFillerWidget = lazy(
+    () => import('@/features/form-filler/components/FormFillerWidget'),
+);
 
 function wrap(node: ReactNode): ReactNode {
     return <Suspense fallback={<WidgetSkeleton />}>{node}</Suspense>;

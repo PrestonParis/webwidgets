@@ -6,6 +6,7 @@ import { useSettings } from '@/features/settings/hooks/useSettings';
 import { SettingsIntegrationsCard } from './SettingsIntegrationsCard';
 import { SettingsProfileCard } from './SettingsProfileCard';
 import { EmailIntelligenceCard } from './EmailIntelligenceCard';
+import { BackgroundPickerPanel } from './BackgroundPickerPanel';
 
 export default function SettingsHomePage() {
     const {
@@ -66,6 +67,9 @@ export default function SettingsHomePage() {
                         void handleConnectCalendar();
                     }}
                 />
+                <div className="p-6 rounded-2xl border border-gray-200 dark:border-zinc-800">
+                    <BackgroundPickerPanel />
+                </div>
                 {user && (
                     <SettingsProfileCard
                         user={user}

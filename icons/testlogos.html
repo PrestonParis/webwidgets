@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WW Widget Logos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --text: #e2e2f0;
+    --muted: #5a5a7a;
+    --accent1: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd93d;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 48px 32px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent1), #a78bfa); }
+  .card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent2), #4ade80); }
+  .card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent3), #fb923c); }
+  .card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent4), #facc15); }
+
+  .card:hover { transform: translateY(-4px); border-color: #2e2e4e; }
+
+  .logo-stage {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    background: #0d0d16;
+    border: 1px solid var(--border);
+  }
+
+  .card-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+
+  .card-desc {
+    color: var(--muted);
+    font-size: 0.7rem;
+    line-height: 1.7;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+
+  .card:nth-child(1) .tag { color: var(--accent1); border-color: var(--accent1); }
+  .card:nth-child(2) .tag { color: var(--accent2); border-color: var(--accent2); }
+  .card:nth-child(3) .tag { color: var(--accent3); border-color: var(--accent3); }
+  .card:nth-child(4) .tag { color: var(--accent4); border-color: var(--accent4); }
+
+  /* ── LOGO 1: Isometric Stack ── */
+  .logo1 { cursor: pointer; }
+  .logo1:hover .layer-back { transform: translate(-6px, 6px); }
+  .logo1:hover .layer-mid { transform: translate(-3px, 3px); }
+  .layer-back, .layer-mid, .layer-front {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ── LOGO 2: Circuit draw animation ── */
+  .path-a, .path-b {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: draw 1.6s ease forwards;
+  }
+  .path-b { animation-delay: 0.4s; }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* ── LOGO 3: Mosaic hover ── */
+  .mosaic-poly {
+    transition: fill 0.25s, transform 0.25s;
+    transform-origin: center;
+  }
+  .mosaic-poly:hover { transform: scale(1.08); }
+
+  /* ── LOGO 4: Negative space pulse ── */
+  .ns-outer {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 6px #ffd93d55); }
+    50% { filter: drop-shadow(0 0 18px #ffd93daa); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>WW / Widget System</h1>
+  <p>Logo Concept Explorations · Double-W Identity</p>
+</header>
+
+<div class="grid">
+
+  <!-- ══ CARD 1: Isometric Stack ══ -->
+  <div class="card">
+    <span class="tag">Concept 01</span>
+    <div class="logo-stage">
+      <svg class="logo1" width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="blur1" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2"/>
+          </filter>
+        </defs>
+        <!-- Shadow -->
+        <path d="M18 80 L30 50 L42 68 L54 50 L66 80" stroke="#6c63ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.12" filter="url(#blur1)" transform="translate(4,6)" class="layer-back"/>
+        <!-- Layer Back -->
+        <path d="M18 80 L30 50 L42 68 L54 50 L66 80" stroke="#a78bfa" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.45" class="layer-back"/>
+        <!-- Layer Mid -->
+        <path d="M22 74 L34 44 L46 62 L58 44 L70 74" stroke="#7c6ff7" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.65" class="layer-mid"/>
+        <!-- Layer Front -->
+        <path d="M26 68 L38 38 L50 56 L62 38 L74 68" stroke="#6c63ff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none" class="layer-front"/>
+        <!-- Connector dots -->
+        <circle cx="26" cy="68" r="3" fill="#a78bfa" opacity="0.5"/>
+        <circle cx="74" cy="68" r="3" fill="#a78bfa" opacity="0.5"/>
+        <circle cx="26" cy="68" r="3" fill="#6c63ff" transform="translate(12,-6)"/>
+        <circle cx="74" cy="68" r="3" fill="#6c63ff" transform="translate(-12,-6)"/>
+        <!-- Offset lines suggesting 3D -->
+        <line x1="18" y1="80" x2="26" y2="68" stroke="#6c63ff" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.4"/>
+        <line x1="66" y1="80" x2="74" y2="68" stroke="#6c63ff" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="card-label">Isometric Stack</div>
+    <div class="card-desc">Three offset W-layers create depth and<br>modularity—hover to feel the parallax.</div>
+  </div>
+
+  <!-- ══ CARD 2: Interlocked Circuit ══ -->
+  <div class="card">
+    <span class="tag">Concept 02</span>
+    <div class="logo-stage">
+      <svg width="130" height="100" viewBox="0 0 130 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grad2a" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00d4aa"/>
+            <stop offset="100%" stop-color="#4ade80"/>
+          </linearGradient>
+          <linearGradient id="grad2b" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#4ade80"/>
+            <stop offset="100%" stop-color="#00d4aa"/>
+          </linearGradient>
+        </defs>
+        <!-- W1: rounded, teal — goes UNDER at center -->
+        <path class="path-a"
+          d="M10 25 Q14 25 17 40 L26 70 Q28 78 32 78 Q36 78 38 70 L47 45 Q50 36 53 36 Q56 36 59 45 L68 70 Q70 78 74 78 Q78 78 80 70 L89 40 Q92 25 96 25"
+          stroke="url(#grad2a)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Diamond core glow -->
+        <path d="M53 36 L65 55 L53 74 L41 55 Z" fill="#00d4aa" opacity="0.08"/>
+        <path d="M53 36 L65 55 L53 74 L41 55 Z" stroke="#00d4aa" stroke-width="1" opacity="0.35"/>
+        <!-- W2: sharp, offset -->
+        <path class="path-b"
+          d="M14 30 L23 65 L32 42 L41 65 L50 30 L59 65 L68 42 L77 65 L86 30"
+          stroke="url(#grad2b)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none" opacity="0.55"/>
+        <!-- Terminal nodes -->
+        <circle cx="10" cy="25" r="3.5" fill="#00d4aa"/>
+        <circle cx="96" cy="25" r="3.5" fill="#4ade80"/>
+        <circle cx="14" cy="30" r="2" fill="#4ade80" opacity="0.6"/>
+        <circle cx="86" cy="30" r="2" fill="#00d4aa" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="card-label">Interlocked Circuit</div>
+    <div class="card-desc">Rounded &amp; sharp strokes weave through a<br>diamond core—paths draw in on load.</div>
+  </div>
+
+  <!-- ══ CARD 3: Building Block Mosaic ══ -->
+  <div class="card">
+    <span class="tag">Concept 03</span>
+    <div class="logo-stage">
+      <svg width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grad3a" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff8a80"/>
+            <stop offset="100%" stop-color="#ff6b6b"/>
+          </linearGradient>
+        </defs>
+        <!-- W decomposed into 8 triangles / parallelograms -->
+        <!-- Left leg -->
+        <polygon id="w1" class="mosaic-poly" points="12,22 22,22 28,62 18,62" fill="#ff6b6b" opacity="0.9"/>
+        <!-- Left inner slope down -->
+        <polygon id="w2" class="mosaic-poly" points="28,62 38,62 46,42 36,42" fill="#ff8a80" opacity="0.7"/>
+        <!-- Center peak -->
+        <polygon id="w3" class="mosaic-poly" points="36,42 60,22 84,42 60,56" fill="#fff" opacity="0.12" stroke="#ff6b6b" stroke-width="1"/>
+        <!-- Center accent diamond -->
+        <polygon id="w4" class="mosaic-poly" points="50,38 60,28 70,38 60,48" fill="#fb923c"/>
+        <!-- Right inner slope up -->
+        <polygon id="w5" class="mosaic-poly" points="74,42 84,42 92,62 82,62" fill="#ff8a80" opacity="0.7"/>
+        <!-- Right leg -->
+        <polygon id="w6" class="mosaic-poly" points="92,62 102,62 108,22 98,22" fill="#ff6b6b" opacity="0.9"/>
+        <!-- Left base -->
+        <polygon id="w7" class="mosaic-poly" points="18,62 28,62 24,78 14,78" fill="#ff6b6b" opacity="0.6"/>
+        <!-- Right base -->
+        <polygon id="w8" class="mosaic-poly" points="92,62 102,62 106,78 96,78" fill="#ff6b6b" opacity="0.6"/>
+        <!-- Subtle grid lines -->
+        <line x1="12" y1="22" x2="108" y2="22" stroke="#ff6b6b" stroke-width="0.5" opacity="0.15"/>
+        <line x1="18" y1="62" x2="102" y2="62" stroke="#ff6b6b" stroke-width="0.5" opacity="0.15"/>
+      </svg>
+    </div>
+    <div class="card-label">Building Block Mosaic</div>
+    <div class="card-desc">Eight named polygons — hover each piece.<br>The orange diamond is your accent widget.</div>
+  </div>
+
+  <!-- ══ CARD 4: Negative Space ══ -->
+  <div class="card">
+    <span class="tag">Concept 04</span>
+    <div class="logo-stage">
+      <svg class="ns-outer" width="130" height="100" viewBox="0 0 130 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <mask id="wMask">
+            <!-- White = show, Black = hide (negative space) -->
+            <rect width="130" height="100" fill="white"/>
+            <!-- Inner W cutout (smaller, centered) -->
+            <path d="M36 34 L44 68 L52 50 L60 64 L68 50 L76 68 L84 34"
+              stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <!-- Cursor / arrow cutout bottom-right of inner W -->
+            <polygon points="78,70 86,80 80,78 78,86 74,72" fill="black"/>
+          </mask>
+          <linearGradient id="grad4" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffd93d"/>
+            <stop offset="60%" stop-color="#facc15"/>
+            <stop offset="100%" stop-color="#fb923c"/>
+          </linearGradient>
+        </defs>
+        <!-- Outer W bold fill, masked -->
+        <path
+          d="M20 22 L32 78 L45 46 L60 68 L75 46 L88 78 L100 22"
+          stroke="url(#grad4)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none"
+          mask="url(#wMask)"/>
+        <!-- Rim highlight -->
+        <path
+          d="M20 22 L32 78 L45 46 L60 68 L75 46 L88 78 L100 22"
+          stroke="#fff" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" fill="none"
+          opacity="0.15"/>
+      </svg>
+    </div>
+    <div class="card-label">Negative Space W</div>
+    <div class="card-desc">Bold W-shell with an inner W carved out.<br>Background bleeds through — glows on pulse.</div>
+  </div>
+
+</div>
+
+<footer style="text-align:center; margin-top:64px; color: #2e2e4e; font-size:0.65rem; letter-spacing:0.1em;">
+  WW · WIDGET SYSTEM · LOGO EXPLORATIONS
+</footer>
+
+</body>
+</html>
