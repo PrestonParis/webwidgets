@@ -9,6 +9,15 @@ import { extractEmailActions } from './extractActions';
 import type { EmailInput as ExtractInput } from './extractActions';
 
 type GmailClient = ReturnType<typeof google.gmail>;
+type ActionRow = {
+    user_id: string;
+    email_id: string;
+    type: string;
+    title: string;
+    description: string | null;
+    due_date: string | null;
+    action_url: string | null;
+};
 
 export interface PipelineOptions {
     gmail: GmailClient;
@@ -42,11 +51,15 @@ function extractBody(
     return '';
 }
 
-export async function processQueueItem(
+async function fetchNormalizedEvent(
     item: QueueItem,
     opts: PipelineOptions,
-): Promise<void> {
-    // Fetch full message from Gmail
+): Promise<{
+    event: NormalizedEmailEvent;
+    sender: string;
+    subject: string;
+    body: string;
+}> {
     const { data: msg } = await opts.gmail.users.messages.get({
         userId: 'me',
         id: item.message_id,
@@ -79,87 +92,107 @@ export async function processQueueItem(
             .digest('hex'),
     };
 
-    const sender = headers['From'] ?? 'Unknown';
-    const subject = headers['Subject'] ?? 'No Subject';
+    return {
+        event,
+        sender: headers['From'] ?? 'Unknown',
+        subject: headers['Subject'] ?? 'No Subject',
+        body,
+    };
+}
 
-    // Classify via model router (rules → ML → Claude)
+async function upsertClassification(
+    item: QueueItem,
+    opts: PipelineOptions,
+    sender: string,
+    subject: string,
+): Promise<void> {
     const categoryMap = await routeInference([{ idx: 0, sender, subject }], {
         allowHosted: opts.useAI,
         ...(opts.apiKey ? { apiKey: opts.apiKey } : {}),
     });
     const category = categoryMap.get(0) ?? 'other';
 
-    await opts.supabase
-        .from('email_classifications')
-        .upsert(
-            [
-                {
-                    user_id: opts.userId,
-                    email_id: item.message_id,
-                    sender,
-                    subject,
-                    category,
-                    is_manual: false,
-                },
-            ],
-            { onConflict: 'user_id,email_id', ignoreDuplicates: true },
-        );
+    await opts.supabase.from('email_classifications').upsert(
+        [
+            {
+                user_id: opts.userId,
+                email_id: item.message_id,
+                sender,
+                subject,
+                category,
+                is_manual: false,
+            },
+        ],
+        { onConflict: 'user_id,email_id', ignoreDuplicates: true },
+    );
+}
 
-    // Extract actions (only if AI enabled and not already processed)
-    if (opts.useAI) {
-        const { data: already } = await opts.supabase
-            .from('email_processing_log')
-            .select('email_id')
-            .eq('user_id', opts.userId)
-            .eq('email_id', item.message_id)
-            .maybeSingle();
+async function hasProcessingLog(item: QueueItem, opts: PipelineOptions) {
+    const { data: already } = await opts.supabase
+        .from('email_processing_log')
+        .select('email_id')
+        .eq('user_id', opts.userId)
+        .eq('email_id', item.message_id)
+        .maybeSingle();
+    return Boolean(already);
+}
 
-        if (!already) {
-            const snippet = body.slice(0, 500);
-            const extractInput: ExtractInput[] = [
-                { id: item.message_id, sender, subject, snippet },
-            ];
-            const actionsMap = await extractEmailActions(extractInput, {
-                ...(opts.apiKey ? { apiKey: opts.apiKey } : {}),
+function buildActionRows(
+    actionsMap: Awaited<ReturnType<typeof extractEmailActions>>,
+    userId: string,
+): ActionRow[] {
+    const rows: ActionRow[] = [];
+    for (const [emailId, actions] of actionsMap) {
+        for (const action of actions) {
+            rows.push({
+                user_id: userId,
+                email_id: emailId,
+                type: action.type,
+                title: action.title,
+                description: action.description,
+                due_date: action.due_date,
+                action_url: action.action_url,
             });
-
-            await opts.supabase
-                .from('email_processing_log')
-                .upsert([{ user_id: opts.userId, email_id: item.message_id }], {
-                    onConflict: 'user_id,email_id',
-                });
-
-            const rows: Array<{
-                user_id: string;
-                email_id: string;
-                type: string;
-                title: string;
-                description: string | null;
-                due_date: string | null;
-                action_url: string | null;
-            }> = [];
-            for (const [emailId, actions] of actionsMap) {
-                for (const action of actions) {
-                    rows.push({
-                        user_id: opts.userId,
-                        email_id: emailId,
-                        type: action.type,
-                        title: action.title,
-                        description: action.description,
-                        due_date: action.due_date,
-                        action_url: action.action_url,
-                    });
-                }
-            }
-            if (rows.length > 0) {
-                await opts.supabase
-                    .from('email_actions')
-                    .upsert(rows, { onConflict: 'user_id,email_id,title' });
-            }
         }
     }
+    return rows;
+}
 
-    // Store normalized payload and advance stage
+async function extractAndStoreActions(
+    item: QueueItem,
+    opts: PipelineOptions,
+    body: string,
+    sender: string,
+    subject: string,
+): Promise<void> {
+    if (!opts.useAI || (await hasProcessingLog(item, opts))) return;
+
+    const extractInput: ExtractInput[] = [
+        { id: item.message_id, sender, subject, snippet: body.slice(0, 500) },
+    ];
+    const actionsMap = await extractEmailActions(extractInput, {
+        ...(opts.apiKey ? { apiKey: opts.apiKey } : {}),
+    });
+
+    await opts.supabase
+        .from('email_processing_log')
+        .upsert([{ user_id: opts.userId, email_id: item.message_id }], {
+            onConflict: 'user_id,email_id',
+        });
+
+    const rows = buildActionRows(actionsMap, opts.userId);
+    if (rows.length > 0) {
+        await opts.supabase
+            .from('email_actions')
+            .upsert(rows, { onConflict: 'user_id,email_id,title' });
+    }
+}
+
+async function advanceQueue(
+    item: QueueItem,
+    opts: PipelineOptions,
+    event: NormalizedEmailEvent,
+): Promise<void> {
     await opts.supabase
         .from('email_queue')
         .update({
@@ -171,4 +204,17 @@ export async function processQueueItem(
             updated_at: new Date().toISOString(),
         })
         .eq('id', item.id);
+}
+
+export async function processQueueItem(
+    item: QueueItem,
+    opts: PipelineOptions,
+): Promise<void> {
+    const { event, sender, subject, body } = await fetchNormalizedEvent(
+        item,
+        opts,
+    );
+    await upsertClassification(item, opts, sender, subject);
+    await extractAndStoreActions(item, opts, body, sender, subject);
+    await advanceQueue(item, opts, event);
 }

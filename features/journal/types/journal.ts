@@ -6,6 +6,7 @@ export interface JournalEntry {
     image_url: string | null;
     deleted_at: string | null;
     created_at: string;
+    type: 'journal' | 'document';
 }
 
 export interface EntryCardProps {

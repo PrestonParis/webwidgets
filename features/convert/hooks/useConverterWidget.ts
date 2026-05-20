@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { getUnits } from '@/features/convert/types/unitconvert';
 import { convert, formatResult } from './useConvert';
+import { useCurrency } from '@/features/currency/hooks/useCurrency';
 
 export function useConverterWidget() {
     const [category, setCategory] = useState('Length');
@@ -10,25 +11,51 @@ export function useConverterWidget() {
     const [toValue, setToValue] = useState('');
     const [lastEdited, setLastEdited] = useState<'from' | 'to'>('from');
 
+    const isCurrency = category === 'Currency';
+
     const units = useMemo(() => getUnits(category), [category]);
     const validFrom = units.includes(fromUnit) ? fromUnit : (units[0] ?? '');
     const validTo = units.includes(toUnit)
         ? toUnit
         : (units[1] ?? units[0] ?? '');
 
-    const derivedTo = useMemo(
-        () => formatResult(convert(category, fromValue, validFrom, validTo)),
-        [category, fromValue, validFrom, validTo],
-    );
-    const derivedFrom = useMemo(
-        () => formatResult(convert(category, toValue, validTo, validFrom)),
-        [category, toValue, validTo, validFrom],
+    // Always called unconditionally — null base means skip fetch
+    const { rates, loading: ratesLoading } = useCurrency(
+        isCurrency ? validFrom : null,
     );
 
-    const conversionRate = useMemo(
-        () => formatResult(convert(category, '1', validFrom, validTo)),
-        [category, validFrom, validTo],
-    );
+    // For currency: direct exchange rate from live data
+    const currencyRate = useMemo(() => {
+        if (!isCurrency || !rates) return null;
+        return rates.rates[validTo] ?? null;
+    }, [isCurrency, rates, validTo]);
+
+    const derivedTo = useMemo(() => {
+        if (isCurrency) {
+            if (currencyRate === null) return '';
+            const n = parseFloat(fromValue);
+            return isNaN(n) ? '' : formatResult(n * currencyRate);
+        }
+        return formatResult(convert(category, fromValue, validFrom, validTo));
+    }, [isCurrency, currencyRate, fromValue, category, validFrom, validTo]);
+
+    const derivedFrom = useMemo(() => {
+        if (isCurrency) {
+            if (currencyRate === null) return '';
+            const n = parseFloat(toValue);
+            return isNaN(n) ? '' : formatResult(n / currencyRate);
+        }
+        return formatResult(convert(category, toValue, validTo, validFrom));
+    }, [isCurrency, currencyRate, toValue, category, validTo, validFrom]);
+
+    const conversionRate = useMemo(() => {
+        if (isCurrency) {
+            return currencyRate !== null ? formatResult(currencyRate) : '';
+        }
+        return formatResult(convert(category, '1', validFrom, validTo));
+    }, [isCurrency, currencyRate, category, validFrom, validTo]);
+
+    const rateDate = isCurrency ? (rates?.date ?? null) : null;
 
     const displayFrom = lastEdited === 'from' ? fromValue : derivedFrom || '';
     const displayTo = lastEdited === 'to' ? toValue : derivedTo || '';
@@ -68,6 +95,8 @@ export function useConverterWidget() {
         displayFrom,
         displayTo,
         conversionRate,
+        ratesLoading,
+        rateDate,
         handleFromChange,
         handleToChange,
         handleCategoryChange,

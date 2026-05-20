@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 
 export const supabase = createBrowserClient<Database>(
@@ -10,3 +11,6 @@ export const supabase = createBrowserClient<Database>(
         },
     },
 );
+
+// Untyped client for tables not yet reflected in the generated schema (e.g. new migrations).
+export const db: SupabaseClient = supabase as unknown as SupabaseClient;

@@ -1,19 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useTick } from '@/lib/tick';
+import { calcSecondsClean } from '@/features/recovery/lib/secondsClean';
 
-export function useSecondsClean(startTime: string | null) {
-    const [seconds, setSeconds] = useState(0);
-
-    useEffect(() => {
-        if (!startTime) return;
-
-        const start = new Date(startTime).getTime();
-
-        const interval = setInterval(() => {
-            setSeconds(Math.floor((Date.now() - start) / 1000));
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [startTime]);
-
-    return seconds;
+export function useSecondsClean(startTime: string | null): number {
+    const now = useTick();
+    if (!startTime) return 0;
+    return calcSecondsClean(now, startTime);
 }

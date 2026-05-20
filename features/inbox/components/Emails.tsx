@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useEmails } from '@/features/inbox/hooks/useEmails';
 import { useCalendarConnection } from '@/features/inbox/hooks/useCalendarConnection';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -25,7 +25,9 @@ export default function Emails() {
 
     // Track all emails ever loaded (across pages) for extractAll
     const allEmailsRef = useRef(emails);
-    allEmailsRef.current = emails; // useEmails accumulates pages in state already
+    useEffect(() => {
+        allEmailsRef.current = emails;
+    }, [emails]);
 
     const {
         actions,
@@ -46,15 +48,14 @@ export default function Emails() {
 
     if (!hasGoogleSync || isUnauthorized) return <EmailUnauthorized />;
 
-    // Load all remaining pages then extract
-    const handleExtractAll = async () => {
+    async function handleExtractAll() {
         let token = nextPageToken;
         while (token) {
             await loadEmails(token);
-            token = null; // useEmails updates nextPageToken in state; we just trigger once per cycle
+            token = null;
         }
         await extractAll();
-    };
+    }
 
     const confirmedActions = actions.filter((a) => a.synced && !a.completed);
 
@@ -64,59 +65,35 @@ export default function Emails() {
                 <h2 className="text-2xl font-bold">Inbox</h2>
                 {loading && <span>Syncing...</span>}
             </div>
-
             {confirmedActions.length > 0 && (
                 <EmailActionsPanel
                     actions={confirmedActions}
                     loading={actionsLoading}
-                    onToggle={(id) => {
-                        void toggleComplete(id);
-                    }}
+                    onToggle={(id) => void toggleComplete(id)}
                 />
             )}
-
             {!calendarLoading && !isCalendarConnected && (
-                <CalendarConnect
-                    onConnect={() => {
-                        void connectCalendar();
-                    }}
-                />
+                <CalendarConnect onConnect={() => void connectCalendar()} />
             )}
-
             <EmailInsights
                 emails={emails}
                 extractingAll={extractingAll}
-                onExtractAll={() => {
-                    void handleExtractAll();
-                }}
+                onExtractAll={() => void handleExtractAll()}
             />
-
             <EmailList
                 emails={emails}
                 actions={actions}
                 extractingId={extractingId}
                 onClassify={handleManualClassify}
-                onExtract={(email) => {
-                    void extractSingle(email);
-                }}
-                onConfirmAction={(id) => {
-                    void confirmAction(id);
-                }}
-                onConfirmAll={(emailId) => {
-                    void confirmAllForEmail(emailId);
-                }}
-                onRejectAction={(id) => {
-                    void rejectAction(id);
-                }}
+                onExtract={(email) => void extractSingle(email)}
+                onConfirmAction={(id) => void confirmAction(id)}
+                onConfirmAll={(emailId) => void confirmAllForEmail(emailId)}
+                onRejectAction={(id) => void rejectAction(id)}
             />
-
             <EmailActionLog />
-
             {nextPageToken && (
                 <button
-                    onClick={() => {
-                        void loadEmails(nextPageToken);
-                    }}
+                    onClick={() => void loadEmails(nextPageToken)}
                     disabled={loading}
                     className="w-full py-4 border-dashed border rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >

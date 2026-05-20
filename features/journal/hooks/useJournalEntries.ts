@@ -10,11 +10,15 @@ const journalEntrySchema: z.ZodType<JournalEntry> = z.object({
     image_url: z.string().nullable(),
     deleted_at: z.string().nullable(),
     created_at: z.string(),
+    type: z.enum(['journal', 'document']).default('journal'),
 });
 
 const journalEntryArraySchema = z.array(journalEntrySchema);
 
-export function useJournalEntries(userId: string | undefined) {
+export function useJournalEntries(
+    userId: string | undefined,
+    noteType?: 'journal' | 'document',
+) {
     const [entries, setEntries] = useState<JournalEntry[]>([]);
     const [refreshKey, setRefreshKey] = useState(0);
     const [view, setView] = useState<'all' | 'trash'>('all');
@@ -28,6 +32,7 @@ export function useJournalEntries(userId: string | undefined) {
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
+        if (noteType) query = query.eq('type', noteType);
         if (view === 'all') query = query.is('deleted_at', null);
         else query = query.not('deleted_at', 'is', null);
 
@@ -37,7 +42,7 @@ export function useJournalEntries(userId: string | undefined) {
             const parsed = journalEntryArraySchema.safeParse(data);
             return parsed.success ? parsed.data : [];
         }
-    }, [userId, view]);
+    }, [userId, view, noteType]);
 
     useEffect(() => {
         let isMounted = true;

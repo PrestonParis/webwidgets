@@ -63,21 +63,24 @@ export async function GET(request: Request) {
             process.env.SUPABASE_SERVICE_ROLE_KEY!,
         );
 
-        // Detect whether the granted scopes include Google Calendar.
+        // Detect granted scopes (calendar, drive).
         let hasCalendar = false;
+        let hasDrive = false;
         try {
             const tokenInfoRes = await fetch(
                 `https://oauth2.googleapis.com/tokeninfo?access_token=${session.provider_token}`,
             );
             if (tokenInfoRes.ok) {
                 const tokenInfo: unknown = await tokenInfoRes.json();
-                hasCalendar =
+                const scope =
                     typeof tokenInfo === 'object' &&
                     tokenInfo !== null &&
                     'scope' in tokenInfo &&
-                    typeof (tokenInfo as { scope: unknown }).scope ===
-                        'string' &&
-                    (tokenInfo as { scope: string }).scope.includes('calendar');
+                    typeof (tokenInfo as { scope: unknown }).scope === 'string'
+                        ? (tokenInfo as { scope: string }).scope
+                        : '';
+                hasCalendar = scope.includes('calendar');
+                hasDrive = scope.includes('drive');
             }
         } catch {
             // Non-fatal — token info check is best-effort
@@ -92,6 +95,7 @@ export async function GET(request: Request) {
                 // to match what google-auth-library expects for expiry_date.
                 expires_at: Date.now() + 3590 * 1000,
                 has_calendar: hasCalendar,
+                has_drive: hasDrive,
             },
             { onConflict: 'user_id' },
         );

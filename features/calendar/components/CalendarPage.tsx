@@ -1,27 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import {
-    ChevronLeft,
-    ChevronRight,
-    Video,
-    MapPin,
-    ExternalLink,
-    Plus,
-    Pencil,
-    Trash2,
-} from 'lucide-react';
-import { useCalendarEvents } from '@/features/calendar/hooks/useCalendarEvents';
-import {
-    CalendarEvent,
-    eventColor,
-    eventStart,
-    formatEventTime,
-    isAllDay,
-} from '@/features/calendar/types/calendar';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { DayCell } from '@/features/calendar/components/CalendarDayCell';
+import { EventDetail } from '@/features/calendar/components/EventDetail';
+import { CalendarNotConnected } from '@/features/calendar/components/CalendarNotConnected';
 import { EventFormModal } from '@/features/calendar/components/EventFormModal';
-import { deleteCalendarEvent } from '@/features/calendar/api/calendarMutations';
+import {
+    useCalendarPage,
+    isSameDay,
+} from '@/features/calendar/hooks/useCalendarPage';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -39,322 +26,32 @@ const MONTHS = [
     'December',
 ];
 
-function buildGrid(year: number, month: number): Date[] {
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days: Date[] = [];
-    for (let i = 0; i < firstDay.getDay(); i++) {
-        days.push(new Date(year, month, -firstDay.getDay() + i + 1));
-    }
-    for (let d = 1; d <= lastDay.getDate(); d++) {
-        days.push(new Date(year, month, d));
-    }
-    while (days.length < 42) {
-        days.push(
-            new Date(
-                year,
-                month + 1,
-                days.length - lastDay.getDate() - firstDay.getDay() + 1,
-            ),
-        );
-    }
-    return days;
-}
-
-function isSameDay(a: Date, b: Date): boolean {
-    return (
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth() === b.getMonth() &&
-        a.getDate() === b.getDate()
-    );
-}
-
-function EventDot({ event }: { event: CalendarEvent }) {
-    return (
-        <span
-            className={`inline-block w-1.5 h-1.5 rounded-full ${eventColor(event.colorId)}`}
-            title={event.summary}
-        />
-    );
-}
-
-function DayCell({
-    date,
-    events,
-    isCurrentMonth,
-    isToday,
-    isSelected,
-    onClick,
-}: {
-    date: Date;
-    events: CalendarEvent[];
-    isCurrentMonth: boolean;
-    isToday: boolean;
-    isSelected: boolean;
-    onClick: () => void;
-}) {
-    const visible = events.slice(0, 3);
-    const overflow = events.length - 3;
-
-    return (
-        <button
-            onClick={onClick}
-            className={`
-                group relative min-h-[72px] p-2 rounded-xl text-left transition-colors
-                ${isCurrentMonth ? 'hover:bg-gray-50 dark:hover:bg-zinc-800/60' : 'opacity-40'}
-                ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20 ring-1 ring-blue-300 dark:ring-blue-700' : ''}
-            `}
-        >
-            <span
-                className={`
-                    inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-medium
-                    ${isToday ? 'bg-blue-500 text-white' : 'text-gray-700 dark:text-zinc-300'}
-                    ${isSelected && !isToday ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''}
-                `}
-            >
-                {date.getDate()}
-            </span>
-
-            <div className="mt-1 flex flex-wrap gap-0.5">
-                {visible.map((e) => (
-                    <EventDot key={e.id} event={e} />
-                ))}
-            </div>
-
-            {overflow > 0 && (
-                <span className="text-[9px] text-gray-400 dark:text-zinc-600 mt-0.5 block">
-                    +{overflow}
-                </span>
-            )}
-
-            <div className="absolute inset-x-2 top-8 hidden group-hover:block z-10 space-y-0.5 max-h-24 overflow-hidden">
-                {visible.map((e) => (
-                    <p
-                        key={e.id}
-                        className={`text-[10px] font-medium px-1 py-0.5 rounded truncate text-white ${eventColor(e.colorId)}`}
-                    >
-                        {isAllDay(e) ? '' : `${formatEventTime(e)} `}
-                        {e.summary}
-                    </p>
-                ))}
-            </div>
-        </button>
-    );
-}
-
-function EventDetail({
-    event,
-    onEdit,
-    onDelete,
-}: {
-    event: CalendarEvent;
-    onEdit: () => void;
-    onDelete: () => void;
-}) {
-    const [confirmingDelete, setConfirmingDelete] = useState(false);
-
-    return (
-        <div className="py-3 border-b border-gray-100 dark:border-zinc-800 last:border-0">
-            <div className="flex items-start gap-2">
-                <span
-                    className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${eventColor(event.colorId)}`}
-                />
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-1">
-                        <p className="text-sm font-semibold leading-snug text-gray-800 dark:text-zinc-100">
-                            {event.summary}
-                        </p>
-                        <div className="flex items-center gap-0.5 shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                                onClick={onEdit}
-                                title="Edit event"
-                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                            >
-                                <Pencil size={11} className="text-zinc-400" />
-                            </button>
-                            {confirmingDelete ? (
-                                <>
-                                    <button
-                                        onClick={() => {
-                                            setConfirmingDelete(false);
-                                            void onDelete();
-                                        }}
-                                        className="text-[10px] font-medium text-red-400 hover:text-red-300 px-1"
-                                    >
-                                        Delete
-                                    </button>
-                                    <button
-                                        onClick={() =>
-                                            setConfirmingDelete(false)
-                                        }
-                                        className="text-[10px] text-zinc-500 hover:text-zinc-300 px-1"
-                                    >
-                                        Cancel
-                                    </button>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => setConfirmingDelete(true)}
-                                    title="Delete event"
-                                    className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                                >
-                                    <Trash2
-                                        size={11}
-                                        className="text-zinc-400 hover:text-red-400 transition-colors"
-                                    />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
-                        {formatEventTime(event)}
-                    </p>
-                    {event.location && (
-                        <p className="flex items-center gap-1 text-xs text-gray-400 dark:text-zinc-500 mt-1 truncate">
-                            <MapPin size={10} />
-                            {event.location}
-                        </p>
-                    )}
-                    {event.description && (
-                        <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1 line-clamp-2">
-                            {event.description.replace(/<[^>]+>/g, '')}
-                        </p>
-                    )}
-                    <div className="flex items-center gap-3 mt-1.5">
-                        {event.hangoutLink && (
-                            <a
-                                href={event.hangoutLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                                <Video size={10} /> Join
-                            </a>
-                        )}
-                        <a
-                            href={event.htmlLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[11px] text-gray-400 dark:text-zinc-600 hover:text-gray-600 dark:hover:text-zinc-400"
-                        >
-                            <ExternalLink size={10} /> Open
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function CalendarNotConnected() {
-    const { connectCalendar } = useAuth();
-    return (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-            <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-2xl">
-                📅
-            </div>
-            <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-zinc-200">
-                    Connect Google Calendar
-                </p>
-                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
-                    View your events alongside your dashboard
-                </p>
-            </div>
-            <button
-                onClick={() => {
-                    void connectCalendar();
-                }}
-                className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition-colors"
-            >
-                Connect Calendar
-            </button>
-        </div>
-    );
-}
-
 export function CalendarPage() {
-    const today = new Date();
-    const [viewYear, setViewYear] = useState(today.getFullYear());
-    const [viewMonth, setViewMonth] = useState(today.getMonth());
-    const [selectedDate, setSelectedDate] = useState<Date>(today);
-    const [formOpen, setFormOpen] = useState(false);
-    const [editingEvent, setEditingEvent] = useState<
-        CalendarEvent | undefined
-    >();
-
-    const { events, loading, isNotConnected, refresh } = useCalendarEvents(
+    const {
+        today,
         viewYear,
         viewMonth,
-    );
-
-    const grid = useMemo(
-        () => buildGrid(viewYear, viewMonth),
-        [viewYear, viewMonth],
-    );
-
-    const eventsForDay = useMemo(() => {
-        const map = new Map<string, CalendarEvent[]>();
-        for (const e of events) {
-            const d = eventStart(e);
-            const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-            const arr = map.get(key) ?? [];
-            arr.push(e);
-            map.set(key, arr);
-        }
-        return map;
-    }, [events]);
-
-    function getDayEvents(date: Date): CalendarEvent[] {
-        const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-        return eventsForDay.get(key) ?? [];
-    }
-
-    function prevMonth() {
-        if (viewMonth === 0) {
-            setViewYear((y) => y - 1);
-            setViewMonth(11);
-        } else setViewMonth((m) => m - 1);
-    }
-
-    function nextMonth() {
-        if (viewMonth === 11) {
-            setViewYear((y) => y + 1);
-            setViewMonth(0);
-        } else setViewMonth((m) => m + 1);
-    }
-
-    function openCreate() {
-        setEditingEvent(undefined);
-        setFormOpen(true);
-    }
-
-    function openEdit(event: CalendarEvent) {
-        setEditingEvent(event);
-        setFormOpen(true);
-    }
-
-    async function handleDelete(event: CalendarEvent) {
-        try {
-            await deleteCalendarEvent(event.id);
-            refresh();
-        } catch {
-            // swallow — stale UI will correct on next refresh
-        }
-    }
-
-    const selectedEvents = getDayEvents(selectedDate);
-    const selectedLabel = selectedDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-    });
-
-    // Pre-fill start date from selected day when creating
-    const createInitialData = {
-        startDate: `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`,
-        endDate: `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`,
-    };
+        setViewYear,
+        setViewMonth,
+        selectedDate,
+        setSelectedDate,
+        formOpen,
+        setFormOpen,
+        editingEvent,
+        loading,
+        isNotConnected,
+        refresh,
+        grid,
+        getDayEvents,
+        prevMonth,
+        nextMonth,
+        openCreate,
+        openEdit,
+        handleDelete,
+        selectedEvents,
+        selectedLabel,
+        createInitialData,
+    } = useCalendarPage();
 
     if (isNotConnected) return <CalendarNotConnected />;
 
@@ -381,7 +78,6 @@ export function CalendarPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-                {/* Calendar Grid */}
                 <div className="rounded-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden">
                     <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 dark:border-zinc-800">
                         <button
@@ -444,7 +140,6 @@ export function CalendarPage() {
                     </div>
                 </div>
 
-                {/* Day detail panel */}
                 <div className="rounded-2xl border border-gray-100 dark:border-zinc-800 flex flex-col">
                     <div className="px-4 py-3.5 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between">
                         <div>
@@ -481,7 +176,9 @@ export function CalendarPage() {
                                         <EventDetail
                                             event={e}
                                             onEdit={() => openEdit(e)}
-                                            onDelete={() => handleDelete(e)}
+                                            onDelete={() =>
+                                                void handleDelete(e)
+                                            }
                                         />
                                     </div>
                                 ))}

@@ -43,6 +43,8 @@ export default function HabitWidget() {
             onSettingsChange={updateSettings}
             widgetId="habits"
             widgetType="habits"
+            footerHref="/habit"
+            footerLabel="All habits →"
         >
             {loading ? (
                 <HabitLoadingSkeleton />

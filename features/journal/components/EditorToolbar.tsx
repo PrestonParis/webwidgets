@@ -30,6 +30,39 @@ function ToolbarButton({
 
 const divider = <span className="w-px bg-stone-200 dark:bg-zinc-700 mx-1" />;
 
+function DictationButton({
+    transcription,
+}: {
+    transcription: TranscriptionState;
+}) {
+    return (
+        <button
+            type="button"
+            onMouseDown={(e) => {
+                e.preventDefault();
+                if (transcription.isListening) {
+                    transcription.stop();
+                } else {
+                    transcription.start();
+                }
+            }}
+            title={
+                transcription.isListening ? 'Stop dictation' : 'Start dictation'
+            }
+            className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium transition-colors ${
+                transcription.isListening
+                    ? 'bg-red-500 text-white'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-zinc-200'
+            }`}
+        >
+            <span className={transcription.isListening ? 'animate-pulse' : ''}>
+                🎙
+            </span>
+            {transcription.isListening && <span className="text-xs">Stop</span>}
+        </button>
+    );
+}
+
 export default function EditorToolbar({
     editor,
     transcription,
@@ -101,38 +134,7 @@ export default function EditorToolbar({
             {transcription?.isSupported && (
                 <>
                     {divider}
-                    <button
-                        type="button"
-                        onMouseDown={(e) => {
-                            e.preventDefault();
-                            if (transcription.isListening) {
-                                transcription.stop();
-                            } else {
-                                transcription.start();
-                            }
-                        }}
-                        title={
-                            transcription.isListening
-                                ? 'Stop dictation'
-                                : 'Start dictation'
-                        }
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium transition-colors ${
-                            transcription.isListening
-                                ? 'bg-red-500 text-white'
-                                : 'text-stone-500 hover:text-stone-800 dark:hover:text-zinc-200'
-                        }`}
-                    >
-                        <span
-                            className={
-                                transcription.isListening ? 'animate-pulse' : ''
-                            }
-                        >
-                            🎙
-                        </span>
-                        {transcription.isListening && (
-                            <span className="text-xs">Stop</span>
-                        )}
-                    </button>
+                    <DictationButton transcription={transcription} />
                 </>
             )}
         </div>

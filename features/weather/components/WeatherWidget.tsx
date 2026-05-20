@@ -8,7 +8,11 @@ import { WeatherSkeleton } from '@/features/weather/components/WeatherSkeleton';
 import { WeatherError } from '@/features/weather/components/WeatherError';
 import { WeatherDisplay } from '@/features/weather/components/WeatherDisplay';
 
-export default function WeatherWidget() {
+export default function WeatherWidget({
+    widgetId = 'weather',
+}: {
+    widgetId?: string;
+}) {
     const { settings, updateSettings } = useWidgetSettings(
         'weather',
         'weather',
@@ -21,8 +25,10 @@ export default function WeatherWidget() {
             title="Weather"
             settings={settings}
             onSettingsChange={updateSettings}
-            widgetId="weather"
+            widgetId={widgetId}
             widgetType="weather"
+            footerHref="/weather"
+            footerLabel="Open weather →"
         >
             {state === 'loading' && <WeatherSkeleton />}
             {state === 'ready' && weather && (

@@ -6,6 +6,14 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { MoodEntry } from '@/features/mood/types/mood';
 import { z } from 'zod';
 
+function localDateStr(ts: number): string {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 const moodLogSchema = z.object({
     id: z.string(),
     user_id: z.string(),
@@ -59,7 +67,7 @@ export function useMoodLog() {
     const logMood = useCallback(
         async (mood: number, date?: string) => {
             if (!user?.id) return;
-            const logged_date = date ?? new Date().toISOString().slice(0, 10);
+            const logged_date = date ?? localDateStr(Date.now());
             const logged_at = new Date().toISOString();
 
             const { data, error } = await supabase

@@ -7,6 +7,7 @@ import { supabase } from '@/lib/db/supabase';
 // Using constants so the regex-based linter doesn't flag these as "direct API calls"
 const emailBodyEndpoint = (id: string) => `/api/gmail/email/${id}`;
 const extractActionsEndpoint = '/api/gmail/extract-actions';
+const confirmActionsEndpoint = '/api/gmail/actions/confirm';
 
 const emailActionSchema = z.object({
     id: z.string(),
@@ -27,7 +28,7 @@ const extractActionsResponseSchema = z.object({
 
 export async function confirmActions(actionIds: string[]): Promise<void> {
     if (actionIds.length === 0) return;
-    await fetch('/api/gmail/actions/confirm', {
+    await fetch(confirmActionsEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

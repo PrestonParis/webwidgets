@@ -55,6 +55,7 @@ export function useCalendarEvents(year: number, month: number) {
 
     const refresh = useCallback(() => {
         cache.delete(`${year}-${month}`);
+        setIsNotConnected(false);
         setFetchVersion((v) => v + 1);
     }, [year, month]);
 
@@ -90,6 +91,7 @@ export function useCalendarEvents(year: number, month: number) {
 
                 const evts = parsed.data.events as CalendarEvent[];
                 cache.set(key, { events: evts, fetchedAt: Date.now() });
+                setIsNotConnected(false);
                 setEvents(evts);
             } catch {
                 // network error — leave previous state

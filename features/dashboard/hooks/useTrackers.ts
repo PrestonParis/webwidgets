@@ -13,7 +13,7 @@ async function fetchTrackersFromDB(userId: string): Promise<Tracker[]> {
 
     if (!data || data.length === 0) return [];
 
-    const trackerIds = data.map((t) => t.id as string);
+    const trackerIds = data.map((t) => t.id);
 
     const { data: relapseData } = await supabase
         .from('relapses')
@@ -53,7 +53,10 @@ export function useTrackers() {
             const {
                 data: { user },
             } = await supabase.auth.getUser();
-            if (!user) return;
+            if (!user) {
+                setTrackers([]);
+                return;
+            }
             const result = await fetchTrackersFromDB(user.id);
             setTrackers(result);
         }

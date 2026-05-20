@@ -11,7 +11,7 @@ async function fetchTrackersFromDB(userId: string): Promise<Tracker[]> {
 
     if (error || !data || data.length === 0) return [];
 
-    const trackerIds = data.map((t) => t.id as string);
+    const trackerIds = data.map((t) => t.id);
 
     // Fetch the latest relapse per tracker — this is the authoritative start_time
     // (recovery_profiles.start_time may be stale if the UPDATE policy was missing)
