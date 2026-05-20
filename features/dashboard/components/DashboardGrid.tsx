@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -18,6 +19,9 @@ import { SmartPointerSensor } from '@/features/dashboard/lib/smartPointerSensor'
 import WidgetWrapper from './WidgetWrapper';
 import FolderWidget from './FolderWidget';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
+import { useWidgetSettingsContext } from '@/features/widgets/context/WidgetSettingsContext';
+import { CopyStyleContext } from '@/features/dashboard/lib/CopyStyleContext';
+import { WIDGET_CATALOG } from '@/features/search/lib/widgetCatalog';
 
 function handleGridDragEnd(
     event: DragEndEvent,
@@ -27,26 +31,24 @@ function handleGridDragEnd(
 ) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const activeItem = visible.find((w) => w.id === active.id);
     const overItem = visible.find((w) => w.id === over.id);
     if (!activeItem || !overItem) return;
-
-    if (overItem.type === 'folder' && activeItem.type !== 'folder') {
+    if (overItem.type === 'folder' && activeItem.id !== overItem.id) {
         const widgetsInFolder = layout.filter((w) => w.containerId === over.id);
-        const next = layout.map((w) =>
-            w.id === active.id
-                ? {
-                      ...w,
-                      containerId: over.id as string,
-                      order: widgetsInFolder.length,
-                  }
-                : w,
+        onLayoutChange(
+            layout.map((w) =>
+                w.id === active.id
+                    ? {
+                          ...w,
+                          containerId: over.id as string,
+                          order: widgetsInFolder.length,
+                      }
+                    : w,
+            ),
         );
-        onLayoutChange(next);
         return;
     }
-
     const oldIndex = visible.findIndex((w) => w.id === active.id);
     const newIndex = visible.findIndex((w) => w.id === over.id);
     const reordered = arrayMove(visible, oldIndex, newIndex).map((w, i) => ({
@@ -69,42 +71,78 @@ export default function DashboardGrid(props: DashboardGridProps) {
         onOpenFolder,
         onRenameFolder,
         onDeleteFolder,
+        onMoveToBucket,
+        onUnpresent,
     } = props;
+    const ctx = useWidgetSettingsContext();
+
+    const copyStyleMap = useMemo(() => {
+        const map = new Map<
+            string,
+            {
+                label: string;
+                widgetType: string;
+                settings: ReturnType<NonNullable<typeof ctx>['getSettings']>;
+            }
+        >();
+        if (!ctx) return map;
+        for (const w of layout) {
+            if (w.containerId !== 'main') continue;
+            const entry = WIDGET_CATALOG.find((c) => c.type === w.type);
+            const label =
+                w.type === 'folder'
+                    ? `${w.props?.folderName ?? 'Folder'} Folder`
+                    : (entry?.name ?? w.type);
+            map.set(w.id, {
+                label,
+                widgetType: w.type,
+                settings: ctx.getSettings(w.id, w.type),
+            });
+        }
+        return map;
+    }, [layout, ctx]);
+
     const sensors = useSensors(
         useSensor(SmartPointerSensor, {
             activationConstraint: { distance: 6 },
         }),
     );
-
+    function handleRemove(id: string) {
+        onLayoutChange(layout.filter((w) => w.id !== id));
+    }
     const visible = layout
-        .filter((w) => {
-            if (!w.visible || w.containerId !== 'main') return false;
-            if (w.type === 'recovery' && !w.props?.tracker) return false;
-            return true;
-        })
+        .filter(
+            (w) =>
+                w.visible &&
+                w.containerId === 'main' &&
+                !(w.type === 'recovery' && !w.props?.tracker),
+        )
         .sort((a, b) => a.order - b.order);
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={(e) =>
-                handleGridDragEnd(e, visible, layout, onLayoutChange)
-            }
-        >
-            <SortableContext
-                items={visible.map((w) => w.id)}
-                strategy={rectSortingStrategy}
+        <CopyStyleContext.Provider value={copyStyleMap}>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(e) =>
+                    handleGridDragEnd(e, visible, layout, onLayoutChange)
+                }
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {visible.map((config) => {
-                        if (config.type === 'folder') {
-                            return (
-                                <WidgetWrapper
-                                    key={config.id}
-                                    config={config}
-                                    onToggleVisible={onToggleVisible}
-                                >
+                <SortableContext
+                    items={visible.map((w) => w.id)}
+                    strategy={rectSortingStrategy}
+                >
+                    <div className="grid grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+                        {visible.map((config) => (
+                            <WidgetWrapper
+                                key={config.id}
+                                config={config}
+                                onToggleVisible={onToggleVisible}
+                                onRemove={handleRemove}
+                                {...(onMoveToBucket && { onMoveToBucket })}
+                                {...(onUnpresent && { onUnpresent })}
+                            >
+                                {config.type === 'folder' ? (
                                     <FolderWidget
                                         folder={config}
                                         layout={layout}
@@ -116,21 +154,14 @@ export default function DashboardGrid(props: DashboardGridProps) {
                                             onDeleteFolder(config.id)
                                         }
                                     />
-                                </WidgetWrapper>
-                            );
-                        }
-                        return (
-                            <WidgetWrapper
-                                key={config.id}
-                                config={config}
-                                onToggleVisible={onToggleVisible}
-                            >
-                                {renderWidgetContent(config, onReset)}
+                                ) : (
+                                    renderWidgetContent(config, onReset)
+                                )}
                             </WidgetWrapper>
-                        );
-                    })}
-                </div>
-            </SortableContext>
-        </DndContext>
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+        </CopyStyleContext.Provider>
     );
 }

@@ -3,6 +3,12 @@
 import { useState, useCallback } from 'react';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
+function maxMainOrder(layout: WidgetConfig[]): number {
+    return layout
+        .filter((w) => w.containerId === 'main')
+        .reduce((max, w) => Math.max(max, w.order), -1);
+}
+
 export function useFolderActions(
     layout: WidgetConfig[],
     updateLayout: (next: WidgetConfig[]) => void,
@@ -12,16 +18,18 @@ export function useFolderActions(
     const addFolder = useCallback(() => {
         const id = `folder-${Date.now()}`;
         const maxOrder = layout.reduce((max, w) => Math.max(max, w.order), -1);
-        const newFolder: WidgetConfig = {
-            id,
-            type: 'folder',
-            visible: true,
-            columnSpan: 1,
-            containerId: 'main',
-            order: maxOrder + 1,
-            props: { folderName: 'New Folder' },
-        };
-        updateLayout([...layout, newFolder]);
+        updateLayout([
+            ...layout,
+            {
+                id,
+                type: 'folder',
+                visible: true,
+                columnSpan: 1,
+                containerId: 'main',
+                order: maxOrder + 1,
+                props: { folderName: 'New Folder' },
+            },
+        ]);
     }, [layout, updateLayout]);
 
     const renameFolder = useCallback(
@@ -39,9 +47,7 @@ export function useFolderActions(
 
     const deleteFolder = useCallback(
         (id: string) => {
-            const maxMainOrder = layout
-                .filter((w) => w.containerId === 'main')
-                .reduce((max, w) => Math.max(max, w.order), -1);
+            const max = maxMainOrder(layout);
             let offset = 0;
             const next = layout
                 .filter((w) => w.id !== id)
@@ -51,7 +57,7 @@ export function useFolderActions(
                         return {
                             ...w,
                             containerId: 'main',
-                            order: maxMainOrder + offset,
+                            order: max + offset,
                         };
                     }
                     return w;
@@ -64,13 +70,77 @@ export function useFolderActions(
 
     const removeFromFolder = useCallback(
         (widgetId: string) => {
-            const maxOrder = layout
-                .filter((w) => w.containerId === 'main')
-                .reduce((max, w) => Math.max(max, w.order), -1);
             updateLayout(
                 layout.map((w) =>
                     w.id === widgetId
-                        ? { ...w, containerId: 'main', order: maxOrder + 1 }
+                        ? {
+                              ...w,
+                              containerId: 'main',
+                              order: maxMainOrder(layout) + 1,
+                          }
+                        : w,
+                ),
+            );
+        },
+        [layout, updateLayout],
+    );
+
+    const moveToBucket = useCallback(
+        (widgetId: string) => {
+            updateLayout(
+                layout.map((w) =>
+                    w.id === widgetId
+                        ? { ...w, containerId: 'bucket', visible: true }
+                        : w,
+                ),
+            );
+        },
+        [layout, updateLayout],
+    );
+
+    const restoreFromBucket = useCallback(
+        (widgetId: string) => {
+            updateLayout(
+                layout.map((w) =>
+                    w.id === widgetId
+                        ? {
+                              ...w,
+                              containerId: 'main',
+                              order: maxMainOrder(layout) + 1,
+                              visible: true,
+                          }
+                        : w,
+                ),
+            );
+        },
+        [layout, updateLayout],
+    );
+
+    const unpresentWidget = useCallback(
+        (widgetId: string) => {
+            updateLayout(
+                layout.map((w) =>
+                    w.id === widgetId
+                        ? { ...w, unpresented: true, visible: false }
+                        : w,
+                ),
+            );
+        },
+        [layout, updateLayout],
+    );
+
+    const restoreUnpresented = useCallback(
+        (widgetId: string) => {
+            updateLayout(
+                layout.map((w) =>
+                    w.id === widgetId
+                        ? {
+                              ...w,
+                              unpresented: false,
+                              visible: true,
+                              containerId: 'main',
+                              order: maxMainOrder(layout) + 1,
+                          }
                         : w,
                 ),
             );
@@ -85,5 +155,9 @@ export function useFolderActions(
         renameFolder,
         deleteFolder,
         removeFromFolder,
+        moveToBucket,
+        restoreFromBucket,
+        unpresentWidget,
+        restoreUnpresented,
     };
 }

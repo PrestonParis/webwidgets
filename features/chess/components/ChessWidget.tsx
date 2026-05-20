@@ -61,14 +61,16 @@ export default function ChessWidget() {
                         </span>
                         <span>{game.black || 'Black'}</span>
                     </div>
-                    <div className="rounded overflow-hidden shadow-sm">
-                        <Chessboard
-                            options={{
-                                position: boardState.fen,
-                                squareStyles: boardState.squareStyles,
-                                allowDragging: false,
-                            }}
-                        />
+                    <div className="flex justify-center">
+                        <div className="rounded overflow-hidden shadow-sm w-45 shrink-0">
+                            <Chessboard
+                                options={{
+                                    position: boardState.fen,
+                                    squareStyles: boardState.squareStyles,
+                                    allowDragging: false,
+                                }}
+                            />
+                        </div>
                     </div>
                     <p className="text-[10px] text-center text-zinc-400">
                         Move{' '}

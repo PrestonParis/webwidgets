@@ -3,6 +3,8 @@ export type Category = {
     base: string;
     conversions?: Record<string, number>;
     custom?: boolean;
+    /** live categories require async data and cannot be used in the static full-page converter */
+    live?: boolean;
 };
 
 export const categories: Record<string, Category> = {
@@ -146,6 +148,23 @@ export const categories: Record<string, Category> = {
             Terabyte: 1024 ** 4,
             Petabyte: 1024 ** 5,
         },
+    },
+
+    Currency: {
+        units: [
+            'USD',
+            'EUR',
+            'GBP',
+            'JPY',
+            'CAD',
+            'AUD',
+            'CHF',
+            'CNY',
+            'INR',
+            'MXN',
+        ],
+        base: 'USD',
+        live: true,
     },
 };
 

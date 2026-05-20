@@ -9,7 +9,11 @@ import {
     Clock,
     Square,
     HardDrive,
+    Weight,
+    Droplets,
+    DollarSign,
 } from 'lucide-react';
+import { categories } from '@/features/convert/constants';
 import { getCategories } from '@/features/convert/types/unitconvert';
 import { CategorySelectorProps } from '@/features/convert/types/unitconvert';
 
@@ -19,23 +23,28 @@ function cn(...classes: (string | undefined | false | null)[]) {
 
 const iconMap: Record<string, LucideIcon> = {
     Length: Ruler,
-    Weight: Ruler,
+    Weight: Weight,
     Temperature: Thermometer,
+    Volume: Droplets,
     Speed: Gauge,
     Time: Clock,
     Area: Square,
     Data: HardDrive,
+    Currency: DollarSign,
 };
 
 export default function CategorySelector({
     selected,
     onSelect,
 }: CategorySelectorProps) {
-    const categories = getCategories();
+    // Static-only full page — exclude live (async) categories like Currency
+    const staticCategories = getCategories().filter(
+        (cat) => !categories[cat]?.live,
+    );
 
     return (
         <div className="flex flex-wrap gap-2 justify-center">
-            {categories.map((cat) => {
+            {staticCategories.map((cat) => {
                 const Icon = iconMap[cat];
                 const active = selected === cat;
 

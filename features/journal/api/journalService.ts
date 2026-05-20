@@ -1,10 +1,15 @@
 import { supabase } from '@/lib/db/supabase';
 
 export const journalService = {
-    async createEntry(userId: string, title: string, content: string) {
+    async createEntry(
+        userId: string,
+        title: string,
+        content: string,
+        type: 'journal' | 'document' = 'journal',
+    ) {
         return supabase
             .from('journals')
-            .insert([{ title: title.trim(), content, user_id: userId }]);
+            .insert([{ title: title.trim(), content, user_id: userId, type }]);
     },
 
     async updateEntry(

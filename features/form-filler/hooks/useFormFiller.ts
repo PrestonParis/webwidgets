@@ -3,6 +3,51 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { FormFillerProfile, FormFillerJob } from '../types';
 
+const PROFILES_API = '/api/form-filler/profiles';
+const FILL_API = '/api/form-filler/fill';
+
+async function readError(res: Response, fallback: string): Promise<string> {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    return body.error ?? fallback;
+}
+
+async function fetchProfiles(): Promise<FormFillerProfile[]> {
+    const res = await fetch(PROFILES_API);
+    if (!res.ok)
+        throw new Error(await readError(res, `Server error ${res.status}`));
+    return (await res.json()) as FormFillerProfile[];
+}
+
+async function patchProfile(
+    profile: FormFillerProfile,
+): Promise<FormFillerProfile> {
+    const res = await fetch(PROFILES_API, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id: profile.id,
+            name: profile.name,
+            fields: profile.fields,
+        }),
+    });
+    if (!res.ok)
+        throw new Error(await readError(res, `Save failed (${res.status})`));
+    return (await res.json()) as FormFillerProfile;
+}
+
+async function postProfile(name: string): Promise<FormFillerProfile> {
+    const res = await fetch(PROFILES_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, fields: {} }),
+    });
+    if (!res.ok)
+        throw new Error(
+            await readError(res, `Could not create profile (${res.status})`),
+        );
+    return (await res.json()) as FormFillerProfile;
+}
+
 export function useFormFillerProfiles() {
     const [profiles, setProfiles] = useState<FormFillerProfile[]>([]);
     const [loading, setLoading] = useState(true);
@@ -14,17 +59,11 @@ export function useFormFillerProfiles() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/form-filler/profiles');
-            if (res.ok) {
-                setProfiles((await res.json()) as FormFillerProfile[]);
-            } else {
-                const body = (await res.json().catch(() => ({}))) as {
-                    error?: string;
-                };
-                setError(body.error ?? `Server error ${res.status}`);
-            }
-        } catch {
-            setError('Could not reach server');
+            setProfiles(await fetchProfiles());
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : 'Could not reach server',
+            );
         } finally {
             setLoading(false);
         }
@@ -42,29 +81,17 @@ export function useFormFillerProfiles() {
             setSaving(true);
             setError(null);
             try {
-                const res = await fetch('/api/form-filler/profiles', {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: profile.id,
-                        name: profile.name,
-                        fields: profile.fields,
-                    }),
-                });
-                if (!res.ok) {
-                    const body = (await res.json().catch(() => ({}))) as {
-                        error?: string;
-                    };
-                    setError(body.error ?? `Save failed (${res.status})`);
-                    return false;
-                }
-                const updated = (await res.json()) as FormFillerProfile;
+                const updated = await patchProfile(profile);
                 setProfiles((prev) =>
                     prev.map((p) => (p.id === updated.id ? updated : p)),
                 );
                 return true;
-            } catch {
-                setError('Network error — changes not saved');
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Network error — changes not saved',
+                );
                 return false;
             } finally {
                 setSaving(false);
@@ -78,26 +105,15 @@ export function useFormFillerProfiles() {
             setCreating(true);
             setError(null);
             try {
-                const res = await fetch('/api/form-filler/profiles', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, fields: {} }),
-                });
-                if (!res.ok) {
-                    const body = (await res.json().catch(() => ({}))) as {
-                        error?: string;
-                    };
-                    setError(
-                        body.error ??
-                            `Could not create profile (${res.status})`,
-                    );
-                    return null;
-                }
-                const created = (await res.json()) as FormFillerProfile;
+                const created = await postProfile(name);
                 setProfiles((prev) => [...prev, created]);
                 return created;
-            } catch {
-                setError('Network error — could not create profile');
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Network error — could not create profile',
+                );
                 return null;
             } finally {
                 setCreating(false);
@@ -107,7 +123,7 @@ export function useFormFillerProfiles() {
     );
 
     const remove = useCallback(async (id: string) => {
-        await fetch(`/api/form-filler/profiles?id=${id}`, { method: 'DELETE' });
+        await fetch(`${PROFILES_API}?id=${id}`, { method: 'DELETE' });
         setProfiles((prev) => prev.filter((p) => p.id !== id));
     }, []);
 
@@ -133,7 +149,7 @@ export function useFormFillerJobs() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/form-filler/fill');
+            const res = await fetch(FILL_API);
             if (res.ok) {
                 setJobs((await res.json()) as FormFillerJob[]);
             } else {
@@ -158,7 +174,7 @@ export function useFormFillerJobs() {
 
     const startFill = useCallback(
         async (url: string, profileId: string): Promise<string | null> => {
-            const res = await fetch('/api/form-filler/fill', {
+            const res = await fetch(FILL_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url, profileId }),
@@ -187,7 +203,7 @@ export function useFormFillerJobs() {
 
     const pollJob = useCallback(
         async (jobId: string): Promise<FormFillerJob | undefined> => {
-            const res = await fetch(`/api/form-filler/fill?jobId=${jobId}`);
+            const res = await fetch(`${FILL_API}?jobId=${jobId}`);
             if (!res.ok) return undefined;
             const job = (await res.json()) as FormFillerJob;
             setJobs((prev) =>

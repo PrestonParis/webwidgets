@@ -35,6 +35,8 @@ export default function PomodoroWidget() {
             onSettingsChange={updateSettings}
             widgetId="pomodoro"
             widgetType="pomodoro"
+            footerHref="/pomodoro"
+            footerLabel="Open timer →"
         >
             <div
                 className={`flex flex-col items-center justify-center ${compact ? 'p-2 space-y-3' : 'p-4 space-y-6'}`}

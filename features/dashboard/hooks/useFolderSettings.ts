@@ -9,6 +9,7 @@ import type { Json } from '@/types/supabase';
 import type {
     WidgetColor,
     WidgetBackground,
+    WidgetSize,
 } from '@/features/widgets/types/widgets';
 
 export interface FolderSettings {
@@ -18,6 +19,7 @@ export interface FolderSettings {
     opacity: number;
     /** 0–200, where 100 = normal brightness */
     brightness: number;
+    size: WidgetSize;
 }
 
 export const DEFAULT_FOLDER_SETTINGS: FolderSettings = {
@@ -25,6 +27,7 @@ export const DEFAULT_FOLDER_SETTINGS: FolderSettings = {
     background: 'default',
     opacity: 0,
     brightness: 100,
+    size: 'default',
 };
 
 const schema = z.object({
@@ -44,6 +47,7 @@ const schema = z.object({
     background: z.enum(['default', 'glass', 'solid']).optional(),
     opacity: z.number().min(0).max(100).optional(),
     brightness: z.number().min(0).max(200).optional(),
+    size: z.enum(['compact', 'default', 'wide', 'large']).optional(),
 });
 
 export function useFolderSettings(folderId: string) {
@@ -78,6 +82,7 @@ export function useFolderSettings(folderId: string) {
                         brightness:
                             parsed.data.brightness ??
                             DEFAULT_FOLDER_SETTINGS.brightness,
+                        size: parsed.data.size ?? DEFAULT_FOLDER_SETTINGS.size,
                     });
                 }
             }

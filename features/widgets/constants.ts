@@ -2,6 +2,8 @@ import {
     WidgetBackground,
     WidgetColor,
     WidgetSize,
+    WidgetState,
+    PinMode,
 } from '@/features/widgets/types/widgets';
 
 // This file defines constants and mappings for widget styles, including colors, sizes, and background styles.
@@ -113,7 +115,44 @@ export const COLORS = Object.keys(colorMap) as WidgetColor[];
 export const SIZE_LABELS: Record<WidgetSize, string> = {
     compact: 'Compact',
     default: 'Default',
+    wide: 'Wide',
     large: 'Large',
+};
+
+export const STATE_LABELS: Record<WidgetState, string> = {
+    active: 'Active',
+    passive: 'Passive',
+    dormant: 'Dormant',
+    suspended: 'Suspended',
+    archived: 'Archived',
+};
+
+export const STATE_DESCRIPTIONS: Record<WidgetState, string> = {
+    active: 'Fully interactive',
+    passive: 'Display only — no interaction',
+    dormant: 'Visible but paused',
+    suspended: 'Shell visible, compute stopped',
+    archived: 'Saved state, not loaded',
+};
+
+export const PIN_LABELS: Record<PinMode, string> = {
+    none: 'None',
+    viewport: 'Viewport',
+    canvas: 'Canvas',
+    anchor: 'Anchor',
+};
+
+export const RELATIONSHIP_LABELS: Record<
+    import('@/features/dashboard/types/dashboard').RelationshipType,
+    string
+> = {
+    independent: 'Independent',
+    attached: 'Attached',
+    embedded: 'Embedded',
+    merged: 'Merged',
+    dependent: 'Dependent',
+    reactive: 'Reactive',
+    mirrored: 'Mirrored',
 };
 
 export const BG_LABELS: Record<WidgetBackground, string> = {

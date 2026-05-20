@@ -15,20 +15,17 @@ const emailSchema = z.object({
     category: z.string().optional(),
     is_manual: z.boolean().optional(),
 });
-
 const inboxResponseSchema = z.object({
     emails: z.array(emailSchema).default([]),
     nextPageToken: z.string().nullable().optional(),
 });
 
 const CACHE_TTL = 5 * 60 * 1000;
-
 interface EmailsCache {
     emails: Email[];
     nextPageToken: string | null;
     fetchedAt: number;
 }
-
 let cache: EmailsCache | null = null;
 
 function updateEmailsOptimistically(
@@ -67,6 +64,29 @@ async function persistClassification(
         );
 }
 
+async function fetchInboxPage(
+    token?: string,
+): Promise<{ emails: Email[]; nextPageToken: string | null } | null> {
+    const url = token
+        ? `/api/gmail/inbox?pageToken=${token}`
+        : '/api/gmail/inbox';
+    const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
+    if (res.status === 401 || res.status === 403) return null;
+    if (!res.ok) throw new Error('Inbox API Fail');
+    const parsed = inboxResponseSchema.safeParse(await res.json());
+    if (!parsed.success) throw new Error('Invalid inbox API response');
+    const data = parsed.data;
+    const existing = token ? (cache?.emails ?? []) : [];
+    const existingIds = new Set(existing.map((e) => e.id));
+    return {
+        emails: [
+            ...existing,
+            ...data.emails.filter((e) => !existingIds.has(e.id)),
+        ],
+        nextPageToken: data.nextPageToken ?? null,
+    };
+}
+
 export function useEmails() {
     const { user } = useAuth();
     const [emails, setEmails] = useState<Email[]>(() => cache?.emails ?? []);
@@ -76,9 +96,13 @@ export function useEmails() {
     const [loading, setLoading] = useState(false);
     const [isUnauthorized, setIsUnauthorized] = useState(false);
     const inflightKey = useRef<string | null>(null);
-
     const hasGoogleSync =
         user?.identities?.some((id) => id.provider === 'google') ?? false;
+
+    // Reset unauthorized flag when user identity changes so reconnect works without reload
+    useEffect(() => {
+        queueMicrotask(() => setIsUnauthorized(false));
+    }, [user?.id]);
 
     const loadEmails = useCallback(
         async (token?: string) => {
@@ -88,36 +112,18 @@ export function useEmails() {
             inflightKey.current = key;
             setLoading(true);
             try {
-                const url = token
-                    ? `/api/gmail/inbox?pageToken=${token}`
-                    : '/api/gmail/inbox';
-                const res = await fetch(url, {
-                    credentials: 'include',
-                    cache: 'no-store',
-                });
-                if (res.status === 401 || res.status === 403) {
+                const result = await fetchInboxPage(token);
+                if (!result) {
                     setIsUnauthorized(true);
                     return;
                 }
-                if (!res.ok) throw new Error('Inbox API Fail');
-                const json: unknown = await res.json();
-                const parsed = inboxResponseSchema.safeParse(json);
-                if (!parsed.success)
-                    throw new Error('Invalid inbox API response');
-                const data = parsed.data;
-                const existing = token ? (cache?.emails ?? []) : [];
-                const existingIds = new Set(existing.map((e) => e.id));
-                const newEmails = [
-                    ...existing,
-                    ...data.emails.filter((e) => !existingIds.has(e.id)),
-                ];
                 cache = {
-                    emails: newEmails,
-                    nextPageToken: data.nextPageToken ?? null,
+                    emails: result.emails,
+                    nextPageToken: result.nextPageToken,
                     fetchedAt: Date.now(),
                 };
-                setEmails(newEmails);
-                setNextPageToken(data.nextPageToken ?? null);
+                setEmails(result.emails);
+                setNextPageToken(result.nextPageToken);
             } catch (err) {
                 console.error(err);
             } finally {

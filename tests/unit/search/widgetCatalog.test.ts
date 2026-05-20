@@ -8,11 +8,11 @@ describe('WIDGET_CATALOG', () => {
     it('contains at least one entry per documented widget type', () => {
         const types = WIDGET_CATALOG.map((w) => w.type);
         const expected = [
-            'journal',
+            'texteditor',
             'email',
             'chess',
             'recovery',
-            'pomodoro',
+            'timekeeping',
             'todo',
             'weather',
             'calendar',
@@ -76,8 +76,8 @@ describe('searchWidgets', () => {
         expect(results.some((w) => w.type === 'worldclock')).toBe(true);
     });
 
-    it('matches currency by keyword "exchange"', () => {
+    it('matches converter by keyword "exchange"', () => {
         const results = searchWidgets('exchange');
-        expect(results.some((w) => w.type === 'currency')).toBe(true);
+        expect(results.some((w) => w.type === 'converter')).toBe(true);
     });
 });

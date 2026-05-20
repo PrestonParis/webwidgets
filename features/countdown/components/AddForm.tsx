@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Smile } from 'lucide-react';
 import EmojiPicker from './EmojiPicker';
 import DatePicker from '@/features/ui/datepicker/DatePicker';
 import { AddFormProps } from '@/features/countdown/types/countdown';
@@ -11,8 +11,9 @@ export default function AddForm({ onAdd, onCancel }: AddFormProps) {
     const [date, setDate] = useState(() =>
         new Date(Date.now() + 7 * 86400000).toISOString(),
     );
-    const [emoji, setEmoji] = useState('🎯');
-    const [showPicker, setShowPicker] = useState(false);
+    const [emoji, setEmoji] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -33,30 +34,58 @@ export default function AddForm({ onAdd, onCancel }: AddFormProps) {
             }}
             className="space-y-2 mt-1"
         >
-            <EmojiPicker value={emoji} onChange={setEmoji} />
-            <input
-                autoFocus
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Event name…"
-                className="w-full text-sm px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-800 dark:text-zinc-200 placeholder:text-stone-400 outline-none focus:border-sky-400 transition-colors"
-            />
+            <div className="flex items-center gap-2">
+                {/* Optional emoji trigger */}
+                <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker((v) => !v)}
+                    title="Pick an icon (optional)"
+                    className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-sky-400 transition-colors text-base"
+                >
+                    {emoji ? (
+                        emoji
+                    ) : (
+                        <Smile
+                            size={14}
+                            className="text-stone-400 dark:text-zinc-500"
+                        />
+                    )}
+                </button>
+                <input
+                    autoFocus
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Event name…"
+                    className="flex-1 text-sm px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-800 dark:text-zinc-200 placeholder:text-stone-400 outline-none focus:border-sky-400 transition-colors"
+                />
+            </div>
+
+            {showEmojiPicker && (
+                <EmojiPicker
+                    value={emoji}
+                    onChange={(e) => {
+                        setEmoji(e === emoji ? '' : e);
+                        setShowEmojiPicker(false);
+                    }}
+                />
+            )}
+
             <button
                 type="button"
-                onClick={() => setShowPicker(!showPicker)}
+                onClick={() => setShowDatePicker(!showDatePicker)}
                 className="w-full text-left text-sm px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-800 dark:text-zinc-200 hover:border-sky-400 transition-colors"
             >
                 📅 {selectedLabel}
             </button>
-            {showPicker && (
+            {showDatePicker && (
                 <div className="flex justify-center">
                     <DatePicker
                         value={date}
                         onChange={(iso) => {
                             setDate(iso);
-                            setShowPicker(false);
+                            setShowDatePicker(false);
                         }}
-                        onCancel={() => setShowPicker(false)}
+                        onCancel={() => setShowDatePicker(false)}
                         allowFuture
                         showQuickActions={false}
                         saveLabel="Set date"

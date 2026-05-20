@@ -18,9 +18,178 @@ import {
 } from '@/lib/observability/metrics';
 
 const METHOD_OPTIONS: MethodOptions = {};
+type Clients = Awaited<ReturnType<typeof createClients>>;
+type Supabase = Clients['supabase'];
+type SupabaseAdmin = Clients['supabaseAdmin'];
 
 function isInvalidGrant(err: unknown): boolean {
     return String(err).includes('invalid_grant');
+}
+
+async function createAuthedGmail(supabaseAdmin: SupabaseAdmin, userId: string) {
+    const tokens = await getGoogleTokens(supabaseAdmin, userId);
+    const auth = createGmailClient(tokens);
+    auth.on('tokens', (newTokens) => {
+        if (newTokens.access_token) {
+            void supabaseAdmin
+                .from('user_tokens')
+                .update({
+                    access_token: newTokens.access_token,
+                    expires_at:
+                        newTokens.expiry_date ?? Date.now() + 3590 * 1000,
+                })
+                .eq('user_id', userId);
+        }
+    });
+    await auth.getAccessToken();
+    return google.gmail({ version: 'v1', auth });
+}
+
+async function fetchInboxMessages(
+    gmail: ReturnType<typeof google.gmail>,
+    pageToken: string | undefined,
+) {
+    const gmailEnd = externalApiDuration.startTimer({
+        service: 'gmail',
+        operation: 'fetch_inbox',
+    });
+    const { ids, nextPageToken } = await fetchEmailBatch(gmail, pageToken);
+    if (ids.length === 0) {
+        gmailEnd({ status: '200' });
+        return { ids, nextPageToken, batch: [] };
+    }
+    const batch = await Promise.all(
+        ids.map((id) =>
+            gmail.users.messages.get(
+                {
+                    userId: 'me',
+                    id,
+                    format: 'metadata',
+                    metadataHeaders: ['Subject', 'From', 'Date'],
+                },
+                METHOD_OPTIONS,
+            ),
+        ),
+    );
+    gmailEnd({ status: '200' });
+    return { ids, nextPageToken, batch };
+}
+
+async function getClassifyOptions(
+    supabaseAdmin: SupabaseAdmin,
+    userId: string,
+) {
+    const { data: rawProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('use_ai_email, anthropic_api_key')
+        .eq('id', userId)
+        .maybeSingle();
+    const profile = rawProfile as {
+        use_ai_email: boolean;
+        anthropic_api_key: string | null;
+    } | null;
+    return {
+        useAI: profile?.use_ai_email ?? false,
+        ...(profile?.anthropic_api_key
+            ? { apiKey: profile.anthropic_api_key }
+            : {}),
+    };
+}
+
+async function buildInboxPayload(
+    supabase: Supabase,
+    supabaseAdmin: SupabaseAdmin,
+    userId: string,
+    batch: Awaited<ReturnType<typeof fetchInboxMessages>>['batch'],
+    ids: string[],
+) {
+    const classifyOptions = await getClassifyOptions(supabaseAdmin, userId);
+    const parsed = parseEmails(batch.map(normalizeMessage), ids);
+    const categoryMap = await resolveClassifications(
+        supabase,
+        userId,
+        parsed,
+        classifyOptions,
+    );
+    return buildEmailResponse(parsed, categoryMap);
+}
+
+function handleInboxError(
+    err: unknown,
+    supabaseAdmin: SupabaseAdmin,
+    userId: string,
+    start: number,
+) {
+    const log = getLogger();
+    if (isInvalidGrant(err)) {
+        externalApiErrors.inc({ service: 'gmail', operation: 'fetch_inbox' });
+        log.warn('Gmail token expired — clearing stored credentials');
+        void supabaseAdmin.from('user_tokens').delete().eq('user_id', userId);
+        return NextResponse.json(
+            { error: 'gmail_auth_expired' },
+            { status: 401 },
+        );
+    }
+
+    captureError(err, {
+        userId,
+        operation: 'GET /api/gmail/inbox',
+        feature: 'inbox',
+    });
+    log.error(
+        { err, durationMs: Math.round(performance.now() - start) },
+        'Gmail inbox fetch failed',
+    );
+    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+}
+
+async function handleInboxRequest(
+    req: Request,
+    supabase: Supabase,
+    supabaseAdmin: SupabaseAdmin,
+    userId: string,
+) {
+    const log = getLogger();
+    const start = performance.now();
+    log.info('Gmail inbox fetch started');
+
+    try {
+        const gmail = await createAuthedGmail(supabaseAdmin, userId);
+        const pageToken =
+            new URL(req.url).searchParams.get('pageToken') ?? undefined;
+        const { ids, nextPageToken, batch } = await fetchInboxMessages(
+            gmail,
+            pageToken,
+        );
+        if (ids.length === 0) {
+            log.info(
+                { durationMs: Math.round(performance.now() - start) },
+                'Inbox empty',
+            );
+            return NextResponse.json({ emails: [], nextPageToken: null });
+        }
+
+        const emails = await buildInboxPayload(
+            supabase,
+            supabaseAdmin,
+            userId,
+            batch,
+            ids,
+        );
+        log.info(
+            {
+                emailCount: emails.length,
+                durationMs: Math.round(performance.now() - start),
+            },
+            'Inbox fetched',
+        );
+        return NextResponse.json({
+            emails,
+            nextPageToken: nextPageToken ?? null,
+        });
+    } catch (err) {
+        return handleInboxError(err, supabaseAdmin, userId, start);
+    }
 }
 
 export async function GET(req: Request) {
@@ -30,144 +199,8 @@ export async function GET(req: Request) {
 
     return runWithContext(
         { requestId, userId: user.id, operation: 'GET /api/gmail/inbox' },
-        async () => {
-            const log = getLogger();
-            const start = performance.now();
-            log.info('Gmail inbox fetch started');
-
-            try {
-                const tokens = await getGoogleTokens(supabaseAdmin, user.id);
-                const auth = createGmailClient(tokens);
-
-                // When google-auth-library silently refreshes an expired access token,
-                // write the new credentials back so the next request doesn't have to
-                // refresh again.
-                auth.on('tokens', (newTokens) => {
-                    if (newTokens.access_token) {
-                        void supabaseAdmin
-                            .from('user_tokens')
-                            .update({
-                                access_token: newTokens.access_token,
-                                expires_at:
-                                    newTokens.expiry_date ??
-                                    Date.now() + 3590 * 1000,
-                            })
-                            .eq('user_id', user.id);
-                    }
-                });
-
-                await auth.getAccessToken();
-
-                const gmail = google.gmail({ version: 'v1', auth });
-                const { searchParams } = new URL(req.url);
-                const pageToken = searchParams.get('pageToken') ?? undefined;
-
-                const gmailEnd = externalApiDuration.startTimer({
-                    service: 'gmail',
-                    operation: 'fetch_inbox',
-                });
-                const { ids, nextPageToken } = await fetchEmailBatch(
-                    gmail,
-                    pageToken,
-                );
-                if (ids.length === 0) {
-                    gmailEnd({ status: '200' });
-                    log.info(
-                        { durationMs: Math.round(performance.now() - start) },
-                        'Inbox empty',
-                    );
-                    return NextResponse.json({
-                        emails: [],
-                        nextPageToken: null,
-                    });
-                }
-
-                const batch = await Promise.all(
-                    ids.map((id) =>
-                        gmail.users.messages.get(
-                            {
-                                userId: 'me',
-                                id,
-                                format: 'metadata',
-                                metadataHeaders: ['Subject', 'From', 'Date'],
-                            },
-                            METHOD_OPTIONS,
-                        ),
-                    ),
-                );
-                gmailEnd({ status: '200' });
-
-                const { data: rawProfile } = await supabaseAdmin
-                    .from('profiles')
-                    .select('use_ai_email, anthropic_api_key')
-                    .eq('id', user.id)
-                    .maybeSingle();
-
-                const profile = rawProfile as {
-                    use_ai_email: boolean;
-                    anthropic_api_key: string | null;
-                } | null;
-
-                const classifyOptions = {
-                    useAI: profile?.use_ai_email ?? false,
-                    ...(profile?.anthropic_api_key
-                        ? { apiKey: profile.anthropic_api_key }
-                        : {}),
-                };
-
-                const parsed = parseEmails(batch.map(normalizeMessage), ids);
-                const categoryMap = await resolveClassifications(
-                    supabase,
-                    user.id,
-                    parsed,
-                    classifyOptions,
-                );
-                const emails = buildEmailResponse(parsed, categoryMap);
-
-                log.info(
-                    {
-                        emailCount: emails.length,
-                        durationMs: Math.round(performance.now() - start),
-                    },
-                    'Inbox fetched',
-                );
-                return NextResponse.json({
-                    emails,
-                    nextPageToken: nextPageToken ?? null,
-                });
-            } catch (err) {
-                if (isInvalidGrant(err)) {
-                    externalApiErrors.inc({
-                        service: 'gmail',
-                        operation: 'fetch_inbox',
-                    });
-                    log.warn(
-                        'Gmail token expired — clearing stored credentials',
-                    );
-                    void supabaseAdmin
-                        .from('user_tokens')
-                        .delete()
-                        .eq('user_id', user.id);
-                    return NextResponse.json(
-                        { error: 'gmail_auth_expired' },
-                        { status: 401 },
-                    );
-                }
-
-                captureError(err, {
-                    userId: user.id,
-                    operation: 'GET /api/gmail/inbox',
-                    feature: 'inbox',
-                });
-                log.error(
-                    { err, durationMs: Math.round(performance.now() - start) },
-                    'Gmail inbox fetch failed',
-                );
-                return NextResponse.json(
-                    { error: 'Failed to fetch' },
-                    { status: 500 },
-                );
-            }
+        () => {
+            return handleInboxRequest(req, supabase, supabaseAdmin, user.id);
         },
-    ); // end runWithContext
+    );
 }

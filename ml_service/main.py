@@ -3,48 +3,53 @@ import uuid
 import os
 import re
 from datetime import datetime, timedelta, timezone
-
-import numpy as np
-import joblib
-from fastapi import FastAPI, Request
-from pydantic import BaseModel
+from pathlib import Path
 from typing import Optional
 
-from observability import setup_logging, setup_sentry
+import numpy as np
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
+
+from observability import setup_logging, setup_sentry, metrics
+from schemas import (
+    EmailClassification,
+    WidgetSuggestionResponse,
+    ExtractedActionsResponse,
+    ExtractedAction,
+)
+from model_registry import ModelRegistry
+from drift_monitor import DriftMonitor
 
 logger = setup_logging(level=os.getenv("LOG_LEVEL", "INFO"))
 setup_sentry()
 
 app = FastAPI()
 
-MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
-MODEL_PATH = os.path.join(MODELS_DIR, "email_classifier.pkl")
-WIDGET_MODEL_PATH = os.path.join(MODELS_DIR, "widget_suggester.pkl")
-ACTION_MODEL_PATH = os.path.join(MODELS_DIR, "action_extractor.pkl")
+MODELS_DIR = Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "models"))
+LOGS_DIR = Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs"))
 
+# Initialize model registry
+registry = ModelRegistry(MODELS_DIR)
+
+# Initialize drift monitor
+drift_monitor = DriftMonitor(LOGS_DIR)
+
+# Load models with versioning support
+model = registry.load_model("email_classifier")
+widget_model = registry.load_model("widget_suggester")
+action_model = registry.load_model("action_extractor")
+
+# Load thresholds from metadata or use defaults
 SUGGEST_AI_THRESHOLD = 0.35
 ACTION_CONFIDENCE_THRESHOLD = 0.35
 
-model = None
-if os.path.exists(MODEL_PATH):
-    model = joblib.load(MODEL_PATH)
-    logger.info("Email classifier loaded", extra={"path": MODEL_PATH})
-else:
-    logger.warning("Email classifier model not found", extra={"path": MODEL_PATH})
+widget_metadata = registry.get_model_metadata("widget_suggester")
+if widget_metadata:
+    logger.info(f"Widget suggester metadata: {widget_metadata}")
 
-widget_model = None
-if os.path.exists(WIDGET_MODEL_PATH):
-    widget_model = joblib.load(WIDGET_MODEL_PATH)
-    logger.info("Widget suggester loaded", extra={"path": WIDGET_MODEL_PATH})
-else:
-    logger.warning("Widget suggester model not found", extra={"path": WIDGET_MODEL_PATH})
-
-action_model = None
-if os.path.exists(ACTION_MODEL_PATH):
-    action_model = joblib.load(ACTION_MODEL_PATH)
-    logger.info("Action extractor loaded", extra={"path": ACTION_MODEL_PATH})
-else:
-    logger.warning("Action extractor not found", extra={"path": ACTION_MODEL_PATH})
+action_metadata = registry.get_model_metadata("action_extractor")
+if action_metadata:
+    logger.info(f"Action extractor metadata: {action_metadata}")
 
 
 class EmailData(BaseModel):
@@ -346,6 +351,14 @@ async def log_requests(request: Request, call_next):
     response = await call_next(request)
 
     duration_ms = round((time.perf_counter() - start) * 1000, 2)
+    is_error = response.status_code >= 400
+    
+    # Collect metrics
+    metrics.record_request(
+        latency_ms=duration_ms,
+        is_error=is_error,
+    )
+    
     logger.info(
         "request",
         extra={
@@ -365,16 +378,24 @@ async def log_requests(request: Request, call_next):
 # Routes
 # ---------------------------------------------------------------------------
 
-def classify(sender: str, subject: str) -> dict:
+def classify(sender: str, subject: str) -> EmailClassification:
     if not model:
-        return {"category": "other", "confidence": 0.0}
+        return EmailClassification(category="other", confidence=0.0)
     text = f"{sender} {subject}"
     prediction = model.predict([text])[0]
     confidence = float(model.predict_proba([text]).max())
-    return {
-        "category": prediction if confidence > 0.6 else "other",
-        "confidence": confidence,
-    }
+    
+    # Log prediction for drift monitoring
+    drift_monitor.log_prediction(
+        model="email_classifier",
+        prediction=prediction,
+        confidence=confidence,
+        input_text=text,
+        metadata={"sender": sender, "subject": subject}
+    )
+    
+    category = prediction if confidence > 0.6 else "other"
+    return EmailClassification(category=category, confidence=confidence)
 
 
 @app.post("/predict")
@@ -385,15 +406,45 @@ async def predict_category(data: EmailData):
 @app.post("/predict/batch")
 async def predict_batch(data: BatchEmailData):
     start = time.perf_counter()
-    results = [
-        {"id": email["id"], **classify(email["sender"], email["subject"])}
-        for email in data.emails
-    ]
+    
+    if not model:
+        results = [
+            {"id": email["id"], "category": "other", "confidence": 0.0}
+            for email in data.emails
+        ]
+        return results
+    
+    # Batch inference optimization
+    texts = [f"{email['sender']} {email['subject']}" for email in data.emails]
+    predictions = model.predict(texts)
+    confidences = model.predict_proba(texts).max(axis=1)
+    
+    results = []
+    for email, pred, conf in zip(data.emails, predictions, confidences):
+        category = pred if conf > 0.6 else "other"
+        
+        # Log prediction for drift monitoring
+        drift_monitor.log_prediction(
+            model="email_classifier",
+            prediction=pred,
+            confidence=float(conf),
+            input_text=texts[len(results)],
+            metadata={"sender": email["sender"], "subject": email["subject"]}
+        )
+        
+        results.append({
+            "id": email["id"],
+            "category": category,
+            "confidence": float(conf)
+        })
+    
+    duration_ms = round((time.perf_counter() - start) * 1000, 2)
     logger.debug(
         "batch classification complete",
         extra={
             "count": len(results),
-            "duration_ms": round((time.perf_counter() - start) * 1000, 2),
+            "duration_ms": duration_ms,
+            "throughput": round(len(results) / (duration_ms / 1000), 2)
         },
     )
     return results
@@ -403,9 +454,22 @@ async def predict_batch(data: BatchEmailData):
 async def extract_actions(data: ExtractRequest):
     results = []
     for email in data.emails:
-        actions = _extract_actions_for_email(email)
-        if actions:
-            results.append({"id": email.id, "actions": actions})
+        raw_actions = _extract_actions_for_email(email)
+        if raw_actions:
+            # Validate actions with schema
+            validated_actions = []
+            for action_dict in raw_actions:
+                try:
+                    validated_action = ExtractedAction(**action_dict)
+                    validated_actions.append(validated_action)
+                except Exception as e:
+                    logger.warning(f"Invalid action schema: {e}", extra={"action": action_dict})
+            
+            if validated_actions:
+                results.append({
+                    "id": email.id,
+                    "actions": [action.model_dump() for action in validated_actions]
+                })
     return {"results": results}
 
 
@@ -413,7 +477,7 @@ async def extract_actions(data: ExtractRequest):
 async def suggest_widgets(data: SuggestQuery):
     if not widget_model or not data.query.strip():
         logger.debug("Widget suggest skipped — no model or empty query")
-        return {"suggestions": [], "suggest_ai": True}
+        return WidgetSuggestionResponse(suggestions=[], suggest_ai=True)
 
     start = time.perf_counter()
     query = data.query.strip()
@@ -428,23 +492,132 @@ async def suggest_widgets(data: SuggestQuery):
     top = ranked[: data.top_k]
     max_confidence = float(np.max(proba))
 
-    result = {
-        "suggestions": [
-            {"widget": widget, "confidence": round(conf, 3)}
-            for widget, conf in top
-            if conf > 0.05
-        ],
-        "suggest_ai": max_confidence < SUGGEST_AI_THRESHOLD,
-    }
+    # Log prediction for drift monitoring
+    drift_monitor.log_prediction(
+        model="widget_suggester",
+        prediction=ranked[0][0] if ranked else "unknown",
+        confidence=max_confidence,
+        input_text=query,
+        metadata={"top_k": data.top_k}
+    )
 
+    from schemas import WidgetSuggestion
+    suggestions = [
+        WidgetSuggestion(widget=widget, confidence=round(conf, 3))
+        for widget, conf in top
+        if conf > 0.05
+    ]
+
+    result = WidgetSuggestionResponse(
+        suggestions=suggestions,
+        suggest_ai=max_confidence < SUGGEST_AI_THRESHOLD,
+    )
+
+    duration_ms = round((time.perf_counter() - start) * 1000, 2)
     logger.debug(
         "widget suggestion complete",
         extra={
             "query_length": len(query),
             "top_widget": ranked[0][0] if ranked else None,
             "max_confidence": round(max_confidence, 3),
-            "suggest_ai": result["suggest_ai"],
-            "duration_ms": round((time.perf_counter() - start) * 1000, 2),
+            "suggest_ai": result.suggest_ai,
+            "duration_ms": duration_ms,
         },
     )
     return result
+
+
+# ---------------------------------------------------------------------------
+# Drift Monitoring Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/drift/{model}")
+async def get_drift_analysis(model: str, window_hours: int = 24):
+    """Get drift analysis for a specific model."""
+    return drift_monitor.analyze_drift(model, window_hours)
+
+
+@app.get("/feedback/{model}")
+async def get_feedback_analysis(model: str, window_hours: int = 168):
+    """Get feedback analysis for a specific model."""
+    return drift_monitor.analyze_feedback(model, window_hours)
+
+
+@app.post("/feedback")
+async def submit_feedback(
+    model: str,
+    prediction: str,
+    correct_label: str,
+    input_text: str,
+    user_correction: Optional[str] = None,
+    metadata: Optional[dict] = None
+):
+    """Submit user feedback for a prediction."""
+    drift_monitor.log_feedback(
+        model=model,
+        prediction=prediction,
+        correct_label=correct_label,
+        input_text=input_text,
+        user_correction=user_correction,
+        metadata=metadata
+    )
+    return {"status": "recorded"}
+
+
+@app.post("/export-retraining/{model}")
+async def export_retraining_data(model: str):
+    """Export feedback data for retraining."""
+    output_path = drift_monitor.export_retraining_data(model)
+    return {"status": "exported", "path": str(output_path)}
+
+
+# ---------------------------------------------------------------------------
+# Model Management Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/models")
+async def list_models():
+    """List all available models and their versions."""
+    return registry.list_models()
+
+
+@app.get("/models/{model_name}")
+async def get_model_info(model_name: str):
+    """Get detailed information about a specific model."""
+    return registry.get_model_info(model_name)
+
+
+@app.post("/models/{model_name}/reload")
+async def reload_model(model_name: str, version: Optional[int] = None):
+    """Force reload a model (hot reload)."""
+    reloaded_model = registry.reload_model(model_name, version)
+    if reloaded_model:
+        # Update global model references
+        if model_name == "email_classifier":
+            global model
+            model = reloaded_model
+        elif model_name == "widget_suggester":
+            global widget_model
+            widget_model = reloaded_model
+        elif model_name == "action_extractor":
+            global action_model
+            action_model = reloaded_model
+        return {"status": "reloaded", "model": model_name, "version": version}
+    return {"status": "failed", "model": model_name, "version": version}
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Flush drift monitoring logs on shutdown."""
+    drift_monitor.flush()
+
+
+# ---------------------------------------------------------------------------
+# Metrics Endpoint
+# ---------------------------------------------------------------------------
+
+@app.get("/metrics")
+async def get_metrics():
+    """Get current observability metrics."""
+    return metrics.get_metrics()
+
