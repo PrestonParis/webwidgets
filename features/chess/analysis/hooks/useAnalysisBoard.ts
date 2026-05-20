@@ -8,6 +8,7 @@ import { parsePgn, buildLastMoveStyles } from '@/features/chess/lib/chessUtils';
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 type ParsedMove = ReturnType<typeof parsePgn>[number];
+type SetMoveIndex = (index: number) => void;
 
 interface UseAnalysisBoardOptions {
     storageKey?: string | undefined;
@@ -42,6 +43,53 @@ function applyDrop(
     }
 }
 
+function getInitialPgn(isControlled: boolean, storageKey?: string): string {
+    if (isControlled || !storageKey || typeof window === 'undefined') return '';
+    return localStorage.getItem(`${storageKey}:pgn`) ?? '';
+}
+
+function getInitialMoveIndex(
+    isControlled: boolean,
+    externalPgn?: string,
+    storageKey?: string,
+): number {
+    if (isControlled) return parsePgn(externalPgn ?? '').length;
+    if (!storageKey || typeof window === 'undefined') return 0;
+    return parseInt(localStorage.getItem(`${storageKey}:idx`) ?? '0', 10);
+}
+
+function persistPgn(storageKey: string | undefined, newPgn: string): void {
+    if (storageKey) localStorage.setItem(`${storageKey}:pgn`, newPgn);
+}
+
+function persistMoveIndex(
+    storageKey: string | undefined,
+    isControlled: boolean,
+    index: number,
+): void {
+    if (storageKey && !isControlled)
+        localStorage.setItem(`${storageKey}:idx`, String(index));
+}
+
+function clearPersistedBoard(storageKey: string | undefined): void {
+    if (!storageKey) return;
+    localStorage.removeItem(`${storageKey}:pgn`);
+    localStorage.removeItem(`${storageKey}:idx`);
+}
+
+function useControlledMoveIndexSync(
+    isControlled: boolean,
+    externalPgn: string | undefined,
+    setMoveIndex: SetMoveIndex,
+): void {
+    // React 18 "setState during render" pattern: sync moveIndex when external PGN changes.
+    const [prevExternalPgn, setPrevExternalPgn] = useState(externalPgn);
+    if (isControlled && externalPgn !== prevExternalPgn) {
+        setPrevExternalPgn(externalPgn);
+        setMoveIndex(parsePgn(externalPgn ?? '').length);
+    }
+}
+
 export function useAnalysisBoard({
     storageKey,
     pgn: externalPgn,
@@ -50,25 +98,13 @@ export function useAnalysisBoard({
     const isControlled = externalPgn !== undefined;
 
     const [internalPgn, setInternalPgn] = useState<string>(() =>
-        !isControlled && storageKey && typeof window !== 'undefined'
-            ? (localStorage.getItem(`${storageKey}:pgn`) ?? '')
-            : '',
+        getInitialPgn(isControlled, storageKey),
     );
     const [moveIndex, setMoveIndex] = useState<number>(() =>
-        isControlled
-            ? parsePgn(externalPgn ?? '').length
-            : storageKey && typeof window !== 'undefined'
-              ? parseInt(localStorage.getItem(`${storageKey}:idx`) ?? '0', 10)
-              : 0,
+        getInitialMoveIndex(isControlled, externalPgn, storageKey),
     );
 
-    // React 18 "setState during render" pattern: sync moveIndex when external PGN changes.
-    const [prevExternalPgn, setPrevExternalPgn] = useState(externalPgn);
-    if (isControlled && externalPgn !== prevExternalPgn) {
-        setPrevExternalPgn(externalPgn);
-        setMoveIndex(parsePgn(externalPgn ?? '').length);
-    }
-
+    useControlledMoveIndexSync(isControlled, externalPgn, setMoveIndex);
     const pgn = isControlled ? (externalPgn ?? '') : internalPgn;
     const moves = useMemo(() => parsePgn(pgn), [pgn]);
 
@@ -90,8 +126,7 @@ export function useAnalysisBoard({
                 onPgnChange?.(newPgn);
             } else {
                 setInternalPgn(newPgn);
-                if (storageKey)
-                    localStorage.setItem(`${storageKey}:pgn`, newPgn);
+                persistPgn(storageKey, newPgn);
             }
         },
         [isControlled, onPgnChange, storageKey],
@@ -110,11 +145,7 @@ export function useAnalysisBoard({
             if (!result) return false;
             setPgn(result.pgn);
             setMoveIndex(result.newIndex);
-            if (storageKey && !isControlled)
-                localStorage.setItem(
-                    `${storageKey}:idx`,
-                    String(result.newIndex),
-                );
+            persistMoveIndex(storageKey, isControlled, result.newIndex);
             return true;
         },
         [boardFen, moveIndex, moves, setPgn, storageKey, isControlled],
@@ -124,8 +155,7 @@ export function useAnalysisBoard({
         (index: number) => {
             const clamped = Math.max(0, Math.min(moves.length, index));
             setMoveIndex(clamped);
-            if (storageKey && !isControlled)
-                localStorage.setItem(`${storageKey}:idx`, String(clamped));
+            persistMoveIndex(storageKey, isControlled, clamped);
         },
         [moves.length, storageKey, isControlled],
     );
@@ -133,10 +163,7 @@ export function useAnalysisBoard({
     const reset = useCallback(() => {
         setPgn('');
         setMoveIndex(0);
-        if (storageKey && !isControlled) {
-            localStorage.removeItem(`${storageKey}:pgn`);
-            localStorage.removeItem(`${storageKey}:idx`);
-        }
+        if (!isControlled) clearPersistedBoard(storageKey);
     }, [setPgn, storageKey, isControlled]);
 
     return {

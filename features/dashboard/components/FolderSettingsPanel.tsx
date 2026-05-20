@@ -3,7 +3,7 @@ import { colorMap, COLORS, BG_LABELS } from '@/features/widgets/constants';
 import type { WidgetBackground } from '@/features/widgets/types/widgets';
 import type { FolderSettings } from '@/features/dashboard/hooks/useFolderSettings';
 
-interface Props {
+interface FolderSettingsPanelProps {
     open: boolean;
     settings: FolderSettings;
     onUpdate: (patch: Partial<FolderSettings>) => void;
@@ -45,7 +45,11 @@ function Slider({
     );
 }
 
-export function FolderSettingsPanel({ open, settings, onUpdate }: Props) {
+export function FolderSettingsPanel({
+    open,
+    settings,
+    onUpdate,
+}: FolderSettingsPanelProps) {
     return (
         <div
             className={cn(

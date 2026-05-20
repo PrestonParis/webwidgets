@@ -39,6 +39,8 @@ export default function CountdownWidget() {
             onSettingsChange={updateSettings}
             widgetId="countdown"
             widgetType="countdown"
+            footerHref="/countdown"
+            footerLabel="View all →"
         >
             {loading ? (
                 <div className="space-y-2 animate-pulse">

@@ -11,6 +11,9 @@ import {
 } from '@/features/inbox/lib/inboxApiService';
 
 const NOTIFIED_KEY = 'notified_action_ids';
+type AddNotification = ReturnType<
+    typeof useNotificationStore.getState
+>['addNotification'];
 
 function getNotifiedSet(): Set<string> {
     try {
@@ -31,6 +34,37 @@ function markNotified(id: string): void {
     }
 }
 
+function notifyNewActions(
+    newActions: EmailAction[],
+    addNotification: AddNotification,
+) {
+    const notified = getNotifiedSet();
+    for (const action of newActions) {
+        if (action.completed || notified.has(action.id)) continue;
+        if (action.type === 'action' || action.type === 'deadline') {
+            addNotification({
+                widgetId: 'inbox',
+                title: action.title,
+                body: action.description ?? action.type,
+                category: action.type === 'deadline' ? 'alert' : 'info',
+            });
+            markNotified(action.id);
+        }
+    }
+}
+
+async function processInBatches(emails: Email[]): Promise<EmailAction[]> {
+    const all: EmailAction[] = [];
+    for (let i = 0; i < emails.length; i += 50) {
+        all.push(
+            ...(await fetchExtractedActions(emails.slice(i, i + 50), {
+                force: true,
+            })),
+        );
+    }
+    return all;
+}
+
 export function useEmailActions(emails: Email[], allEmails?: Email[]) {
     const [actions, setActions] = useState<EmailAction[]>([]);
     const [loading, setLoading] = useState(false);
@@ -42,32 +76,21 @@ export function useEmailActions(emails: Email[], allEmails?: Email[]) {
     const applyActions = useCallback(
         (newActions: EmailAction[]) => {
             setActions(newActions);
-            const notified = getNotifiedSet();
-            for (const action of newActions) {
-                if (action.completed || notified.has(action.id)) continue;
-                if (action.type === 'action' || action.type === 'deadline') {
-                    addNotification({
-                        widgetId: 'inbox',
-                        title: action.title,
-                        body: action.description ?? action.type,
-                        category: action.type === 'deadline' ? 'alert' : 'info',
-                    });
-                    markNotified(action.id);
-                }
-            }
+            notifyNewActions(newActions, addNotification);
         },
         [addNotification],
     );
 
     const fetchActions = useCallback(
-        async (batch: Email[]) => {
-            if (batch.length === 0) return;
+        async (batch: Email[]): Promise<boolean> => {
+            if (batch.length === 0) return true;
             setLoading(true);
             try {
-                const newActions = await fetchExtractedActions(batch);
-                applyActions(newActions);
+                applyActions(await fetchExtractedActions(batch));
+                return true;
             } catch (err) {
                 console.error('useEmailActions fetch error:', err);
+                return false;
             } finally {
                 setLoading(false);
             }
@@ -80,26 +103,21 @@ export function useEmailActions(emails: Email[], allEmails?: Email[]) {
         const key = emails.map((e) => e.id).join(',');
         if (key === processedKey.current) return;
         processedKey.current = key;
-        void fetchActions(emails);
+        void fetchActions(emails).then((ok) => {
+            if (!ok) processedKey.current = '';
+        });
     }, [emails, fetchActions]);
 
-    // Manually extract actions for a single email (force re-process)
     const extractSingle = useCallback(async (email: Email) => {
         setExtractingId(email.id);
         try {
             const newActions = await fetchExtractedActions([email], {
                 force: true,
             });
-            // Merge new actions for this email with existing actions for other emails
-            setActions((prev) => {
-                const otherActions = prev.filter(
-                    (a) => a.email_id !== email.id,
-                );
-                return [
-                    ...otherActions,
-                    ...newActions.filter((a) => a.email_id === email.id),
-                ];
-            });
+            setActions((prev) => [
+                ...prev.filter((a) => a.email_id !== email.id),
+                ...newActions.filter((a) => a.email_id === email.id),
+            ]);
         } catch (err) {
             console.error('extractSingle error:', err);
         } finally {
@@ -107,25 +125,12 @@ export function useEmailActions(emails: Email[], allEmails?: Email[]) {
         }
     }, []);
 
-    // Force re-extract all loaded emails (uses allEmails when provided to include pages beyond the first)
     const extractAll = useCallback(async () => {
         const target = allEmails && allEmails.length > 0 ? allEmails : emails;
         if (target.length === 0) return;
         setExtractingAll(true);
         try {
-            // Process in batches of 50 (API limit)
-            const batches: Email[][] = [];
-            for (let i = 0; i < target.length; i += 50) {
-                batches.push(target.slice(i, i + 50));
-            }
-            const allNewActions: EmailAction[] = [];
-            for (const batch of batches) {
-                const batchActions = await fetchExtractedActions(batch, {
-                    force: true,
-                });
-                allNewActions.push(...batchActions);
-            }
-            applyActions(allNewActions);
+            applyActions(await processInBatches(target));
         } catch (err) {
             console.error('extractAll error:', err);
         } finally {

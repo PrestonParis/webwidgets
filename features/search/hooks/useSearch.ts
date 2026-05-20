@@ -6,6 +6,8 @@ import {
     useFolderRegistry,
     type FolderEntry,
 } from '../store/useFolderRegistry';
+import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
+import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetDefinitionSchema';
 
 export interface NlpSuggestion {
     widget: string;
@@ -16,9 +18,12 @@ export interface SearchResults {
     widgetMatches: WidgetEntry[];
     folderMatches: FolderEntry[];
     nlpSuggestions: NlpSuggestion[];
+    synthesizedWidgets: WidgetSynthesisCandidate[];
     suggestAi: boolean;
     nlpLoading: boolean;
 }
+
+const SUGGEST_API = '/api/search/suggest';
 
 export function useSearch(query: string, taskQuery: string): SearchResults {
     const folders = useFolderRegistry((s) => s.folders);
@@ -28,6 +33,10 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const widgetMatches = searchWidgets(query);
+    const synthesizedWidgets =
+        taskQuery.trim().length > 2
+            ? synthesizeWidgetFromQuery(taskQuery).slice(0, 3)
+            : [];
 
     const q = query.toLowerCase().trim();
     const folderMatches = folders.filter((f) =>
@@ -49,7 +58,7 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
 
             async function fetchSuggestions() {
                 try {
-                    const res = await fetch('/api/search/suggest', {
+                    const res = await fetch(SUGGEST_API, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ query: task, top_k: 3 }),
@@ -83,6 +92,7 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
         widgetMatches,
         folderMatches,
         nlpSuggestions,
+        synthesizedWidgets,
         suggestAi,
         nlpLoading,
     };

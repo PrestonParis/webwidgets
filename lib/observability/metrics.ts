@@ -96,3 +96,28 @@ export const authFailures = new Counter({
     labelNames: ['reason'] as const,
     registers: [registry],
 });
+
+// ─── Unified Action Engine ───────────────────────────────────────────────────
+
+export const actionExecutionsTotal = new Counter({
+    name: 'dashboard_action_executions_total',
+    help: 'Unified action engine executions by action and status',
+    labelNames: ['action_id', 'status'] as const,
+    registers: [registry],
+});
+
+export const actionExecutionDuration = new Histogram({
+    name: 'dashboard_action_execution_duration_seconds',
+    help: 'Unified action engine execution duration in seconds',
+    labelNames: ['action_id', 'status'] as const,
+    buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+    registers: [registry],
+});
+
+export const actionQueueLatency = new Histogram({
+    name: 'dashboard_action_queue_latency_seconds',
+    help: 'Unified action queue latency before worker execution',
+    labelNames: ['action_id'] as const,
+    buckets: [0.01, 0.05, 0.1, 0.5, 1, 5, 15, 60],
+    registers: [registry],
+});

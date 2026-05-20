@@ -321,6 +321,7 @@ export type Database = {
                     image_url: string | null;
                     metadata: Json | null;
                     title: string;
+                    type: string;
                     updated_at: string | null;
                     user_id: string;
                 };
@@ -332,6 +333,7 @@ export type Database = {
                     image_url?: string | null;
                     metadata?: Json | null;
                     title: string;
+                    type?: string;
                     updated_at?: string | null;
                     user_id: string;
                 };
@@ -343,6 +345,7 @@ export type Database = {
                     image_url?: string | null;
                     metadata?: Json | null;
                     title?: string;
+                    type?: string;
                     updated_at?: string | null;
                     user_id?: string;
                 };
@@ -375,12 +378,222 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            reading_bookmarks: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    document_id: string;
+                    position: unknown;
+                    label: string | null;
+                    color: string;
+                    citation: string | null;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    document_id: string;
+                    position: unknown;
+                    label?: string | null;
+                    color?: string;
+                    citation?: string | null;
+                    created_at?: string;
+                };
+                Update: {
+                    label?: string | null;
+                    color?: string;
+                    citation?: string | null;
+                };
+                Relationships: [];
+            };
+            reading_highlights: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    document_id: string;
+                    position_start: unknown;
+                    position_end: unknown;
+                    text_snippet: string;
+                    color: string;
+                    note: string | null;
+                    citation: string | null;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    document_id: string;
+                    position_start: unknown;
+                    position_end: unknown;
+                    text_snippet: string;
+                    color?: string;
+                    note?: string | null;
+                    citation?: string | null;
+                };
+                Update: {
+                    color?: string;
+                    note?: string | null;
+                    citation?: string | null;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            reading_notes: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    document_id: string;
+                    position: unknown;
+                    position_end: unknown | null;
+                    content: string;
+                    citation: string | null;
+                    tags: string[];
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    document_id: string;
+                    position: unknown;
+                    position_end?: unknown | null;
+                    content: string;
+                    citation?: string | null;
+                    tags?: string[];
+                };
+                Update: {
+                    content?: string;
+                    citation?: string | null;
+                    tags?: string[];
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            reading_positions: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    document_id: string;
+                    version_id: string | null;
+                    position: unknown;
+                    percent_complete: number;
+                    time_spent_minutes: number;
+                    completed_at: string | null;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    document_id: string;
+                    version_id?: string | null;
+                    position: unknown;
+                    percent_complete?: number;
+                    time_spent_minutes?: number;
+                    completed_at?: string | null;
+                    updated_at?: string;
+                };
+                Update: {
+                    version_id?: string | null;
+                    position?: unknown;
+                    percent_complete?: number;
+                    time_spent_minutes?: number;
+                    completed_at?: string | null;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            reading_documents: {
+                Row: {
+                    id: string;
+                    user_id: string | null;
+                    provider_id: string;
+                    external_id: string | null;
+                    title: string;
+                    subtitle: string | null;
+                    author: string | null;
+                    description: string | null;
+                    type: string;
+                    language: string;
+                    source: unknown;
+                    metadata: unknown;
+                    permissions: string[];
+                    thumbnail_url: string | null;
+                    total_pages: number | null;
+                    created_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id?: string | null;
+                    provider_id: string;
+                    external_id?: string | null;
+                    title: string;
+                    subtitle?: string | null;
+                    author?: string | null;
+                    description?: string | null;
+                    type: string;
+                    language?: string;
+                    source?: unknown;
+                    metadata?: unknown;
+                    permissions?: string[];
+                    thumbnail_url?: string | null;
+                    total_pages?: number | null;
+                };
+                Update: {
+                    title?: string;
+                    subtitle?: string | null;
+                    author?: string | null;
+                    description?: string | null;
+                    metadata?: unknown;
+                    permissions?: string[];
+                    thumbnail_url?: string | null;
+                };
+                Relationships: [];
+            };
+            reading_plans: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    title: string;
+                    description: string | null;
+                    entries: unknown;
+                    start_date: string | null;
+                    current_day: number;
+                    streak: number;
+                    is_active: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    title: string;
+                    description?: string | null;
+                    entries?: unknown;
+                    start_date?: string | null;
+                    current_day?: number;
+                    streak?: number;
+                    is_active?: boolean;
+                };
+                Update: {
+                    title?: string;
+                    description?: string | null;
+                    entries?: unknown;
+                    start_date?: string | null;
+                    current_day?: number;
+                    streak?: number;
+                    is_active?: boolean;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
             profiles: {
                 Row: {
                     anthropic_api_key: string | null;
                     created_at: string | null;
                     full_name: string | null;
                     id: string;
+                    role: string;
                     updated_at: string | null;
                     use_ai_email: boolean;
                 };
@@ -389,6 +602,7 @@ export type Database = {
                     created_at?: string | null;
                     full_name?: string | null;
                     id: string;
+                    role?: string;
                     updated_at?: string | null;
                     use_ai_email?: boolean;
                 };
@@ -397,6 +611,7 @@ export type Database = {
                     created_at?: string | null;
                     full_name?: string | null;
                     id?: string;
+                    role?: string;
                     updated_at?: string | null;
                     use_ai_email?: boolean;
                 };
@@ -636,11 +851,44 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            user_integration_keys: {
+                Row: {
+                    id: string;
+                    user_id: string;
+                    provider: string;
+                    api_key: string;
+                    label: string | null;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    user_id: string;
+                    provider: string;
+                    api_key: string;
+                    label?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    user_id?: string;
+                    provider?: string;
+                    api_key?: string;
+                    label?: string | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
             user_tokens: {
                 Row: {
                     access_token: string;
                     expires_at: number | null;
                     has_calendar: boolean;
+                    has_microsoft: boolean;
+                    microsoft_access_token: string | null;
+                    microsoft_refresh_token: string | null;
                     provider: string | null;
                     refresh_token: string | null;
                     updated_at: string;
@@ -650,6 +898,9 @@ export type Database = {
                     access_token: string;
                     expires_at?: number | null;
                     has_calendar?: boolean;
+                    has_microsoft?: boolean;
+                    microsoft_access_token?: string | null;
+                    microsoft_refresh_token?: string | null;
                     provider?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;
@@ -659,6 +910,9 @@ export type Database = {
                     access_token?: string;
                     expires_at?: number | null;
                     has_calendar?: boolean;
+                    has_microsoft?: boolean;
+                    microsoft_access_token?: string | null;
+                    microsoft_refresh_token?: string | null;
                     provider?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;

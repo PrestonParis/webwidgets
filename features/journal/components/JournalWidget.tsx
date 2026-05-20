@@ -17,6 +17,7 @@ const journalEntrySchema: z.ZodType<JournalEntry> = z.object({
     image_url: z.string().nullable(),
     deleted_at: z.string().nullable(),
     created_at: z.string(),
+    type: z.enum(['journal', 'document']).default('journal'),
 });
 
 const journalEntryArraySchema = z.array(journalEntrySchema);

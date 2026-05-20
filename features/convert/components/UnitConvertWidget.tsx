@@ -23,6 +23,8 @@ export default function UnitConverterWidget() {
         displayFrom,
         displayTo,
         conversionRate,
+        ratesLoading,
+        rateDate,
         handleFromChange,
         handleToChange,
         handleCategoryChange,
@@ -69,6 +71,8 @@ export default function UnitConverterWidget() {
                 rate={conversionRate}
                 fromUnit={validFrom}
                 toUnit={validTo}
+                rateDate={rateDate}
+                loading={ratesLoading}
             />
         </WidgetShell>
     );

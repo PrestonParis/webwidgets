@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useAuthContext } from '@/features/auth/context/AuthContext';
 import { supabase } from '@/lib/db/supabase';
-import { User } from '@supabase/supabase-js';
 
 async function signUpWithEmail(email: string, password: string) {
     return supabase.auth.signUp({ email, password });
@@ -42,45 +41,15 @@ async function signOut() {
 }
 
 export function useAuth() {
-    const [user, setUser] = useState<User | null>(null);
-    const [status, setStatus] = useState<
-        'loading' | 'authenticated' | 'unauthenticated'
-    >('loading');
-    const [profile, setProfile] = useState<{ full_name: string | null } | null>(
-        null,
-    );
+    const { user, status, profile } = useAuthContext();
 
-    useEffect(() => {
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
-            setUser(session?.user ?? null);
-            setStatus(session ? 'authenticated' : 'unauthenticated');
-            if (event === 'SIGNED_OUT') setProfile(null);
-        });
-        return () => subscription.unsubscribe();
-    }, []);
-
-    useEffect(() => {
-        if (!user?.id) return;
-        let active = true;
-        void (async () => {
-            const { data } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', user.id)
-                .single();
-            if (active && data) setProfile(data);
-        })();
-        return () => {
-            active = false;
-        };
-    }, [user?.id]);
+    const isAdmin = profile?.role === 'admin';
 
     return {
         user,
         status,
         loading: status === 'loading',
+        isAdmin,
         profile,
         firstName:
             profile?.full_name?.split(' ')[0] ??

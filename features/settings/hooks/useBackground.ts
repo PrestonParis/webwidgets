@@ -111,8 +111,6 @@ export function useBackground() {
     });
 
     useEffect(() => {
-        // Keep in sync with other callers
-        setLocalConfig(_config);
         _listeners.add(setLocalConfig);
         return () => {
             _listeners.delete(setLocalConfig);

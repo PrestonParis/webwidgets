@@ -19,7 +19,9 @@ export default function CountdownHero({
                 <X size={12} />
             </button>
             <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{countdown.emoji}</span>
+                {countdown.emoji && (
+                    <span className="text-xl">{countdown.emoji}</span>
+                )}
                 <span className="text-sm font-semibold text-stone-700 dark:text-zinc-300 truncate">
                     {countdown.name}
                 </span>

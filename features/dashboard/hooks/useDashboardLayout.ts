@@ -8,6 +8,7 @@ import {
     buildDefaultLayout,
     reconcileLayout,
     makePersistKey,
+    makeSealedKey,
     readCachedLayout,
     readCachedTimestamp,
 } from '../lib/dashboardLayout';
@@ -31,12 +32,13 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
         async function load() {
             let showedCached = false;
+            const sealed = localStorage.getItem(makeSealedKey(userId!)) === '1';
             try {
                 const cached = readCachedLayout(userId!);
                 const cachedTs = readCachedTimestamp(userId!);
 
                 if (cached) {
-                    setLayout(reconcileLayout(cached, safeTrackers));
+                    setLayout(reconcileLayout(cached, safeTrackers, sealed));
                     setReady(true);
                     showedCached = true;
                 }
@@ -57,7 +59,7 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 })();
 
                 const finalLayout = source
-                    ? reconcileLayout(source, safeTrackers)
+                    ? reconcileLayout(source, safeTrackers, sealed)
                     : buildDefaultLayout(safeTrackers);
 
                 setLayout(finalLayout);

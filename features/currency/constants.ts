@@ -26,5 +26,6 @@ export const POPULAR_CURRENCIES = [
 
 export const DISPLAY_TARGETS = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF'];
 
-export const CACHE_KEY = 'currency_rates_v1';
-export const CACHE_TTL = 86_400_000; // 24 hours
+// These are kept for any external consumers; the hook manages its own cache internally.
+export const CACHE_KEY = 'currency_rates_v2';
+export const CACHE_TTL = 30 * 60 * 1000; // 30 min

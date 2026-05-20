@@ -12,7 +12,9 @@ export default function CountdownItem({
     return (
         <li className="group flex items-center justify-between px-1">
             <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-sm">{countdown.emoji}</span>
+                {countdown.emoji && (
+                    <span className="text-sm">{countdown.emoji}</span>
+                )}
                 <span className="text-xs text-stone-600 dark:text-zinc-400 truncate">
                     {countdown.name}
                 </span>

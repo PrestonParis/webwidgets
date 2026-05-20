@@ -3,6 +3,8 @@ import type {
     CalendarEventInput,
 } from '@/features/calendar/types/calendar';
 
+const CALENDAR_EVENTS_API = '/api/calendar/events';
+
 async function handleResponse<T>(res: Response): Promise<T> {
     if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -14,7 +16,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 export async function createCalendarEvent(
     input: CalendarEventInput,
 ): Promise<CalendarEvent> {
-    const res = await fetch('/api/calendar/events', {
+    const res = await fetch(CALENDAR_EVENTS_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
@@ -26,7 +28,7 @@ export async function updateCalendarEvent(
     eventId: string,
     input: Partial<CalendarEventInput>,
 ): Promise<CalendarEvent> {
-    const res = await fetch('/api/calendar/events', {
+    const res = await fetch(CALENDAR_EVENTS_API, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, ...input }),
@@ -36,7 +38,7 @@ export async function updateCalendarEvent(
 
 export async function deleteCalendarEvent(eventId: string): Promise<void> {
     const res = await fetch(
-        `/api/calendar/events?eventId=${encodeURIComponent(eventId)}`,
+        `${CALENDAR_EVENTS_API}?eventId=${encodeURIComponent(eventId)}`,
         { method: 'DELETE' },
     );
     if (!res.ok) {

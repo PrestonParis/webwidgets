@@ -1,16 +1,13 @@
 import json
 import os
-import joblib
+from pathlib import Path
 from collections import Counter
-
-import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score, StratifiedKFold
+from training_utils import train_and_save_model, tune_threshold
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "training", "actions.json")
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "models", "action_extractor.pkl")
 
 
 def main():
@@ -30,15 +27,29 @@ def main():
         ("clf", LogisticRegression(max_iter=2000, C=1.0, solver="lbfgs", multi_class="multinomial")),
     ])
 
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    scores = cross_val_score(pipeline, texts, labels, cv=cv, scoring="accuracy")
-    print(f"\nCross-validation accuracy: {np.mean(scores):.3f} ± {np.std(scores):.3f}")
+    models_dir = Path(os.path.join(os.path.dirname(__file__), "models"))
+    metadata, eval_results = train_and_save_model(
+        pipeline=pipeline,
+        texts=texts,
+        labels=labels,
+        model_name="action_extractor",
+        models_dir=models_dir,
+        test_size=0.2,
+        random_state=42,
+    )
 
-    pipeline.fit(texts, labels)
-
-    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    joblib.dump(pipeline, MODEL_PATH)
-    print(f"\nSaved → {MODEL_PATH}")
+    # Tune threshold for action extraction
+    print("\n🔍 Tuning confidence threshold...")
+    output_dir = models_dir / "evaluations" / "action_extractor"
+    threshold_results = tune_threshold(
+        pipeline=pipeline,
+        X_val=texts[:50],  # Use subset for threshold tuning
+        y_val=labels[:50],
+        class_names=sorted(set(labels)),
+        output_dir=output_dir,
+    )
+    print(f"   Optimal threshold: {threshold_results['optimal_threshold']:.3f}")
+    print(f"   Optimal F1: {threshold_results['optimal_f1']:.3f}")
 
 
 if __name__ == "__main__":

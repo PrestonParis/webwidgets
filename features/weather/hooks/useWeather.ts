@@ -35,6 +35,39 @@ const weatherCacheSchema = z.object({
     timestamp: z.number(),
 });
 
+const coordsCacheSchema = z.object({
+    lat: z.number(),
+    lon: z.number(),
+    savedAt: z.number(),
+});
+
+const COORDS_KEY = 'weather_coords_v1';
+const COORDS_TTL = 24 * 60 * 60 * 1000;
+
+function readSavedCoords(): { lat: number; lon: number } | null {
+    try {
+        const raw = localStorage.getItem(COORDS_KEY);
+        if (!raw) return null;
+        const parsed = coordsCacheSchema.safeParse(JSON.parse(raw) as unknown);
+        if (!parsed.success) return null;
+        if (Date.now() - parsed.data.savedAt > COORDS_TTL) return null;
+        return { lat: parsed.data.lat, lon: parsed.data.lon };
+    } catch {
+        return null;
+    }
+}
+
+function saveCoords(lat: number, lon: number) {
+    try {
+        localStorage.setItem(
+            COORDS_KEY,
+            JSON.stringify({ lat, lon, savedAt: Date.now() }),
+        );
+    } catch {
+        // localStorage unavailable — non-fatal
+    }
+}
+
 function readWeatherCache(): WeatherData | null {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
@@ -45,7 +78,6 @@ function readWeatherCache(): WeatherData | null {
         if (!parsed.success) return null;
         const { data, timestamp } = parsed.data;
         if (Date.now() - timestamp >= CACHE_TTL) return null;
-        // Convert cached data to WeatherData, handling optional city properly
         const weatherData: WeatherData = {
             temp: data.temp,
             feelsLike: data.feelsLike,
@@ -70,6 +102,7 @@ async function fetchCityName(
         const res = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
         );
+        if (!res.ok) return undefined;
         const parsed = reverseGeoSchema.safeParse(
             (await res.json()) as unknown,
         );
@@ -86,9 +119,9 @@ async function fetchWeatherData(
     lon: number,
 ): Promise<WeatherData> {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&temperature_unit=fahrenheit&wind_speed_unit=mph`;
-    const parsed = weatherApiSchema.safeParse(
-        (await (await fetch(url)).json()) as unknown,
-    );
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Weather API HTTP ${res.status}`);
+    const parsed = weatherApiSchema.safeParse((await res.json()) as unknown);
     if (!parsed.success) throw new Error('Invalid weather API payload');
     const c = parsed.data.current;
     const wmo = WMO[c.weather_code] ?? { description: 'Unknown', emoji: '🌡️' };
@@ -106,6 +139,28 @@ async function fetchWeatherData(
     return weatherData;
 }
 
+function loadAndSet(
+    lat: number,
+    lon: number,
+    setWeather: (d: WeatherData) => void,
+    setState: (s: WeatherState) => void,
+) {
+    void fetchWeatherData(lat, lon)
+        .then((data) => {
+            try {
+                localStorage.setItem(
+                    CACHE_KEY,
+                    JSON.stringify({ data, timestamp: Date.now() }),
+                );
+            } catch {
+                // non-fatal
+            }
+            setWeather(data);
+            setState('ready');
+        })
+        .catch(() => setState('error'));
+}
+
 export function useWeather() {
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [state, setState] = useState<WeatherState>('idle');
@@ -116,18 +171,23 @@ export function useWeather() {
             return;
         }
         setState('loading');
+
+        // Use saved coordinates to skip the geolocation prompt on repeat visits.
+        const saved = readSavedCoords();
+        if (saved) {
+            loadAndSet(saved.lat, saved.lon, setWeather, setState);
+            return;
+        }
+
         navigator.geolocation.getCurrentPosition(
             ({ coords }) => {
-                void fetchWeatherData(coords.latitude, coords.longitude)
-                    .then((data) => {
-                        localStorage.setItem(
-                            CACHE_KEY,
-                            JSON.stringify({ data, timestamp: Date.now() }),
-                        );
-                        setWeather(data);
-                        setState('ready');
-                    })
-                    .catch(() => setState('error'));
+                saveCoords(coords.latitude, coords.longitude);
+                loadAndSet(
+                    coords.latitude,
+                    coords.longitude,
+                    setWeather,
+                    setState,
+                );
             },
             () => setState('denied'),
             { timeout: 10_000 },

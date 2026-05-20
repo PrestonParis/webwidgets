@@ -5,12 +5,18 @@ import { MoodEntry } from '@/features/mood/types/mood';
 // stable for the lifetime of the app session.
 const SESSION_START = Date.now();
 
+function localDateStr(ts: number): string {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 export function useMoodHistory(entries: MoodEntry[]) {
     const last7 = useMemo(() => {
         return Array.from({ length: 7 }, (_, i) => {
-            const date = new Date(SESSION_START - (6 - i) * 86_400_000)
-                .toISOString()
-                .split('T')[0]!;
+            const date = localDateStr(SESSION_START - (6 - i) * 86_400_000);
             const entry = entries.find((e) => e.logged_date === date);
             return { date, entry };
         });
@@ -18,6 +24,6 @@ export function useMoodHistory(entries: MoodEntry[]) {
 
     return {
         last7,
-        today: new Date(SESSION_START).toISOString().split('T')[0]!,
+        today: localDateStr(SESSION_START),
     };
 }

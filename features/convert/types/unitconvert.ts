@@ -36,6 +36,8 @@ export interface ConverterRateSummaryProps {
     rate: string;
     fromUnit: string;
     toUnit: string;
+    rateDate?: string | null;
+    loading?: boolean;
 }
 
 export interface CategorySelectorProps {

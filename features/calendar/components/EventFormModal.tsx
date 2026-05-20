@@ -1,22 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import {
     createCalendarEvent,
     updateCalendarEvent,
 } from '@/features/calendar/api/calendarMutations';
-import {
-    isAllDay,
-    eventColor,
-    EVENT_COLORS,
-} from '@/features/calendar/types/calendar';
+import { isAllDay, EVENT_COLORS } from '@/features/calendar/types/calendar';
 import type {
     CalendarEvent,
     CalendarEventInput,
 } from '@/features/calendar/types/calendar';
-
-// ─── types ────────────────────────────────────────────────────────────────────
 
 interface FormState {
     summary: string;
@@ -35,22 +29,16 @@ export interface EventFormModalProps {
     onClose: () => void;
     onSaved: () => void;
     editEvent?: CalendarEvent | undefined;
-    /** Pre-fill specific fields — used by email-action integration. */
     initialData?: Partial<FormState> | undefined;
 }
 
-// ─── color picker data ────────────────────────────────────────────────────────
-
 const COLOR_OPTIONS = [
     { id: '', bg: 'bg-blue-500', title: 'Default' },
-    ...Object.entries(EVENT_COLORS).map(([id, bg]) => ({
-        id,
-        bg,
-        title: id,
-    })),
+    ...Object.entries(EVENT_COLORS).map(([id, bg]) => ({ id, bg, title: id })),
 ];
-
-// ─── helpers ──────────────────────────────────────────────────────────────────
+const inputCls =
+    'w-full rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm px-3 py-2 outline-none focus:border-[#4f6ef7] placeholder:text-zinc-600 transition-colors';
+const labelCls = 'block text-xs font-medium text-zinc-400 mb-1';
 
 function todayStr() {
     return new Date().toISOString().split('T')[0]!;
@@ -74,7 +62,6 @@ function defaultForm(initial?: Partial<FormState>): FormState {
 function parseEventToForm(event: CalendarEvent): FormState {
     const allDay = isAllDay(event);
     if (allDay) {
-        // Google stores all-day end as exclusive (next day) — subtract 1 for display
         const endRaw = event.end.date ?? '';
         const endDisplay = endRaw
             ? new Date(new Date(endRaw + 'T00:00:00Z').getTime() - 86_400_000)
@@ -118,7 +105,6 @@ function buildInput(form: FormState): CalendarEventInput {
         colorId: form.colorId || null,
     };
     if (form.allDay) {
-        // Convert inclusive end back to exclusive for Google
         const endExclusive = new Date(
             new Date(form.endDate + 'T00:00:00Z').getTime() + 86_400_000,
         )
@@ -140,7 +126,120 @@ function buildInput(form: FormState): CalendarEventInput {
     };
 }
 
-// ─── component ────────────────────────────────────────────────────────────────
+interface FormFieldsProps {
+    form: FormState;
+    set: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
+    error: string | null;
+    onSubmit: (e: React.FormEvent) => void;
+}
+function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
+    return (
+        <form
+            onSubmit={onSubmit}
+            className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
+        >
+            <div>
+                <label className={labelCls}>Title *</label>
+                <input
+                    className={inputCls}
+                    placeholder="Event title"
+                    value={form.summary}
+                    onChange={(e) => set('summary', e.target.value)}
+                    autoFocus
+                />
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div
+                    className={`relative w-9 h-5 rounded-full transition-colors ${form.allDay ? 'bg-[#4f6ef7]' : 'bg-zinc-700'}`}
+                    onClick={() => set('allDay', !form.allDay)}
+                >
+                    <span
+                        className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${form.allDay ? 'translate-x-4' : ''}`}
+                    />
+                </div>
+                <span className="text-xs text-zinc-400">All day</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+                <div>
+                    <label className={labelCls}>Start date</label>
+                    <input
+                        type="date"
+                        className={inputCls}
+                        value={form.startDate}
+                        onChange={(e) => set('startDate', e.target.value)}
+                    />
+                </div>
+                {!form.allDay && (
+                    <div>
+                        <label className={labelCls}>Start time</label>
+                        <input
+                            type="time"
+                            className={inputCls}
+                            value={form.startTime}
+                            onChange={(e) => set('startTime', e.target.value)}
+                        />
+                    </div>
+                )}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                <div>
+                    <label className={labelCls}>End date</label>
+                    <input
+                        type="date"
+                        className={inputCls}
+                        value={form.endDate}
+                        onChange={(e) => set('endDate', e.target.value)}
+                    />
+                </div>
+                {!form.allDay && (
+                    <div>
+                        <label className={labelCls}>End time</label>
+                        <input
+                            type="time"
+                            className={inputCls}
+                            value={form.endTime}
+                            onChange={(e) => set('endTime', e.target.value)}
+                        />
+                    </div>
+                )}
+            </div>
+            <div>
+                <label className={labelCls}>Location</label>
+                <input
+                    className={inputCls}
+                    placeholder="Add location"
+                    value={form.location}
+                    onChange={(e) => set('location', e.target.value)}
+                />
+            </div>
+            <div>
+                <label className={labelCls}>Description</label>
+                <textarea
+                    className={`${inputCls} resize-none`}
+                    rows={3}
+                    placeholder="Add description"
+                    value={form.description}
+                    onChange={(e) => set('description', e.target.value)}
+                />
+            </div>
+            <div>
+                <label className={labelCls}>Color</label>
+                <div className="flex flex-wrap gap-2">
+                    {COLOR_OPTIONS.map((c) => (
+                        <button
+                            key={c.id}
+                            type="button"
+                            title={c.title}
+                            onClick={() => set('colorId', c.id)}
+                            className={`w-6 h-6 rounded-full ${c.bg} transition-transform hover:scale-110 ${form.colorId === c.id ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-900 scale-110' : ''}`}
+                        />
+                    ))}
+                </div>
+            </div>
+            {error && <p className="text-xs text-red-400">{error}</p>}
+        </form>
+    );
+}
 
 export function EventFormModal({
     open,
@@ -149,23 +248,33 @@ export function EventFormModal({
     editEvent,
     initialData,
 }: EventFormModalProps) {
+    if (!open) return null;
+    const formKey =
+        editEvent?.id ??
+        `${initialData?.summary ?? ''}:${initialData?.startDate ?? ''}:${initialData?.startTime ?? ''}`;
+    return (
+        <EventFormModalContent
+            key={formKey}
+            onClose={onClose}
+            onSaved={onSaved}
+            editEvent={editEvent}
+            initialData={initialData}
+        />
+    );
+}
+
+function EventFormModalContent({
+    onClose,
+    onSaved,
+    editEvent,
+    initialData,
+}: Omit<EventFormModalProps, 'open'>) {
     const isEdit = Boolean(editEvent);
     const [form, setForm] = useState<FormState>(() =>
         editEvent ? parseEventToForm(editEvent) : defaultForm(initialData),
     );
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Re-initialise when the modal opens with different data
-    useEffect(() => {
-        if (!open) return;
-        setForm(
-            editEvent ? parseEventToForm(editEvent) : defaultForm(initialData),
-        );
-        setError(null);
-    }, [open, editEvent, initialData]);
-
-    if (!open) return null;
 
     function set<K extends keyof FormState>(key: K, value: FormState[K]) {
         setForm((f) => ({ ...f, [key]: value }));
@@ -197,10 +306,6 @@ export function EventFormModal({
         }
     }
 
-    const inputCls =
-        'w-full rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm px-3 py-2 outline-none focus:border-[#4f6ef7] placeholder:text-zinc-600 transition-colors';
-    const labelCls = 'block text-xs font-medium text-zinc-400 mb-1';
-
     return (
         <div
             className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
@@ -210,7 +315,6 @@ export function EventFormModal({
                 className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
                     <h2 className="text-sm font-semibold text-zinc-100">
                         {isEdit ? 'Edit Event' : 'New Event'}
@@ -222,144 +326,14 @@ export function EventFormModal({
                         <X size={15} className="text-zinc-400" />
                     </button>
                 </div>
-
-                {/* Form */}
-                <form
+                <EventFormFields
+                    form={form}
+                    set={set}
+                    error={error}
                     onSubmit={(e) => {
                         void handleSubmit(e);
                     }}
-                    className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
-                >
-                    {/* Title */}
-                    <div>
-                        <label className={labelCls}>Title *</label>
-                        <input
-                            className={inputCls}
-                            placeholder="Event title"
-                            value={form.summary}
-                            onChange={(e) => set('summary', e.target.value)}
-                            autoFocus
-                        />
-                    </div>
-
-                    {/* All-day toggle */}
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                        <div
-                            className={`relative w-9 h-5 rounded-full transition-colors ${
-                                form.allDay ? 'bg-[#4f6ef7]' : 'bg-zinc-700'
-                            }`}
-                            onClick={() => set('allDay', !form.allDay)}
-                        >
-                            <span
-                                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                                    form.allDay ? 'translate-x-4' : ''
-                                }`}
-                            />
-                        </div>
-                        <span className="text-xs text-zinc-400">All day</span>
-                    </label>
-
-                    {/* Start */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <label className={labelCls}>Start date</label>
-                            <input
-                                type="date"
-                                className={inputCls}
-                                value={form.startDate}
-                                onChange={(e) =>
-                                    set('startDate', e.target.value)
-                                }
-                            />
-                        </div>
-                        {!form.allDay && (
-                            <div>
-                                <label className={labelCls}>Start time</label>
-                                <input
-                                    type="time"
-                                    className={inputCls}
-                                    value={form.startTime}
-                                    onChange={(e) =>
-                                        set('startTime', e.target.value)
-                                    }
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* End */}
-                    <div className="grid grid-cols-2 gap-2">
-                        <div>
-                            <label className={labelCls}>End date</label>
-                            <input
-                                type="date"
-                                className={inputCls}
-                                value={form.endDate}
-                                onChange={(e) => set('endDate', e.target.value)}
-                            />
-                        </div>
-                        {!form.allDay && (
-                            <div>
-                                <label className={labelCls}>End time</label>
-                                <input
-                                    type="time"
-                                    className={inputCls}
-                                    value={form.endTime}
-                                    onChange={(e) =>
-                                        set('endTime', e.target.value)
-                                    }
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Location */}
-                    <div>
-                        <label className={labelCls}>Location</label>
-                        <input
-                            className={inputCls}
-                            placeholder="Add location"
-                            value={form.location}
-                            onChange={(e) => set('location', e.target.value)}
-                        />
-                    </div>
-
-                    {/* Description */}
-                    <div>
-                        <label className={labelCls}>Description</label>
-                        <textarea
-                            className={`${inputCls} resize-none`}
-                            rows={3}
-                            placeholder="Add description"
-                            value={form.description}
-                            onChange={(e) => set('description', e.target.value)}
-                        />
-                    </div>
-
-                    {/* Color */}
-                    <div>
-                        <label className={labelCls}>Color</label>
-                        <div className="flex flex-wrap gap-2">
-                            {COLOR_OPTIONS.map((c) => (
-                                <button
-                                    key={c.id}
-                                    type="button"
-                                    title={c.title}
-                                    onClick={() => set('colorId', c.id)}
-                                    className={`w-6 h-6 rounded-full ${c.bg} transition-transform hover:scale-110 ${
-                                        form.colorId === c.id
-                                            ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-900 scale-110'
-                                            : ''
-                                    }`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {error && <p className="text-xs text-red-400">{error}</p>}
-                </form>
-
-                {/* Footer */}
+                />
                 <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-zinc-800">
                     <button
                         type="button"

@@ -2,11 +2,11 @@ import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
-    turbopack: {
-        resolveAlias: {
-            // Ensure @/ resolves to project root under Turbopack (Next.js 16 default bundler)
-            '@': '.',
-        },
+    // Next.js 16 reads tsconfig paths automatically — no turbopack.resolveAlias needed.
+    // Explicitly list the experimental feature Sentry injects so the "Experiments" warning
+    // does not appear as a surprise in dev output.
+    experimental: {
+        clientTraceMetadata: ['baggage', 'sentry-trace'],
     },
 };
 

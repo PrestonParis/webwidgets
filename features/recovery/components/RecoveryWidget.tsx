@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { getExactTimeParts } from '@/lib/utils/time';
 import { SoberWidgetProps } from '@/features/recovery/types/recovery';
 import { RecoveryView } from '@/features/widgets/types/widgets';
@@ -15,6 +16,74 @@ import ViewToggle from '@/features/recovery/components/ViewToggle';
 import { useSecondsClean } from '@/features/recovery/hooks/useSecondsClean';
 import ConfirmModal from '@/features/recovery/components/ConfirmModal';
 
+function EmptyRecoveryWidget({
+    settings,
+    settingsSlot,
+    updateSettings,
+    trackerId,
+}: {
+    settings: ReturnType<typeof useWidgetSettings>['settings'];
+    settingsSlot: ReactNode;
+    updateSettings: ReturnType<typeof useWidgetSettings>['updateSettings'];
+    trackerId: string;
+}) {
+    return (
+        <WidgetShell
+            icon={<HeartIcon />}
+            title="Sober Time"
+            settings={settings}
+            onSettingsChange={updateSettings}
+            settingsSlot={settingsSlot}
+            footerHref="/recovery"
+            footerLabel="View full page →"
+            widgetId={trackerId}
+            widgetType="recovery"
+        >
+            <p className="text-xs text-gray-400 dark:text-zinc-500">
+                No streak started. Visit the recovery page to begin.
+            </p>
+        </WidgetShell>
+    );
+}
+
+function TimerView({
+    secondsClean,
+    startTime,
+}: {
+    secondsClean: number;
+    startTime: string;
+}) {
+    const time = getExactTimeParts(startTime);
+    return (
+        <div className="flex flex-wrap gap-3 items-end">
+            {time.years > 0 && <TimeUnit value={time.years} label="y" />}
+            {time.months > 0 && <TimeUnit value={time.months} label="mo" />}
+            <TimeUnit value={time.days} label="d" />
+            <TimeUnit value={time.hours} label="h" />
+            <TimeUnit value={time.minutes} label="m" />
+            <TimeUnit value={secondsClean % 60} label="s" />
+        </div>
+    );
+}
+
+function RecoveryContent({
+    secondsClean,
+    startTime,
+    trackerId,
+    view,
+}: {
+    secondsClean: number;
+    startTime: string;
+    trackerId: string;
+    view: RecoveryView;
+}) {
+    return view === 'timer' ? (
+        <TimerView secondsClean={secondsClean} startTime={startTime} />
+    ) : (
+        <RecoveryHeatmap trackerId={trackerId} startTime={startTime} />
+    );
+}
+
 export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     const [startTime, setStartTime] = useState(tracker.start_time);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -26,7 +95,6 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
     const view = (settings.view as RecoveryView) ?? 'timer';
     const urgeForm = useUrgeForm(tracker.id);
     const secondsClean = useSecondsClean(startTime);
-    const time = startTime ? getExactTimeParts(startTime) : null;
 
     const settingsSlot = (
         <ViewToggle
@@ -67,21 +135,12 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
 
     if (!startTime) {
         return (
-            <WidgetShell
-                icon={<HeartIcon />}
-                title="Sober Time"
+            <EmptyRecoveryWidget
                 settings={settings}
-                onSettingsChange={updateSettings}
                 settingsSlot={settingsSlot}
-                footerHref="/recovery"
-                footerLabel="View full page →"
-                widgetId={tracker.id}
-                widgetType="recovery"
-            >
-                <p className="text-xs text-gray-400 dark:text-zinc-500">
-                    No streak started. Visit the recovery page to begin.
-                </p>
-            </WidgetShell>
+                trackerId={tracker.id}
+                updateSettings={updateSettings}
+            />
         );
     }
 
@@ -98,25 +157,12 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
                 widgetId={tracker.id}
                 widgetType="recovery"
             >
-                {view === 'timer' && time ? (
-                    <div className="flex flex-wrap gap-3 items-end">
-                        {time.years > 0 && (
-                            <TimeUnit value={time.years} label="y" />
-                        )}
-                        {time.months > 0 && (
-                            <TimeUnit value={time.months} label="mo" />
-                        )}
-                        <TimeUnit value={time.days} label="d" />
-                        <TimeUnit value={time.hours} label="h" />
-                        <TimeUnit value={time.minutes} label="m" />
-                        <TimeUnit value={secondsClean % 60} label="s" />
-                    </div>
-                ) : (
-                    <RecoveryHeatmap
-                        trackerId={tracker.id}
-                        startTime={startTime}
-                    />
-                )}
+                <RecoveryContent
+                    secondsClean={secondsClean}
+                    startTime={startTime}
+                    trackerId={tracker.id}
+                    view={view}
+                />
             </WidgetShell>
             {confirmOpen && (
                 <ConfirmModal

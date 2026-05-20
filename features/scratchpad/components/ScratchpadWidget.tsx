@@ -22,6 +22,8 @@ export default function ScratchpadWidget() {
             onSettingsChange={updateSettings}
             widgetId="scratchpad"
             widgetType="scratchpad"
+            footerHref="/scratchpad"
+            footerLabel="Open scratchpad →"
         >
             <textarea
                 value={content}

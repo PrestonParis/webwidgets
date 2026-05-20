@@ -16,6 +16,7 @@ import {
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import { SmartPointerSensor } from '@/features/dashboard/lib/smartPointerSensor';
 import WidgetWrapper from './WidgetWrapper';
+import FolderWidget from './FolderWidget';
 import HiddenWidgetsTray from './HiddenWidgetsTray';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
 
@@ -23,8 +24,11 @@ interface FolderSubScreenProps {
     folder: WidgetConfig;
     layout: WidgetConfig[];
     onBack: () => void;
+    onOpenFolder: (id: string) => void;
     onLayoutChange: (next: WidgetConfig[]) => void;
     onRemoveFromFolder: (widgetId: string) => void;
+    onRenameFolder: (id: string, name: string) => void;
+    onDeleteFolder: (id: string) => void;
     onToggleVisible: (id: string) => void;
     onReset: (id: string, newStart: string) => void;
 }
@@ -56,6 +60,9 @@ function FolderGrid({
     onToggleVisible,
     onReset,
     onRemoveFromFolder,
+    onOpenFolder,
+    onRenameFolder,
+    onDeleteFolder,
     sensors,
 }: {
     widgetsInFolder: WidgetConfig[];
@@ -64,6 +71,9 @@ function FolderGrid({
     onToggleVisible: (id: string) => void;
     onReset: (id: string, newStart: string) => void;
     onRemoveFromFolder: (widgetId: string) => void;
+    onOpenFolder: (id: string) => void;
+    onRenameFolder: (id: string, name: string) => void;
+    onDeleteFolder: (id: string) => void;
     sensors: ReturnType<typeof useSensors>;
 }) {
     if (widgetsInFolder.length === 0) {
@@ -89,14 +99,28 @@ function FolderGrid({
                 items={widgetsInFolder.map((w) => w.id)}
                 strategy={rectSortingStrategy}
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
                     {widgetsInFolder.map((config) => (
                         <div key={config.id} className="relative group/fi">
                             <WidgetWrapper
                                 config={config}
                                 onToggleVisible={onToggleVisible}
                             >
-                                {renderWidgetContent(config, onReset)}
+                                {config.type === 'folder' ? (
+                                    <FolderWidget
+                                        folder={config}
+                                        layout={layout}
+                                        onOpen={() => onOpenFolder(config.id)}
+                                        onRename={(name) =>
+                                            onRenameFolder(config.id, name)
+                                        }
+                                        onDelete={() =>
+                                            onDeleteFolder(config.id)
+                                        }
+                                    />
+                                ) : (
+                                    renderWidgetContent(config, onReset)
+                                )}
                             </WidgetWrapper>
                             <button
                                 onClick={() => onRemoveFromFolder(config.id)}
@@ -118,8 +142,11 @@ export default function FolderSubScreen({
     folder,
     layout,
     onBack,
+    onOpenFolder,
     onLayoutChange,
     onRemoveFromFolder,
+    onRenameFolder,
+    onDeleteFolder,
     onToggleVisible,
     onReset,
 }: FolderSubScreenProps) {
@@ -130,14 +157,11 @@ export default function FolderSubScreen({
     );
 
     const widgetsInFolder = layout
-        .filter(
-            (w) =>
-                w.containerId === folder.id && w.visible && w.type !== 'folder',
-        )
+        .filter((w) => w.containerId === folder.id && w.visible)
         .sort((a, b) => a.order - b.order);
 
     const hiddenInFolder = layout.filter(
-        (w) => w.containerId === folder.id && !w.visible && w.type !== 'folder',
+        (w) => w.containerId === folder.id && !w.visible,
     );
 
     return (
@@ -169,6 +193,9 @@ export default function FolderSubScreen({
                 onToggleVisible={onToggleVisible}
                 onReset={onReset}
                 onRemoveFromFolder={onRemoveFromFolder}
+                onOpenFolder={onOpenFolder}
+                onRenameFolder={onRenameFolder}
+                onDeleteFolder={onDeleteFolder}
                 sensors={sensors}
             />
 
