@@ -24,7 +24,7 @@ interface UseFreeCanvasDragOptions {
     visible: WidgetConfig[];
     layout: WidgetConfig[];
     onLayoutChange: (next: WidgetConfig[]) => void;
-    onDragComplete?: () => void;
+    onDragComplete?: (() => void) | undefined;
     computeSnap: ComputeSnap;
     ctx: ReturnType<typeof useWidgetSettingsContext>;
 }
