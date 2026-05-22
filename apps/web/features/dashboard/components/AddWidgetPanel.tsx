@@ -17,6 +17,7 @@ import {
     Wrench,
     X,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import {
     getDashboardWidgetLibrary,
@@ -42,7 +43,7 @@ interface WidgetCategory {
     id: string;
     label: string;
     description: string;
-    icon: React.ElementType;
+    icon: LucideIcon;
     types: WidgetType[];
 }
 

@@ -36,8 +36,8 @@ export interface ResearchStatus {
 }
 
 export interface ResearchPipelineRequest {
-    sourceRootPath?: string;
-    sourceKind?: ResearchSourceKind;
+    sourceRootPath?: string | undefined;
+    sourceKind?: ResearchSourceKind | undefined;
     topic: string;
     mode: ResearchPipelineMode;
     destination: ResearchPipelineDestination;

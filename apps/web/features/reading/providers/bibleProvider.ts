@@ -90,12 +90,14 @@ interface ApiSearchResult {
 // ─── mapping ─────────────────────────────────────────────────────────────────
 
 function mapBibleToDocument(bible: ApiBible): ReadingDocument {
+    const description = bible.descriptionLocal ?? bible.description;
+
     return {
         id: `bible:${bible.id}`,
         providerId: 'api-bible',
         externalId: bible.id,
         title: bible.nameLocal ?? bible.name,
-        description: bible.descriptionLocal ?? bible.description,
+        ...(description ? { description } : {}),
         type: 'religious_text',
         language: bible.language?.id ?? 'en',
         source: {
@@ -109,7 +111,7 @@ function mapBibleToDocument(bible: ApiBible): ReadingDocument {
             tradition: 'christian',
             tags: [bible.abbreviationLocal ?? bible.abbreviation ?? ''],
         },
-        permissions: ['read', 'search', 'highlight', 'annotate', 'bookmarks'],
+        permissions: ['read', 'search', 'highlight', 'annotate'],
         defaultRenderMode: 'structured_text',
         supportedRenderModes: ['structured_text'],
     };
@@ -134,7 +136,7 @@ function mapBooksToStructure(documentId: string, books: ApiBook[]): ReadingStruc
         id: b.id,
         documentId,
         name: b.name,
-        shortName: b.abbreviation,
+        ...(b.abbreviation ? { shortName: b.abbreviation } : {}),
         canonicalOrder: i,
         totalChapters: b.chapters?.length ?? 0,
     }));
