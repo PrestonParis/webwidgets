@@ -298,7 +298,7 @@ async function getQueueCounts(name: string): Promise<QueueSnapshot> {
         );
         return {
             name,
-            status: counts.failed > 0 ? 'degraded' : 'healthy',
+            status: (counts.failed ?? 0) > 0 ? 'degraded' : 'healthy',
             adapter: 'BullMQ',
             counts: {
                 waiting: counts.waiting ?? 0,
@@ -594,6 +594,7 @@ export async function getDeveloperWorkspaceSnapshot(
         schema,
         metrics,
         logs: getLogSources(),
+        featureFlags,
         requests: {
             orchestrator: {
                 id: 'request-orchestrator',

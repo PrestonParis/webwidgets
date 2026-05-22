@@ -52,6 +52,7 @@ import {
 import Header from '@/features/ui/components/Header';
 import {
     apiTesterRequestSchema,
+    type ApiTesterRequestInput,
     type ApiTesterRequest,
     type ApiTesterResponse,
     type DeveloperWorkspaceSnapshot,
@@ -217,7 +218,7 @@ function ApiTester({ data }: { data: DeveloperWorkspaceSnapshot }) {
     const [queryText, setQueryText] = useState('');
     const [headerText, setHeaderText] = useState('');
     const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
-    const form = useForm<ApiTesterRequest>({
+    const form = useForm<ApiTesterRequestInput, undefined, ApiTesterRequest>({
         resolver: zodResolver(apiTesterRequestSchema),
         defaultValues: {
             method: 'GET',
@@ -401,9 +402,12 @@ function parsePairs(value: unknown): Record<string, string> {
     }
 }
 
-function safeJson(value: string) {
+function safeJson(value: string): object {
     try {
-        return JSON.parse(value) as unknown;
+        const parsed = JSON.parse(value) as unknown;
+        return parsed !== null && typeof parsed === 'object'
+            ? parsed
+            : { value: parsed };
     } catch {
         return { text: value };
     }

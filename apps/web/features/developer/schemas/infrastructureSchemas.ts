@@ -215,5 +215,6 @@ export type FeatureFlag = z.infer<typeof featureFlagSchema>;
 export type DeveloperWorkspaceSnapshot = z.infer<
     typeof developerWorkspaceSnapshotSchema
 >;
+export type ApiTesterRequestInput = z.input<typeof apiTesterRequestSchema>;
 export type ApiTesterRequest = z.infer<typeof apiTesterRequestSchema>;
 export type ApiTesterResponse = z.infer<typeof apiTesterResponseSchema>;

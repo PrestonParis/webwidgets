@@ -34,6 +34,21 @@ const DEFAULT_PERMISSIONS = {
     aiPersonalization: true,
 };
 
+async function* readStreamChunks(
+    stream: ReadableStream<Uint8Array>,
+): AsyncGenerator<Uint8Array> {
+    const reader = stream.getReader();
+    try {
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) return;
+            if (value) yield value;
+        }
+    } finally {
+        reader.releaseLock();
+    }
+}
+
 async function buildSystemMessage(userId: string): Promise<string> {
     try {
         const entries = await listEntries(
@@ -146,7 +161,7 @@ async function* generateOpenAI(
 
     const decoder = new TextDecoder();
     let buffer = '';
-    for await (const chunk of res.body) {
+    for await (const chunk of readStreamChunks(res.body)) {
         buffer += decoder.decode(chunk, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
@@ -264,7 +279,7 @@ async function* generateGoogle(
 
     const decoder = new TextDecoder();
     let buffer = '';
-    for await (const chunk of res.body) {
+    for await (const chunk of readStreamChunks(res.body)) {
         buffer += decoder.decode(chunk, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
