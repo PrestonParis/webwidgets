@@ -1,4 +1,10 @@
-import { useReducer, useEffect, useCallback, useSyncExternalStore } from 'react';
+import {
+    useReducer,
+    useEffect,
+    useCallback,
+    useSyncExternalStore,
+    useRef,
+} from 'react';
 import {
     TIMER_DURATIONS,
     POMODORO_PHASE_DURATIONS,
@@ -305,6 +311,149 @@ function reducer(state: TimerState, action: TimerAction): TimerState {
     }
 }
 
+// ─── Notification helper ──────────────────────────────────────────────────────
+
+function fireTimerNotification(state: TimerState) {
+    if (typeof window === 'undefined') return;
+    if (Notification.permission !== 'granted') return;
+    const body =
+        state.subMode === 'pomodoro'
+            ? state.pomodoroPhase === 'focus'
+                ? 'Focus session complete — take a break.'
+                : `${POMODORO_PHASE_LABELS[state.pomodoroPhase]} over — back to focus.`
+            : 'Timer complete.';
+    new Notification('Time', { body });
+}
+
+// ─── Standard timer global store ─────────────────────────────────────────────
+
+const STANDARD_TIMER_STORAGE_KEY = 'webwidgets:standard-timer-state:v1';
+
+let standardState = createInitialTimerState('standard');
+let standardUpdatedAt = Date.now();
+let standardHydrated = false;
+let standardInterval: ReturnType<typeof setInterval> | null = null;
+const standardListeners = new Set<() => void>();
+
+function readStoredStandard(): { state: TimerState; updatedAt: number } | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = window.localStorage.getItem(STANDARD_TIMER_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as {
+            state?: TimerState;
+            updatedAt?: number;
+        };
+        if (!parsed.state || typeof parsed.updatedAt !== 'number') return null;
+        return { state: parsed.state, updatedAt: parsed.updatedAt };
+    } catch {
+        return null;
+    }
+}
+
+function writeStoredStandard() {
+    if (typeof window === 'undefined') return;
+    try {
+        window.localStorage.setItem(
+            STANDARD_TIMER_STORAGE_KEY,
+            JSON.stringify({
+                state: standardState,
+                updatedAt: standardUpdatedAt,
+            }),
+        );
+    } catch {}
+}
+
+function hydrateStandard() {
+    if (standardHydrated) return;
+    standardHydrated = true;
+    const stored = readStoredStandard();
+    if (!stored) return;
+    standardState = stored.state;
+    standardUpdatedAt = stored.updatedAt;
+    applyStandardElapsed();
+}
+
+function applyStandardElapsed() {
+    if (!standardState.running) return;
+    const elapsed = Math.max(
+        0,
+        Math.floor((Date.now() - standardUpdatedAt) / 1000),
+    );
+    if (elapsed <= 0) return;
+    if (elapsed >= standardState.timeLeft) {
+        standardState = { ...standardState, timeLeft: 0, running: false };
+    } else {
+        standardState = {
+            ...standardState,
+            timeLeft: standardState.timeLeft - elapsed,
+        };
+    }
+    standardUpdatedAt = Date.now();
+    writeStoredStandard();
+}
+
+function emitStandard() {
+    for (const listener of standardListeners) listener();
+}
+
+function commitStandard(next: TimerState) {
+    standardState = next;
+    standardUpdatedAt = Date.now();
+    writeStoredStandard();
+    emitStandard();
+}
+
+function dispatchStandard(action: TimerAction) {
+    hydrateStandard();
+    commitStandard(reducer(standardState, action));
+}
+
+function tickStandard() {
+    hydrateStandard();
+    standardState = reducer(standardState, { type: 'TICK' });
+    standardUpdatedAt = Date.now();
+    writeStoredStandard();
+    if (standardState.running && standardState.timeLeft === 0) {
+        standardState = reducer(standardState, { type: 'COMPLETE' });
+        standardUpdatedAt = Date.now();
+        writeStoredStandard();
+        fireTimerNotification(standardState);
+    }
+    emitStandard();
+}
+
+function getStandardSnapshot() {
+    hydrateStandard();
+    applyStandardElapsed();
+    return standardState;
+}
+
+function getStandardServerSnapshot() {
+    return createInitialTimerState('standard');
+}
+
+function subscribeStandard(listener: () => void) {
+    hydrateStandard();
+    applyStandardElapsed();
+    standardListeners.add(listener);
+    listener();
+    if (!standardInterval) {
+        standardInterval = setInterval(() => {
+            if (standardState.running) tickStandard();
+        }, 1000);
+    }
+    return () => {
+        standardListeners.delete(listener);
+        if (standardListeners.size === 0 && standardInterval) {
+            clearInterval(standardInterval);
+            standardInterval = null;
+        }
+    };
+}
+
+// ─── Pomodoro global store ────────────────────────────────────────────────────
+
 interface StoredPomodoroState {
     state: TimerState;
     updatedAt: number;
@@ -390,11 +539,15 @@ function tickPomodoro() {
     pomodoroUpdatedAt = Date.now();
     writeStoredPomodoroState();
     if (pomodoroState.running && pomodoroState.timeLeft === 0) {
+        const prevRunning = pomodoroState.running;
         pomodoroState = normalizePomodoroState(
             reducer(pomodoroState, { type: 'COMPLETE' }),
         );
         pomodoroUpdatedAt = Date.now();
         writeStoredPomodoroState();
+        if (prevRunning && !pomodoroState.running) {
+            fireTimerNotification(pomodoroState);
+        }
     }
     emitPomodoroState();
 }
@@ -456,36 +609,55 @@ export function useTimer(initialSubMode: TimerSubMode = 'standard') {
         getPomodoroSnapshot,
         getPomodoroServerSnapshot,
     );
+    const sharedStandardState = useSyncExternalStore(
+        subscribeStandard,
+        getStandardSnapshot,
+        getStandardServerSnapshot,
+    );
     const useSharedPomodoro = initialSubMode === 'pomodoro';
-    const state = useSharedPomodoro ? sharedPomodoroState : localState;
-    const dispatch = useSharedPomodoro ? dispatchPomodoro : localDispatch;
+    const useSharedStandard = initialSubMode === 'standard';
+    const state = useSharedPomodoro
+        ? sharedPomodoroState
+        : useSharedStandard
+          ? sharedStandardState
+          : localState;
+    const dispatch = useSharedPomodoro
+        ? dispatchPomodoro
+        : useSharedStandard
+          ? dispatchStandard
+          : localDispatch;
 
     useEffect(() => {
-        if (useSharedPomodoro || !state.running) return;
+        if (useSharedPomodoro || useSharedStandard || !state.running) return;
         const id = setInterval(() => dispatch({ type: 'TICK' }), 1000);
         return () => clearInterval(id);
-    }, [dispatch, state.running, useSharedPomodoro]);
+    }, [dispatch, state.running, useSharedPomodoro, useSharedStandard]);
 
     useEffect(() => {
         if (state.running && state.timeLeft === 0)
             dispatch({ type: 'COMPLETE' });
     }, [dispatch, state.running, state.timeLeft]);
 
+    const prevRunningRef = useRef(state.running);
     useEffect(() => {
-        if (!state.running && state.timeLeft === 0) {
-            if (Notification.permission === 'default')
-                void Notification.requestPermission();
+        if (Notification.permission === 'default')
+            void Notification.requestPermission();
+        const wasRunning = prevRunningRef.current;
+        prevRunningRef.current = state.running;
+        // Global stores fire their own notifications; only handle 'long' (local) here.
+        // Guard against mount-time firing by requiring a true→false transition.
+        if (
+            !useSharedPomodoro &&
+            !useSharedStandard &&
+            wasRunning &&
+            !state.running &&
+            state.timeLeft === 0
+        ) {
             if (Notification.permission === 'granted') {
-                const body =
-                    state.subMode === 'pomodoro'
-                        ? state.pomodoroPhase === 'focus'
-                            ? 'Focus session complete — take a break.'
-                            : `${POMODORO_PHASE_LABELS[state.pomodoroPhase]} over — back to focus.`
-                        : 'Timer complete.';
-                new Notification('Time', { body });
+                new Notification('Time', { body: 'Timer complete.' });
             }
         }
-    }, [state.running, state.timeLeft, state.subMode, state.pomodoroPhase]);
+    }, [state.running, state.timeLeft, useSharedPomodoro, useSharedStandard]);
 
     const setSubMode = useCallback(
         (s: TimerSubMode) => dispatch({ type: 'SET_SUBMODE', subMode: s }),

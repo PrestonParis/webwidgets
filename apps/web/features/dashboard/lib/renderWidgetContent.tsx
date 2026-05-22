@@ -44,6 +44,12 @@ const ChessWidget = lazy(
 const TimekeepingWidget = lazy(
     () => import('@/features/timekeeping/components/TimekeepingWidget'),
 );
+const TimerWidget = lazy(
+    () => import('@/features/timekeeping/components/TimerWidget'),
+);
+const StopwatchWidget = lazy(
+    () => import('@/features/timekeeping/components/StopwatchWidget'),
+);
 const PomodoroWidget = lazy(
     () => import('@/features/pomodoro/components/PomodoroWidget'),
 );
@@ -171,6 +177,10 @@ export function renderWidgetContent(
             return wrap(<ChessWidget />);
         case 'timekeeping':
             return wrap(<TimekeepingWidget />);
+        case 'timer':
+            return wrap(<TimerWidget />);
+        case 'stopwatch':
+            return wrap(<StopwatchWidget />);
         case 'pomodoro':
             return wrap(<PomodoroWidget />);
         case 'todo':

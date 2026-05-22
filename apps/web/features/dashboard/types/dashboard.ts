@@ -15,6 +15,8 @@ export type WidgetType =
     | 'recovery-empty'
     | 'chess'
     | 'timekeeping'
+    | 'timer'
+    | 'stopwatch'
     | 'pomodoro'
     | 'todo'
     | 'habit'

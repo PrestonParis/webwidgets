@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { useTimer } from '../hooks/useTimer';
@@ -8,9 +9,128 @@ import type { TimerSubMode } from '../types';
 import { useWidgetSize } from '@/features/widgets/context/WidgetSizeContext';
 import { TimerProgressRing } from '@/icons/TimerProgressRing';
 import { PomodoroPlanEditor } from './PomodoroPlanEditor';
-import { DurationFields } from './DurationFields';
 
 const SUB_MODES: TimerSubMode[] = ['standard', 'pomodoro', 'long'];
+
+function TimerSegment({
+    value,
+    max,
+    maxLength = 3,
+    font,
+    onCommit,
+}: {
+    value: number;
+    max: number;
+    maxLength?: number;
+    font: string;
+    onCommit: (val: number) => void;
+}) {
+    const [draft, setDraft] = useState<string | null>(null);
+    const displayed = draft ?? String(value).padStart(2, '0');
+    const isMouseFocusRef = useRef(false);
+
+    function flush(raw: string | null) {
+        const val = Math.max(0, Math.min(max, parseInt(raw ?? '0', 10) || 0));
+        onCommit(val);
+        setDraft(null);
+    }
+
+    return (
+        <input
+            type="text"
+            inputMode="numeric"
+            maxLength={maxLength}
+            value={displayed}
+            style={{ width: `${Math.max(2, displayed.length)}ch` }}
+            onMouseDown={() => {
+                isMouseFocusRef.current = true;
+            }}
+            onFocus={(e) => {
+                setDraft(String(value).padStart(2, '0'));
+                const isMouse = isMouseFocusRef.current;
+                isMouseFocusRef.current = false;
+                if (!isMouse) {
+                    const input = e.target;
+                    requestAnimationFrame(() => input.select());
+                }
+            }}
+            onChange={(e) =>
+                setDraft(e.target.value.replace(/\D/g, '').slice(0, maxLength))
+            }
+            onBlur={() => flush(draft)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    flush(draft);
+                    (e.target as HTMLInputElement).blur();
+                }
+            }}
+            className={cn(
+                'bg-transparent outline-none text-center font-mono font-semibold tabular-nums tracking-tight',
+                'text-stone-800 dark:text-zinc-100',
+                'border-b-2 border-transparent focus:border-sky-400',
+                'p-0',
+                font,
+            )}
+        />
+    );
+}
+
+function InlineTimerInput({
+    seconds,
+    font,
+    onChange,
+}: {
+    seconds: number;
+    font: string;
+    onChange: (seconds: number) => void;
+}) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    const sepClass = cn(
+        'font-mono font-semibold tabular-nums tracking-tight select-none',
+        'text-stone-800 dark:text-zinc-100',
+        font,
+    );
+
+    return (
+        <div className="flex items-center">
+            <TimerSegment
+                value={h}
+                max={23}
+                font={font}
+                onCommit={(val) =>
+                    onChange(Math.max(1, val * 3600 + m * 60 + s))
+                }
+            />
+            <span className={sepClass}>:</span>
+            {/* maxLength=4 so you can type e.g. "220"; overflow carries into hours */}
+            <TimerSegment
+                value={m}
+                max={9999}
+                maxLength={4}
+                font={font}
+                onCommit={(val) => {
+                    const overflowH = Math.floor(val / 60);
+                    const newM = val % 60;
+                    onChange(
+                        Math.max(1, (h + overflowH) * 3600 + newM * 60 + s),
+                    );
+                }}
+            />
+            <span className={sepClass}>:</span>
+            <TimerSegment
+                value={s}
+                max={59}
+                font={font}
+                onCommit={(val) =>
+                    onChange(Math.max(1, h * 3600 + m * 60 + val))
+                }
+            />
+        </div>
+    );
+}
 
 const RING_SIZES = {
     compact: { r: 40, dim: 90, font: 'text-2xl' },
@@ -49,8 +169,7 @@ function TimerContent({
         setAutoStartNext,
         reset,
         toggle,
-    } =
-        useTimer(initialSubMode);
+    } = useTimer(initialSubMode);
 
     const { r, dim, font } = RING_SIZES[size];
     const circumference = 2 * Math.PI * r;
@@ -82,16 +201,6 @@ function TimerContent({
                 </div>
             )}
 
-            {state.subMode !== 'pomodoro' && (
-                <div className="rounded-xl border border-stone-200 bg-white px-2 py-1.5 text-xs dark:border-zinc-700 dark:bg-zinc-900">
-                    <DurationFields
-                        seconds={state.durationSeconds}
-                        disabled={state.running}
-                        onChange={setDurationSeconds}
-                    />
-                </div>
-            )}
-
             {state.subMode === 'pomodoro' && (
                 <PomodoroPlanEditor
                     steps={state.pomodoroPlan}
@@ -119,14 +228,22 @@ function TimerContent({
                     dashOffset={dashOffset}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span
-                        className={cn(
-                            'font-mono font-semibold tabular-nums text-stone-800 dark:text-zinc-100 tracking-tight',
-                            font,
-                        )}
-                    >
-                        {displayTime}
-                    </span>
+                    {state.running || state.subMode === 'pomodoro' ? (
+                        <span
+                            className={cn(
+                                'font-mono font-semibold tabular-nums text-stone-800 dark:text-zinc-100 tracking-tight',
+                                font,
+                            )}
+                        >
+                            {displayTime}
+                        </span>
+                    ) : (
+                        <InlineTimerInput
+                            seconds={state.timeLeft}
+                            font={font}
+                            onChange={setDurationSeconds}
+                        />
+                    )}
                     {phaseLabel && (
                         <span className="text-[10px] text-stone-400 dark:text-zinc-500 mt-0.5">
                             {phaseLabel}
