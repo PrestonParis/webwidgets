@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "model_name": "health_trend",
+  "rmse": 0.0939,
+  "mae": 0.0757,
+  "r2": 0.8677,
+  "cv_rmse_mean": 0.1027,
+  "cv_rmse_std": 0.004,
+  "dataset_size": 800,
+  "trained_at": "2026-05-20T14:38:39.841011+00:00",
+  "model_path": "ml_service/models/health_trend_v1.pkl",
+  "best_params": {
+    "model__n_estimators": 100,
+    "model__max_depth": 3,
+    "model__learning_rate": 0.05
+  }
+}

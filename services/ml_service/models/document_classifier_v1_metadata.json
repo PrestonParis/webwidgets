@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "model_name": "document_classifier",
+  "accuracy": 0.96875,
+  "f1_macro": 0.9689955683642437,
+  "dataset_hash": "6548e8ee7173b78f",
+  "dataset_size": 800,
+  "num_classes": 8,
+  "class_distribution": {
+    "article": 93,
+    "contract": 118,
+    "invoice": 100,
+    "note": 103,
+    "receipt": 97,
+    "report": 91,
+    "resume": 109,
+    "spreadsheet": 89
+  },
+  "trained_at": "2026-05-20T14:58:47.383093+00:00",
+  "model_path": "ml_service/models/document_classifier_v1.pkl"
+}

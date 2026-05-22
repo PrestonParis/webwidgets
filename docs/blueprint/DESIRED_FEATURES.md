@@ -16,6 +16,23 @@
   - Break Timer for Workouts
   - Remove Background
 
+* Tree Diagram: Logo
+* Literal Context Diagram (modifiable)
+    * LLM History
+* Live Resume
+* Personal Documents
+* Accessibility 
+* Food Delivery
+* Memorization
+* Drawing, Graphic Design 
+* Weight loss plan
+* Not overwhelming
+* Screen Viewer
+* Code Editor, Terminal
+* Collaboration/Workspace Sync
+* Summarize data (tables)
+
+
 ### UI
 
 ### General
@@ -255,43 +272,3 @@
 - Obsidian Vault Explorer
 - Wrapper Widget: External App Functionality + WebWidgets features
   - YouTube (video listener)
-
-### Feature Scan Suggestions - 2026-05-09
-
-- Dashboard data bootstrap layer
-  - Load auth user, profile, dashboard layout, recovery trackers, and widget settings once, then share through a provider or query cache.
-  - Add stale-while-revalidate behavior so cached layout/widgets render immediately while fresh data loads in the background.
-- Widget settings bulk API
-  - Fetch all visible widget settings in one request.
-  - Persist multiple setting changes through a single debounced queue.
-- Dashboard performance observability
-  - Add lightweight timing marks for auth ready, layout ready, first widget data ready, and all widgets settled.
-  - Surface slow widget/API warnings in development.
-- Widget loading policy
-  - Let expensive widgets opt into lazy-on-visible or click-to-load behavior.
-  - Add per-widget refresh controls and last-updated timestamps.
-- Inbox background sync improvements
-  - Prefer cached email/action summaries for the dashboard widget.
-  - Move inbox classification/action extraction out of the first visible dashboard render path.
-  - Add a reconnect flow that clears unauthorized state without requiring a page refresh.
-- Calendar connection refresh
-  - Let the calendar widget re-check connection status after OAuth completes.
-  - Add a compact agenda cache so the widget can show recent events instantly on cold app load.
-- Shared client cache
-  - Use a common cache/query utility for Supabase and internal API reads, with request deduping and typed invalidation.
-  - Persist safe dashboard-critical cache entries across reloads.
-- Timer render throttling
-  - Centralize ticking state for Pomodoro, countdown, and recovery clocks.
-  - Pause or reduce tick frequency for off-screen widgets and background tabs.
-- Recovery resilience
-  - Validate tracker theme/order localStorage before applying it.
-  - Add an offline-first quick relapse/urge log queue for high-friction moments.
-- Weather and currency reliability
-  - Add request timeouts, `res.ok` checks, and stale cached fallback data.
-  - Let users choose a saved weather location instead of requiring geolocation every cold cache.
-- Theme system provider
-  - Apply saved theme globally at app startup to avoid flashes and page-specific theme behavior.
-  - Add system-theme mode.
-- Feature test coverage
-  - Add hook-level tests for loading states, unauthorized recovery, cache invalidation, and malformed localStorage.
-  - Add integration checks for dashboard first-load behavior with several widgets mounted.
