@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "model_name": "command_center_ranker",
+  "rmse": 0.0557,
+  "mae": 0.0444,
+  "r2": 0.8735,
+  "cv_rmse_mean": 0.0564,
+  "cv_rmse_std": 0.003,
+  "dataset_size": 800,
+  "trained_at": "2026-05-20T14:57:42.685028+00:00",
+  "model_path": "ml_service/models/command_center_ranker_v1.pkl",
+  "best_params": {
+    "model__subsample": 0.9,
+    "model__n_estimators": 100,
+    "model__max_depth": 3,
+    "model__learning_rate": 0.1
+  }
+}

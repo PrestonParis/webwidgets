@@ -24,7 +24,7 @@ describe('n8nClient', () => {
             {
                 workflowKey: 'email_ingestion',
                 webhookPath: '/webhook/test',
-                payload: { userId: 123 },
+                payload: { userId: 123 as unknown as string },
             },
             z.object({ userId: z.string() }),
             { fetchImpl },
