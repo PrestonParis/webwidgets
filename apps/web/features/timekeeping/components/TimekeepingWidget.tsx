@@ -15,22 +15,7 @@ export default function TimekeepingWidget() {
         'timekeeping',
         'timekeeping',
     );
-    const mode: TimekeepingMode =
-        settings.timekeepingMode === 'countdown'
-            ? 'timer'
-            : (settings.timekeepingMode ?? 'timer');
-    const widgetModes = [
-        { value: 'timer' as const, label: 'Timer' },
-        { value: 'pomodoro' as const, label: 'Pomodoro' },
-        { value: 'stopwatch' as const, label: 'Stopwatch' },
-        { value: 'worldclock' as const, label: 'World Clock' },
-    ];
-    const settingsSlot = (
-        <div>
-            <p className="text-xs font-bold mb-2">Event countdowns</p>
-            <EventMode />
-        </div>
-    );
+    const mode: TimekeepingMode = settings.timekeepingMode ?? 'timer';
 
     return (
         <WidgetShell
@@ -38,7 +23,6 @@ export default function TimekeepingWidget() {
             title="Time"
             settings={settings}
             onSettingsChange={updateSettings}
-            settingsSlot={settingsSlot}
             widgetId="timekeeping"
             widgetType="timekeeping"
             footerHref={`/time?mode=${mode}`}
@@ -47,12 +31,18 @@ export default function TimekeepingWidget() {
             <div className="flex flex-col items-center w-full">
                 <ModePicker
                     mode={mode}
-                    modes={widgetModes}
                     onChange={(m) => updateSettings({ timekeepingMode: m })}
                 />
                 {mode === 'timer' && <TimerMode />}
                 {mode === 'pomodoro' && <PomodoroMode />}
                 {mode === 'stopwatch' && <StopwatchMode />}
+                {mode === 'countdown' && (
+                    <div className="flex flex-col items-center w-full gap-6">
+                        <TimerMode />
+                        <div className="w-full border-t border-stone-100 dark:border-zinc-800" />
+                        <EventMode />
+                    </div>
+                )}
                 {mode === 'worldclock' && <WorldClockPage embedded />}
             </div>
         </WidgetShell>
