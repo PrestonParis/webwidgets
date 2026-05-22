@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "model_name": "chat_intent",
+  "accuracy": 1.0,
+  "f1_macro": 1.0,
+  "dataset_hash": "691edb1fa25985aa",
+  "dataset_size": 800,
+  "num_classes": 8,
+  "class_distribution": {
+    "analyze": 110,
+    "compare": 106,
+    "create": 102,
+    "explain": 89,
+    "help": 85,
+    "navigate": 110,
+    "search": 108,
+    "summarize": 90
+  },
+  "trained_at": "2026-05-20T14:58:44.623291+00:00",
+  "model_path": "ml_service/models/chat_intent_v1.pkl"
+}

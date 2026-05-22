@@ -1,0 +1,1 @@
+memory_card_quality_v1.pkl

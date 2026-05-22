@@ -1,0 +1,109 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { useEmails } from '@/features/inbox/hooks/useEmails';
+import { useCalendarConnection } from '@/features/inbox/hooks/useCalendarConnection';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useEmailActions } from '@/features/inbox/hooks/useEmailActions';
+import { EmailList } from './EmailList';
+import { EmailInsights } from './EmailInsights';
+import { EmailUnauthorized } from './EmailUnauthorized';
+import { EmailConnectPrompt } from './EmailConnectPrompt';
+import { EmailActionsPanel } from './EmailActionsPanel';
+import { EmailActionLog } from './EmailActionLog';
+import { CalendarConnect } from './CalendarConnect';
+
+export default function Emails() {
+    const {
+        emails,
+        nextPageToken,
+        loading,
+        isUnauthorized,
+        hasGoogleSync,
+        loadEmails,
+        handleManualClassify,
+    } = useEmails();
+
+    // Track all emails ever loaded (across pages) for extractAll
+    const allEmailsRef = useRef(emails);
+    useEffect(() => {
+        allEmailsRef.current = emails;
+    }, [emails]);
+
+    const {
+        actions,
+        loading: actionsLoading,
+        extractingId,
+        extractingAll,
+        extractSingle,
+        extractAll,
+        toggleComplete,
+        confirmAction,
+        confirmAllForEmail,
+        rejectAction,
+    } = useEmailActions(emails, emails);
+
+    const { connectCalendar } = useAuth();
+    const { isCalendarConnected, loading: calendarLoading } =
+        useCalendarConnection();
+
+    if (isUnauthorized) return <EmailUnauthorized />;
+
+    async function handleExtractAll() {
+        let token = nextPageToken;
+        while (token) {
+            await loadEmails(token);
+            token = null;
+        }
+        await extractAll();
+    }
+
+    const confirmedActions = actions.filter((a) => a.synced && !a.completed);
+
+    return (
+        <div className="max-w-2xl mx-auto p-4 space-y-6">
+            <div className="flex items-center justify-between gap-3">
+                <h2 className="text-2xl font-bold">Inbox</h2>
+                <div className="flex items-center gap-3">
+                    <EmailConnectPrompt inline />
+                    {loading && <span className="text-sm text-zinc-400">Syncing…</span>}
+                </div>
+            </div>
+            {confirmedActions.length > 0 && (
+                <EmailActionsPanel
+                    actions={confirmedActions}
+                    loading={actionsLoading}
+                    onToggle={(id) => void toggleComplete(id)}
+                />
+            )}
+            {!calendarLoading && !isCalendarConnected && (
+                <CalendarConnect onConnect={() => void connectCalendar()} />
+            )}
+            <EmailInsights
+                emails={emails}
+                extractingAll={extractingAll}
+                onExtractAll={() => void handleExtractAll()}
+            />
+            <EmailList
+                emails={emails}
+                actions={actions}
+                extractingId={extractingId}
+                onClassify={handleManualClassify}
+                onExtract={(email) => void extractSingle(email)}
+                onConfirmAction={(id) => void confirmAction(id)}
+                onConfirmAll={(emailId) => void confirmAllForEmail(emailId)}
+                onRejectAction={(id) => void rejectAction(id)}
+            />
+            <EmailActionLog />
+            {nextPageToken && (
+                <button
+                    onClick={() => void loadEmails(nextPageToken)}
+                    disabled={loading}
+                    className="w-full py-4 border-dashed border rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loading ? 'Loading…' : 'Load Older Messages'}
+                </button>
+            )}
+        </div>
+    );
+}

@@ -1,0 +1,32 @@
+Model: document_classifier v1
+Trained at: 2026-05-20T14:58:47.383093+00:00
+Dataset size: 800
+Dataset hash: 6548e8ee7173b78f
+Test accuracy: 0.9688
+Macro F1: 0.9690
+
+Class distribution:
+  article: 93
+  contract: 118
+  invoice: 100
+  note: 103
+  receipt: 97
+  report: 91
+  resume: 109
+  spreadsheet: 89
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     article       1.00      1.00      1.00        19
+    contract       0.96      1.00      0.98        24
+     invoice       0.95      1.00      0.98        20
+        note       0.91      1.00      0.95        20
+     receipt       1.00      0.95      0.97        19
+      report       1.00      0.89      0.94        18
+      resume       0.95      0.91      0.93        22
+ spreadsheet       1.00      1.00      1.00        18
+
+    accuracy                           0.97       160
+   macro avg       0.97      0.97      0.97       160
+weighted avg       0.97      0.97      0.97       160

@@ -1,0 +1,104 @@
+services:
+  ml_service:
+    build:
+      context: ../services/ml_service
+      dockerfile: Dockerfile
+
+    container_name: dashboard_ml
+    restart: unless-stopped
+
+    volumes:
+      - ../services/ml_service:/app
+
+    ports:
+      - '8000:8000'
+
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  go_worker:
+    build:
+      context: ../services/go_services/worker
+      dockerfile: Dockerfile
+
+    container_name: dashboard_go_worker
+    restart: unless-stopped
+
+    ports:
+      - '8081:8081'
+
+    environment:
+      WORKER_PORT: 8081
+      WORKER_LOG_LEVEL: ${WORKER_LOG_LEVEL:-info}
+      WORKER_VERSION: ${WORKER_VERSION:-dev}
+      WORKER_QUEUE_SIZE: ${WORKER_QUEUE_SIZE:-1000}
+
+  conversion_redis:
+    image: redis:7-alpine
+    container_name: conversion_redis
+    ports:
+      - '6380:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  conversion_postgres:
+    image: postgres:16-alpine
+    container_name: conversion_postgres
+    environment:
+      POSTGRES_USER: conversion
+      POSTGRES_PASSWORD: conversion
+      POSTGRES_DB: conversion
+    ports:
+      - '5433:5432'
+    volumes:
+      - conversion_postgres:/var/lib/postgresql/data
+      - ../services/conversion/infra/docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conversion -d conversion"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  conversion_minio:
+    image: minio/minio:latest
+    container_name: conversion_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - conversion_minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  conversion_createbucket:
+    image: minio/mc:latest
+    depends_on:
+      conversion_minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://conversion_minio:9000 minioadmin minioadmin;
+      mc mb --ignore-existing local/webwidgets-conversions;
+      exit 0;
+      "
+
+volumes:
+  conversion_postgres:
+  conversion_minio:

@@ -1,0 +1,45 @@
+{
+  "name": "@webwidgets/conversion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build -w packages/shared && npm run build -w apps/api && npm run build -w apps/worker-docs && npm run build -w apps/worker-images",
+    "typecheck": "npm run build -w packages/shared && npm run typecheck -w apps/api && npm run typecheck -w apps/worker-docs && npm run typecheck -w apps/worker-images",
+    "conversion:up": "open -a Docker && until docker info > /dev/null 2>&1; do sleep 1; done && docker compose -f infra/docker/docker-compose.yml up -d redis postgres minio createbucket worker_docs",
+    "dev:conversion": "npm run conversion:up && sh -c 'if lsof -nP -iTCP:4010 -sTCP:LISTEN >/dev/null 2>&1; then echo conversion API already running at http://localhost:4010; else npm run dev:api; fi'",
+    "convert": "npm run dev:conversion",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:worker-docs": "npm run dev -w apps/worker-docs",
+    "dev:worker-images": "npm run dev -w apps/worker-images",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "tsx scripts/smoke-conversion.ts"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1049.0",
+    "@aws-sdk/s3-request-presigner": "^3.1049.0",
+    "@fastify/cors": "^11.2.0",
+    "bullmq": "^5.76.10",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.6.2",
+    "ioredis": "^5.10.1",
+    "pg": "^8.16.3",
+    "pino": "^10.3.1",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.25",
+    "@types/pg": "^8.15.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7"
+  }
+}

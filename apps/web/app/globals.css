@@ -1,0 +1,232 @@
+@import 'tailwindcss';
+@variant dark (&:where(.dark, .dark *));
+
+/* Default: Light Mode */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #1a1a1a;
+}
+
+/* Automatic Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/* Ensure focus-visible outlines are visible for keyboard users, even when outline is reset */
+:focus-visible {
+  outline: 2px solid #4f6ef7;
+  outline-offset: 2px;
+}
+
+/* Suppress focus ring for mouse/touch users while keeping it for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease; /* Smooth transition */
+  height: 100%;
+  margin: 0;
+  /* Reserve space for mobile nav bar on small screens */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Accessibility design tokens ────────────────────────────────────────────── */
+:root {
+  --a11y-widget-pad: 1.5rem;
+  --a11y-gap: 1.5rem;
+  --a11y-font-base: 1rem;
+  --a11y-font-sm: 0.875rem;
+  --a11y-font-xs: 0.75rem;
+  --a11y-heading: 1.125rem;
+  --a11y-control-h: 2rem;
+  --a11y-line-height: 1.5;
+}
+
+[data-1d-mode] {
+  --a11y-widget-pad: 2rem;
+  --a11y-gap: 2rem;
+  --a11y-font-base: 1.0625rem;
+  --a11y-font-sm: 0.9375rem;
+  --a11y-font-xs: 0.8125rem;
+  --a11y-heading: 1.3125rem;
+  --a11y-control-h: 2.75rem;
+  --a11y-line-height: 1.7;
+}
+
+/* ─── Accessibility: high contrast ──────────────────────────────────────────── */
+[data-accessibility-contrast] {
+  --a11y-border-strength: 0.4;
+}
+[data-accessibility-contrast] *[class*="border"] {
+  border-color: rgb(0 0 0 / 0.4) !important;
+}
+.dark [data-accessibility-contrast] *[class*="border"] {
+  border-color: rgb(255 255 255 / 0.4) !important;
+}
+[data-accessibility-contrast] *[class*="text-gray-4"],
+[data-accessibility-contrast] *[class*="text-zinc-4"],
+[data-accessibility-contrast] *[class*="text-gray-5"],
+[data-accessibility-contrast] *[class*="text-zinc-5"] {
+  color: #374151 !important;
+}
+.dark [data-accessibility-contrast] *[class*="text-gray-4"],
+.dark [data-accessibility-contrast] *[class*="text-zinc-4"],
+.dark [data-accessibility-contrast] *[class*="text-gray-5"],
+.dark [data-accessibility-contrast] *[class*="text-zinc-5"] {
+  color: #d1d5db !important;
+}
+
+/* ─── Accessibility: reduced motion ─────────────────────────────────────────── */
+/* Preserves essential feedback (50ms) while killing decorative animations */
+[data-reduced-motion] *,
+[data-reduced-motion] *::before,
+[data-reduced-motion] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 50ms !important;
+  scroll-behavior: auto !important;
+}
+/* Preserve the body background-color transition which is intentional */
+[data-reduced-motion] body {
+  transition-duration: 50ms !important;
+}
+
+/* ─── Accessibility: enhanced focus outlines ────────────────────────────────── */
+[data-focus-outlines] :focus-visible {
+  outline: 3px solid #4f6ef7 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgb(79 110 247 / 0.18) !important;
+}
+
+/* ─── Accessibility: density ─────────────────────────────────────────────────── */
+[data-density="comfortable"] .dashboard-grid {
+  gap: 2.5rem !important;
+}
+[data-density="compact"] .dashboard-grid {
+  gap: 0.75rem !important;
+}
+
+/* ─── Accessibility: 1D simplified mode — layout ────────────────────────────── */
+[data-1d-mode] .simplified-dashboard {
+  gap: var(--a11y-gap);
+}
+
+.simplified-widget-item + .simplified-widget-item {
+  margin-top: var(--a11y-gap);
+}
+
+/* ─── 1D mode: widget-level typography and sizing ───────────────────────────── */
+/* Targets the .widget-1d class added by WidgetShell when oneDimensionalMode */
+.widget-1d {
+  min-height: 260px;
+  line-height: var(--a11y-line-height);
+}
+
+/* Title headings inside 1D widgets */
+.widget-1d h3 {
+  font-size: var(--a11y-heading) !important;
+  line-height: 1.4 !important;
+}
+
+/* Small text bumped up */
+.widget-1d .text-xs,
+.widget-1d [class*="text-[10px]"],
+.widget-1d [class*="text-[11px]"] {
+  font-size: var(--a11y-font-xs) !important;
+  line-height: 1.5 !important;
+}
+
+.widget-1d .text-sm {
+  font-size: var(--a11y-font-sm) !important;
+  line-height: 1.6 !important;
+}
+
+.widget-1d .text-base,
+.widget-1d p {
+  font-size: var(--a11y-font-base) !important;
+  line-height: var(--a11y-line-height) !important;
+}
+
+/* Buttons and interactive controls */
+.widget-1d button:not([class*="w-"]):not([class*="h-"]),
+.widget-1d input[type="text"],
+.widget-1d input[type="search"],
+.widget-1d select {
+  min-height: var(--a11y-control-h);
+}
+
+/* Increase spacing inside widget content areas */
+.widget-1d .space-y-1 { row-gap: 0.375rem !important; }
+.widget-1d .space-y-2 { row-gap: 0.625rem !important; }
+.widget-1d .space-y-3 { row-gap: 0.875rem !important; }
+.widget-1d .gap-1 { gap: 0.375rem !important; }
+.widget-1d .gap-2 { gap: 0.625rem !important; }
+.widget-1d .gap-3 { gap: 0.875rem !important; }
+
+/* ─── 1D mode: simplified dashboard container ───────────────────────────────── */
+[data-1d-mode] .simplified-dashboard {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 4rem;
+}
+
+/* ─── API.Bible HTML content styling ────────────────────────────────────────── */
+/* Applied to rawHtml rendered from scripture.api.bible chapter responses */
+.bible-content .v {
+  font-size: 0.65em;
+  font-weight: 600;
+  vertical-align: super;
+  color: #6b7280;
+  margin-right: 0.15em;
+  user-select: none;
+}
+.dark .bible-content .v { color: #9ca3af; }
+.bible-content .p, .bible-content .m, .bible-content .pi { margin-bottom: 0.75em; }
+.bible-content .q1 { padding-left: 1.5em; margin-bottom: 0.25em; }
+.bible-content .q2 { padding-left: 3em; margin-bottom: 0.25em; }
+.bible-content .s1, .bible-content .s2, .bible-content .ms { font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; }
+.bible-content .mt, .bible-content .mt1 { font-size: 1.1em; font-weight: 700; text-align: center; margin-bottom: 0.75em; }
+
+/* Start Chessboard Styling*/
+.white {
+  background-color: wheat;
+}
+.black {
+  background-color: rgb(59, 49, 32);
+}
+
+.chess-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  width: fit-content;
+}
+
+.chess-square {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+/* End Chessboard Styling*/

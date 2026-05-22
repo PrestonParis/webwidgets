@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "model_name": "finance_anomaly",
+  "rmse": 0.087,
+  "mae": 0.0586,
+  "r2": 0.908,
+  "cv_rmse_mean": 0.1017,
+  "cv_rmse_std": 0.0138,
+  "dataset_size": 800,
+  "trained_at": "2026-05-20T14:29:46.750837+00:00",
+  "model_path": "ml_service/models/finance_anomaly_v1.pkl",
+  "best_params": {
+    "model__n_estimators": 100,
+    "model__max_depth": 5,
+    "model__learning_rate": 0.15
+  }
+}
