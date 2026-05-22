@@ -1,5 +1,46 @@
-import { useReducer, useEffect, useRef, useCallback } from 'react';
+import { useReducer, useEffect, useRef, useCallback, useState } from 'react';
 import type { StopwatchState, StopwatchAction, LapEntry } from '../types';
+
+const STOPWATCH_STORAGE_KEY = 'webwidgets:stopwatch-state:v1';
+
+interface StoredStopwatch {
+    elapsed: number;
+    laps: LapEntry[];
+    running: boolean;
+    savedAt: number;
+}
+
+function loadStopwatchState(): StopwatchState {
+    if (typeof window === 'undefined')
+        return { running: false, elapsed: 0, laps: [] };
+    try {
+        const raw = window.localStorage.getItem(STOPWATCH_STORAGE_KEY);
+        if (!raw) return { running: false, elapsed: 0, laps: [] };
+        const stored = JSON.parse(raw) as StoredStopwatch;
+        const elapsed = stored.running
+            ? Math.max(0, stored.elapsed + (Date.now() - stored.savedAt))
+            : stored.elapsed;
+        return { running: stored.running, elapsed, laps: stored.laps ?? [] };
+    } catch {
+        return { running: false, elapsed: 0, laps: [] };
+    }
+}
+
+function saveStopwatchState(state: StopwatchState) {
+    if (typeof window === 'undefined') return;
+    try {
+        const stored: StoredStopwatch = {
+            elapsed: state.elapsed,
+            laps: state.laps,
+            running: state.running,
+            savedAt: Date.now(),
+        };
+        window.localStorage.setItem(
+            STOPWATCH_STORAGE_KEY,
+            JSON.stringify(stored),
+        );
+    } catch {}
+}
 
 function reducer(
     state: StopwatchState,
@@ -44,13 +85,10 @@ function fmtMs(ms: number): string {
 }
 
 export function useStopwatch() {
-    const [state, dispatch] = useReducer(reducer, {
-        running: false,
-        elapsed: 0,
-        laps: [],
-    });
+    const [initialState] = useState(loadStopwatchState);
+    const [state, dispatch] = useReducer(reducer, initialState);
     const startRef = useRef<number>(0);
-    const baseRef = useRef<number>(0);
+    const baseRef = useRef<number>(initialState.elapsed);
 
     useEffect(() => {
         if (!state.running) return;
@@ -63,6 +101,10 @@ export function useStopwatch() {
         }, 100);
         return () => clearInterval(id);
     }, [state.running]);
+
+    useEffect(() => {
+        saveStopwatchState(state);
+    }, [state.running, state.laps]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const toggle = useCallback(() => {
         if (!state.running) {

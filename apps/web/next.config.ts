@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
     experimental: {
         clientTraceMetadata: ['baggage', 'sentry-trace'],
     },
+    // ssh2 (via dockerode → docker-modem) contains native binary assets that
+    // Turbopack cannot place in ESM chunks. Resolve these at runtime instead.
+    serverExternalPackages: [
+        'dockerode',
+        'docker-modem',
+        'ssh2',
+        'cpu-features',
+    ],
 };
 
 export default withSentryConfig(nextConfig, {
