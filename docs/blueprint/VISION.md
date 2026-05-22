@@ -1,22 +1,291 @@
 # WebWidgets Vision
+Target: **launchable — one vertical mastered — by August 25, 2026.**
 
 ## Core Purpose
 
 WebWidgets is an intelligence layer that dynamically composes software interfaces around user intent.
 
-A user states what they want to accomplish. The system assembles the exact digital environment required — no manual configuration, no fragmented tools.
+The user should be able to state what they want to accomplish, and the system should assemble the exact digital environment required to help them do it. This means widgets, workflows, data sources, automations, predictions, and actions should gradually become coordinated parts of one adaptive workspace instead of isolated tools.
+
+The long-term goal is not just a dashboard. WebWidgets is moving toward a personal operating layer for productivity, context, automation, and decision support.
 
 ---
 
-Broad Devlopement Plan (Huge Refinement Process Between Each Step)
-1: All Widgets/Features
-2: Hypermodern UI
-3: ML Predictions
-4: Widget-Based Actions 5) Automation of Widget Actions 6) Hyper-Personalization of all of the above 7) Security 8) Deployment, feedback, refinement loop
+## Agentic Development Philosophy
+
+Development should happen through structured agent roles, not random one-off prompting.
+
+Each agent should be assigned a clear responsibility, such as:
+
+- Architecture Agent
+- UI/UX Agent
+- Refactor Agent
+- Feature Implementation Agent
+- Testing Agent
+- Documentation Agent
+- Security Agent
+- Performance Agent
+- Data/API Integration Agent
+
+Agents should not all run servers, builds, or expensive processes by default. Because RAM is a concern, agents should focus on static inspection, `rg`, file reading, targeted edits, type-aware reasoning, and small scoped implementation passes. Build, test, and dev-server commands should be run intentionally, not constantly.
+
+Agents should be given deep project context before they make changes. They need to understand that WebWidgets is a broad, evolving system where each feature should fit into the larger intelligence layer.
+
+---
+
+# Broad Development Plan
+
+Keep this development order:
+
+1. All Widgets / Features  
+2. Hypermodern UI  
+3. ML Predictions  
+4. Widget-Based Actions  
+5. Automation of Widget Actions  
+6. Hyper-Personalization of All of the Above  
+7. Security  
+8. Deployment, Feedback, Refinement Loop  
+
+---
+
+## Critical Rule: Rigorous Refinement Between Every Step
+
+This roadmap is not a simple checklist. There must be a major refinement process between every stage.
+
+After each stage, agents must pause and improve the foundation before moving forward. This means:
+
+- Audit what was added.
+- Remove duplicate logic.
+- Consolidate repeated UI patterns.
+- Improve naming and folder placement.
+- Strengthen types.
+- Replace temporary implementations.
+- Extract reusable primitives.
+- Improve loading, empty, error, and permission states.
+- Check whether each feature fits the larger WebWidgets vision.
+- Search the codebase with `rg` before creating new systems.
+- Avoid building the same pattern twice.
+- Document new conventions.
+- Identify weak architecture before it compounds.
+
+The goal is breadth first, but not reckless breadth. WebWidgets should expand quickly while repeatedly tightening its architecture.
+
+Each stage should leave the codebase cleaner, more reusable, and easier for future agents to understand.
+
+---
+
+## Refinement Expectations Per Stage
+
+### 1. All Widgets / Features
+
+Build the broad feature surface first.
+
+This includes the major widgets, pages, integrations, dashboards, and workflow tools needed for WebWidgets to feel like a real personal operating layer.
+
+Refinement after this stage should focus on:
+
+- Shared widget contracts
+- Widget layout consistency
+- Widget loading states
+- Widget error states
+- Widget configuration models
+- Feature folder organization
+- Data-fetching boundaries
+- Reusable widget primitives
+- Removing hardcoded demo logic
+- Making every widget composable later
+
+Do not over-polish every feature yet. The goal is to make the system wide enough that later architecture decisions are based on real use cases.
+
+---
+
+### 2. Hypermodern UI
+
+After the feature surface exists, heavily improve the interface.
+
+The UI should feel premium, dense, fast, customizable, and suitable for a personal OS-style product.
+
+Refinement after this stage should focus on:
+
+- Design tokens
+- Responsive layouts
+- Dashboard density
+- Widget resizing
+- Empty states
+- Loading states
+- Page-level consistency
+- Motion and transitions
+- Accessibility
+- Visual hierarchy
+- Component reuse
+- Removing ugly agent-generated stacking patterns
+
+Agents should avoid generic vertical-card layouts unless the use case truly calls for them.
+
+---
+
+### 3. ML Predictions
+
+Add prediction systems that help WebWidgets infer what the user may need next.
+
+This includes classification, recommendations, intent prediction, prioritization, ranking, and context-aware suggestions.
+
+Refinement after this stage should focus on:
+
+- Clean ML service boundaries
+- Prediction confidence scores
+- Fallback behavior
+- Explainability
+- Evaluation data
+- Logging
+- Error handling
+- Model/version tracking
+- Avoiding overconfident UI claims
+- Keeping predictions helpful but non-invasive
+
+Predictions should enhance workflows, not randomly decorate the UI.
+
+---
+
+### 4. Widget-Based Actions
+
+Widgets should not merely display information. They should let users act.
+
+Actions should be available directly inside widgets when appropriate.
+
+Examples:
+
+- Reply to email
+- Schedule calendar event
+- Generate document
+- Update task
+- Export data
+- Summarize file
+- Create automation
+- Log habit
+- Trigger workflow
+
+Refinement after this stage should focus on:
+
+- Shared action contracts
+- Permission boundaries
+- Confirmation patterns
+- Undo/retry behavior
+- Action audit logs
+- Toast/notification consistency
+- Error handling
+- Preventing duplicate action logic per widget
+
+---
+
+### 5. Automation of Widget Actions
+
+Once widget actions exist, automate them.
+
+The system should support recurring, conditional, and context-triggered actions.
+
+Refinement after this stage should focus on:
+
+- Automation schemas
+- Trigger definitions
+- Scheduling logic
+- User approval flows
+- Safe defaults
+- Logs/history
+- Failure recovery
+- Notification behavior
+- Human-in-the-loop controls
+- Preventing silent destructive actions
+
+Automation should feel powerful but controllable.
+
+---
+
+### 6. Hyper-Personalization
+
+Personalization should apply across widgets, UI, predictions, actions, and automations.
+
+The system should understand:
+
+- User habits
+- Preferred workflows
+- Frequently used tools
+- Past actions
+- Domain context
+- Connected APIs
+- Uploaded files
+- Calendar/email/task history
+- Preferred widget layouts
+- Repeated goals
+
+A major planned feature is the **Context Diagram**: a graph-based visualization of user context across the app, APIs, database, files, widgets, workflows, automations, and inferred patterns.
+
+Refinement after this stage should focus on:
+
+- Context graph schema
+- Data provenance
+- User-editable memory/context
+- Privacy controls
+- Context expiration
+- Confidence scoring
+- API-to-context mapping
+- DB-to-context mapping
+- Widget-to-context mapping
+- Visual graph clarity
+- Avoiding creepy or overreaching personalization
+
+Personalization should make the app feel intelligent, not invasive.
+
+---
+
+### 7. Security
+
+Security becomes critical once actions, automations, APIs, and personalization are deeply connected.
+
+Refinement after this stage should focus on:
+
+- Auth boundaries
+- API token storage
+- Permission scopes
+- Row-level security
+- Secrets handling
+- Rate limiting
+- Audit logging
+- User consent
+- Data deletion
+- Automation safety
+- Role-based access
+- Input sanitization
+- Abuse prevention
+
+Security should be treated as product architecture, not a final lint pass.
+
+---
+
+### 8. Deployment, Feedback, Refinement Loop
+
+After the system is deployable, the focus shifts to real feedback.
+
+This includes:
+
+- User testing
+- Performance monitoring
+- Error tracking
+- Analytics
+- Feature usage data
+- Onboarding friction
+- Pricing validation
+- Retention signals
+- Support workflows
+- Iterative cleanup
+
+Refinement after this stage never ends. Every production signal should feed back into architecture, UI, automation, personalization, and widget design.
+
+---
 
 # Long-Term Vision
 
-The product understands:
+WebWidgets should understand:
 
 - What the user is trying to do
 - Their history and habits
@@ -24,8 +293,13 @@ The product understands:
 - Their domain context
 - Which tools are required right now
 - Which information matters most
+- Which actions are likely needed next
+- Which automations would reduce repeated work
+- Which widgets should appear, hide, merge, or change
 
-The interface adapts itself instantly.
+The interface should adapt itself instantly.
+
+The final product should feel less like opening separate apps and more like working inside an intelligent personal command center.
 
 ---
 
@@ -268,93 +542,492 @@ The system moves from reactive (user asks → system responds) to anticipatory (
 
 # Core Technical Goals
 
-## 1. Intent Detection
+These systems are not isolated features. They are interconnected layers that gradually transform WebWidgets from a configurable dashboard into an adaptive intelligence environment.
+
+Every technical system should increase:
+- contextual awareness
+- orchestration quality
+- workflow compression
+- personalization depth
+- actionability
+- long-term compounding utility
+
+---
+
+# 1. Intent Detection
 
 Translate natural language goals into actionable workspace plans.
 
-- What is the user trying to accomplish?
-- What domain are they operating in?
-- What constraints exist?
-- What supporting tools are required?
+The system should infer:
+- what the user is trying to accomplish
+- the domain they are operating in
+- which supporting tools are required
+- which workflows are likely relevant
+- what constraints exist
+- what the likely deliverable/output is
 
-## 2. Dynamic Workspace Assembly
+The goal is not simple prompt parsing. Intent detection should evolve into multi-layer contextual understanding.
 
-Construct interfaces in real time.
+Examples:
+- “I need to catch up in algebra”
+- “Help me stop missing payments”
+- “Prepare for my history exam”
+- “Plan a clean bulk”
+- “Organize my research”
+- “Help me recover from burnout”
+- “Debug my API architecture”
 
-- Modular widget injection
-- Layout optimization
-- Context-sensitive prioritization
-- Minimal latency
-- Smooth transitions
-
-## 3. Persistent Personalization Memory
-
-Track: user preferences, workflow patterns, historical usage, domain strengths/weaknesses, behavioral optimization opportunities. Compounds value over time.
-
-## 4. Recommendation Intelligence
-
-Continuously improve relevance using behavioral analysis, confidence scoring, historical success rates, and context adaptation. Recommendations feel precise, not random.
-
-## 5. Domain Expansion Framework
-
-The orchestration engine scales horizontally into new domains without architectural redesign: education, research, productivity, communication, strategic games, analytics, planning, knowledge work, health/fitness, finance, software development, creative work.
-
-## 6. Cross-Widget Intelligence (Weave)
-
-Widgets share context. The richer the widget graph, the smarter the workspace becomes.
-
-- Workout tracked → input to nutrition widget
-- Mood log → informs recovery risk indicators
-- Email actions → populate calendar and to-do automatically
-- Multiple inboxes and calendars → weave into unified views
+All of these should produce different workspace compositions, workflows, widgets, recommendations, and actions.
 
 ---
 
-# Engineering Priorities (2026-05-09)
+## Intent Detection Layers
 
-- **Dashboard data bootstrap** — Load auth user, profile, layout, trackers, and widget settings once via provider or query cache. Stale-while-revalidate so cached layout renders immediately while fresh data loads.
-- **Widget settings bulk API** — Fetch all visible widget settings in one request. Persist changes through a single debounced queue.
-- **Performance observability** — Timing marks for auth ready, layout ready, first widget data ready, all widgets settled. Surface slow widget/API warnings in development.
-- **Widget loading policy** — Expensive widgets opt into lazy-on-visible or click-to-load. Per-widget refresh controls and last-updated timestamps.
-- **Inbox background sync** — Prefer cached email/action summaries for the dashboard widget. Move classification/extraction out of first-render path. Reconnect flow that clears unauthorized state without a page refresh.
-- **Calendar connection refresh** — Re-check connection status after OAuth. Compact agenda cache so the widget shows recent events on cold load.
-- **Shared client cache** — Common cache/query utility for Supabase and internal API reads, with request deduping and typed invalidation. Persist dashboard-critical cache entries across reloads.
-- **Timer render throttling** — Centralize ticking state for Pomodoro, countdown, and recovery clocks. Pause or reduce tick frequency for off-screen widgets and background tabs.
-- **Recovery resilience** — Validate tracker theme/order localStorage before applying. Offline-first quick relapse/urge log queue.
-- **Weather and currency reliability** — Request timeouts, `res.ok` checks, stale cached fallback. Let users save a weather location instead of requiring geolocation on every cold cache.
-- **Theme system provider** — Apply saved theme at app startup to avoid flashes. Add system-theme mode.
-- **Feature test coverage** — Hook-level tests for loading states, unauthorized recovery, cache invalidation, malformed localStorage. Integration checks for dashboard first-load with multiple widgets.
+### Surface Intent
+The direct request made by the user.
+
+Example:
+- “Help me study chemistry.”
 
 ---
 
-# Product Constraints
+### Operational Intent
+The actual workflow required underneath the request.
 
-## Feature Bloat
-
-Every widget must strengthen orchestration capability. No widgets for novelty.
-
-## Dashboard Chaos
-
-Generated interfaces must feel obvious and focused.
-
-## Shallow Personalization
-
-Adaptation must materially improve outcomes — not cosmetic customization.
+Example:
+- note-taking
+- spaced repetition
+- quiz generation
+- scheduling study sessions
+- PDF parsing
+- progress tracking
 
 ---
 
-# Success Criteria
+### Contextual Intent
+What surrounding information changes the optimal response.
 
-WebWidgets succeeds when users feel:
-
-> "This knew exactly what I needed before I could explain it."
-
-Precision. Relevance. Immediate utility.
+Examples:
+- current schedule
+- past study performance
+- preferred learning methods
+- upcoming deadlines
+- available files
+- connected APIs
+- recent activity
+- energy/mood patterns
 
 ---
 
-# Ultimate Goal
+### Predictive Intent
+What the user is likely to need next.
 
-Create the first truly adaptive software environment where interfaces are generated around human intent rather than fixed product assumptions.
+Examples:
+- reminders
+- workflow continuation
+- automation suggestions
+- missing context
+- related widgets
+- likely follow-up actions
 
-**The operating layer between user intention and digital execution.**
+---
+
+## Intent Architecture Goals
+
+Intent systems should:
+- avoid brittle regex logic
+- avoid hardcoded workflow assumptions
+- support confidence scoring
+- support ambiguity handling
+- support multi-intent requests
+- support domain expansion
+- support partial understanding
+- degrade gracefully
+
+Intent pipelines should eventually combine:
+- embeddings
+- classifiers
+- heuristics
+- retrieval systems
+- workflow graphs
+- historical behavior
+- context graphs
+- action history
+
+---
+
+# 2. Dynamic Workspace Assembly
+
+Construct interfaces in real time based on user intent and context.
+
+The workspace should not be static.
+
+Widgets, layouts, priorities, actions, and contextual information should reorganize themselves dynamically depending on what the user is trying to accomplish.
+
+The system should gradually move away from:
+- manual dashboard construction
+- rigid page structures
+- isolated applications
+
+Toward:
+- adaptive environments
+- contextual workflows
+- intelligent layout orchestration
+- transient task-focused workspaces
+
+---
+
+## Dynamic Assembly Goals
+
+### Modular Widget Injection
+Widgets are added dynamically based on:
+- intent
+- context
+- workflows
+- predictions
+- automations
+- active tasks
+
+The system should determine:
+- which widgets appear
+- when they appear
+- where they appear
+- how much screen space they receive
+- whether they should merge/weave
+
+---
+
+### Layout Optimization
+The interface should optimize for:
+- task completion speed
+- cognitive clarity
+- workflow continuity
+- screen density
+- device constraints
+- user habits
+
+This should eventually support:
+- adaptive layouts
+- contextual resizing
+- widget weaving
+- widget folding
+- focus modes
+- temporary task workspaces
+
+---
+
+### Context-Sensitive Prioritization
+Not all information matters equally.
+
+The system should dynamically rank:
+- widgets
+- alerts
+- recommendations
+- actions
+- feeds
+- context panels
+- notifications
+
+Priority should depend on:
+- urgency
+- relevance
+- historical usefulness
+- active goals
+- behavioral signals
+- workflow stage
+
+---
+
+### Minimal Latency
+Dynamic assembly must feel instant.
+
+The system should aggressively optimize:
+- loading states
+- caching
+- streaming
+- partial rendering
+- optimistic UI
+- background fetching
+- widget hydration
+- progressive enhancement
+
+The interface should feel responsive even when orchestration complexity grows.
+
+---
+
+### Smooth Transitions
+Workspace changes should feel intentional, not chaotic.
+
+Transitions should preserve:
+- spatial continuity
+- user orientation
+- workflow momentum
+
+Avoid:
+- jarring widget shifts
+- massive layout jumps
+- random animation spam
+- full rerenders when unnecessary
+
+---
+
+# 3. Persistent Personalization Memory
+
+WebWidgets compounds value over time through memory.
+
+The system should continuously learn:
+- user preferences
+- workflow patterns
+- behavioral tendencies
+- domain strengths/weaknesses
+- preferred UI structures
+- productivity rhythms
+- recurring goals
+- automation opportunities
+
+The more the system is used, the more precisely it should adapt.
+
+---
+
+## Memory Goals
+
+### Workflow Memory
+Understand:
+- repeated action chains
+- preferred sequences
+- common workflows
+- recurring tasks
+- productivity bottlenecks
+
+---
+
+### Behavioral Memory
+Track patterns such as:
+- peak productivity windows
+- procrastination indicators
+- burnout signals
+- recovery patterns
+- learning strengths
+- decision fatigue
+
+This should remain assistive, not invasive.
+
+---
+
+### Contextual Memory
+Persist useful context across sessions:
+- ongoing projects
+- uploaded files
+- API integrations
+- research topics
+- organizational structures
+- current goals
+
+The user should feel continuity between sessions.
+
+---
+
+### Adaptive Personalization
+Over time, the system should improve:
+- recommendations
+- workspace layouts
+- widget visibility
+- automation timing
+- workflow sequencing
+- prediction accuracy
+
+Personalization should feel earned through usage.
+
+---
+
+## Memory System Constraints
+
+The system must:
+- respect privacy boundaries
+- allow user control
+- support editable memory/context
+- support memory expiration
+- support confidence scoring
+- avoid over-personalization
+- avoid making assumptions without evidence
+
+---
+
+# 4. Recommendation Intelligence
+
+Recommendations should continuously improve through behavioral analysis, contextual awareness, and historical outcomes.
+
+Recommendations must feel:
+- useful
+- precise
+- timely
+- contextual
+- actionable
+
+Never random.
+
+---
+
+## Recommendation System Goals
+
+Recommendations may include:
+- widgets
+- actions
+- workflows
+- automations
+- study strategies
+- financial actions
+- scheduling suggestions
+- recovery interventions
+- research directions
+- optimization opportunities
+
+---
+
+## Recommendation Inputs
+
+Recommendation quality should depend on:
+- behavioral analysis
+- confidence scoring
+- historical success rates
+- domain context
+- current goals
+- active workflows
+- time sensitivity
+- environmental context
+- context graph relationships
+
+---
+
+## Recommendation Constraints
+
+Recommendations should:
+- explain themselves when appropriate
+- avoid interrupting focus
+- avoid over-triggering
+- avoid shallow engagement bait
+- prioritize usefulness over activity metrics
+
+The goal is workflow enhancement, not addiction loops.
+
+---
+
+# 5. Domain Expansion Framework
+
+The orchestration engine should scale horizontally into entirely new domains without architectural redesign.
+
+WebWidgets is not a single-purpose application.
+
+It is an orchestration layer capable of supporting many domains through shared infrastructure:
+- widgets
+- context systems
+- actions
+- memory
+- recommendations
+- automations
+- workspace assembly
+
+---
+
+## Supported Domain Categories
+
+Potential domains include:
+- education
+- research
+- productivity
+- communication
+- analytics
+- planning
+- finance
+- software development
+- strategic games
+- creative work
+- health/fitness
+- recovery systems
+- knowledge management
+- operational dashboards
+
+The architecture should assume future expansion.
+
+---
+
+## Domain Expansion Requirements
+
+New domains should not require:
+- rewriting orchestration logic
+- rebuilding widget systems
+- redesigning memory systems
+- replacing layout infrastructure
+
+Instead, domains should integrate through:
+- shared widget contracts
+- shared context graphs
+- shared action systems
+- shared personalization infrastructure
+- shared orchestration pipelines
+
+---
+
+# 6. Cross-Widget Intelligence (Weave)
+
+Widgets should not operate independently.
+
+The richer the widget graph becomes, the smarter the workspace becomes.
+
+Widgets should share:
+- context
+- actions
+- insights
+- predictions
+- workflows
+- priorities
+- recommendations
+
+This is one of the core differentiators of WebWidgets.
+
+---
+
+## Cross-Widget Intelligence Goals
+
+Examples:
+- Workout tracked → nutrition adjustments update automatically
+- Mood deterioration → recovery risk indicators increase
+- Calendar overload → productivity recommendations adapt
+- Email actions → calendar and tasks update automatically
+- Research notes → quiz/study widgets update
+- Finance stress → habit/recovery systems adapt
+- Multiple inboxes/calendars → unified intelligent views
+
+The system should evolve from:
+- isolated widgets
+
+Toward:
+- cooperative intelligence systems
+
+---
+
+## Weave Architecture Goals
+
+The weave system should support:
+- shared context propagation
+- event-driven updates
+- unified action pipelines
+- cross-widget recommendations
+- multi-widget workflows
+- graph-based relationships
+- orchestration-aware widgets
+
+Widgets should become nodes in a contextual intelligence graph.
+
+---
+
+## Long-Term Direction
+
+Over time, WebWidgets should increasingly behave less like:
+- separate apps on one screen
+
+And more like:
+- an adaptive cognitive workspace
+- a personalized operational layer
+- an intelligent command environment
+- a contextual orchestration system

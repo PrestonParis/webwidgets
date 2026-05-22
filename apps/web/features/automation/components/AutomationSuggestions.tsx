@@ -1,0 +1,100 @@
+'use client';
+
+import { Plug, Sparkles, X } from 'lucide-react';
+import { EmptyState } from '@/features/ui/components/EmptyState';
+import { useToastContext } from '@/features/ui/components/ToastProvider';
+import type { AutomationCenterController } from '@/features/automation/hooks/useAutomationCenter';
+import { widgetEmoji } from '@/features/automation/lib/automationDisplay';
+import { SafetyBadge } from './AutomationBadges';
+
+export function AutomationSuggestions({
+    controller,
+}: {
+    controller: AutomationCenterController;
+}) {
+    const { suggestions, dismissSuggestion } = controller;
+    const toast = useToastContext();
+
+    if (suggestions.length === 0) {
+        return (
+            <EmptyState
+                icon={Sparkles}
+                title="No suggestions right now"
+                description="As you use your widgets, we will recommend safe automations tailored to your workflow."
+            />
+        );
+    }
+
+    return (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {suggestions.map((suggestion) => {
+                const { definition } = suggestion;
+                return (
+                    <article
+                        key={suggestion.id}
+                        className="flex flex-col rounded-2xl border border-zinc-100 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <span className="text-2xl leading-none">
+                                {widgetEmoji(definition.widgetId)}
+                            </span>
+                            <button
+                                type="button"
+                                aria-label="Dismiss suggestion"
+                                onClick={() => dismissSuggestion(suggestion.id)}
+                                className="rounded-lg p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                        <h3 className="mt-3 text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+                            {definition.name}
+                        </h3>
+                        <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+                            {definition.description}
+                        </p>
+                        <div className="mt-3 rounded-xl bg-zinc-50 p-2.5 dark:bg-zinc-950">
+                            <p className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300">
+                                Why suggested
+                            </p>
+                            <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+                                {suggestion.reason}
+                            </p>
+                        </div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <SafetyBadge level={definition.safetyLevel} />
+                            {definition.consent.providersRequired.length > 0 && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                                    <Plug size={10} />
+                                    {definition.consent.providersRequired.join(
+                                        ', ',
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                        <div className="mt-4 flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    toast.info(
+                                        `Setup for "${definition.name}" coming soon`,
+                                    )
+                                }
+                                className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
+                            >
+                                Set up
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => dismissSuggestion(suggestion.id)}
+                                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                            >
+                                Dismiss
+                            </button>
+                        </div>
+                    </article>
+                );
+            })}
+        </div>
+    );
+}

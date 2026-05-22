@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "model_name": "memory_card_quality",
+  "accuracy": 0.7833333333333333,
+  "f1_macro": 0.7029239766081871,
+  "dataset_hash": "df5eb485dde61b71",
+  "dataset_size": 600,
+  "num_classes": 3,
+  "class_distribution": {
+    "discard": 88,
+    "keep": 344,
+    "revise": 168
+  },
+  "trained_at": "2026-05-20T14:58:49.878016+00:00",
+  "model_path": "ml_service/models/memory_card_quality_v1.pkl"
+}
