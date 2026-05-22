@@ -90,6 +90,7 @@ playwright-report/
 .cache/
 CLAUDE.md
 /infra/supabase
+supabase/.temp
 
 # Sentry
 .env.sentry-build-plugin

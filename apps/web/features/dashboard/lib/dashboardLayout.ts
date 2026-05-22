@@ -15,6 +15,8 @@ const KNOWN_WIDGET_TYPES = new Set<string>([
     'currency',
     'chess',
     'timekeeping',
+    'timer',
+    'stopwatch',
     'pomodoro',
     'todo',
     'habit',

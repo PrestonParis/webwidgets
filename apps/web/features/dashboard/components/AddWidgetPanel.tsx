@@ -53,7 +53,14 @@ const WIDGET_CATEGORIES: WidgetCategory[] = [
         label: 'Time',
         description: 'Timers, countdowns, clocks, and focus sessions',
         icon: Clock3,
-        types: ['timekeeping', 'countdown', 'pomodoro', 'worldclock'],
+        types: [
+            'timekeeping',
+            'timer',
+            'stopwatch',
+            'countdown',
+            'pomodoro',
+            'worldclock',
+        ],
     },
     {
         id: 'text',
