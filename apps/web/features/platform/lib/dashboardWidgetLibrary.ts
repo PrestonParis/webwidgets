@@ -35,7 +35,6 @@ const RENDERABLE_WIDGET_TYPES: readonly WidgetType[] = [
     'habit',
     'weather',
     'worldclock',
-    'mood',
     'journal',
     'notes',
     'scratchpad',
@@ -48,6 +47,7 @@ const RENDERABLE_WIDGET_TYPES: readonly WidgetType[] = [
     'tracking-meal',
     'tracking-mood',
     'tracking-supplements',
+    'tracking-health',
     'context-diagram',
     'chat',
     'finance',
@@ -63,7 +63,7 @@ const RENDERABLE_WIDGET_TYPES: readonly WidgetType[] = [
     'memorization',
     'creative',
     'insight-cards',
-    'action-cards',
+    'calculator',
 ];
 
 const EMOJI_BY_FEATURE: Record<string, string> = {
@@ -92,7 +92,6 @@ const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'texteditor',
     'todo',
     'habit',
-    'mood',
     'calendar',
     'email',
     'files',
@@ -104,6 +103,7 @@ const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'tracking-meal',
     'tracking-workout',
     'tracking-supplements',
+    'tracking-health',
     'tracking',
     'finance',
     'recovery-empty',
@@ -117,7 +117,6 @@ const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'creative',
     'collaboration',
     'insight-cards',
-    'action-cards',
     'automation',
     'chat',
     'command-center',
@@ -125,6 +124,7 @@ const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'developer',
     'datahealth',
     'accessibility',
+    'calculator',
     'folder',
 ];
 

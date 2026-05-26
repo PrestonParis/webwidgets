@@ -7,6 +7,7 @@ export const TIME_MODES: { value: TimekeepingMode; label: string }[] = [
     { value: 'stopwatch', label: 'Stopwatch' },
     { value: 'countdown', label: 'Countdowns' },
     { value: 'worldclock', label: 'World Clock' },
+    { value: 'timeclock', label: 'Timeclock' },
 ];
 
 export function ModePicker({

@@ -129,7 +129,7 @@ function intentWidgetHints(intent: string): WidgetType[] {
     const text = intent.toLowerCase();
     const hints: WidgetType[] = [];
     if (text.includes('recover') || text.includes('streak'))
-        hints.push('recovery-empty', 'mood', 'tracking');
+        hints.push('recovery-empty', 'tracking-mood', 'tracking');
     if (
         text.includes('write') ||
         text.includes('note') ||

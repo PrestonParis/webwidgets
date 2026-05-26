@@ -2,21 +2,6 @@ import type { DeveloperToolDefinition } from '@/features/developer/types/develop
 
 export const DEVELOPER_TOOLS: DeveloperToolDefinition[] = [
     {
-        id: 'api-tester',
-        title: 'API tester',
-        description: 'Request builder for safe endpoint testing.',
-        state: 'beta',
-        requiresLocalAccess: false,
-    },
-    {
-        id: 'logs-stream',
-        title: 'Logs viewer',
-        description:
-            'Log stream viewer gated behind service permissions.',
-        state: 'requires_permission',
-        requiresLocalAccess: true,
-    },
-    {
         id: 'cron-jobs',
         title: 'Cron tracker',
         description: 'Scheduled job registry and run history.',
@@ -38,9 +23,10 @@ export const DEVELOPER_TOOLS: DeveloperToolDefinition[] = [
         requiresLocalAccess: false,
     },
     {
-        id: 'system-monitor',
-        title: 'System resources',
-        description: 'Resource monitor gated by permissions.',
+        id: 'developer',
+        title: 'Developer',
+        description:
+            'Developer tools including logs viewer and system resources.',
         state: 'unavailable',
         requiresLocalAccess: true,
     },

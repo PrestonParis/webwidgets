@@ -125,10 +125,31 @@ export function formatMetadataDisplay(
 
     if (category === 'workout') {
         const parts: string[] = [];
+        if (typeof metadata['title'] === 'string')
+            parts.push(metadata['title']);
+        if (typeof metadata['workoutName'] === 'string' && parts.length === 0)
+            parts.push(metadata['workoutName']);
         if (typeof metadata['workoutType'] === 'string')
             parts.push(metadata['workoutType']);
-        if (typeof metadata['duration'] === 'number')
-            parts.push(`${metadata['duration']}m`);
+        const duration =
+            typeof metadata['durationMinutes'] === 'number'
+                ? metadata['durationMinutes']
+                : typeof metadata['duration'] === 'number'
+                  ? metadata['duration']
+                  : undefined;
+        if (duration !== undefined) parts.push(`${duration}m`);
+        if (
+            typeof metadata['totalVolume'] === 'number' &&
+            metadata['totalVolume'] > 0
+        )
+            parts.push(
+                `${Math.round(metadata['totalVolume']).toLocaleString()} volume`,
+            );
+        if (
+            typeof metadata['totalSets'] === 'number' &&
+            metadata['totalSets'] > 0
+        )
+            parts.push(`${metadata['totalSets']} sets`);
         if (typeof metadata['intensity'] === 'number')
             parts.push(`${metadata['intensity']}/10`);
         return parts.length > 0 ? parts.join(' • ') : 'Workout';
@@ -154,8 +175,21 @@ export function formatMetadataDisplay(
             typeof metadata['name'] === 'string'
                 ? metadata['name']
                 : 'Supplement';
-        const taken = metadata['taken'] === true ? 'taken' : 'skipped';
-        return `${name} — ${taken}`;
+        const status =
+            typeof metadata['status'] === 'string'
+                ? metadata['status']
+                : metadata['taken'] === true
+                  ? 'taken'
+                  : 'skipped';
+        const dose =
+            typeof metadata['servingSize'] === 'string'
+                ? metadata['servingSize']
+                : typeof metadata['dose'] === 'string'
+                  ? metadata['dose']
+                  : undefined;
+        const time =
+            typeof metadata['time'] === 'string' ? metadata['time'] : undefined;
+        return [name, dose, status, time].filter(Boolean).join(' — ');
     }
 
     if (category === 'symptom') {

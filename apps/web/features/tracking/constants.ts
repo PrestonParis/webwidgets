@@ -23,6 +23,7 @@ export const BUILT_IN_CATEGORIES: BuiltInCategory[] = [
     'supplement',
     'symptom',
     'injury',
+    'health',
 ];
 
 export const TRACKING_CATEGORIES = BUILT_IN_CATEGORIES;

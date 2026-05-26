@@ -191,14 +191,6 @@ const manifests = [
         fallbackMode: 'skeleton',
     },
     {
-        id: 'mood',
-        feature: 'mood',
-        title: 'Mood',
-        dataNeeds: [],
-        refreshPolicy: 'static',
-        fallbackMode: 'skeleton',
-    },
-    {
         id: 'timekeeping',
         feature: 'timekeeping',
         title: 'Time',

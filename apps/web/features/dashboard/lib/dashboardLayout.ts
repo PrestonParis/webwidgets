@@ -22,7 +22,6 @@ const KNOWN_WIDGET_TYPES = new Set<string>([
     'habit',
     'weather',
     'worldclock',
-    'mood',
     'journal',
     'notes',
     'scratchpad',

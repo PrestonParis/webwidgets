@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CUSTOM_CATEGORIES_KEY } from '@/features/tracking/constants';
 import type {
     CustomCategoryDef,
@@ -43,8 +43,13 @@ export function useCustomCategories(): {
     deleteCategory: (id: string) => void;
     getCategoryDef: (id: string) => CustomCategoryDef | undefined;
 } {
-    const [customCategories, setCustomCategories] =
-        useState<CustomCategoryDef[]>(load);
+    const [customCategories, setCustomCategories] = useState<
+        CustomCategoryDef[]
+    >([]);
+
+    useEffect(() => {
+        setCustomCategories(load());
+    }, []);
 
     const addCategory = useCallback(
         (label: string, emoji: string, color: string, fields: FieldDef[]) => {

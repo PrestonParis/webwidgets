@@ -41,7 +41,7 @@ export function HabitPage() {
                     <Flame size={22} className="text-orange-500" />
                     <div>
                         <h1 className="text-2xl font-bold text-stone-900 dark:text-zinc-100">
-                            Habits
+                            All Logging
                         </h1>
                         {habits.length > 0 && (
                             <p className="text-sm text-stone-500 dark:text-zinc-500">

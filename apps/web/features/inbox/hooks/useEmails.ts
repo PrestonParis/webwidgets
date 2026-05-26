@@ -13,6 +13,7 @@ const emailSchema = z.object({
     sender: z.string(),
     snippet: z.string(),
     date: z.string(),
+    provider: z.enum(['gmail', 'outlook']).optional(),
     category: z.string().optional(),
     is_manual: z.boolean().optional(),
 });
@@ -55,7 +56,22 @@ function updateEmailsOptimistically(
         const updated = prev.map((m) =>
             m.id === email_id ? { ...m, category, is_manual: true } : m,
         );
-        if (gmailCache) gmailCache = { ...gmailCache, emails: updated };
+        if (gmailCache) {
+            gmailCache = {
+                ...gmailCache,
+                emails: gmailCache.emails.map((m) =>
+                    m.id === email_id ? { ...m, category, is_manual: true } : m,
+                ),
+            };
+        }
+        if (outlookCache) {
+            outlookCache = {
+                ...outlookCache,
+                emails: outlookCache.emails.map((m) =>
+                    m.id === email_id ? { ...m, category, is_manual: true } : m,
+                ),
+            };
+        }
         return updated;
     });
 }
@@ -70,7 +86,14 @@ async function persistClassification(
     await supabase
         .from('email_classifications')
         .upsert(
-            { user_id: userId, email_id, category, sender, subject, is_manual: true },
+            {
+                user_id: userId,
+                email_id,
+                category,
+                sender,
+                subject,
+                is_manual: true,
+            },
             { onConflict: 'user_id,email_id' },
         );
 }
@@ -79,7 +102,8 @@ async function fetchProviderPage(
     provider: 'gmail' | 'outlook',
     token?: string,
 ): Promise<{ emails: Email[]; nextPageToken: string | null } | null> {
-    const base = provider === 'gmail' ? '/api/gmail/inbox' : '/api/outlook/inbox';
+    const base =
+        provider === 'gmail' ? '/api/gmail/inbox' : '/api/outlook/inbox';
     const url = token ? `${base}?pageToken=${token}` : base;
     const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
     if (res.status === 401 || res.status === 403) return null;
@@ -87,19 +111,30 @@ async function fetchProviderPage(
     const parsed = inboxResponseSchema.safeParse(await res.json());
     if (!parsed.success) throw new Error(`Invalid ${provider} inbox response`);
     const data = parsed.data;
+    const providerEmails = data.emails.map((email) => ({
+        ...email,
+        provider,
+    }));
     const cache = provider === 'gmail' ? gmailCache : outlookCache;
     const existing = token ? (cache?.emails ?? []) : [];
     const existingIds = new Set(existing.map((e) => e.id));
     return {
-        emails: [...existing, ...data.emails.filter((e) => !existingIds.has(e.id))],
+        emails: [
+            ...existing,
+            ...providerEmails.filter((e) => !existingIds.has(e.id)),
+        ],
         nextPageToken: data.nextPageToken ?? null,
     };
 }
 
 export function useEmails() {
     const { user } = useAuth();
-    const { hasGmail, hasMicrosoft, hasAny, loading: connectionLoading } =
-        useEmailConnection();
+    const {
+        hasGmail,
+        hasMicrosoft,
+        hasAny,
+        loading: connectionLoading,
+    } = useEmailConnection();
 
     const [emails, setEmails] = useState<Email[]>(() =>
         mergeEmails(gmailCache?.emails ?? [], outlookCache?.emails ?? []),
@@ -184,14 +219,25 @@ export function useEmails() {
     useEffect(() => {
         if (!user || !hasAny || isUnauthorized || connectionLoading) return;
         const gmailFresh =
-            gmailCache !== null && Date.now() - gmailCache.fetchedAt < CACHE_TTL;
+            gmailCache !== null &&
+            Date.now() - gmailCache.fetchedAt < CACHE_TTL;
         const outlookFresh =
-            outlookCache !== null && Date.now() - outlookCache.fetchedAt < CACHE_TTL;
-        const allFresh = (!hasGmail || gmailFresh) && (!hasMicrosoft || outlookFresh);
+            outlookCache !== null &&
+            Date.now() - outlookCache.fetchedAt < CACHE_TTL;
+        const allFresh =
+            (!hasGmail || gmailFresh) && (!hasMicrosoft || outlookFresh);
         if (!allFresh) {
             queueMicrotask(() => void loadEmails());
         }
-    }, [user, hasAny, hasGmail, hasMicrosoft, loadEmails, isUnauthorized, connectionLoading]);
+    }, [
+        user,
+        hasAny,
+        hasGmail,
+        hasMicrosoft,
+        loadEmails,
+        isUnauthorized,
+        connectionLoading,
+    ]);
 
     const handleManualClassify = async (
         email_id: string,
@@ -201,12 +247,20 @@ export function useEmails() {
     ) => {
         if (!user?.id) return;
         updateEmailsOptimistically(email_id, category, setEmails);
-        await persistClassification(user.id, email_id, category, sender, subject);
+        await persistClassification(
+            user.id,
+            email_id,
+            category,
+            sender,
+            subject,
+        );
     };
 
     return {
         user,
         emails,
+        gmailEmails: gmailCache?.emails ?? [],
+        outlookEmails: outlookCache?.emails ?? [],
         nextPageToken,
         loading: loading || connectionLoading,
         isUnauthorized: !connectionLoading && !hasAny,
