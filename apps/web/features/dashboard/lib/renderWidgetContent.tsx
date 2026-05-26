@@ -9,11 +9,6 @@ const TextEditorWidget = lazy(
 const ResearchQueueWidget = lazy(
     () => import('@/features/research/components/ResearchQueueWidget'),
 );
-const ActivityFeedWidget = lazy(() =>
-    import('@/features/activity/components/ActivityFeedWidget').then((m) => ({
-        default: m.ActivityFeedWidget,
-    })),
-);
 const AutomationWidget = lazy(
     () => import('@/features/automation/components/AutomationWidget'),
 );
@@ -63,7 +58,6 @@ const WeatherWidget = lazy(
 const WorldClockWidget = lazy(
     () => import('@/features/worldclock/components/WorldClockWidget'),
 );
-const MoodWidget = lazy(() => import('@/features/mood/components/MoodWidget'));
 const JournalWidget = lazy(
     () => import('@/features/journal/components/JournalWidget'),
 );
@@ -75,9 +69,6 @@ const CalendarWidget = lazy(
 );
 const FormFillerWidget = lazy(
     () => import('@/features/form-filler/components/FormFillerWidget'),
-);
-const DataHealthWidget = lazy(
-    () => import('@/features/datahealth/components/DataHealthWidget'),
 );
 const TrackingWidget = lazy(
     () => import('@/features/tracking/components/TrackingWidget'),
@@ -103,6 +94,9 @@ const ChatWidget = lazy(
 const SupplementWidget = lazy(
     () => import('@/features/tracking/components/widgets/SupplementWidget'),
 );
+const HealthWidget = lazy(
+    () => import('@/features/tracking/components/widgets/HealthWidget'),
+);
 const FinanceWidget = lazy(
     () => import('@/features/finance/components/FinanceWidget'),
 );
@@ -120,9 +114,6 @@ const ViewWidget = lazy(() => import('@/features/view/components/ViewWidget'));
 const CollaborationWidget = lazy(
     () => import('@/features/collaboration/components/CollaborationWidget'),
 );
-const CommandCenterWidget = lazy(
-    () => import('@/features/command-center/components/CommandCenterWidget'),
-);
 const AccessibilityWidget = lazy(
     () => import('@/features/accessibility/components/AccessibilityWidget'),
 );
@@ -135,8 +126,8 @@ const CreativeWidget = lazy(
 const InsightCardsWidget = lazy(
     () => import('@/features/dashboard/components/InsightCardsWidget'),
 );
-const ActionCardsWidget = lazy(
-    () => import('@/features/dashboard/components/ActionCardsWidget'),
+const CalculatorWidget = lazy(
+    () => import('@/features/calculator/components/CalculatorWidget'),
 );
 
 function wrap(node: ReactNode): ReactNode {
@@ -152,8 +143,6 @@ export function renderWidgetContent(
             return wrap(<TextEditorWidget />);
         case 'research-queue':
             return wrap(<ResearchQueueWidget widgetId={config.id} />);
-        case 'activity':
-            return wrap(<ActivityFeedWidget />);
         case 'automation':
             return wrap(<AutomationWidget widgetId={config.id} />);
         case 'developer':
@@ -191,8 +180,6 @@ export function renderWidgetContent(
             return wrap(<WeatherWidget widgetId={config.id} />);
         case 'worldclock':
             return wrap(<WorldClockWidget />);
-        case 'mood':
-            return wrap(<MoodWidget widgetId={config.id} />);
         case 'journal':
             return wrap(<JournalWidget />);
         case 'notes':
@@ -202,8 +189,6 @@ export function renderWidgetContent(
             return wrap(<CalendarWidget />);
         case 'form-filler':
             return wrap(<FormFillerWidget />);
-        case 'datahealth':
-            return wrap(<DataHealthWidget widgetId={config.id} />);
         case 'tracking':
             return wrap(<TrackingWidget />);
         case 'tracking-sleep':
@@ -216,6 +201,8 @@ export function renderWidgetContent(
             return wrap(<MoodTrackingWidget />);
         case 'tracking-supplements':
             return wrap(<SupplementWidget />);
+        case 'tracking-health':
+            return wrap(<HealthWidget />);
         case 'context-diagram':
             return wrap(<ContextDiagramWidget widgetId={config.id} />);
         case 'chat':
@@ -234,8 +221,6 @@ export function renderWidgetContent(
             return wrap(<ViewWidget widgetId={config.id} />);
         case 'collaboration':
             return wrap(<CollaborationWidget widgetId={config.id} />);
-        case 'command-center':
-            return wrap(<CommandCenterWidget widgetId={config.id} />);
         case 'accessibility':
             return wrap(<AccessibilityWidget widgetId={config.id} />);
         case 'memorization':
@@ -244,8 +229,8 @@ export function renderWidgetContent(
             return wrap(<CreativeWidget widgetId={config.id} />);
         case 'insight-cards':
             return wrap(<InsightCardsWidget widgetId={config.id} />);
-        case 'action-cards':
-            return wrap(<ActionCardsWidget widgetId={config.id} />);
+        case 'calculator':
+            return wrap(<CalculatorWidget widgetId={config.id} />);
         case 'folder':
             return null;
         default:

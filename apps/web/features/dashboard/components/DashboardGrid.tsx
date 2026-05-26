@@ -22,6 +22,7 @@ import {
 import { SmartPointerSensor } from '@/features/dashboard/lib/smartPointerSensor';
 import WidgetWrapper from './WidgetWrapper';
 import FolderWidget from './FolderWidget';
+import RecoveryFolderWidget from '@/features/recovery/components/RecoveryFolderWidget';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
 import { useWidgetSettingsContext } from '@/features/widgets/context/WidgetSettingsContext';
 import { CopyStyleContext } from '@/features/dashboard/lib/CopyStyleContext';
@@ -53,11 +54,7 @@ function LazyWidgetMount({ children }: { children: ReactNode }) {
         return () => observer.disconnect();
     }, [mounted]);
 
-    return (
-        <div ref={ref}>
-            {mounted ? children : <WidgetSkeleton />}
-        </div>
-    );
+    return <div ref={ref}>{mounted ? children : <WidgetSkeleton />}</div>;
 }
 
 function handleGridDragEnd(
@@ -111,6 +108,7 @@ export default function DashboardGrid(props: DashboardGridProps) {
         onOpenFolder,
         onRenameFolder,
         onDeleteFolder,
+        onOpenRecovery,
         onMoveToBucket,
         onUnpresent,
     } = props;
@@ -156,9 +154,7 @@ export default function DashboardGrid(props: DashboardGridProps) {
     const visible = layout
         .filter(
             (w) =>
-                w.visible &&
-                w.containerId === 'main' &&
-                w.unpresented !== true,
+                w.visible && w.containerId === 'main' && w.unpresented !== true,
         )
         .sort((a, b) => a.order - b.order);
 
@@ -168,14 +164,22 @@ export default function DashboardGrid(props: DashboardGridProps) {
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={(e) =>
-                    handleGridDragEnd(e, visible, layout, onLayoutChange, onDragComplete)
+                    handleGridDragEnd(
+                        e,
+                        visible,
+                        layout,
+                        onLayoutChange,
+                        onDragComplete,
+                    )
                 }
             >
                 <SortableContext
                     items={visible.map((w) => w.id)}
                     strategy={rectSortingStrategy}
                 >
-                    <div className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-4'}`}>
+                    <div
+                        className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-4'}`}
+                    >
                         {visible.map((config, index) => (
                             <WidgetWrapper
                                 key={config.id}
@@ -196,6 +200,10 @@ export default function DashboardGrid(props: DashboardGridProps) {
                                         onDelete={() =>
                                             onDeleteFolder(config.id)
                                         }
+                                    />
+                                ) : config.type === 'recovery-empty' ? (
+                                    <RecoveryFolderWidget
+                                        onOpen={() => onOpenRecovery?.()}
                                     />
                                 ) : index < DASHBOARD_BOOTSTRAP_WIDGET_COUNT ? (
                                     renderWidgetContent(config, onReset)

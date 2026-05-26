@@ -1,9 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import {
+    ActivitySquare,
+    BarChart3,
+    CalendarDays,
+    ListPlus,
+    Plus,
+    TableProperties,
+} from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useTrackingWidgetData } from '@/features/tracking/hooks/useTrackingWidgetData';
 import { QuickEntryForm } from '@/features/tracking/components/QuickEntryForm';
+import {
+    QuickActionButton,
+    WidgetStat,
+} from '@/features/tracking/components/TrackingSurface';
 import { GraphView } from '@/features/tracking/components/views/GraphView';
 import { HeatmapView } from '@/features/tracking/components/views/HeatmapView';
 import { StatsView } from '@/features/tracking/components/views/StatsView';
@@ -15,14 +27,16 @@ import {
 import type { TrackingCategory } from '@/features/tracking/types/tracking';
 import type { Tracker } from '@/features/recovery/types/recovery';
 
-type ViewMode = 'graph' | 'heatmap' | 'stats' | 'timeline';
+type ViewMode = 'log' | 'graph' | 'heatmap' | 'stats' | 'timeline' | 'recovery';
 
-const VIEWS: Array<{ id: ViewMode; label: string }> = [
-    { id: 'graph', label: 'Graph' },
-    { id: 'heatmap', label: 'Heatmap' },
-    { id: 'stats', label: 'Stats' },
-    { id: 'timeline', label: 'Timeline' },
-];
+const VIEW_LABELS: Record<ViewMode, string> = {
+    log: 'Log',
+    graph: 'Graph',
+    heatmap: 'Heatmap',
+    stats: 'Stats',
+    timeline: 'Timeline',
+    recovery: 'Recovery',
+};
 
 function daysSince(isoTime: string): number {
     return Math.floor((Date.now() - new Date(isoTime).getTime()) / 86_400_000);
@@ -51,7 +65,6 @@ function RecoveryPanel({ trackers }: { trackers: Tracker[] }) {
                         className="flex items-center justify-between rounded-xl bg-gray-50 dark:bg-zinc-800/60 px-3 py-2"
                     >
                         <div className="flex items-center gap-2">
-                            <span className="text-sm">🌱</span>
                             <p className="text-xs font-medium text-gray-700 dark:text-zinc-300 capitalize">
                                 {t.addiction}
                             </p>
@@ -110,21 +123,30 @@ function CategoryPicker({
 }
 
 export default function TrackingWidget() {
-    const [viewMode, setViewMode] = useState<ViewMode>('graph');
+    const [viewMode, setViewMode] = useState<ViewMode>('log');
     const [activeCategory, setActiveCategory] =
         useState<ActiveCategory>('mood');
-    const [showForm, setShowForm] = useState(false);
 
     const dataCategory: TrackingCategory =
         activeCategory === 'recovery' ? 'mood' : activeCategory;
     const { entries, allEntries, trackers, handleAdd } =
         useTrackingWidgetData(dataCategory);
 
-    const isRecovery = activeCategory === 'recovery';
+    const isRecovery = activeCategory === 'recovery' || viewMode === 'recovery';
+    const setTrackingView = (next: ViewMode) => {
+        setViewMode(next);
+        setActiveCategory((current) =>
+            next === 'recovery'
+                ? 'recovery'
+                : current === 'recovery'
+                  ? 'mood'
+                  : current,
+        );
+    };
 
     return (
         <WidgetShell
-            icon={<span className="text-base">📊</span>}
+            icon={<ActivitySquare className="h-4 w-4 text-indigo-500" />}
             title="Tracking"
             footerHref="/tracking"
             footerLabel="Open lab →"
@@ -137,34 +159,86 @@ export default function TrackingWidget() {
                     active={activeCategory}
                     onChange={(c) => {
                         setActiveCategory(c);
-                        setShowForm(false);
+                        setViewMode(c === 'recovery' ? 'recovery' : 'log');
                     }}
                 />
 
-                {/* View mode dropdown (hidden in recovery) */}
                 {!isRecovery && (
-                    <select
-                        value={viewMode}
-                        onChange={(e) => {
-                            setViewMode(e.target.value as ViewMode);
-                            setShowForm(false);
-                        }}
-                        className="w-full text-sm rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 text-gray-700 dark:text-zinc-300"
-                    >
-                        {VIEWS.map((v) => (
-                            <option key={v.id} value={v.id}>
-                                {v.label}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="rounded-xl border border-indigo-100 bg-indigo-50/80 p-3 dark:border-indigo-900/50 dark:bg-indigo-950/20">
+                        <p className="text-[10px] font-semibold uppercase text-indigo-500 dark:text-indigo-300">
+                            Active tracker
+                        </p>
+                        <p className="mt-1 truncate text-sm font-semibold text-gray-900 dark:text-zinc-100">
+                            {getCategoryLabel(dataCategory)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-400">
+                            {entries.length} recent entries ·{' '}
+                            {allEntries.length} total in range
+                        </p>
+                    </div>
                 )}
 
-                {/* Entry count (non-recovery) */}
                 {!isRecovery && (
-                    <p className="text-xs text-gray-400 dark:text-zinc-600">
-                        {entries.length} entries
-                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                        <WidgetStat
+                            label="Recent"
+                            value={String(entries.length)}
+                        />
+                        <WidgetStat
+                            label="All"
+                            value={String(allEntries.length)}
+                        />
+                        <WidgetStat
+                            label="View"
+                            value={VIEW_LABELS[viewMode]}
+                        />
+                    </div>
                 )}
+
+                <div className="grid grid-cols-3 gap-1">
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'log'}
+                        onClick={() => setTrackingView('log')}
+                    >
+                        <Plus className="h-3 w-3" /> Log
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'graph'}
+                        onClick={() => setTrackingView('graph')}
+                    >
+                        <BarChart3 className="h-3 w-3" /> Graph
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'timeline'}
+                        onClick={() => setTrackingView('timeline')}
+                    >
+                        <ListPlus className="h-3 w-3" /> Timeline
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'stats'}
+                        onClick={() => setTrackingView('stats')}
+                    >
+                        <TableProperties className="h-3 w-3" /> Stats
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'heatmap'}
+                        onClick={() => setTrackingView('heatmap')}
+                    >
+                        <CalendarDays className="h-3 w-3" /> Heatmap
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="indigo"
+                        primary={viewMode === 'recovery'}
+                        onClick={() => setTrackingView('recovery')}
+                    >
+                        Recovery
+                    </QuickActionButton>
+                </div>
 
                 {/* View content */}
                 {!isRecovery &&
@@ -172,7 +246,7 @@ export default function TrackingWidget() {
                     (entries.length > 0 ? (
                         <GraphView entries={entries} category={dataCategory} />
                     ) : (
-                        <EmptyHint action={() => setShowForm(true)} />
+                        <EmptyHint action={() => setTrackingView('log')} />
                     ))}
                 {!isRecovery &&
                     viewMode === 'heatmap' &&
@@ -183,7 +257,7 @@ export default function TrackingWidget() {
                             weeks={8}
                         />
                     ) : (
-                        <EmptyHint action={() => setShowForm(true)} />
+                        <EmptyHint action={() => setTrackingView('log')} />
                     ))}
                 {!isRecovery &&
                     viewMode === 'stats' &&
@@ -193,36 +267,27 @@ export default function TrackingWidget() {
                             category={dataCategory}
                         />
                     ) : (
-                        <EmptyHint action={() => setShowForm(true)} />
+                        <EmptyHint action={() => setTrackingView('log')} />
                     ))}
                 {!isRecovery &&
                     viewMode === 'timeline' &&
                     (entries.length > 0 ? (
                         <TimelineView entries={entries} />
                     ) : (
-                        <EmptyHint action={() => setShowForm(true)} />
+                        <EmptyHint action={() => setTrackingView('log')} />
                     ))}
                 {isRecovery && <RecoveryPanel trackers={trackers} />}
 
-                {/* Quick log form (non-recovery) */}
-                {!isRecovery &&
-                    (showForm ? (
-                        <QuickEntryForm
-                            initialCategory={dataCategory}
-                            onSubmit={async (entry) => {
-                                await handleAdd(entry);
-                                setShowForm(false);
-                            }}
-                            onCancel={() => setShowForm(false)}
-                        />
-                    ) : (
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="w-full text-xs py-1.5 rounded-lg border border-dashed border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-colors"
-                        >
-                            + Log entry
-                        </button>
-                    ))}
+                {!isRecovery && viewMode === 'log' && (
+                    <QuickEntryForm
+                        initialCategory={dataCategory}
+                        onSubmit={async (entry) => {
+                            await handleAdd(entry);
+                            setTrackingView('log');
+                        }}
+                        onCancel={() => setTrackingView('log')}
+                    />
+                )}
             </div>
         </WidgetShell>
     );

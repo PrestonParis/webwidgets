@@ -6,7 +6,6 @@ type ResolverLoader = () => Promise<ResolverModule>;
 const resolverKeys = [
     'finance.summary',
     'currency.rates.usd',
-    'datahealth.system',
     'workflows.recent',
     'inbox.messages',
     'calendar.events',
@@ -20,11 +19,10 @@ const resolverKeys = [
 ] as const;
 
 const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
-    'finance.summary': () => import('@/features/finance/server/financeResolvers'),
+    'finance.summary': () =>
+        import('@/features/finance/server/financeResolvers'),
     'currency.rates.usd': () =>
         import('@/features/currency/server/currencyResolvers'),
-    'datahealth.system': () =>
-        import('@/features/datahealth/server/dataHealthResolvers'),
     'workflows.recent': () =>
         import('@/features/workflows/server/workflowResolvers'),
     'inbox.messages': () => import('@/features/inbox/server/inboxResolvers'),
@@ -49,14 +47,13 @@ function resolversFromModule(module: ResolverModule): DataResolver[] {
     return Object.values(module)
         .filter(Array.isArray)
         .flatMap((value) => value)
-        .filter(
-            (value): value is DataResolver =>
-                Boolean(
-                    value &&
-                        typeof value === 'object' &&
-                        'key' in value &&
-                        'resolve' in value,
-                ),
+        .filter((value): value is DataResolver =>
+            Boolean(
+                value &&
+                typeof value === 'object' &&
+                'key' in value &&
+                'resolve' in value,
+            ),
         );
 }
 

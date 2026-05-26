@@ -52,7 +52,14 @@ const widgetSettingsPatchSchema = z.object({
     view: z.enum(['timer', 'heatmap']).optional(),
     textEditorMode: z.enum(['document', 'journal', 'note']).optional(),
     timekeepingMode: z
-        .enum(['timer', 'pomodoro', 'stopwatch', 'countdown', 'worldclock'])
+        .enum([
+            'timer',
+            'pomodoro',
+            'stopwatch',
+            'countdown',
+            'worldclock',
+            'timeclock',
+        ])
         .optional(),
     schedule: scheduleSchema,
     anchorId: z.string().optional(),

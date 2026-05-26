@@ -33,7 +33,7 @@ const GOAL_WIDGETS: Record<OnboardingGoalId, WidgetRecommendation[]> = {
             priority: 94,
         },
         {
-            widgetType: 'mood',
+            widgetType: 'tracking-mood',
             reason: 'Mood adds qualitative context to health patterns.',
             priority: 78,
         },
@@ -50,7 +50,7 @@ const GOAL_WIDGETS: Record<OnboardingGoalId, WidgetRecommendation[]> = {
             priority: 98,
         },
         {
-            widgetType: 'mood',
+            widgetType: 'tracking-mood',
             reason: 'Mood check-ins help identify risk patterns.',
             priority: 90,
         },

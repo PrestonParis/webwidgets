@@ -50,7 +50,8 @@ export type TimekeepingMode =
     | 'pomodoro'
     | 'stopwatch'
     | 'countdown'
-    | 'worldclock';
+    | 'worldclock'
+    | 'timeclock';
 
 export interface WidgetSettings {
     color: WidgetColor;

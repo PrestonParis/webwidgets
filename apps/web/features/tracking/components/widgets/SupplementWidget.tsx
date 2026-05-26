@@ -1,238 +1,408 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Plus, AlertTriangle, Check, Clock, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+    AlertTriangle,
+    BarChart3,
+    Boxes,
+    Check,
+    Clock,
+    FileUp,
+    Plus,
+    ShieldAlert,
+    SkipForward,
+    Star,
+} from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { QuickEntryForm } from '@/features/tracking/components/QuickEntryForm';
+import { SupplementDefForm } from '@/features/tracking/components/widgets/SupplementDefForm';
+import {
+    QuickActionButton,
+    WidgetStat,
+} from '@/features/tracking/components/TrackingSurface';
 import { useSupplements } from '@/features/tracking/hooks/useSupplements';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
-import { SupplementDefForm } from '@/features/tracking/components/widgets/SupplementDefForm';
-import {
-    formatScheduleLabel,
-    getCurrentWarning,
-    getLogWarning,
-    warningMessage,
-    warningShort,
-} from '@/features/tracking/lib/supplementSchedule';
-import type { Supplement } from '@/features/tracking/types/supplement';
+import { computeSupplementAnalytics } from '@/features/tracking/lib/supplements/analytics';
+import { scheduleLabel } from '@/features/tracking/lib/supplements/schedule';
+import type { DueDose } from '@/features/tracking/lib/supplements/types';
+
+type ViewMode =
+    | 'add'
+    | 'log'
+    | 'due'
+    | 'skip'
+    | 'scan'
+    | 'refill'
+    | 'today'
+    | 'schedule'
+    | 'history'
+    | 'inventory'
+    | 'effectiveness'
+    | 'safety';
 
 function todayKey(): string {
     return new Date().toISOString().slice(0, 10);
 }
 
 export default function SupplementWidget() {
-    const [showForm, setShowForm] = useState(false);
-    const [pendingLog, setPendingLog] = useState<Supplement | null>(null);
-    const { supplements, loading, add, remove } = useSupplements();
+    const [mode, setMode] = useState<ViewMode>('add');
+    const { supplements, loading, add } = useSupplements();
     const { entries, refetch } = useTrackingEntries({
         category: 'supplement',
-        limit: 60,
+        limit: 120,
     });
     const { handleAdd } = useTrackingActions(refetch);
+    const analytics = useMemo(
+        () => computeSupplementAnalytics(supplements, entries),
+        [supplements, entries],
+    );
 
-    // Map supplement name → loggedAt for today's entries
-    const todayLogMap = useMemo(() => {
-        const today = todayKey();
-        const map = new Map<string, string>();
-        for (const e of entries) {
-            if (e.entryDate !== today) continue;
-            const name =
-                typeof e.metadata['name'] === 'string'
-                    ? e.metadata['name']
-                    : '';
-            if (name && !map.has(name)) map.set(name, e.loggedAt);
-        }
-        return map;
-    }, [entries]);
-
-    const logSupplement = async (supp: Supplement) => {
+    const logDose = async (
+        dose: DueDose,
+        status: 'taken' | 'skipped' = 'taken',
+    ) => {
         await handleAdd({
             category: 'supplement',
-            entryDate: todayKey(),
+            entryDate: dose.date,
             metadata: {
-                name: supp.name,
-                ...(supp.dose && { dose: supp.dose }),
-                taken: true,
+                supplementId: dose.supplement.id,
+                name: dose.supplement.name,
+                brand: dose.supplement.brand,
+                dose: dose.supplement.servingSize,
+                doseAmount: dose.supplement.doseAmount,
+                doseUnit: dose.supplement.doseUnit,
+                time: dose.time,
+                status,
+                taken: status === 'taken',
+                ...(status === 'skipped' && {
+                    skipReason: 'Skipped from widget',
+                }),
             },
             tags: [],
             source: 'manual',
         });
-        setPendingLog(null);
     };
 
-    const handleLogClick = (supp: Supplement) => {
-        if (getCurrentWarning(supp)) {
-            setPendingLog(supp);
-        } else {
-            void logSupplement(supp);
+    const markAllDueTaken = async () => {
+        for (const dose of analytics.dueToday.filter(
+            (item) => item.status !== 'taken',
+        )) {
+            await logDose(dose, 'taken');
         }
     };
 
     return (
         <WidgetShell
-            icon={<span className="text-base">💊</span>}
+            icon={<Star className="h-4 w-4 text-purple-600" />}
             title="Supplements"
             footerHref="/tracking"
-            footerLabel="View all →"
+            footerLabel="Open supplement dashboard"
             widgetId="supplement-widget"
             widgetType="tracking-supplements"
         >
             <div className="space-y-3">
                 {loading ? (
-                    <div className="space-y-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="h-10 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
-                            />
-                        ))}
-                    </div>
-                ) : supplements.length === 0 && !showForm ? (
-                    <div className="flex flex-col items-center gap-2 py-4 text-center">
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                            No supplements added yet.
+                    <div className="h-28 rounded-xl bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+                ) : analytics.definitions.length === 0 && mode !== 'add' ? (
+                    <div className="rounded-xl border border-dashed border-purple-200 dark:border-purple-800 p-3 text-center">
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                            No supplements yet
                         </p>
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="text-xs text-purple-500 hover:text-purple-600 dark:hover:text-purple-400 font-medium"
-                        >
-                            + Add your first supplement
-                        </button>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            Add a supplement, create a schedule, or import a
+                            CSV.
+                        </p>
                     </div>
-                ) : (
-                    <ul className="space-y-1">
-                        {supplements.map((supp) => {
-                            const loggedAt = todayLogMap.get(supp.name);
-                            const isTaken = loggedAt !== undefined;
-                            const logWarn = isTaken
-                                ? getLogWarning(supp, loggedAt)
-                                : null;
-                            const currWarn = !isTaken
-                                ? getCurrentWarning(supp)
-                                : null;
-
-                            return (
-                                <li
-                                    key={supp.id}
-                                    className="group flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                                >
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200 truncate">
-                                                {supp.name}
-                                            </span>
-                                            {supp.dose && (
-                                                <span className="text-[10px] text-zinc-400 shrink-0">
-                                                    {supp.dose}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                                            <Clock
-                                                size={9}
-                                                className="text-zinc-400 shrink-0"
-                                            />
-                                            <span className="text-[10px] text-zinc-400">
-                                                {formatScheduleLabel(supp)}
-                                            </span>
-                                            {logWarn && (
-                                                <span className="text-[10px] text-amber-500 flex items-center gap-0.5 shrink-0">
-                                                    <AlertTriangle size={9} />
-                                                    {warningShort(logWarn)}
-                                                </span>
-                                            )}
-                                            {currWarn === 'overdue' && (
-                                                <span className="text-[10px] text-red-400 flex items-center gap-0.5 shrink-0">
-                                                    <AlertTriangle size={9} />{' '}
-                                                    Overdue
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {isTaken ? (
-                                        <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                                            <Check
-                                                size={11}
-                                                className="text-purple-600 dark:text-purple-400"
-                                            />
-                                        </span>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleLogClick(supp)}
-                                            className="shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800 text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-                                        >
-                                            Log
-                                        </button>
-                                    )}
-
-                                    <button
-                                        onClick={() => {
-                                            void remove(supp.id);
-                                        }}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-300 hover:text-red-400 dark:text-zinc-600 dark:hover:text-red-400 shrink-0"
-                                        aria-label="Remove supplement"
-                                    >
-                                        <Trash2 size={11} />
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                )}
-
-                {pendingLog && (
-                    <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
-                        <div className="flex items-start gap-2">
-                            <AlertTriangle
-                                size={13}
-                                className="text-amber-500 shrink-0 mt-0.5"
+                ) : mode === 'today' ? (
+                    <>
+                        <div className="grid grid-cols-3 gap-2">
+                            <WidgetStat
+                                label="Due today"
+                                value={String(analytics.dueToday.length)}
                             />
-                            <p className="text-xs text-amber-700 dark:text-amber-300">
-                                {warningMessage(
-                                    getCurrentWarning(pendingLog) ?? 'overdue',
-                                    pendingLog,
-                                )}
-                                . Log anyway?
+                            <WidgetStat
+                                label="Taken"
+                                value={String(analytics.takenToday)}
+                            />
+                            <WidgetStat
+                                label="Overdue"
+                                value={String(analytics.overdueCount)}
+                            />
+                        </div>
+                        <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/70 p-2">
+                            <p className="text-[10px] text-zinc-500">
+                                Next dose
+                            </p>
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                {analytics.nextDose
+                                    ? `${analytics.nextDose.supplement.name} at ${analytics.nextDose.time}`
+                                    : 'No upcoming doses'}
                             </p>
                         </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => {
-                                    void logSupplement(pendingLog);
-                                }}
-                                className="flex-1 py-1 text-xs bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
-                            >
-                                Log anyway
-                            </button>
-                            <button
-                                onClick={() => setPendingLog(null)}
-                                className="px-3 py-1 text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                )}
+                    </>
+                ) : null}
 
-                {showForm ? (
+                <div className="grid grid-cols-3 gap-1">
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'add'}
+                        onClick={() => setMode('add')}
+                    >
+                        <Plus className="h-3 w-3" /> Add
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'log'}
+                        onClick={() => setMode('log')}
+                    >
+                        <Check className="h-3 w-3" /> Log
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'due'}
+                        onClick={() => setMode('due')}
+                    >
+                        <Clock className="h-3 w-3" /> Due
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'skip'}
+                        onClick={() => setMode('skip')}
+                    >
+                        <SkipForward className="h-3 w-3" /> Skip
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'scan'}
+                        onClick={() => setMode('scan')}
+                    >
+                        <FileUp className="h-3 w-3" /> Scan
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'refill'}
+                        onClick={() => setMode('refill')}
+                    >
+                        <Boxes className="h-3 w-3" /> Refill
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'today'}
+                        onClick={() => setMode('today')}
+                    >
+                        Today
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'schedule'}
+                        onClick={() => setMode('schedule')}
+                    >
+                        Schedule
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'history'}
+                        onClick={() => setMode('history')}
+                    >
+                        History
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'inventory'}
+                        onClick={() => setMode('inventory')}
+                    >
+                        Inventory
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'effectiveness'}
+                        onClick={() => setMode('effectiveness')}
+                    >
+                        Effectiveness
+                    </QuickActionButton>
+                    <QuickActionButton
+                        tone="purple"
+                        primary={mode === 'safety'}
+                        onClick={() => setMode('safety')}
+                    >
+                        Safety
+                    </QuickActionButton>
+                </div>
+
+                {mode === 'add' && (
                     <SupplementDefForm
                         onSubmit={async (payload) => {
                             await add(payload);
-                            setShowForm(false);
+                            setMode('today');
                         }}
-                        onCancel={() => setShowForm(false)}
+                        onCancel={() => setMode('today')}
                     />
-                ) : (
-                    supplements.length > 0 && (
+                )}
+                {mode === 'log' && (
+                    <QuickEntryForm
+                        initialCategory="supplement"
+                        lockCategory
+                        onSubmit={async (entry) => {
+                            await handleAdd(entry);
+                            setMode('today');
+                        }}
+                        onCancel={() => setMode('today')}
+                    />
+                )}
+                {mode === 'due' && (
+                    <div className="space-y-2">
                         <button
-                            onClick={() => setShowForm(true)}
-                            className="w-full text-xs py-1.5 rounded-xl border border-dashed border-purple-200 dark:border-purple-800 text-purple-400 hover:border-purple-400 hover:text-purple-500 transition-colors flex items-center justify-center gap-1.5"
+                            type="button"
+                            onClick={() => void markAllDueTaken()}
+                            className="w-full rounded-lg bg-purple-600 px-2 py-1.5 text-xs font-medium text-white"
                         >
-                            <Plus size={11} />
-                            Add supplement
+                            Mark all due taken
                         </button>
-                    )
+                        {analytics.dueToday.length === 0 && (
+                            <p className="rounded-lg bg-zinc-50 p-2 text-xs text-zinc-500 dark:bg-zinc-800/70">
+                                No doses due today.
+                            </p>
+                        )}
+                        {analytics.dueToday.slice(0, 5).map((dose) => (
+                            <p
+                                key={dose.id}
+                                className="rounded-lg bg-zinc-50 p-2 text-xs text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-300"
+                            >
+                                {dose.supplement.name} · {dose.time} ·{' '}
+                                {dose.status}
+                            </p>
+                        ))}
+                    </div>
+                )}
+                {mode === 'skip' && (
+                    <div className="space-y-1">
+                        {analytics.dueToday.filter(
+                            (dose) => dose.status !== 'taken',
+                        ).length === 0 && (
+                            <p className="rounded-lg bg-zinc-50 p-2 text-xs text-zinc-500 dark:bg-zinc-800/70">
+                                No untaken doses to skip.
+                            </p>
+                        )}
+                        {analytics.dueToday
+                            .filter((dose) => dose.status !== 'taken')
+                            .slice(0, 5)
+                            .map((dose) => (
+                                <button
+                                    key={dose.id}
+                                    type="button"
+                                    onClick={() =>
+                                        void logDose(dose, 'skipped')
+                                    }
+                                    className="w-full rounded-lg bg-zinc-50 p-2 text-left text-xs text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-300"
+                                >
+                                    Skip {dose.supplement.name} at {dose.time}
+                                </button>
+                            ))}
+                    </div>
+                )}
+                {mode === 'scan' && (
+                    <p className="rounded-lg bg-zinc-50 p-2 text-xs text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-300">
+                        Supplement label scanning is available from the full
+                        supplement dashboard.
+                    </p>
+                )}
+                {mode === 'refill' && (
+                    <p className="rounded-lg bg-zinc-50 p-2 text-xs text-zinc-600 dark:bg-zinc-800/70 dark:text-zinc-300">
+                        {analytics.lowInventory.length} low-stock supplements
+                        need refill review.
+                    </p>
+                )}
+
+                {mode === 'today' && (
+                    <div className="space-y-1">
+                        {analytics.dueToday.length === 0 && (
+                            <p className="text-xs text-zinc-500">
+                                No schedule for today.
+                            </p>
+                        )}
+                        {analytics.dueToday.slice(0, 5).map((dose) => (
+                            <div
+                                key={dose.id}
+                                className="flex items-center gap-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/70 p-2"
+                            >
+                                <span
+                                    className={`h-2 w-2 rounded-full ${dose.status === 'taken' ? 'bg-green-500' : dose.overdue ? 'bg-red-500' : 'bg-purple-500'}`}
+                                />
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                                        {dose.supplement.name}
+                                    </p>
+                                    <p className="text-[10px] text-zinc-500">
+                                        {dose.time} · {dose.status}
+                                        {dose.overdue ? ' · overdue' : ''}
+                                    </p>
+                                </div>
+                                {dose.status !== 'taken' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => void logDose(dose)}
+                                        className="text-xs text-purple-600"
+                                    >
+                                        Take
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {mode === 'schedule' && (
+                    <div className="space-y-1">
+                        {analytics.definitions.slice(0, 5).map((definition) => (
+                            <p
+                                key={definition.id}
+                                className="rounded-lg bg-zinc-50 dark:bg-zinc-800/70 p-2 text-xs text-zinc-600 dark:text-zinc-300"
+                            >
+                                {definition.name}: {scheduleLabel(definition)}
+                            </p>
+                        ))}
+                    </div>
+                )}
+                {mode === 'history' && (
+                    <div className="space-y-1">
+                        {analytics.history.slice(0, 5).map((log) => (
+                            <p
+                                key={log.id}
+                                className="rounded-lg bg-zinc-50 dark:bg-zinc-800/70 p-2 text-xs text-zinc-600 dark:text-zinc-300"
+                            >
+                                {log.date} · {log.name} · {log.status}
+                            </p>
+                        ))}
+                    </div>
+                )}
+                {mode === 'inventory' && (
+                    <p className="rounded-lg bg-zinc-50 dark:bg-zinc-800/70 p-2 text-xs text-zinc-600 dark:text-zinc-300">
+                        {analytics.lowInventory.length} low stock ·{' '}
+                        {analytics.expiringSoon.length} expiring soon · $
+                        {analytics.costPerMonth.toFixed(2)}/month tracked
+                    </p>
+                )}
+                {mode === 'effectiveness' && (
+                    <p className="rounded-lg bg-zinc-50 dark:bg-zinc-800/70 p-2 text-xs text-zinc-600 dark:text-zinc-300">
+                        <BarChart3 className="mr-1 inline h-3 w-3" />{' '}
+                        {analytics.effectivenessTrend.length < 3
+                            ? 'Not enough effectiveness data yet.'
+                            : `Trend check-ins: ${analytics.effectivenessTrend.length}`}
+                    </p>
+                )}
+                {mode === 'safety' && (
+                    <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 p-2 text-xs text-amber-800 dark:text-amber-200">
+                        <ShieldAlert className="mr-1 inline h-3 w-3" />
+                        Verify supplement, medication, pregnancy, and condition
+                        interactions with a clinician/pharmacist.
+                        {Object.keys(analytics.sideEffectFrequency).length >
+                            0 && (
+                            <p className="mt-1">
+                                <AlertTriangle className="mr-1 inline h-3 w-3" />
+                                Recent side effects logged.
+                            </p>
+                        )}
+                    </div>
                 )}
             </div>
         </WidgetShell>

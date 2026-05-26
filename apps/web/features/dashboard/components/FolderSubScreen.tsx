@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, FolderOpen, LogOut } from 'lucide-react';
+import { ArrowLeft, FolderOpen, LogOut, Plus } from 'lucide-react';
 import {
     DndContext,
     closestCenter,
@@ -31,6 +31,7 @@ interface FolderSubScreenProps {
     onDeleteFolder: (id: string) => void;
     onToggleVisible: (id: string) => void;
     onReset: (id: string, newStart: string) => void;
+    onAddAllToMain?: () => void;
 }
 
 function handleFolderDragEnd(
@@ -149,6 +150,7 @@ export default function FolderSubScreen({
     onDeleteFolder,
     onToggleVisible,
     onReset,
+    onAddAllToMain,
 }: FolderSubScreenProps) {
     const sensors = useSensors(
         useSensor(SmartPointerSensor, {
@@ -166,24 +168,35 @@ export default function FolderSubScreen({
 
     return (
         <div>
-            <div className="flex items-center gap-4 mb-8">
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100 transition-colors"
-                >
-                    <ArrowLeft size={16} />
-                    Back
-                </button>
-                <div className="flex items-center gap-2">
-                    <FolderOpen size={20} className="text-blue-500" />
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
-                        {folder.props?.folderName ?? 'Folder'}
-                    </h2>
-                    <span className="text-sm text-zinc-400">
-                        {widgetsInFolder.length} widget
-                        {widgetsInFolder.length !== 1 ? 's' : ''}
-                    </span>
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100 transition-colors"
+                    >
+                        <ArrowLeft size={16} />
+                        Back
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <FolderOpen size={20} className="text-blue-500" />
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
+                            {folder.props?.folderName ?? 'Folder'}
+                        </h2>
+                        <span className="text-sm text-zinc-400">
+                            {widgetsInFolder.length} widget
+                            {widgetsInFolder.length !== 1 ? 's' : ''}
+                        </span>
+                    </div>
                 </div>
+                {onAddAllToMain && widgetsInFolder.length > 0 && (
+                    <button
+                        onClick={onAddAllToMain}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500 text-white text-xs font-semibold hover:bg-blue-600 transition-colors"
+                    >
+                        <Plus size={12} />
+                        Add all to dashboard
+                    </button>
+                )}
             </div>
 
             <FolderGrid
