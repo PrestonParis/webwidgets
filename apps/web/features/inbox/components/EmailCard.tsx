@@ -34,6 +34,11 @@ const CATEGORY_STYLES: Record<string, string> = {
     other: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
 };
 
+const PROVIDER_STYLES: Record<string, string> = {
+    gmail: 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300',
+    outlook: 'bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-300',
+};
+
 function formatDue(iso: string | null): string | null {
     if (!iso) return null;
     const date = new Date(iso);
@@ -221,6 +226,14 @@ export function EmailCard({
         <div className="group p-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl hover:border-gray-200 dark:hover:border-zinc-700 transition-colors">
             <div className="flex justify-between items-start mb-2 gap-3">
                 <div className="flex items-center gap-2 min-w-0">
+                    <span
+                        className={cn(
+                            'shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg',
+                            PROVIDER_STYLES[mail.provider ?? 'gmail'],
+                        )}
+                    >
+                        {mail.provider ?? 'gmail'}
+                    </span>
                     <span
                         className={cn(
                             'shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg',

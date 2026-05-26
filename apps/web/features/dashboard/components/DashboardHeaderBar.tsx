@@ -23,6 +23,7 @@ import ConfirmModal from '@/features/recovery/components/ConfirmModal';
 import type { Scene } from '@/features/dashboard/hooks/useScenes';
 import { cn } from '@/lib/utils/utils';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
+import type { Tracker } from '@/features/recovery/types/recovery';
 import { useMoreOptionsDropdown } from '@/features/dashboard/hooks/useMoreOptionsDropdown';
 
 // ─── layout mode toggle ───────────────────────────────────────────────────────
@@ -255,6 +256,7 @@ export interface DashboardHeaderBarProps {
     fullscreen: boolean;
     onToggleFullscreen: () => void;
     simplified?: boolean;
+    onAddTracker?: (tracker: Tracker) => void;
 }
 
 export function DashboardHeaderBar({
@@ -281,6 +283,7 @@ export function DashboardHeaderBar({
     fullscreen,
     onToggleFullscreen,
     simplified = false,
+    onAddTracker,
 }: DashboardHeaderBarProps) {
     const [widgetPanelOpen, setWidgetPanelOpen] = useState(false);
     const [removePanelOpen, setRemovePanelOpen] = useState(false);
@@ -308,117 +311,124 @@ export function DashboardHeaderBar({
                 )}
             </div>
             {/* Sticky action bar — sibling of grid content so it can stick the full page height */}
-            <div className={`sticky z-20 py-2 mb-6 -mx-6 px-6 lg:-mx-12 lg:px-12 flex justify-end items-center gap-3 ${fullscreen ? 'top-0' : 'top-14'}`}>
-            <div className="flex items-center gap-3">
-                {!simplified && <LayoutModeToggle mode={mode} onChange={onModeChange} />}
-                {!simplified && (
-                    <MoreOptionsDropdown
-                        scenes={scenes}
-                        onSaveScene={onSaveScene}
-                        onLoadScene={onLoadScene}
-                        onDeleteScene={onDeleteScene}
-                        onRenameScene={onRenameScene}
-                        onResetLayout={onResetLayout}
-                    />
-                )}
-                <button
-                    onClick={onToggleFullscreen}
-                    title={
-                        fullscreen ? 'Exit full screen (Esc)' : 'Full screen'
-                    }
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                >
-                    {fullscreen ? (
-                        <Minimize2 size={16} />
-                    ) : (
-                        <Maximize2 size={16} />
+            <div
+                className={`sticky z-20 py-2 mb-6 -mx-6 px-6 lg:-mx-12 lg:px-12 flex justify-end items-center gap-3 ${fullscreen ? 'top-0' : 'top-14'}`}
+            >
+                <div className="flex items-center gap-3">
+                    {!simplified && (
+                        <LayoutModeToggle mode={mode} onChange={onModeChange} />
                     )}
-                </button>
-
-                {/* Add widget */}
-                <div ref={widgetBtnRef} className="relative">
-                    <button
-                        onClick={() => setWidgetPanelOpen((v) => !v)}
-                        className={cn(
-                            'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
-                            widgetPanelOpen
-                                ? 'bg-blue-600 text-white dark:bg-blue-500'
-                                : 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300',
-                        )}
-                    >
-                        <Plus size={16} /> Add
-                    </button>
-                    {widgetPanelOpen && (
-                        <AddWidgetPanel
-                            layout={layout}
-                            onAdd={(type) => {
-                                onAddWidget(type);
-                            }}
-                            onRestore={(id) => {
-                                onRestoreUnpresented(id);
-                            }}
-                            onAddFolder={() => {
-                                onAddFolder();
-                            }}
-                            onClose={() => setWidgetPanelOpen(false)}
+                    {!simplified && (
+                        <MoreOptionsDropdown
+                            scenes={scenes}
+                            onSaveScene={onSaveScene}
+                            onLoadScene={onLoadScene}
+                            onDeleteScene={onDeleteScene}
+                            onRenameScene={onRenameScene}
+                            onResetLayout={onResetLayout}
                         />
                     )}
-                </div>
+                    <button
+                        onClick={onToggleFullscreen}
+                        title={
+                            fullscreen
+                                ? 'Exit full screen (Esc)'
+                                : 'Full screen'
+                        }
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                    >
+                        {fullscreen ? (
+                            <Minimize2 size={16} />
+                        ) : (
+                            <Maximize2 size={16} />
+                        )}
+                    </button>
 
-                {/* Undo / Redo — hidden in simplified (1D) mode */}
-                {!simplified && (
-                    <div className="flex items-center gap-1">
+                    {/* Add widget */}
+                    <div ref={widgetBtnRef} className="relative">
                         <button
-                            onClick={onUndo}
-                            disabled={!canUndo}
-                            title="Undo"
-                            className={undoActive}
-                        >
-                            <Undo2 size={14} />
-                        </button>
-                        <button
-                            onClick={onRedo}
-                            disabled={!canRedo}
-                            title="Redo"
+                            onClick={() => setWidgetPanelOpen((v) => !v)}
                             className={cn(
-                                'flex items-center justify-center w-8 h-8 rounded-xl text-sm transition-all',
-                                canRedo
-                                    ? 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_0_16px_rgba(255,255,255,0.08)] hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                                    : 'opacity-30 cursor-not-allowed text-zinc-400 dark:text-zinc-600',
+                                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
+                                widgetPanelOpen
+                                    ? 'bg-blue-600 text-white dark:bg-blue-500'
+                                    : 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300',
                             )}
                         >
-                            <Redo2 size={14} />
+                            <Plus size={16} /> Add
                         </button>
-                    </div>
-                )}
-
-                {/* Remove widgets */}
-                <div ref={removeBtnRef} className="relative">
-                    <button
-                        onClick={() => setRemovePanelOpen((v) => !v)}
-                        className={cn(
-                            'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
-                            removePanelOpen
-                                ? 'bg-red-600 text-white dark:bg-red-500'
-                                : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-950/50',
+                        {widgetPanelOpen && (
+                            <AddWidgetPanel
+                                layout={layout}
+                                onAdd={(type) => {
+                                    onAddWidget(type);
+                                }}
+                                onRestore={(id) => {
+                                    onRestoreUnpresented(id);
+                                }}
+                                onAddFolder={() => {
+                                    onAddFolder();
+                                }}
+                                onAddTracker={onAddTracker}
+                                onClose={() => setWidgetPanelOpen(false)}
+                            />
                         )}
-                    >
-                        <Trash2 size={14} /> Remove Widgets
-                    </button>
-                    {removePanelOpen && (
-                        <RemoveWidgetsPanel
-                            layout={layout}
-                            onArchive={(ids) => {
-                                onArchiveWidgets(ids);
-                            }}
-                            onRemove={(ids) => {
-                                onRemoveWidgets(ids);
-                            }}
-                            onClose={() => setRemovePanelOpen(false)}
-                        />
+                    </div>
+
+                    {/* Undo / Redo — hidden in simplified (1D) mode */}
+                    {!simplified && (
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={onUndo}
+                                disabled={!canUndo}
+                                title="Undo"
+                                className={undoActive}
+                            >
+                                <Undo2 size={14} />
+                            </button>
+                            <button
+                                onClick={onRedo}
+                                disabled={!canRedo}
+                                title="Redo"
+                                className={cn(
+                                    'flex items-center justify-center w-8 h-8 rounded-xl text-sm transition-all',
+                                    canRedo
+                                        ? 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_0_16px_rgba(255,255,255,0.08)] hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                                        : 'opacity-30 cursor-not-allowed text-zinc-400 dark:text-zinc-600',
+                                )}
+                            >
+                                <Redo2 size={14} />
+                            </button>
+                        </div>
                     )}
+
+                    {/* Remove widgets */}
+                    <div ref={removeBtnRef} className="relative">
+                        <button
+                            onClick={() => setRemovePanelOpen((v) => !v)}
+                            className={cn(
+                                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
+                                removePanelOpen
+                                    ? 'bg-red-600 text-white dark:bg-red-500'
+                                    : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-950/50',
+                            )}
+                        >
+                            <Trash2 size={14} /> Remove Widgets
+                        </button>
+                        {removePanelOpen && (
+                            <RemoveWidgetsPanel
+                                layout={layout}
+                                onArchive={(ids) => {
+                                    onArchiveWidgets(ids);
+                                }}
+                                onRemove={(ids) => {
+                                    onRemoveWidgets(ids);
+                                }}
+                                onClose={() => setRemovePanelOpen(false)}
+                            />
+                        )}
+                    </div>
                 </div>
-            </div>
             </div>
         </>
     );

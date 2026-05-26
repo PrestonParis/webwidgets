@@ -3,7 +3,8 @@ export type TimekeepingMode =
     | 'pomodoro'
     | 'stopwatch'
     | 'countdown'
-    | 'worldclock';
+    | 'worldclock'
+    | 'timeclock';
 export type TimerSubMode = 'standard' | 'pomodoro' | 'long';
 export type PomodoroPhase = 'focus' | 'short' | 'long';
 export type PomodoroStepKind = 'focus' | 'break';
@@ -36,7 +37,11 @@ export type TimerAction =
     | { type: 'ADD_POMODORO_STEP'; kind: PomodoroStepKind }
     | { type: 'REMOVE_POMODORO_STEP'; id: string }
     | { type: 'SET_POMODORO_STEP_KIND'; id: string; kind: PomodoroStepKind }
-    | { type: 'SET_POMODORO_STEP_DURATION'; id: string; durationSeconds: number }
+    | {
+          type: 'SET_POMODORO_STEP_DURATION';
+          id: string;
+          durationSeconds: number;
+      }
     | { type: 'SET_POMODORO_PLAN_CYCLES'; cycles: number }
     | { type: 'SET_AUTO_START_NEXT'; enabled: boolean }
     | { type: 'RESET' }

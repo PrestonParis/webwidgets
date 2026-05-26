@@ -35,6 +35,7 @@ export type WidgetType =
     | 'tracking-meal'
     | 'tracking-mood'
     | 'tracking-supplements'
+    | 'tracking-health'
     | 'context-diagram'
     | 'chat'
     | 'finance'
@@ -50,7 +51,8 @@ export type WidgetType =
     | 'memorization'
     | 'creative'
     | 'insight-cards'
-    | 'action-cards';
+    | 'action-cards'
+    | 'calculator';
 
 export type SnapRule = 'free' | 'grid' | 'edges' | 'guides';
 export type LayoutMode = 'grid' | 'free';
@@ -103,6 +105,7 @@ export interface DashboardGridProps {
     onOpenFolder: (id: string) => void;
     onRenameFolder: (id: string, name: string) => void;
     onDeleteFolder: (id: string) => void;
+    onOpenRecovery?: () => void;
     onMoveToBucket?: (id: string) => void;
     onUnpresent?: (id: string) => void;
 }

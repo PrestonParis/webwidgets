@@ -15,13 +15,25 @@ import { CorrelationPanel } from './CorrelationPanel';
 import { ImportModal } from './ImportModal';
 import { CustomCategoryManager } from './CustomCategoryManager';
 import { GoalSettingsPanel } from './GoalSettingsPanel';
+import { SleepCategoryView } from './sleep/SleepCategoryView';
+import { MealCategoryView } from './meal/MealCategoryView';
+import { FitnessCategoryView } from './fitness/FitnessCategoryView';
+import { SupplementsCategoryView } from './supplements/SupplementsCategoryView';
+import { MoodCategoryView } from './mood/MoodCategoryView';
+import { HealthCategoryView } from './health/HealthCategoryView';
 import { TrackingAutomationPanel } from './TrackingAutomationPanel';
 import { TrackingPredictionPanel } from './TrackingPredictionPanel';
+import {
+    QuickActionButton,
+    SurfaceTabs,
+    TrackingSection,
+} from './TrackingSurface';
 import TrackerGrid from '@/features/recovery/components/TrackerGrid';
 import AddTrackerDrawer from '@/features/recovery/components/AddTrackerDrawer';
 import ConfirmModal from '@/features/recovery/components/ConfirmModal';
 import EmptyState from '@/features/recovery/components/EmptyState';
 import type { PendingAction } from '@/features/recovery/types/recovery';
+import { Plus } from 'lucide-react';
 
 const LEFT_TABS = [
     { id: 'log', label: 'Log' },
@@ -63,7 +75,9 @@ export default function TrackingPage() {
         handleDelete,
     } = useTrackingPage();
 
-    const [rightTab, setRightTab] = useState<'insights' | 'automation' | 'predictions' | 'correlations'>('insights');
+    const [rightTab, setRightTab] = useState<
+        'insights' | 'automation' | 'predictions' | 'correlations'
+    >('insights');
     const [pending, setPending] = useState<PendingAction | null>(null);
     const [showAddTracker, setShowAddTracker] = useState(false);
     const { trackers, setTrackers, loading: recoveryLoading } = useTrackers();
@@ -85,30 +99,47 @@ export default function TrackingPage() {
         setShowForm(false);
     };
 
-    const leftTab = (activeTab === 'insights' || activeTab === 'automation' || activeTab === 'predictions' || activeTab === 'correlations')
-        ? 'log'
-        : activeTab;
+    const leftTab =
+        activeTab === 'insights' ||
+        activeTab === 'automation' ||
+        activeTab === 'predictions' ||
+        activeTab === 'correlations'
+            ? 'log'
+            : activeTab;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
             {/* Full-width top: header + stats */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
-                    Tracking
-                </h1>
-                <div className="flex gap-2">
-                    <DateRangeFilter range={range} onPreset={setPreset} />
-                    <button
-                        onClick={() => {
-                            setEditEntry(null);
-                            setShowForm((v) => !v);
-                        }}
-                        className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
-                    >
-                        {showForm && !editEntry ? 'Cancel' : '+ Log entry'}
-                    </button>
+            <TrackingSection>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-indigo-500 dark:text-indigo-300">
+                            Tracking dashboard
+                        </p>
+                        <h1 className="mt-1 text-2xl font-bold text-gray-900 dark:text-zinc-100">
+                            Tracking
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-zinc-400">
+                            Unified health logs, goals, insights, imports, and
+                            trends.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <DateRangeFilter range={range} onPreset={setPreset} />
+                        <QuickActionButton
+                            tone="indigo"
+                            primary
+                            onClick={() => {
+                                setEditEntry(null);
+                                setShowForm((v) => !v);
+                            }}
+                        >
+                            <Plus className="h-3.5 w-3.5" />{' '}
+                            {showForm && !editEntry ? 'Cancel' : 'Log entry'}
+                        </QuickActionButton>
+                    </div>
                 </div>
-            </div>
+            </TrackingSection>
 
             <TrackingStatsBar
                 category={category}
@@ -163,20 +194,15 @@ export default function TrackingPage() {
                     )}
 
                     {/* Left tabs */}
-                    <div className="flex gap-1 border-b border-gray-200 dark:border-zinc-800">
-                        {LEFT_TABS.map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => {
-                                    setActiveTab(t.id as typeof activeTab);
-                                    if (t.id === 'import') setShowImport(true);
-                                }}
-                                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${leftTab === t.id ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'}`}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
-                    </div>
+                    <SurfaceTabs
+                        items={LEFT_TABS}
+                        active={leftTab}
+                        onChange={(id) => {
+                            setActiveTab(id as typeof activeTab);
+                            if (id === 'import') setShowImport(true);
+                        }}
+                        tone="indigo"
+                    />
 
                     {leftTab === 'recovery' ? (
                         <div className="space-y-4">
@@ -192,15 +218,24 @@ export default function TrackingPage() {
                                 </button>
                             </div>
                             {recoveryLoading ? (
-                                <LoadingState variant="section" minHeight="min-h-40" />
+                                <LoadingState
+                                    variant="section"
+                                    minHeight="min-h-40"
+                                />
                             ) : trackers.length === 0 ? (
-                                <EmptyState onAddClick={() => setShowAddTracker(true)} />
+                                <EmptyState
+                                    onAddClick={() => setShowAddTracker(true)}
+                                />
                             ) : (
                                 <TrackerGrid
                                     trackers={trackers}
-                                    onReset={(id) => setPending({ type: 'reset', id })}
+                                    onReset={(id) =>
+                                        setPending({ type: 'reset', id })
+                                    }
                                     onUpdateStart={handleUpdateStart}
-                                    onRequestDelete={(id) => setPending({ type: 'delete', id })}
+                                    onRequestDelete={(id) =>
+                                        setPending({ type: 'delete', id })
+                                    }
                                 />
                             )}
                         </div>
@@ -214,35 +249,101 @@ export default function TrackingPage() {
                                     customDefs={customCategories}
                                 />
                             )}
-                            {leftTab === 'log' && (
-                                <LogView
+                            {leftTab === 'log' && category === 'sleep' && (
+                                <SleepCategoryView
                                     entries={entries}
-                                    category={category}
-                                    onDelete={(id) => void handleDelete(id)}
                                     onEdit={(entry) => {
                                         setEditEntry(entry);
                                         setShowForm(true);
                                     }}
-                                    customDefs={customCategories}
+                                    onDelete={(id) => void handleDelete(id)}
                                 />
                             )}
+                            {leftTab === 'log' && category === 'meal' && (
+                                <MealCategoryView
+                                    entries={entries}
+                                    onAdd={handleAdd}
+                                    onEdit={(entry) => {
+                                        setEditEntry(entry);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={(id) => void handleDelete(id)}
+                                />
+                            )}
+                            {leftTab === 'log' && category === 'workout' && (
+                                <FitnessCategoryView
+                                    entries={entries}
+                                    onAdd={handleAdd}
+                                    onEdit={(entry) => {
+                                        setEditEntry(entry);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={(id) => void handleDelete(id)}
+                                />
+                            )}
+                            {leftTab === 'log' && category === 'supplement' && (
+                                <SupplementsCategoryView
+                                    entries={entries}
+                                    onAdd={handleAdd}
+                                    onEdit={(entry) => {
+                                        setEditEntry(entry);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={(id) => void handleDelete(id)}
+                                />
+                            )}
+                            {leftTab === 'log' && category === 'mood' && (
+                                <MoodCategoryView
+                                    entries={entries}
+                                    onEdit={(entry) => {
+                                        setEditEntry(entry);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={(id) => void handleDelete(id)}
+                                />
+                            )}
+                            {leftTab === 'log' && category === 'health' && (
+                                <HealthCategoryView
+                                    entries={entries}
+                                    onAdd={handleAdd}
+                                    onUpdate={handleUpdate}
+                                    onEdit={(entry) => {
+                                        setEditEntry(entry);
+                                        setShowForm(true);
+                                    }}
+                                    onDelete={(id) => void handleDelete(id)}
+                                />
+                            )}
+                            {leftTab === 'log' &&
+                                category !== 'sleep' &&
+                                category !== 'meal' &&
+                                category !== 'workout' &&
+                                category !== 'supplement' &&
+                                category !== 'mood' &&
+                                category !== 'health' && (
+                                    <LogView
+                                        entries={entries}
+                                        category={category}
+                                        onDelete={(id) => void handleDelete(id)}
+                                        onEdit={(entry) => {
+                                            setEditEntry(entry);
+                                            setShowForm(true);
+                                        }}
+                                        customDefs={customCategories}
+                                    />
+                                )}
                         </>
                     )}
                 </div>
 
                 {/* RIGHT — insights & automation */}
                 <div className="space-y-4">
-                    <div className="flex gap-1 border-b border-gray-200 dark:border-zinc-800 flex-wrap">
-                        {RIGHT_TABS.map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => setRightTab(t.id as typeof rightTab)}
-                                className={`px-3 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${rightTab === t.id ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'}`}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
-                    </div>
+                    <SurfaceTabs
+                        items={RIGHT_TABS}
+                        active={rightTab}
+                        onChange={(id) => setRightTab(id as typeof rightTab)}
+                        tone="indigo"
+                    />
 
                     {rightTab === 'insights' && (
                         <InsightPanel entries={allEntries} />

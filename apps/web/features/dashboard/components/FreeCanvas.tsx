@@ -15,6 +15,7 @@ import { UnpresentWidgetContext } from '@/features/dashboard/lib/UnpresentWidget
 import { CopyStyleContext } from '@/features/dashboard/lib/CopyStyleContext';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
 import FolderWidget from './FolderWidget';
+import RecoveryFolderWidget from '@/features/recovery/components/RecoveryFolderWidget';
 import { FreeItem } from './FreeCanvasItem';
 import { WovenItem } from './FreeCanvasWoven';
 import { GlueConnectors } from './GlueConnectors';
@@ -305,6 +306,7 @@ export default function FreeCanvas({
     onOpenFolder,
     onRenameFolder,
     onDeleteFolder,
+    onOpenRecovery,
     onMoveToBucket,
     onUnpresent,
     snapRule,
@@ -331,10 +333,19 @@ export default function FreeCanvas({
                     onRename={(n) => onRenameFolder(config.id, n)}
                     onDelete={() => onDeleteFolder(config.id)}
                 />
+            ) : config.type === 'recovery-empty' ? (
+                <RecoveryFolderWidget onOpen={() => onOpenRecovery?.()} />
             ) : (
                 renderWidgetContent(config, onReset)
             ),
-        [layout, onOpenFolder, onRenameFolder, onDeleteFolder, onReset],
+        [
+            layout,
+            onOpenFolder,
+            onRenameFolder,
+            onDeleteFolder,
+            onOpenRecovery,
+            onReset,
+        ],
     );
 
     const {

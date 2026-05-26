@@ -24,6 +24,8 @@ import {
     type DashboardWidgetLibraryEntry,
 } from '@/features/platform/lib/dashboardWidgetLibrary';
 import { useIsAdmin } from '@/features/admin/hooks/useIsAdmin';
+import { useTrackers } from '@/features/recovery/hooks/useTrackers';
+import type { Tracker } from '@/features/recovery/types/recovery';
 import type {
     WidgetConfig,
     WidgetType,
@@ -34,6 +36,7 @@ interface AddWidgetPanelProps {
     onAdd: (type: string) => void;
     onRestore?: (id: string) => void;
     onAddFolder?: () => void;
+    onAddTracker?: (tracker: Tracker) => void;
     onClose: () => void;
 }
 
@@ -71,19 +74,29 @@ const WIDGET_CATEGORIES: WidgetCategory[] = [
     },
     {
         id: 'planning',
-        label: 'Planning',
-        description: 'Tasks, habits, calendar, and personal routines',
+        label: 'Utilities',
+        description:
+            'Tasks, calendar, email, converter, files, viewer, weather, and personal routines',
         icon: Layers3,
-        types: ['todo', 'habit', 'calendar', 'memorization'],
+        types: [
+            'todo',
+            'calendar',
+            'email',
+            'converter',
+            'calculator',
+            'files',
+            'view',
+            'weather',
+        ],
     },
     {
         id: 'health',
-        label: 'Health',
-        description: 'Mood, recovery, workouts, sleep, meals, and supplements',
+        label: 'Logging and Tracking',
+        description:
+            'Habits, mood, recovery, workouts, sleep, meals, and supplements',
         icon: HeartPulse,
         types: [
-            'mood',
-            'recovery',
+            'habit',
             'recovery-empty',
             'tracking',
             'tracking-mood',
@@ -91,59 +104,64 @@ const WIDGET_CATEGORIES: WidgetCategory[] = [
             'tracking-workout',
             'tracking-meal',
             'tracking-supplements',
+            'tracking-health',
         ],
     },
     {
         id: 'finance-data',
-        label: 'Finance & Data',
-        description: 'Markets, money, files, view tools, and data health',
+        label: 'Finance',
+        description: 'Markets and money',
         icon: Landmark,
-        types: [
-            'finance',
-            'currency',
-            'converter',
-            'files',
-            'view',
-            'datahealth',
-        ],
+        types: ['finance', 'currency'],
     },
     {
         id: 'communication',
         label: 'Communication',
-        description: 'Email, chat, command center, and collaboration',
+        description: 'Chat',
         icon: Mail,
-        types: ['email', 'chat', 'command-center', 'collaboration'],
+        types: [],
+    },
+    {
+        id: 'webwidgets',
+        label: 'WebWidgets',
+        description:
+            'AI Chat, collaboration, insights, context, and builder tools',
+        icon: Sparkles,
+        types: [
+            'chat',
+            'collaboration',
+            'insight-cards',
+            'context-diagram',
+            'widget-builder',
+        ],
     },
     {
         id: 'creative-intel',
         label: 'Creative & Intel',
-        description: 'News, reading, research, creative tools, and insights',
+        description: 'Research',
         icon: Sparkles,
-        types: [
-            'news',
-            'reading',
-            'research-queue',
-            'creative',
-            'insight-cards',
-            'action-cards',
-            'context-diagram',
-        ],
+        types: [],
     },
     {
         id: 'tools',
         label: 'Tools',
-        description: 'Automation, builder, accessibility, developer, and games',
+        description:
+            'Automation, accessibility, developer, research, and system tools',
         icon: Wrench,
         types: [
             'automation',
-            'widget-builder',
             'accessibility',
             'developer',
             'form-filler',
-            'activity',
-            'weather',
-            'chess',
+            'research-queue',
         ],
+    },
+    {
+        id: 'entertainment',
+        label: 'Entertainment',
+        description: 'News, reading, creative studio, games, and learning',
+        icon: Sparkles,
+        types: ['chess', 'memorization', 'news', 'reading', 'creative'],
     },
 ];
 
@@ -188,9 +206,82 @@ function UnpresentedSection({
     );
 }
 
+interface RecoveryTrackerSectionProps {
+    presentTrackerIds: Set<string>;
+    onAddTracker: (tracker: Tracker) => void;
+}
+
+function RecoveryTrackerSection({
+    presentTrackerIds,
+    onAddTracker,
+}: RecoveryTrackerSectionProps) {
+    const { trackers } = useTrackers();
+    if (!trackers || trackers.length === 0) return null;
+    const allAdded = trackers.every((t) => presentTrackerIds.has(t.id));
+    return (
+        <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800 p-3">
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                    <span className="text-base">💜</span>
+                    <div>
+                        <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                            Recovery Trackers
+                        </p>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                            Add individual trackers to dashboard
+                        </p>
+                    </div>
+                </div>
+                {!allAdded && (
+                    <button
+                        onClick={() =>
+                            trackers
+                                .filter((t) => !presentTrackerIds.has(t.id))
+                                .forEach((t) => onAddTracker(t))
+                        }
+                        className="text-[10px] font-semibold text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    >
+                        Add all
+                    </button>
+                )}
+            </div>
+            <div className="space-y-1 border-t border-zinc-200 dark:border-zinc-700 pt-2">
+                {trackers.map((t) => {
+                    const added = presentTrackerIds.has(t.id);
+                    return (
+                        <button
+                            key={t.id}
+                            onClick={() => !added && onAddTracker(t)}
+                            disabled={added}
+                            className={cn(
+                                'flex items-center gap-2 w-full px-2 py-1.5 rounded-xl text-xs font-semibold transition-all text-left',
+                                added
+                                    ? 'opacity-40 cursor-default text-zinc-500 dark:text-zinc-400'
+                                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100',
+                            )}
+                        >
+                            <span className="text-sm">💜</span>
+                            <span className="flex-1">
+                                {t.addiction || 'Recovery Tracker'}
+                            </span>
+                            {added ? (
+                                <Check size={11} className="text-zinc-400" />
+                            ) : (
+                                <Plus size={11} className="text-zinc-400" />
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 interface WidgetGridProps {
     presentTypes: Set<string>;
+    presentTrackerIds: Set<string>;
     onAdd: (type: string) => void;
+    onAddTracker?: (tracker: Tracker) => void;
     isAdmin: boolean;
     search: string;
     selectedCategory: WidgetCategory | null;
@@ -198,7 +289,9 @@ interface WidgetGridProps {
 
 function WidgetGrid({
     presentTypes,
+    presentTrackerIds,
     onAdd,
+    onAddTracker,
     isAdmin,
     search,
     selectedCategory,
@@ -206,6 +299,7 @@ function WidgetGrid({
     const q = search.toLowerCase();
     const visible = getDashboardWidgetLibrary()
         .filter((w) => !w.adminOnly || isAdmin)
+        .filter((w) => w.type !== 'recovery')
         .filter(
             (w) => !selectedCategory || selectedCategory.types.includes(w.type),
         )
@@ -225,6 +319,16 @@ function WidgetGrid({
             ) : (
                 <div className="grid grid-cols-2 gap-2">
                     {visible.map((entry) => {
+                        if (entry.type === 'recovery-empty' && onAddTracker) {
+                            return (
+                                <div key={entry.type} className="col-span-2">
+                                    <RecoveryTrackerSection
+                                        presentTrackerIds={presentTrackerIds}
+                                        onAddTracker={onAddTracker}
+                                    />
+                                </div>
+                            );
+                        }
                         const present = presentTypes.has(entry.type);
                         return (
                             <button
@@ -325,6 +429,7 @@ export function AddWidgetPanel({
     onAdd,
     onRestore,
     onAddFolder,
+    onAddTracker,
     onClose,
 }: AddWidgetPanelProps) {
     const { isAdmin } = useIsAdmin();
@@ -354,6 +459,11 @@ export function AddWidgetPanel({
         layout
             .filter((w) => !w.unpresented && w.containerId !== 'bucket')
             .map((w) => w.type),
+    );
+    const presentTrackerIds = new Set<string>(
+        layout
+            .filter((w) => w.type === 'recovery')
+            .map((w) => w.id.replace('widget-recovery-', '')),
     );
     const unpresented = layout.filter((w) => w.unpresented);
 
@@ -446,9 +556,11 @@ export function AddWidgetPanel({
             ) : (
                 <WidgetGrid
                     presentTypes={presentTypes}
+                    presentTrackerIds={presentTrackerIds}
                     onAdd={(type) => {
                         onAdd(type);
                     }}
+                    onAddTracker={onAddTracker}
                     isAdmin={isAdmin}
                     search={search}
                     selectedCategory={selectedCategory}

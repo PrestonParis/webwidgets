@@ -27,7 +27,11 @@ export function useTrackingEntries(options?: FetchOptions): {
     const prevCategoryRef = useRef(options?.category);
 
     const refetch = useCallback(async () => {
-        if (!userId) return;
+        if (!userId) {
+            setEntries([]);
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
             const data = await fetchEntries(userId, optionsRef.current ?? {});
@@ -40,7 +44,11 @@ export function useTrackingEntries(options?: FetchOptions): {
     }, [userId]);
 
     useEffect(() => {
-        if (!userId) return;
+        if (!userId) {
+            setEntries([]);
+            setLoading(false);
+            return;
+        }
 
         const run = async () => {
             const hasOld = localStorage.getItem(OLD_STORAGE_KEY);

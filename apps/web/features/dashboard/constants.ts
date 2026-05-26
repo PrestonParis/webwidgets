@@ -10,14 +10,6 @@ export const base: WidgetConfig[] = [
         order: 0,
     },
     {
-        id: 'widget-activity',
-        type: 'activity',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 1,
-    },
-    {
         id: 'widget-automation',
         type: 'automation',
         visible: true,
@@ -122,14 +114,6 @@ export const base: WidgetConfig[] = [
         order: 14,
     },
     {
-        id: 'widget-mood',
-        type: 'mood',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 15,
-    },
-    {
         id: 'widget-journal',
         type: 'journal',
         visible: true,
@@ -160,14 +144,6 @@ export const base: WidgetConfig[] = [
         columnSpan: 1,
         containerId: 'main',
         order: 19,
-    },
-    {
-        id: 'widget-datahealth',
-        type: 'datahealth',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 20,
     },
     {
         id: 'widget-tracking',
@@ -250,14 +226,6 @@ export const base: WidgetConfig[] = [
         order: 30,
     },
     {
-        id: 'widget-command-center',
-        type: 'command-center',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 31,
-    },
-    {
         id: 'widget-accessibility',
         type: 'accessibility',
         visible: true,
@@ -288,13 +256,5 @@ export const base: WidgetConfig[] = [
         columnSpan: 1,
         containerId: 'main',
         order: 35,
-    },
-    {
-        id: 'widget-action-cards',
-        type: 'action-cards',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 36,
     },
 ];

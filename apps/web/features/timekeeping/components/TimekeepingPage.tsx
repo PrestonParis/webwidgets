@@ -10,6 +10,7 @@ import {
 import { StopwatchMode } from '@/features/timekeeping/components/StopwatchMode';
 import { EventMode } from '@/features/timekeeping/components/EventMode';
 import { WorldClockPage } from '@/features/worldclock/components/WorldClockPage';
+import { TimeclockMode } from '@/features/timekeeping/components/TimeclockMode';
 import type { TimekeepingMode } from '@/features/widgets/types/widgets';
 
 export function TimekeepingPage({
@@ -18,7 +19,7 @@ export function TimekeepingPage({
     initialMode?: TimekeepingMode;
 }) {
     const [mode, setMode] = useState<TimekeepingMode>(initialMode);
-    const wide = mode === 'worldclock';
+    const wide = mode === 'worldclock' || mode === 'timeclock';
 
     return (
         <main
@@ -43,6 +44,7 @@ export function TimekeepingPage({
                     {mode === 'stopwatch' && <StopwatchMode />}
                     {mode === 'countdown' && <EventMode />}
                     {mode === 'worldclock' && <WorldClockPage embedded />}
+                    {mode === 'timeclock' && <TimeclockMode />}
                 </div>
             </div>
         </main>

@@ -38,26 +38,34 @@ const weatherCacheSchema = z.object({
 const coordsCacheSchema = z.object({
     lat: z.number(),
     lon: z.number(),
-    savedAt: z.number(),
+    savedAt: z.number().optional(),
 });
 
 const COORDS_KEY = 'weather_coords_v1';
-const COORDS_TTL = 24 * 60 * 60 * 1000;
 
-function readSavedCoords(): { lat: number; lon: number } | null {
+type WeatherCoords = { lat: number; lon: number };
+
+let lastKnownCoords: WeatherCoords | null = null;
+let pendingCoordsRequest: Promise<WeatherCoords> | null = null;
+
+function readSavedCoords(): WeatherCoords | null {
+    if (lastKnownCoords) return lastKnownCoords;
+
     try {
         const raw = localStorage.getItem(COORDS_KEY);
         if (!raw) return null;
         const parsed = coordsCacheSchema.safeParse(JSON.parse(raw) as unknown);
         if (!parsed.success) return null;
-        if (Date.now() - parsed.data.savedAt > COORDS_TTL) return null;
-        return { lat: parsed.data.lat, lon: parsed.data.lon };
+        lastKnownCoords = { lat: parsed.data.lat, lon: parsed.data.lon };
+        return lastKnownCoords;
     } catch {
         return null;
     }
 }
 
 function saveCoords(lat: number, lon: number) {
+    lastKnownCoords = { lat, lon };
+
     try {
         localStorage.setItem(
             COORDS_KEY,
@@ -66,6 +74,29 @@ function saveCoords(lat: number, lon: number) {
     } catch {
         // localStorage unavailable — non-fatal
     }
+}
+
+function requestCurrentCoords(): Promise<WeatherCoords> {
+    if (pendingCoordsRequest) return pendingCoordsRequest;
+
+    pendingCoordsRequest = new Promise<WeatherCoords>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+                const current = {
+                    lat: coords.latitude,
+                    lon: coords.longitude,
+                };
+                saveCoords(current.lat, current.lon);
+                resolve(current);
+            },
+            reject,
+            { timeout: 10_000 },
+        );
+    }).finally(() => {
+        pendingCoordsRequest = null;
+    });
+
+    return pendingCoordsRequest;
 }
 
 function readWeatherCache(): WeatherData | null {
@@ -166,10 +197,6 @@ export function useWeather() {
     const [state, setState] = useState<WeatherState>('idle');
 
     const fetchWeather = useCallback(() => {
-        if (!navigator.geolocation) {
-            setState('unsupported');
-            return;
-        }
         setState('loading');
 
         // Use saved coordinates to skip the geolocation prompt on repeat visits.
@@ -179,19 +206,14 @@ export function useWeather() {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                saveCoords(coords.latitude, coords.longitude);
-                loadAndSet(
-                    coords.latitude,
-                    coords.longitude,
-                    setWeather,
-                    setState,
-                );
-            },
-            () => setState('denied'),
-            { timeout: 10_000 },
-        );
+        if (!navigator.geolocation) {
+            setState('unsupported');
+            return;
+        }
+
+        void requestCurrentCoords()
+            .then(({ lat, lon }) => loadAndSet(lat, lon, setWeather, setState))
+            .catch(() => setState('denied'));
     }, []);
 
     useEffect(() => {

@@ -41,7 +41,9 @@ export function buildLastNDays(
     for (let i = n - 1; i >= 0; i--) {
         const date = toIsoDate(new Date(Date.now() - i * 86_400_000));
         const done = completions.some(
-            (c) => c.habit_id === habitId && c.completed_date === date,
+            (c) =>
+                c.habit_id === habitId &&
+                c.completed_date.slice(0, 10) === date,
         );
         days.push({ date, done });
     }

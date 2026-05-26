@@ -5,7 +5,8 @@ export type BuiltInCategory =
     | 'mood'
     | 'supplement'
     | 'symptom'
-    | 'injury';
+    | 'injury'
+    | 'health';
 export type TrackingCategory = string; // built-in or user-defined custom category
 export type EntrySource =
     | 'manual'

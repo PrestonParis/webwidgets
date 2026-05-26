@@ -1,26 +1,39 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import CategorySelector from '@/features/convert/components/CategorySelector';
 import UnitConverter from '@/features/convert/components/UnitConverter';
-import { ArrowLeftRight } from 'lucide-react';
+import { ArrowLeftRight, Calculator } from 'lucide-react';
 import ConverterWidget from '@/features/convert/components/ConverterWidget';
+import { CalculatorCore } from '@/features/calculator/components/CalculatorCore';
 import { cn } from '@/lib/utils/utils';
 
-type ConverterSection = 'general-units' | 'file-types';
+type ConverterSection = 'general-units' | 'file-types' | 'calculator';
 
 export default function UnitConvertPage() {
+    const searchParams = useSearchParams();
+    const defaultSection =
+        searchParams.get('tab') === 'calculator'
+            ? 'calculator'
+            : 'general-units';
     const [category, setCategory] = useState('Length');
-    const [section, setSection] = useState<ConverterSection>('general-units');
+    const [section, setSection] = useState<ConverterSection>(defaultSection);
 
     return (
         <div className="min-h-screen p-10 bg-background">
             <div className="text-center mb-8">
-                <ArrowLeftRight className="mx-auto mb-2" />
-                <h1 className="text-3xl font-bold">Converter</h1>
+                {section === 'calculator' ? (
+                    <Calculator className="mx-auto mb-2" />
+                ) : (
+                    <ArrowLeftRight className="mx-auto mb-2" />
+                )}
+                <h1 className="text-3xl font-bold">
+                    {section === 'calculator' ? 'Calculator' : 'Converter'}
+                </h1>
             </div>
 
-            <div className="mx-auto grid w-full max-w-lg grid-cols-2 gap-1 rounded-2xl bg-muted p-1">
+            <div className="mx-auto grid w-full max-w-lg grid-cols-3 gap-1 rounded-2xl bg-muted p-1">
                 <SectionButton
                     active={section === 'general-units'}
                     onClick={() => setSection('general-units')}
@@ -33,10 +46,16 @@ export default function UnitConvertPage() {
                 >
                     File Conversion
                 </SectionButton>
+                <SectionButton
+                    active={section === 'calculator'}
+                    onClick={() => setSection('calculator')}
+                >
+                    Calculator
+                </SectionButton>
             </div>
 
             <div className="mt-8">
-                {section === 'general-units' ? (
+                {section === 'general-units' && (
                     <div className="space-y-8">
                         <CategorySelector
                             selected={category}
@@ -44,9 +63,18 @@ export default function UnitConvertPage() {
                         />
                         <UnitConverter category={category} />
                     </div>
-                ) : (
+                )}
+                {section === 'file-types' && (
                     <div className="mx-auto max-w-2xl">
                         <ConverterWidget fullPage />
+                    </div>
+                )}
+                {section === 'calculator' && (
+                    <div className="mx-auto max-w-3xl">
+                        <CalculatorCore
+                            expanded
+                            widgetId="converter-page-calculator"
+                        />
                     </div>
                 )}
             </div>

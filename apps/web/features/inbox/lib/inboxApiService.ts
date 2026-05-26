@@ -5,7 +5,10 @@ import type { Email, EmailAction } from '@/features/inbox/types/inbox';
 import { db } from '@/lib/db/supabase';
 
 // Using constants so the regex-based linter doesn't flag these as "direct API calls"
-const emailBodyEndpoint = (id: string) => `/api/gmail/email/${id}`;
+const emailBodyEndpoint = (id: string) =>
+    id.startsWith('outlook:')
+        ? `/api/outlook/email/${encodeURIComponent(id.replace('outlook:', ''))}`
+        : `/api/gmail/email/${encodeURIComponent(id)}`;
 const extractActionsEndpoint = '/api/gmail/extract-actions';
 const confirmActionsEndpoint = '/api/gmail/actions/confirm';
 

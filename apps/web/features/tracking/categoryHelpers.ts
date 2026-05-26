@@ -13,6 +13,7 @@ export const CATEGORY_LABELS: Record<BuiltInCategory, string> = {
     supplement: TRACKING_CATEGORY_CONFIGS.supplement.label,
     symptom: TRACKING_CATEGORY_CONFIGS.symptom.label,
     injury: TRACKING_CATEGORY_CONFIGS.injury.label,
+    health: TRACKING_CATEGORY_CONFIGS.health.label,
 };
 
 export const CATEGORY_EMOJIS: Record<BuiltInCategory, string> = {
@@ -23,6 +24,7 @@ export const CATEGORY_EMOJIS: Record<BuiltInCategory, string> = {
     supplement: TRACKING_CATEGORY_CONFIGS.supplement.icon,
     symptom: TRACKING_CATEGORY_CONFIGS.symptom.icon,
     injury: TRACKING_CATEGORY_CONFIGS.injury.icon,
+    health: TRACKING_CATEGORY_CONFIGS.health.icon,
 };
 
 export const CATEGORY_COLORS: Record<BuiltInCategory, string> = {
@@ -33,6 +35,7 @@ export const CATEGORY_COLORS: Record<BuiltInCategory, string> = {
     supplement: TRACKING_CATEGORY_CONFIGS.supplement.color ?? 'purple',
     symptom: TRACKING_CATEGORY_CONFIGS.symptom.color ?? 'amber',
     injury: TRACKING_CATEGORY_CONFIGS.injury.color ?? 'red',
+    health: TRACKING_CATEGORY_CONFIGS.health.color ?? 'pink',
 };
 
 export function getCategoryLabel(

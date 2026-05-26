@@ -11,6 +11,20 @@ export interface HabitCompletion {
     completed_date: string;
 }
 
+export type HabitFrequency = 'daily' | 'weekdays' | 'weekends' | 'custom';
+
+export interface RepeatConfig {
+    frequency: HabitFrequency;
+    daysOfWeek?: number[]; // 0=Sun … 6=Sat, used when frequency === 'custom'
+}
+
+export interface CalendarDay {
+    date: string; // YYYY-MM-DD
+    count: number;
+    isToday: boolean;
+    isCurrentMonth: boolean;
+}
+
 export interface UseHabitFormOptions {
     onAdd: (name: string, emoji: string) => Promise<void>;
 }
@@ -27,6 +41,12 @@ export interface HabitListItemProps {
     days: DayEntry[];
     onToggle: () => void;
     onDelete: () => void;
+    lastCompletedLabel?: string;
+    bestStreak?: number;
+    frequencyLabel?: string;
+    completionId?: string;
+    completionTime?: string; // ISO datetime of today's completion, if done
+    onEditTime?: (completionId: string, newIso: string) => void;
 }
 
 export interface HabitAddFormProps {
@@ -36,6 +56,8 @@ export interface HabitAddFormProps {
     onEmojiChange: (emoji: string) => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onCancel: () => void;
+    frequency?: HabitFrequency;
+    onFrequencyChange?: (f: HabitFrequency) => void;
 }
 
 export interface HabitAddButtonProps {
