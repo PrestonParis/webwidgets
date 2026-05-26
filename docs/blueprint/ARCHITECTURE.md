@@ -2,13 +2,11 @@
 
 ## Overview
 
-WebWidgets is a Next.js App Router application with a Python FastAPI ML sidecar. The two services are deployed independently — Next.js to Vercel, ML service to a separate Vercel Python runtime. They communicate over HTTP via `ML_SERVICE_URL`.
+WebWidgets is a Next.js App Router application with a Python FastAPI ML sidecar, a Go background worker, and a file conversion service. The services are deployed independently and communicate over HTTP.
 
-**Codebase size (May 2026):** 1,295 files · 79,892 LOC · 70,686 code lines
-- TypeScript: 696 files · 39,706 LOC
-- TypeScript JSX: 518 files · 34,577 LOC
-- Python: 16 files · 2,705 LOC
-- SQL migrations: 64 files · 2,179 LOC
+**Codebase size (May 2026):** 1,446 TypeScript/TSX files
+
+- SQL migrations: 75 files
 
 ---
 
@@ -22,11 +20,12 @@ Browser
   │     ├── API Routes (/app/api/**)
   │     │     ├── Gmail/Calendar (Google OAuth, googleapis)
   │     │     ├── Microsoft Graph (Outlook/OneDrive)
-  │     │     ├── Finance (Plaid, Finnhub, Alpha Vantage)
+  │     │     ├── Finance (Finnhub, CoinGecko, Alpha Vantage)
   │     │     ├── Uploads (AWS S3, Google Drive)
   │     │     ├── Billing (Stripe webhooks + checkout)
   │     │     ├── Reading (scripture.api.bible proxy, S3 presigned)
   │     │     ├── News (RSS, NewsAPI adapters)
+  │     │     ├── Research (Obsidian vault, academic sources)
   │     │     └── ML proxy (forwards to ML service)
   │     ├── Supabase client (RLS, real-time)
   │     └── Observability (Sentry, PostHog analytics)
@@ -35,6 +34,14 @@ Browser
   │     ├── POST /classify        → email label classification
   │     ├── POST /suggest         → widget suggestions from intent
   │     └── POST /extract-actions → email action extraction (7 classes)
+  │
+  ├── Go Worker (services/go_services/worker/)
+  │     ├── Cache write / invalidation
+  │     ├── Data ingestion jobs
+  │     └── Snapshot precomputation
+  │
+  ├── Conversion Service (services/conversion/)
+  │     └── File format conversion pipeline
   │
   ├── n8n (workflow automation, webhook triggers)
   │
@@ -47,9 +54,9 @@ Browser
 
 ```
 app/                    Next.js App Router pages and API routes
-features/               Feature-scoped modules (50+ features)
+features/               Feature-scoped modules (65+ features)
+  ├── accessibility/    Accessibility center widget and settings page
   ├── actions/          Action engine — extract, queue, execute email/calendar actions
-  ├── activity/         Activity feed widget
   ├── admin/            Admin panel (users, flags, audit, metrics, ML, jobs)
   ├── analytics/        PostHog event tracking
   ├── audit/            Audit log service
@@ -57,19 +64,24 @@ features/               Feature-scoped modules (50+ features)
   ├── automation/       Automation evaluator + registry
   ├── backend/          Shared request utilities (requestUser, service registry)
   ├── billing/          Stripe plans, checkout, PricingCard, BillingCard
+  ├── calculator/       Multi-mode calculator (basic, scientific, programmer, financial, datetime)
   ├── calendar/         Google Calendar integration (events, EventFormModal)
   ├── chatbot/          Multi-model AI chat (Claude, GPT-4o, Gemini)
   ├── chess/            Games library, analysis board, studies, move trainer
+  ├── collaboration/    Collaborative workspace widget and page
   ├── context/          Context graph — knowledge nodes, AI memory, permissions
   ├── convert/          Unit + currency converter widget
   ├── countdown/        Event countdown widget
+  ├── creative/         Creative studio widget and page
   ├── currency/         Exchange rate widget (Open Exchange Rates)
   ├── dashboard/        Widget grid, free canvas, drag-and-drop, scenes, folders
-  ├── datahealth/       System health widget (Supabase, ML, Gmail, Calendar)
   ├── developer/        Developer tools page
+  ├── feedback/         In-product user feedback
+  ├── files/            File format conversion registry and service
   ├── finance/          Net worth, accounts, subscriptions, transactions, watchlist
   ├── form-filler/      Playwright-powered form autofill
   ├── habit/            Habit tracker with streaks
+  ├── help/             In-product help system
   ├── import-export/    Data import/export pipeline
   ├── inbox/            Gmail integration, ML email classification, action extraction
   ├── integrations/     Integration catalog cards
@@ -77,7 +89,8 @@ features/               Feature-scoped modules (50+ features)
   ├── jobs/             Background job runner + service
   ├── journal/          TipTap rich-text journal (autosave, transcription)
   ├── knowledge/        Knowledge item registry
-  ├── metrics/          Internal metrics dashboard (13 sub-pages)
+  ├── memorization/     Memorization widget and page
+  ├── metrics/          Internal metrics dashboard
   ├── mood/             Mood logging widget
   ├── news/             News Intel — RSS/NewsAPI ingestion, ranking, search
   ├── notifications/    Notification bell, status dot
@@ -88,6 +101,7 @@ features/               Feature-scoped modules (50+ features)
   ├── privacy/          Privacy policy, terms pages
   ├── reading/          Reading platform — Bible, Quran, PDFs, provider abstraction
   ├── recovery/         Addiction recovery trackers (heatmap, milestones, review)
+  ├── research/         Research queue widget and workspace (Obsidian vault, academic pipeline)
   ├── scratchpad/       Quick-note scratchpad
   ├── search/           Global search bar + widget catalog
   ├── security/         Consent records + security page
@@ -96,6 +110,7 @@ features/               Feature-scoped modules (50+ features)
   ├── timekeeping/      Timer / stopwatch / event countdown widget
   ├── todo/             To-do list + habit section
   ├── tracking/         Health tracking — sleep, workout, meal, mood, supplements
+  ├── tutorials/        In-product tutorials widget and page
   ├── ui/               Shared UI (Header, Footer, DatePicker, LoadingState)
   ├── uploads/          S3 file uploads + Google Drive browser (FilesWidget)
   ├── view/             File viewer (CSV, PDF, image, JSON parsers)
@@ -107,6 +122,9 @@ icons/                  SVG icon components (logo variants, domain icons)
 lib/
   ├── aws/              S3 client + presigned URL helpers
   ├── connectors/       Google, Microsoft, GitHub, Linear, Slack connectors
+  ├── db/               Supabase DB utilities
+  ├── goWorker/         Go worker client (cache, ingestion, snapshots)
+  ├── integrations/     Server-side integration key helpers
   ├── n8n/              n8n client, webhook verification, schemas
   ├── observability/    Logger, Sentry, PostHog metrics
   ├── playwright/       Browser automation (form filler)
@@ -122,9 +140,9 @@ Each feature is self-contained: hooks, components, types, and services live toge
 
 ## Widget System
 
-### Widget Types (28 renderable)
+### Widget Types (46 renderable)
 
-`texteditor`, `email`, `recovery`, `converter`, `chess`, `timekeeping`, `todo`, `weather`, `worldclock`, `mood`, `calendar`, `form-filler`, `datahealth`, `tracking`, `tracking-sleep`, `tracking-workout`, `tracking-meal`, `tracking-mood`, `tracking-supplements`, `context-diagram`, `chat`, `finance`, `widget-builder`, `files`, `reading`, `news`, `folder`, `recovery-empty`
+`texteditor`, `journal`, `notes`, `scratchpad`, `email`, `recovery`, `recovery-empty`, `converter`, `currency`, `calculator`, `chess`, `timekeeping`, `timer`, `stopwatch`, `pomodoro`, `countdown`, `todo`, `habit`, `weather`, `worldclock`, `mood`, `calendar`, `form-filler`, `tracking`, `tracking-sleep`, `tracking-workout`, `tracking-meal`, `tracking-mood`, `tracking-supplements`, `tracking-health`, `context-diagram`, `chat`, `finance`, `news`, `widget-builder`, `files`, `view`, `folder`, `reading`, `research-queue`, `collaboration`, `accessibility`, `memorization`, `creative`, `insight-cards`, `automation`, `developer`
 
 ### Widget Registration Pipeline
 
@@ -136,6 +154,7 @@ Each feature is self-contained: hooks, components, types, and services live toge
 ### Widget Synthesis Engine (`features/widgets/synthesis/`)
 
 Builds custom widgets from declarative intent:
+
 - `intentParser.ts` — NLP → structured plan
 - `synthesisPlanner.ts` — plan → assembly spec
 - `capabilityGraph.ts` — tracks available data sources + actions
@@ -154,10 +173,11 @@ ml_service/
   ├── observability.py              Structured logging + metrics
   ├── schemas.py                    Pydantic request/response schemas
   ├── training_utils.py             TF-IDF + LogReg training helpers
-  └── tests/                        pytest test suite (4 files, 728 LOC)
+  └── tests/                        pytest test suite
 ```
 
 **Classification pipeline:**
+
 1. ML model classifies intent/type (determines WHAT to do)
 2. Regex/heuristics extract structured fields (determines HOW — dates, service names, amounts)
 
@@ -220,16 +240,19 @@ Row-Level Security is enabled on all user-owned tables. Admin client (service ro
 ## Data Flows
 
 ### Email Actions
+
 ```
 Gmail API
-  → /api/gmail/inbox         fetch + classify (ML service)
+  → /api/gmail/inbox            fetch + classify (ML service)
   → /api/gmail/extract-actions  extract actions (ML service)
-  → email_actions table      store results
+  → email_actions table         store results
   → /api/gmail/actions/confirm  create Calendar events / Todos
 ```
+
 Calendar events with midnight UTC use all-day `date` format to prevent wrong-day display in non-UTC timezones.
 
 ### Reading Platform
+
 ```
 Client (ReadingWidget)
   → bootstrapProviders()         register mock + real providers
@@ -241,6 +264,7 @@ Client (ReadingWidget)
 ```
 
 ### Finance
+
 ```
 Client (FinanceWidget)
   → /api/finance/accounts        manual balances (Supabase)
@@ -267,33 +291,36 @@ Client (FinanceWidget)
 
 ## Integrations
 
-| Provider        | Method   | Connector / Notes                              |
-| --------------- | -------- | ---------------------------------------------- |
-| Google          | OAuth    | Gmail, Calendar, Drive                         |
-| Microsoft       | OAuth    | Outlook, OneDrive via Graph API                |
-| GitHub          | OAuth    | `lib/connectors/github/githubConnector.ts`     |
-| Linear          | API key  | `lib/connectors/linear/linearConnector.ts`     |
-| Slack           | OAuth    | `lib/connectors/slack/slackConnector.ts`       |
-| Stripe          | Webhook  | Billing, checkout, portal                      |
-| AWS S3          | SDK      | File uploads, PDF presigned URLs               |
-| n8n             | Webhook  | Workflow automation triggers                   |
-| Lichess         | API key  | Chess game import                              |
-| Finnhub         | API key  | Stock quotes                                   |
-| Anthropic       | API key  | Claude (chat + email fallback)                 |
-| OpenAI          | API key  | GPT-4o (chat)                                  |
-| Gemini          | API key  | Gemini (chat)                                  |
+| Provider            | Method  | Connector / Notes                          |
+| ------------------- | ------- | ------------------------------------------ |
+| Google              | OAuth   | Gmail, Calendar, Drive                     |
+| Microsoft           | OAuth   | Outlook, OneDrive via Graph API            |
+| GitHub              | OAuth   | `lib/connectors/github/githubConnector.ts` |
+| Linear              | API key | `lib/connectors/linear/linearConnector.ts` |
+| Slack               | OAuth   | `lib/connectors/slack/slackConnector.ts`   |
+| Stripe              | Webhook | Billing, checkout, portal                  |
+| AWS S3              | SDK     | File uploads, PDF presigned URLs           |
+| n8n                 | Webhook | Workflow automation triggers               |
+| Lichess             | API key | Chess game import                          |
+| Finnhub             | API key | Stock quotes                               |
+| CoinGecko           | API key | Crypto quotes                              |
+| Anthropic           | API key | Claude (chat + email fallback)             |
+| OpenAI              | API key | GPT-4o (chat)                              |
+| Gemini              | API key | Gemini (chat)                              |
 | scripture.api.bible | API key | Religious text provider (server proxy)     |
-| Sentry          | DSN      | Error tracking (client + server + edge)        |
-| PostHog         | API key  | Product analytics                              |
+| Sentry              | DSN     | Error tracking (client + server + edge)    |
+| PostHog             | API key | Product analytics                          |
 
 ---
 
 ## Deployment
 
-| Service      | Platform          | Notes                               |
-| ------------ | ----------------- | ----------------------------------- |
-| Next.js app  | Vercel            | Auto-deploy from main branch        |
-| ML service   | Vercel (Python)   | `ml_service/` root                  |
-| Database     | Supabase          | Managed Postgres + RLS              |
-| File storage | AWS S3            | `uploads/{userId}/{fileId}{ext}`    |
-| Local dev    | `npm run dev`     | concurrently runs Next.js + uvicorn |
+| Service            | Platform        | Notes                               |
+| ------------------ | --------------- | ----------------------------------- |
+| Next.js app        | Vercel          | Auto-deploy from main branch        |
+| ML service         | Vercel (Python) | `services/ml_service/` root         |
+| Go worker          | TBD             | `services/go_services/worker/`      |
+| Conversion service | TBD             | `services/conversion/`              |
+| Database           | Supabase        | Managed Postgres + RLS              |
+| File storage       | AWS S3          | `uploads/{userId}/{fileId}{ext}`    |
+| Local dev          | `npm run dev`   | concurrently runs Next.js + uvicorn |

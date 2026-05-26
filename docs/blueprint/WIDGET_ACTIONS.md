@@ -1,0 +1,8 @@
+- Email Replies,
+- Schedule calendar event
+- Generate document
+- Update task
+- Export data
+- Summarize file
+- Log habit
+- Trigger workflow

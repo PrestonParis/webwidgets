@@ -1,6 +1,17 @@
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import { EMOJI_OPTIONS } from '@/features/habit/constants';
-import { HabitAddFormProps } from '@/features/habit/types/habit';
+import type {
+    HabitAddFormProps,
+    HabitFrequency,
+} from '@/features/habit/types/habit';
+
+const FREQUENCY_OPTIONS: { value: HabitFrequency; label: string }[] = [
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekdays', label: 'Weekdays' },
+    { value: 'weekends', label: 'Weekends' },
+    { value: 'custom', label: 'Custom' },
+];
 
 export default function HabitAddForm({
     newName,
@@ -9,29 +20,20 @@ export default function HabitAddForm({
     onEmojiChange,
     onSubmit,
     onCancel,
+    frequency = 'daily',
+    onFrequencyChange,
 }: HabitAddFormProps) {
+    const [showPicker, setShowPicker] = useState(false);
     return (
         <form onSubmit={onSubmit} className="space-y-2">
-            {/* Emoji picker */}
-            <div className="flex flex-wrap gap-1.5 mb-2">
-                {EMOJI_OPTIONS.map((e) => (
-                    <button
-                        key={e}
-                        type="button"
-                        onClick={() => onEmojiChange(e)}
-                        className={`text-lg w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                            newEmoji === e
-                                ? 'bg-violet-100 dark:bg-violet-900/30'
-                                : 'hover:bg-stone-100 dark:hover:bg-zinc-800'
-                        }`}
-                    >
-                        {e}
-                    </button>
-                ))}
-            </div>
-
-            {/* Name input + actions */}
             <div className="flex gap-2">
+                <button
+                    type="button"
+                    onClick={() => setShowPicker((p) => !p)}
+                    className="text-lg w-9 h-9 rounded-lg flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+                >
+                    {newEmoji}
+                </button>
                 <input
                     autoFocus
                     value={newName}
@@ -44,7 +46,7 @@ export default function HabitAddForm({
                     disabled={!newName.trim()}
                     className="px-3 py-2 bg-violet-500 hover:bg-violet-600 disabled:opacity-40 text-white text-sm rounded-xl transition-colors"
                 >
-                    Add
+                    Create
                 </button>
                 <button
                     type="button"
@@ -54,6 +56,47 @@ export default function HabitAddForm({
                     <X size={14} />
                 </button>
             </div>
+
+            {showPicker && (
+                <div className="flex flex-wrap gap-1.5">
+                    {EMOJI_OPTIONS.map((e) => (
+                        <button
+                            key={e}
+                            type="button"
+                            onClick={() => {
+                                onEmojiChange(e);
+                                setShowPicker(false);
+                            }}
+                            className={`text-lg w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                                newEmoji === e
+                                    ? 'bg-violet-100 dark:bg-violet-900/30'
+                                    : 'hover:bg-stone-100 dark:hover:bg-zinc-800'
+                            }`}
+                        >
+                            {e}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {onFrequencyChange && (
+                <div className="flex gap-1 flex-wrap">
+                    {FREQUENCY_OPTIONS.map((opt) => (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => onFrequencyChange(opt.value)}
+                            className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                                frequency === opt.value
+                                    ? 'bg-violet-500 text-white'
+                                    : 'bg-stone-100 dark:bg-zinc-800 text-stone-500 dark:text-zinc-400 hover:bg-stone-200 dark:hover:bg-zinc-700'
+                            }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
         </form>
     );
 }

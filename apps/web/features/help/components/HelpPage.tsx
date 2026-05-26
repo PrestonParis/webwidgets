@@ -75,10 +75,9 @@ const sections = [
         icon: Smile,
         title: 'Mood',
         items: [
-            'Log your daily mood from the Mood widget on the dashboard.',
-            'Tap any of the past 7 days at the bottom of the widget to log or edit an earlier day.',
-            'The Mood page shows your full history with weekly trends.',
-            'Duplicate mood widgets can be added to your dashboard — they all reflect the same data.',
+            'Log your daily mood from the Mood Tracker widget on the dashboard.',
+            'Use the Tracking page to review mood history, energy, notes, and trends.',
+            'Mood entries live with the rest of your health tracking data.',
         ],
     },
     {
@@ -189,7 +188,10 @@ const sections = [
 
 export default function HelpPage() {
     return (
-        <main id="main-content" className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 py-8 lg:px-12">
+        <main
+            id="main-content"
+            className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-6 py-8 lg:px-12"
+        >
             <div className="mx-auto max-w-4xl">
                 <div className="mb-8">
                     <div className="flex items-center gap-2 mb-3">
@@ -202,7 +204,8 @@ export default function HelpPage() {
                         How webwidgets works
                     </h1>
                     <p className="mt-2 text-zinc-500 dark:text-zinc-400 text-sm">
-                        Everything you need to get the most out of your dashboard.
+                        Everything you need to get the most out of your
+                        dashboard.
                     </p>
                 </div>
 
@@ -246,9 +249,15 @@ export default function HelpPage() {
                         </h2>
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        If you can&apos;t find what you&apos;re looking for or found a bug, submit feedback from the{' '}
-                        <a href="/feedback" className="text-[#4f6ef7] hover:underline">feedback page</a>.
-                        All responses are anonymous.
+                        If you can&apos;t find what you&apos;re looking for or
+                        found a bug, submit feedback from the{' '}
+                        <a
+                            href="/feedback"
+                            className="text-[#4f6ef7] hover:underline"
+                        >
+                            feedback page
+                        </a>
+                        . All responses are anonymous.
                     </p>
                 </div>
             </div>

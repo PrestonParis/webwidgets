@@ -15,10 +15,12 @@ import { WorkoutFields } from './WorkoutFields';
 import { MealFields } from './MealFields';
 import { MoodFields } from './MoodFields';
 import { SupplementFields } from './SupplementFields';
+import { HealthFields } from './HealthFields';
 import { CustomFields } from './CustomFields';
 
 interface QuickEntryFormProps {
     initialCategory?: string;
+    lockCategory?: boolean;
     onSubmit: (entry: BaseTrackingEntry) => Promise<void>;
     onCancel?: () => void;
     customCategories?: CustomCategoryDef[];
@@ -94,6 +96,8 @@ function CategoryFields({
         return <MealFields form={form} updateField={updateField} />;
     if (form.category === 'mood')
         return <MoodFields form={form} updateField={updateField} />;
+    if (form.category === 'health')
+        return <HealthFields form={form} updateField={updateField} />;
     return (
         <SupplementFields
             category={form.category}
@@ -105,6 +109,7 @@ function CategoryFields({
 
 export function QuickEntryForm({
     initialCategory,
+    lockCategory = false,
     onSubmit,
     onCancel,
     customCategories,
@@ -138,11 +143,13 @@ export function QuickEntryForm({
 
     return (
         <div className="space-y-3 text-sm">
-            <CategoryTabs
-                active={form.category}
-                onChange={(c) => updateField('category', c)}
-                customCategories={customCategories}
-            />
+            {!lockCategory && (
+                <CategoryTabs
+                    active={form.category}
+                    onChange={(c) => updateField('category', c)}
+                    customCategories={customCategories}
+                />
+            )}
 
             <div className="relative">
                 <button

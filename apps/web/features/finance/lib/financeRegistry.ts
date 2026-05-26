@@ -13,7 +13,7 @@ export const FINANCE_WIDGETS = [
     },
     {
         id: 'subscription-auditor',
-        title: 'Subscription auditor',
+        title: 'Finance',
         description: 'Recurring charges and renewal review.',
         status: 'Scaffold',
     },

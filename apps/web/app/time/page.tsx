@@ -10,6 +10,7 @@ const VALID_MODES: TimekeepingMode[] = [
     'stopwatch',
     'countdown',
     'worldclock',
+    'timeclock',
 ];
 
 function toMode(raw: string | undefined): TimekeepingMode {

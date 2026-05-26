@@ -9,8 +9,8 @@ export const AUTOMATION_WIDGETS = [
         status: 'Ready',
     },
     {
-        id: 'suggested-automations',
-        title: 'Suggested automations',
+        id: 'automations',
+        title: 'Automations',
         description: 'Onboarding and service-based recommendations.',
         status: 'Ready shell',
     },

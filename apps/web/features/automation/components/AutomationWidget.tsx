@@ -1,7 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertTriangle, CalendarClock, ShieldCheck, Workflow } from 'lucide-react';
+import {
+    AlertTriangle,
+    CalendarClock,
+    ShieldCheck,
+    Workflow,
+    Zap,
+} from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useAutomationCenter } from '@/features/automation/hooks/useAutomationCenter';
 import {
@@ -31,6 +37,7 @@ export default function AutomationWidget({
         globalEnabled,
         toggleAutomation,
         loading,
+        workstreams,
     } = useAutomationCenter();
 
     const keyInstances = KEY_AUTOMATION_IDS.map((id) =>
@@ -38,6 +45,21 @@ export default function AutomationWidget({
     ).filter((instance): instance is NonNullable<typeof instance> =>
         Boolean(instance),
     );
+
+    const attention =
+        workstreams?.filter(
+            (w) => w.status === 'attention' || w.status === 'blocked',
+        ).length ?? 0;
+    const workstreamBadge =
+        attention > 0 ? (
+            <span className="text-[10px] font-bold text-amber-500">
+                {attention} NEEDS ATTENTION
+            </span>
+        ) : workstreams !== null && workstreams.length > 0 ? (
+            <span className="text-[10px] font-bold text-emerald-500">
+                ALL CLEAR
+            </span>
+        ) : undefined;
 
     return (
         <WidgetShell
@@ -69,6 +91,23 @@ export default function AutomationWidget({
                         </p>
                     </div>
                 </div>
+
+                {/* Workstream summary */}
+                {workstreams !== null && workstreams.length > 0 && (
+                    <div className="flex items-center gap-2 rounded-lg border border-zinc-100 px-3 py-2 dark:border-zinc-800">
+                        <Zap size={13} className="shrink-0 text-zinc-400" />
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">
+                                {workstreams.length} Workstreams
+                            </p>
+                            {workstreamBadge && (
+                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                                    {workstreamBadge}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {nextDeliverable && (
                     <div className="flex items-center gap-2 rounded-lg border border-zinc-100 px-3 py-2 dark:border-zinc-800">

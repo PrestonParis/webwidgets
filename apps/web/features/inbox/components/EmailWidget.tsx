@@ -1,15 +1,48 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { useEmails } from '@/features/inbox/hooks/useEmails';
 import { EmailConnectPrompt } from './EmailConnectPrompt';
 import MailIcon from '@/icons/MailIcon';
+import type { Email } from '@/features/inbox/types/inbox';
+
+type InboxWidgetView = 'weave' | 'gmail' | 'outlook';
+
+function pickEmails(
+    view: InboxWidgetView,
+    emails: Email[],
+    gmailEmails: Email[],
+    outlookEmails: Email[],
+) {
+    if (view === 'gmail') return gmailEmails;
+    if (view === 'outlook') return outlookEmails;
+    return emails;
+}
+
+function providerLabel(mail: Email) {
+    return mail.provider === 'outlook' ? 'Outlook' : 'Gmail';
+}
 
 export default function EmailWidget() {
     const { settings, updateSettings } = useWidgetSettings('email', 'email');
+    const [view, setView] = useState<InboxWidgetView>('weave');
 
-    const { emails, loading, isUnauthorized } = useEmails();
+    const {
+        emails,
+        gmailEmails,
+        outlookEmails,
+        loading,
+        isUnauthorized,
+        hasGoogleSync,
+        hasMicrosoftSync,
+    } = useEmails();
+    const canWeave = hasGoogleSync && hasMicrosoftSync;
+    const visibleEmails = useMemo(
+        () => pickEmails(view, emails, gmailEmails, outlookEmails),
+        [emails, gmailEmails, outlookEmails, view],
+    );
 
     return (
         <WidgetShell
@@ -35,26 +68,71 @@ export default function EmailWidget() {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {emails.length > 0 ? emails.slice(0, 3).map((mail) => (
-                        <div
-                            key={mail.id}
-                            className="text-xs border-b border-gray-50 dark:border-zinc-900 pb-2 last:border-0"
+                    <div className="flex items-center gap-1 rounded-lg bg-gray-50 p-1 dark:bg-zinc-800/70">
+                        {(['gmail', 'outlook'] as InboxWidgetView[]).map(
+                            (item) => {
+                                const connected =
+                                    item === 'gmail'
+                                        ? hasGoogleSync
+                                        : hasMicrosoftSync;
+                                return (
+                                    <button
+                                        key={item}
+                                        type="button"
+                                        disabled={!connected}
+                                        onClick={() => setView(item)}
+                                        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold capitalize transition-colors ${
+                                            view === item
+                                                ? 'bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
+                                                : 'text-gray-400 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-500'
+                                        }`}
+                                    >
+                                        {item}
+                                    </button>
+                                );
+                            },
+                        )}
+                        <button
+                            type="button"
+                            disabled={!canWeave}
+                            onClick={() => setView('weave')}
+                            className={`rounded-md px-2 py-1 text-[10px] font-semibold transition-colors ${
+                                view === 'weave'
+                                    ? 'bg-blue-600 text-white shadow-sm'
+                                    : 'text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 dark:text-blue-300'
+                            }`}
                         >
-                            <div className="flex items-center gap-2 mb-0.5">
-                                <p className="font-semibold truncate flex-1">
-                                    {mail.subject}
-                                </p>
-                                {mail.category && mail.category !== 'other' && (
-                                    <span className="shrink-0 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
-                                        {mail.category}
-                                    </span>
+                            Weave
+                        </button>
+                    </div>
+                    {visibleEmails.length > 0 ? (
+                        visibleEmails.slice(0, 3).map((mail) => (
+                            <div
+                                key={mail.id}
+                                className="text-xs border-b border-gray-50 dark:border-zinc-900 pb-2 last:border-0"
+                            >
+                                <div className="flex items-center gap-2 mb-0.5">
+                                    <p className="font-semibold truncate flex-1">
+                                        {mail.subject}
+                                    </p>
+                                    {mail.category &&
+                                        mail.category !== 'other' && (
+                                            <span className="shrink-0 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
+                                                {mail.category}
+                                            </span>
+                                        )}
+                                </div>
+                                {view === 'weave' && (
+                                    <p className="mb-0.5 text-[9px] font-semibold uppercase tracking-wide text-blue-400">
+                                        {providerLabel(mail)}
+                                    </p>
                                 )}
+                                <p className="text-gray-400 truncate">
+                                    {mail.snippet}
+                                </p>
                             </div>
-                            <p className="text-gray-400 truncate">
-                                {mail.snippet}
-                            </p>
-                        </div>
-                    )) : (
+                        ))
+                    ) : (
                         <div className="flex flex-col items-center justify-center py-6 space-y-2">
                             <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
                                 <MailIcon />

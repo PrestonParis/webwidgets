@@ -32,6 +32,7 @@ export type Email = {
     sender: string;
     snippet: string;
     date: string;
+    provider?: 'gmail' | 'outlook';
     category?: string | undefined;
     is_manual?: boolean | undefined;
 };

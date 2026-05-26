@@ -1,0 +1,13 @@
+- Auth boundaries
+- API token storage
+- Permission scopes
+- Row-level security
+- Secrets handling
+- Rate limiting
+- Audit logging
+- User consent
+- Data deletion
+- Automation safety
+- Role-based access
+- Input sanitization
+- Abuse prevention

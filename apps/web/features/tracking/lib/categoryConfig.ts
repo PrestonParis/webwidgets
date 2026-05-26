@@ -199,6 +199,39 @@ export const TRACKING_CATEGORY_CONFIGS: Record<
         ],
         automationEvents: ['pain_spike_detected', 'mobility_declining'],
     },
+    health: {
+        id: 'health',
+        label: 'Health Tracker',
+        icon: '❤️‍🩹',
+        color: 'pink',
+        metricType: 'multi',
+        supports: [
+            'correlations',
+            'goals',
+            'predictions',
+            'automation',
+            'journal',
+            'attachments',
+        ],
+        primaryMetric: 'energyLevel',
+        metrics: [
+            {
+                key: 'energyLevel',
+                label: 'Energy',
+                type: 'rating',
+                min: 1,
+                max: 10,
+            },
+            {
+                key: 'sleepQuality',
+                label: 'Sleep quality',
+                type: 'rating',
+                min: 1,
+                max: 10,
+            },
+        ],
+        automationEvents: ['recovery_suggested', 'biometric_anomaly'],
+    },
 };
 
 export function customCategoryToConfig(

@@ -30,7 +30,7 @@ function EmptyRecoveryWidget({
     return (
         <WidgetShell
             icon={<HeartIcon />}
-            title="Sober Time"
+            title="Recovery Tracker"
             settings={settings}
             onSettingsChange={updateSettings}
             settingsSlot={settingsSlot}
@@ -148,7 +148,7 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
         <>
             <WidgetShell
                 icon={<HeartIcon />}
-                title="Sober Time"
+                title="Recovery Tracker"
                 badge={tracker.addiction || undefined}
                 settings={settings}
                 onSettingsChange={updateSettings}

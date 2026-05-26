@@ -5,6 +5,7 @@ import Header from '@/features/ui/components/Header';
 import DashboardGrid from './DashboardGrid';
 import FreeCanvas from './FreeCanvas';
 import FolderSubScreen from './FolderSubScreen';
+import RecoverySubScreen from '@/features/recovery/components/RecoverySubScreen';
 import { SnapRuleBar } from './SnapRuleBar';
 import Footer from '@/features/ui/components/Footer';
 import { FloatingBucket } from './FloatingBucket';
@@ -14,6 +15,7 @@ import type {
     WidgetType,
     DashboardGridProps,
 } from '@/features/dashboard/types/dashboard';
+import type { Tracker } from '@/features/recovery/types/recovery';
 import type { SnapRule } from '@/features/dashboard/types/dashboard';
 import { buildDefaultLayout } from '@/features/dashboard/lib/dashboardLayout';
 import { DashboardHeaderBar } from './DashboardHeaderBar';
@@ -39,6 +41,7 @@ interface FolderViewProps {
     deleteFolder: (id: string) => void;
     toggleVisibility: (id: string) => void;
     handleReset: (id: string, newStart: string) => Promise<void>;
+    pushHistory: () => void;
 }
 
 function FolderView({
@@ -53,7 +56,29 @@ function FolderView({
     deleteFolder,
     toggleVisibility,
     handleReset,
+    pushHistory,
 }: FolderViewProps) {
+    function addAllToMain() {
+        const widgetsInFolder = layout.filter(
+            (w) => w.containerId === activeFolder.id,
+        );
+        if (widgetsInFolder.length === 0) return;
+        pushHistory();
+        const maxOrder = layout
+            .filter((w) => w.containerId === 'main')
+            .reduce((m, w) => Math.max(m, w.order), -1);
+        updateLayout(
+            layout.map((w, i) => {
+                if (w.containerId !== activeFolder.id) return w;
+                return {
+                    ...w,
+                    containerId: 'main',
+                    order: maxOrder + 1 + i,
+                };
+            }),
+        );
+    }
+
     return (
         <FolderSubScreen
             folder={activeFolder}
@@ -76,6 +101,7 @@ function FolderView({
             onReset={(id, newStart) => {
                 void handleReset(id, newStart);
             }}
+            onAddAllToMain={addAllToMain}
         />
     );
 }
@@ -106,6 +132,7 @@ interface GridViewProps extends DashboardGridProps {
     fullscreen: boolean;
     onToggleFullscreen: () => void;
     simplified?: boolean;
+    onAddTracker?: (tracker: Tracker) => void;
 }
 
 function GridView({
@@ -135,6 +162,7 @@ function GridView({
     fullscreen,
     onToggleFullscreen,
     simplified = false,
+    onAddTracker,
     ...gridProps
 }: GridViewProps) {
     // 1D mode forces grid layout — free canvas is not compatible
@@ -166,6 +194,7 @@ function GridView({
                 fullscreen={fullscreen}
                 onToggleFullscreen={onToggleFullscreen}
                 simplified={simplified}
+                onAddTracker={onAddTracker}
             />
             {!simplified && effectiveMode === 'free' && ready && (
                 <div className="mb-4">
@@ -241,6 +270,7 @@ export default function Dashboard() {
     } = useDashboardPage();
     const { snapshot } = useDashboardSnapshot(layout, ready);
     const [fullscreen, setFullscreen] = useState(false);
+    const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
     const [history, setHistory] = useState<WidgetConfig[][]>([]);
     const [future, setFuture] = useState<WidgetConfig[][]>([]);
 
@@ -296,6 +326,7 @@ export default function Dashboard() {
             setActiveFolderId(id);
             setFolderStack([]);
         },
+        onOpenRecovery: () => setIsRecoveryOpen(true),
         onRenameFolder: renameFolder,
         onDeleteFolder: deleteFolder,
         onMoveToBucket: moveToBucket,
@@ -322,7 +353,21 @@ export default function Dashboard() {
                     style={bgIsDefault ? undefined : bgStyle}
                 >
                     <main className={mainCls}>
-                        {activeFolder ? (
+                        {isRecoveryOpen ? (
+                            ready && (
+                                <RecoverySubScreen
+                                    onBack={() => setIsRecoveryOpen(false)}
+                                    layout={layout}
+                                    onAddAllToLayout={(newWidgets) => {
+                                        pushHistory();
+                                        updateLayout([
+                                            ...layout,
+                                            ...newWidgets,
+                                        ]);
+                                    }}
+                                />
+                            )
+                        ) : activeFolder ? (
                             ready && (
                                 <FolderView
                                     activeFolder={activeFolder}
@@ -336,6 +381,7 @@ export default function Dashboard() {
                                     deleteFolder={deleteFolder}
                                     toggleVisibility={toggleVisibility}
                                     handleReset={handleReset}
+                                    pushHistory={pushHistory}
                                 />
                             )
                         ) : (
@@ -347,6 +393,31 @@ export default function Dashboard() {
                                 mode={mode}
                                 onModeChange={setMode}
                                 simplified={oneDimensionalMode}
+                                onAddTracker={(tracker) => {
+                                    pushHistory();
+                                    const alreadyPresent = layout.some(
+                                        (w) =>
+                                            w.id ===
+                                            `widget-recovery-${tracker.id}`,
+                                    );
+                                    if (alreadyPresent) return;
+                                    const maxOrder = layout.reduce(
+                                        (m, w) => Math.max(m, w.order),
+                                        -1,
+                                    );
+                                    updateLayout([
+                                        ...layout,
+                                        {
+                                            id: `widget-recovery-${tracker.id}`,
+                                            type: 'recovery' as WidgetType,
+                                            visible: true,
+                                            columnSpan: 1,
+                                            containerId: 'main',
+                                            order: maxOrder + 1,
+                                            props: { tracker },
+                                        },
+                                    ]);
+                                }}
                                 onAddWidget={(type) => {
                                     pushHistory();
                                     const maxOrder = layout.reduce(
@@ -378,7 +449,10 @@ export default function Dashboard() {
                                     updateLayout(
                                         layout.map((w) =>
                                             ids.includes(w.id)
-                                                ? { ...w, containerId: 'bucket' }
+                                                ? {
+                                                      ...w,
+                                                      containerId: 'bucket',
+                                                  }
                                                 : w,
                                         ),
                                     );
@@ -386,7 +460,9 @@ export default function Dashboard() {
                                 onRemoveWidgets={(ids) => {
                                     pushHistory();
                                     updateLayout(
-                                        layout.filter((w) => !ids.includes(w.id)),
+                                        layout.filter(
+                                            (w) => !ids.includes(w.id),
+                                        ),
                                     );
                                 }}
                                 scenes={scenes}

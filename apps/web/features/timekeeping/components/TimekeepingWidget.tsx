@@ -8,6 +8,7 @@ import { PomodoroMode, TimerMode } from './TimerMode';
 import { StopwatchMode } from './StopwatchMode';
 import { EventMode } from './EventMode';
 import { WorldClockPage } from '@/features/worldclock/components/WorldClockPage';
+import { TimeclockMode } from '@/features/timekeeping/components/TimeclockMode';
 import type { TimekeepingMode } from '@/features/widgets/types/widgets';
 
 export default function TimekeepingWidget() {
@@ -44,6 +45,7 @@ export default function TimekeepingWidget() {
                     </div>
                 )}
                 {mode === 'worldclock' && <WorldClockPage embedded />}
+                {mode === 'timeclock' && <TimeclockMode />}
             </div>
         </WidgetShell>
     );

@@ -3,7 +3,8 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getLogger } from '@/lib/observability/logger';
 
-const MS_TOKEN_URL = 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token';
+const MS_TOKEN_URL =
+    'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token';
 const GRAPH_MESSAGES_URL =
     'https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages' +
     '?$select=id,subject,from,receivedDateTime,bodyPreview' +
@@ -46,17 +47,21 @@ async function refreshMicrosoftToken(
     });
 
     try {
-        const res = await fetch(
-            MS_TOKEN_URL.replace('{tenant}', tenantId),
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body.toString(),
-            },
-        );
-        const json = (await res.json()) as { access_token?: string; expires_in?: number; error?: string };
+        const res = await fetch(MS_TOKEN_URL.replace('{tenant}', tenantId), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+        });
+        const json = (await res.json()) as {
+            access_token?: string;
+            expires_in?: number;
+            error?: string;
+        };
         if (json.error || !json.access_token) return null;
-        return { access_token: json.access_token, expires_in: json.expires_in ?? 3600 };
+        return {
+            access_token: json.access_token,
+            expires_in: json.expires_in ?? 3600,
+        };
     } catch {
         return null;
     }
@@ -65,8 +70,12 @@ async function refreshMicrosoftToken(
 function normalizeMessage(msg: GraphMessage) {
     return {
         id: `outlook:${msg.id}`,
+        provider: 'outlook',
         subject: msg.subject ?? '(no subject)',
-        sender: msg.from?.emailAddress?.name ?? msg.from?.emailAddress?.address ?? '',
+        sender:
+            msg.from?.emailAddress?.name ??
+            msg.from?.emailAddress?.address ??
+            '',
         snippet: msg.bodyPreview ?? '',
         date: msg.receivedDateTime,
     };
@@ -93,7 +102,10 @@ export async function GET(_req: Request) {
     const tokens = tokenRow as StoredTokens | null;
 
     if (!tokens?.microsoft_access_token) {
-        return NextResponse.json({ error: 'outlook_not_connected' }, { status: 401 });
+        return NextResponse.json(
+            { error: 'outlook_not_connected' },
+            { status: 401 },
+        );
     }
 
     let accessToken = tokens.microsoft_access_token;
@@ -104,7 +116,9 @@ export async function GET(_req: Request) {
         tokens.expires_at &&
         Date.now() > tokens.expires_at - 5 * 60 * 1000
     ) {
-        const refreshed = await refreshMicrosoftToken(tokens.microsoft_refresh_token);
+        const refreshed = await refreshMicrosoftToken(
+            tokens.microsoft_refresh_token,
+        );
         if (refreshed) {
             accessToken = refreshed.access_token;
             await supabaseAdmin
@@ -128,18 +142,27 @@ export async function GET(_req: Request) {
                 .from('user_tokens')
                 .update({ microsoft_access_token: null, has_microsoft: false })
                 .eq('user_id', userId);
-            return NextResponse.json({ error: 'outlook_auth_expired' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'outlook_auth_expired' },
+                { status: 401 },
+            );
         }
 
         if (!res.ok) {
             log.error({ status: res.status }, 'Graph API error');
-            return NextResponse.json({ error: 'Graph API error' }, { status: 502 });
+            return NextResponse.json(
+                { error: 'Graph API error' },
+                { status: 502 },
+            );
         }
 
         const json = (await res.json()) as GraphResponse;
         if (json.error) {
             log.error({ code: json.error.code }, 'Graph response error');
-            return NextResponse.json({ error: json.error.message }, { status: 502 });
+            return NextResponse.json(
+                { error: json.error.message },
+                { status: 502 },
+            );
         }
 
         const emails = (json.value ?? []).map(normalizeMessage);

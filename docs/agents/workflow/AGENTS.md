@@ -64,6 +64,7 @@ if (val !== prev) { setPrev(val); setDerived(...); }
 Claude is a high-speed implementation agent focused on broad feature execution, reusable infrastructure, UI systems, workflow expansion, and architectural refinement.
 
 Claude is especially useful for:
+
 - large implementation passes
 - reusable component systems
 - UI infrastructure
@@ -86,6 +87,7 @@ Because of this, Claude must aggressively validate its own work before completio
 Claude must double-check functionality before marking a task complete.
 
 Claude should assume:
+
 - imports may be broken
 - hooks may be incorrectly wired
 - state may not update correctly
@@ -120,8 +122,7 @@ rg "useDashboard"
 rg "onSubmit"
 rg "isPending"
 rg "Dialog"
-rg "renderWidget"
-3. Validate Existing Behavior Before Refactoring
+rg "renderWidget" 3. Validate Existing Behavior Before Refactoring
 If replacing or abstracting code:
 preserve current behavior
 preserve existing props
@@ -279,6 +280,7 @@ compatible with future orchestration systems
 Codex is a structure-focused implementation agent responsible for maintaining consistency, architectural discipline, reusable patterns, and alignment with the existing WebWidgets codebase.
 
 Codex excels at:
+
 - following existing architecture
 - preserving codebase consistency
 - extending existing systems
@@ -302,6 +304,7 @@ The goal is not to invent entirely new patterns for every task. The goal is to s
 Before creating anything new, Codex must inspect the existing codebase carefully.
 
 Codex should extend:
+
 - existing component patterns
 - existing hooks
 - existing APIs
@@ -312,6 +315,7 @@ Codex should extend:
 - existing widget structures
 
 New abstractions should only be introduced when:
+
 - duplication becomes significant
 - multiple systems clearly need the abstraction
 - the existing pattern is provably insufficient
@@ -321,6 +325,7 @@ New abstractions should only be introduced when:
 ## 2. Preserve Architectural Consistency
 
 Codex should prioritize:
+
 - predictable structure
 - reusable conventions
 - clean folder organization
@@ -329,6 +334,7 @@ Codex should prioritize:
 - composability
 
 Avoid:
+
 - random utility creation
 - inconsistent naming
 - duplicate abstractions
@@ -496,3 +502,24 @@ structure is predictable
 components compose naturally
 future agents can understand the system quickly
 new domains can scale without architectural collapse
+
+## Agentic Development Philosophy
+
+Development should happen through structured agent roles, not random one-off prompting.
+
+Each agent should be assigned a clear responsibility, such as:
+
+- Architecture Agent
+- UI/UX Agent
+- Refactor Agent
+- Feature Implementation Agent
+- Testing Agent
+- Documentation Agent
+- Security Agent
+- Performance Agent
+- Data/API Integration Agent
+
+Agents should not all run servers, builds, or expensive processes by default. Because RAM is a concern, agents should focus on static inspection, `rg`, file reading, targeted edits, type-aware reasoning, and small scoped implementation passes. Build, test, and dev-server commands should be run intentionally, not constantly.
+
+Agents should be given deep project context before they make changes. They need to understand that WebWidgets is a broad, evolving system where each feature should fit into the larger intelligence layer.
+```
