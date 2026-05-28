@@ -2,7 +2,7 @@ import type {
     SupplementDefinition,
     SupplementSearchResult,
 } from '../definitionTypes';
-import { defaultSchedule } from '../normalize';
+import { defaultSchedule } from '../schedule';
 
 const LOCAL_LIBRARY: SupplementDefinition[] = [
     {

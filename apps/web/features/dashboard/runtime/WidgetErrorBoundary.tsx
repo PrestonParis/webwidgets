@@ -29,7 +29,9 @@ export class WidgetErrorBoundary extends Component<
     componentDidCatch(error: Error, info: ErrorInfo) {
         this.props.onFailure(this.props.widgetId, {
             message: error.message,
-            resourceKey: info.componentStack,
+            ...(info.componentStack != null
+                ? { resourceKey: info.componentStack }
+                : {}),
         });
     }
 

@@ -1,12 +1,19 @@
 'use client';
 
+import type { ComponentType } from 'react';
 import { cn } from '@/lib/utils/utils';
 import type { CreativeTool } from '../types';
 
+interface CreativeToolItem {
+    id: CreativeTool;
+    label: string;
+    icon: ComponentType<{ size?: number }>;
+}
+
 interface CreativeToolsPanelProps {
-    tools: CreativeTool[];
-    activeTool: string;
-    setActiveTool: (id: string) => void;
+    tools: CreativeToolItem[];
+    activeTool: CreativeTool;
+    setActiveTool: (id: CreativeTool) => void;
 }
 
 export function CreativeToolsPanel({

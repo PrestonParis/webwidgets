@@ -14,8 +14,8 @@ interface CreativeProjectPanelProps {
     createProject: (data: {
         title: string;
         description?: string;
-        format: string;
-    }) => Promise<void>;
+        format?: string;
+    }) => Promise<unknown>;
     loading: boolean;
     showProjectForm: boolean;
     setShowProjectForm: Dispatch<SetStateAction<boolean>>;

@@ -18,7 +18,7 @@
  *   mealsPerDay   -> mealsPerDay
  */
 
-import type { DayTotals } from './analytics';
+import type { DayTotals } from './analyticsTypes';
 import type {
     GoalPreset,
     GoalProgressItem,
