@@ -1,4 +1,4 @@
-import type { BodyZoneId } from './types';
+import type { BodyZoneId } from '@/features/tracking/health/types/health';
 
 export const BODY_ZONE_IDS: BodyZoneId[] = [
     'head',

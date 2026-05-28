@@ -9,9 +9,12 @@
 
 import { sumFoodItems, scaleTotals } from './totals';
 import { foodItemToMetadata } from './foodItem';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { MealType } from '@/features/tracking/lib/meal/types';
-import type { SavedMealDraft, SavedMealRecord } from './savedMealTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { MealType } from '@/features/tracking/types/meal';
+import type {
+    SavedMealDraft,
+    SavedMealRecord,
+} from '@/features/tracking/types/savedMeals';
 
 const STORAGE_KEY = 'nutrition_saved_meals_v1';
 

@@ -18,12 +18,12 @@
  *   mealsPerDay   -> mealsPerDay
  */
 
-import type { DayTotals } from './analyticsTypes';
+import type { DayTotals } from '@/features/tracking/types/nutritionAnalytics';
 import type {
     GoalPreset,
     GoalProgressItem,
     NutritionGoalConfig,
-} from './goalTypes';
+} from '@/features/tracking/types/nutritionGoals';
 
 export type MealGoalMetricKey =
     | 'calories'

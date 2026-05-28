@@ -1,7 +1,7 @@
 import type {
     FileConversionFormat,
     FileConversionFormatMeta,
-} from '@/features/files/conversion/types';
+} from '@/features/files/types/conversion';
 
 const anyMime = 'application/octet-stream';
 

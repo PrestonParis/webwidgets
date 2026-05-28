@@ -31,8 +31,8 @@ import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import type {
     BaseTrackingEntry,
     TrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
-import type { ExerciseDefinition } from '@/features/tracking/lib/fitness/types';
+} from '@/features/tracking/types/trackingEntries';
+import type { ExerciseDefinition } from '@/features/tracking/types/fitness';
 
 interface FitnessCategoryViewProps {
     entries: TrackingEntry[];

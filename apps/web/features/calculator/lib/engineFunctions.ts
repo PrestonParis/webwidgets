@@ -1,4 +1,4 @@
-import type { AngleUnit } from '../types';
+import type { AngleUnit } from '../types/calculator';
 
 export const CONSTANTS: Record<string, number> = {
     pi: Math.PI,

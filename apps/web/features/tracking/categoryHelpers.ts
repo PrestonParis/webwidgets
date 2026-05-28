@@ -1,4 +1,4 @@
-import type { BuiltInCategory } from '@/features/tracking/types/trackingCategoryTypes';
+import type { BuiltInCategory } from '@/features/tracking/types/trackingCategories';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 import {
     TRACKING_CATEGORY_CONFIGS,

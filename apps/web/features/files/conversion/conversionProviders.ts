@@ -1,4 +1,4 @@
-import type { FileConversionAdapter } from '@/features/files/conversion/types';
+import type { FileConversionAdapter } from '@/features/files/types/conversion';
 
 export const fileConversionProviders: Record<
     FileConversionAdapter,

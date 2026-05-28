@@ -1,6 +1,9 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { FoodItem, FoodSearchResult } from './foodTypes';
-import type { MicronutrientProfile } from './micronutrientTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type {
+    FoodItem,
+    FoodSearchResult,
+} from '@/features/tracking/types/nutritionFood';
+import type { MicronutrientProfile } from '@/features/tracking/types/nutritionMicronutrients';
 import {
     readNumber,
     readString,

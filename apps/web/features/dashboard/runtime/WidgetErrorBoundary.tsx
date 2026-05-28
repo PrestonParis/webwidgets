@@ -1,7 +1,7 @@
 'use client';
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import type { WidgetFailureReason } from './widgetRuntimeTypes';
+import type { WidgetFailureReason } from '../types/widgetRuntime';
 
 type WidgetErrorBoundaryProps = {
     widgetId: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetConstants';
-import type { WidgetBuilderStepId } from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetBuilderStepId } from '@/features/widgets/types/synthesisWidgets';
 
 interface WidgetBuilderStepperProps {
     currentStepId: WidgetBuilderStepId;

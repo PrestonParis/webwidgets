@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ModeSelector } from '@/features/texteditor/components/ModeSelector';
 import { NoteEditorPage } from '@/features/texteditor/components/NoteEditorPage';
 import { TE_STYLES } from '@/features/texteditor/constants';
-import type { TextEditorMode } from '@/features/texteditor/types';
+import type { TextEditorMode } from '@/features/texteditor/types/texteditor';
 
 function TextEditorHeader({
     mode,

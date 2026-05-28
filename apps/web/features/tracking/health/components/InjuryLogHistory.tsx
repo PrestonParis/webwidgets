@@ -5,7 +5,7 @@ import {
     TISSUE_TYPE_CONFIG_MAP,
     type InjuryLog,
     type InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 const STATUS_TONE: Record<InjuryStatus, string> = {
     active: 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300',

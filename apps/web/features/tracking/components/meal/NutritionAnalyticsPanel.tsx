@@ -6,8 +6,8 @@ import { LineChart } from '@/features/tracking/viz/LineChart';
 import { computeExtendedAnalytics } from '@/features/tracking/lib/meal/nutrition/analytics';
 import { buildExtendedInsights } from '@/features/tracking/lib/meal/nutrition/insights';
 import { MEAL_TYPE_LABELS } from '@/features/tracking/lib/meal/helpers';
-import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
-import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/goalTypes';
+import type { MealRecord, MealType } from '@/features/tracking/types/meal';
+import type { NutritionGoalConfig } from '@/features/tracking/types/nutritionGoals';
 
 interface NutritionAnalyticsPanelProps {
     records: MealRecord[];

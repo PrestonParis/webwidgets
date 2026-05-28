@@ -1,7 +1,7 @@
 import type {
     SupplementDefinition,
     SupplementSearchResult,
-} from '../definitionTypes';
+} from '@/features/tracking/types/supplementDefinitions';
 import { defaultSchedule } from '../schedule';
 
 const LOCAL_LIBRARY: SupplementDefinition[] = [

@@ -1,7 +1,11 @@
 import { parseCSV } from '@/features/tracking/lib/import/csvParser';
-import type { WorkoutImportProvider } from './types';
-import type { ExerciseEntry, SetEntry, WorkoutSession } from '../types';
-import type { ImportPreview } from '../importTypes';
+import type { WorkoutImportProvider } from '@/features/tracking/types/fitnessProviders';
+import type {
+    ExerciseEntry,
+    SetEntry,
+    WorkoutSession,
+} from '@/features/tracking/types/fitness';
+import type { ImportPreview } from '@/features/tracking/types/fitnessImport';
 import { calculateWorkoutTotals, normalizeWorkoutType } from '../normalize';
 
 function value(

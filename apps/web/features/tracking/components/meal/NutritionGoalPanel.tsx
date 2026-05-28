@@ -7,7 +7,7 @@ import {
     GOAL_PRESETS,
 } from '@/features/tracking/lib/meal/nutrition/goals';
 import type { MealGoalMetricKey } from '@/features/tracking/lib/meal/nutrition/goals';
-import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/goalTypes';
+import type { NutritionGoalConfig } from '@/features/tracking/types/nutritionGoals';
 
 interface NutritionGoalPanelProps {
     onClose?: () => void;

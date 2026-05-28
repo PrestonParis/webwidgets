@@ -20,7 +20,7 @@ import { TrackingSection } from '@/features/tracking/components/TrackingSurface'
 import type {
     BaseTrackingEntry,
     TrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 interface WeightBMIPanelProps {
     entries: TrackingEntry[];

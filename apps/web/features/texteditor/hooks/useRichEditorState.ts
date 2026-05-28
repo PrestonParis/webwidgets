@@ -6,7 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
 import type { JournalEntry } from '@/features/journal/types/journal';
-import type { NoteType } from '@/features/texteditor/types';
+import type { NoteType } from '@/features/texteditor/types/texteditor';
 
 interface RichEditorStateOptions {
     entry: JournalEntry | null;

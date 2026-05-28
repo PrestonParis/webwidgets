@@ -1,7 +1,7 @@
 'use client';
 
 import { useFoodSearch } from '@/features/tracking/hooks/useFoodSearch';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
 import { makeManualResult } from '@/features/tracking/lib/meal/nutrition/providers/manualProvider';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
 

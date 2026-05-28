@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckCircle2, CircleAlert, Loader2 } from 'lucide-react';
-import type { ConversionJob } from '@/features/convert/lib/conversionTypes';
+import type { ConversionJob } from '@/features/convert/types/conversion';
 
 interface ConversionJobStatusProps {
     job: ConversionJob | null;

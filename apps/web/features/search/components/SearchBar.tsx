@@ -9,7 +9,7 @@ import { WIDGET_CATALOG, type WidgetEntry } from '../lib/widgetCatalog';
 import type { NlpSuggestion } from '../hooks/useSearch';
 import type { FolderEntry } from '../store/useFolderRegistry';
 import { cn } from '@/lib/utils/utils';
-import { getWidgetCategory } from '@/features/dashboard/components/addWidgetConstants';
+import { getWidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
 import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 
 function widgetEmoji(type: string): string {

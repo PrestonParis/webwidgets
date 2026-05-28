@@ -4,7 +4,7 @@ import type {
     CreateConversionJobResponse,
     DownloadUrlResponse,
     SupportedConversion,
-} from '@/features/convert/lib/conversionTypes';
+} from '@/features/convert/types/conversion';
 
 function getConversionApiBaseUrl() {
     // Defaults to the Next.js proxy (/api/conversion) so the upstream URL stays server-only.

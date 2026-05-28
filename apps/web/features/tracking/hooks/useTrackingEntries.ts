@@ -10,7 +10,7 @@ import { OLD_STORAGE_KEY } from '@/features/tracking/constants';
 import type {
     TrackingEntry,
     FetchOptions,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 export function useTrackingEntries(options?: FetchOptions): {
     entries: TrackingEntry[];

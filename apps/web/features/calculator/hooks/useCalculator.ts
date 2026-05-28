@@ -23,12 +23,12 @@ import type {
     FinancialInputs,
     DateTimeInputs,
     ProgrammerInputs,
-} from '../types';
+} from '../types/calculator';
 import {
     DEFAULT_FINANCIAL_INPUTS,
     DEFAULT_DATETIME_INPUTS,
     DEFAULT_PROGRAMMER_INPUTS,
-} from '../types';
+} from '../types/calculator';
 
 function nanoid() {
     return Math.random().toString(36).slice(2, 10);

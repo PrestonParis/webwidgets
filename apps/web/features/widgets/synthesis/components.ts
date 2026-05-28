@@ -1,4 +1,4 @@
-import type { ComponentRegistryEntry } from './componentTypes';
+import type { ComponentRegistryEntry } from '../types/synthesisComponents';
 import { COMPONENT_REGISTRY_PART_1 } from './componentsPart1';
 import { COMPONENT_REGISTRY_PART_2 } from './componentsPart2';
 import { COMPONENT_REGISTRY_PART_3 } from './componentsPart3';

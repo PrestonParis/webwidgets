@@ -1,4 +1,4 @@
-import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 import type { ParsedRow } from '@/features/tracking/types/import';
 
 const CATEGORY_KEYWORDS: Record<TrackingCategory, string[]> = {

@@ -25,7 +25,7 @@ import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { computeSupplementAnalytics } from '@/features/tracking/lib/supplements/analytics';
 import { scheduleLabel } from '@/features/tracking/lib/supplements/schedule';
-import type { DueDose } from '@/features/tracking/lib/supplements/logTypes';
+import type { DueDose } from '@/features/tracking/types/supplementLogs';
 
 type ViewMode =
     | 'add'

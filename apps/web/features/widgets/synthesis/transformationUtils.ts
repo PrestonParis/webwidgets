@@ -1,5 +1,5 @@
-import type { WidgetTransformationType } from './widgetTypes';
-import type { TransformationRegistryEntry } from './transformationTypes';
+import type { WidgetTransformationType } from '../types/synthesisWidgets';
+import type { TransformationRegistryEntry } from '../types/synthesisTransformations';
 import { TRANSFORMATION_REGISTRY } from './transformations';
 
 export function getTransformation(

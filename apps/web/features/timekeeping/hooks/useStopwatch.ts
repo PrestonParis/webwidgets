@@ -1,5 +1,9 @@
 import { useReducer, useEffect, useRef, useCallback, useState } from 'react';
-import type { StopwatchState, StopwatchAction, LapEntry } from '../types';
+import type {
+    StopwatchState,
+    StopwatchAction,
+    LapEntry,
+} from '../types/timekeeping';
 
 const STOPWATCH_STORAGE_KEY = 'webwidgets:stopwatch-state:v1';
 

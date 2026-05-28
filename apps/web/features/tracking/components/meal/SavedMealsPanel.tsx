@@ -9,8 +9,8 @@ import {
     MEAL_TYPE_ORDER,
 } from '@/features/tracking/lib/meal/helpers';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { SavedMealRecord } from '@/features/tracking/lib/meal/nutrition/savedMealTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { SavedMealRecord } from '@/features/tracking/types/savedMeals';
 
 interface SavedMealsPanelProps {
     onLog: (entry: BaseTrackingEntry) => Promise<void>;

@@ -6,12 +6,12 @@ import {
     importRowToEntry,
 } from '@/features/tracking/lib/meal/nutrition/providers/importProvider';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 import type {
     ExistingMealSignature,
     NutritionImportPreview,
-} from '@/features/tracking/lib/meal/nutrition/importTypes';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/nutritionImport';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 interface NutritionImportPanelProps {
     existingRecords: MealRecord[];

@@ -27,7 +27,7 @@ import {
 } from '../store/useFolderRegistry';
 import type { NlpSuggestion } from '../hooks/useSearch';
 import { cn } from '@/lib/utils/utils';
-import { getWidgetCategory } from '@/features/dashboard/components/addWidgetConstants';
+import { getWidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
 
 interface QuickAction {
     id: string;

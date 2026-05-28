@@ -1,4 +1,8 @@
-import type { TimerSubMode, PomodoroPhase, PomodoroStep } from './types';
+import type {
+    TimerSubMode,
+    PomodoroPhase,
+    PomodoroStep,
+} from './types/timekeeping';
 
 export const TIMER_DURATIONS: Record<TimerSubMode, number> = {
     standard: 20 * 60,

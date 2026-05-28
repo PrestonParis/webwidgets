@@ -1,7 +1,7 @@
 import type {
     ActionRegistryEntry,
     AutomationRegistryEntry,
-} from './actionTypes';
+} from '../types/synthesisActions';
 import {
     ACTION_REGISTRY,
     getAction,

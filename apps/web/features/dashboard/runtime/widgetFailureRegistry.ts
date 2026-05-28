@@ -1,6 +1,6 @@
 'use client';
 
-import type { WidgetFailureReason } from './widgetRuntimeTypes';
+import type { WidgetFailureReason } from '../types/widgetRuntime';
 
 type FailureRecord = {
     count: number;

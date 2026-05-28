@@ -6,8 +6,8 @@
  * guaranteeing logging always works even with no network or API keys.
  */
 
-import type { FoodSearchResult } from '../foodTypes';
-import type { FoodProvider } from './types';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
+import type { FoodProvider } from '@/features/tracking/types/nutritionProviders';
 
 export const MANUAL_PROVIDER_NAME = 'manual';
 

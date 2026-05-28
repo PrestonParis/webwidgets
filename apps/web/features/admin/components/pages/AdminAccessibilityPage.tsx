@@ -17,7 +17,7 @@ import type {
     AccessibilityCategory,
     AccessibilitySeverity,
     AccessibilityStatus,
-} from '@/features/accessibility/types';
+} from '@/features/accessibility/types/accessibility';
 
 const statusStyles: Record<AccessibilityStatus, string> = {
     passing:
@@ -81,7 +81,11 @@ export function AdminAccessibilityPage() {
                         WCAG compliance findings across all dashboard surfaces.
                     </p>
                 </div>
-                <Button variant="secondary" icon={RefreshCcw} onClick={resetFilters}>
+                <Button
+                    variant="secondary"
+                    icon={RefreshCcw}
+                    onClick={resetFilters}
+                >
                     Reset filters
                 </Button>
             </div>
@@ -93,10 +97,18 @@ export function AdminAccessibilityPage() {
                             <label className="min-w-0 flex-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                 Search audits
                                 <span className="mt-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 dark:border-zinc-800 dark:bg-zinc-950">
-                                    <Search size={15} className="text-zinc-400" />
+                                    <Search
+                                        size={15}
+                                        className="text-zinc-400"
+                                    />
                                     <input
                                         value={filters.query}
-                                        onChange={(e) => updateFilter('query', e.target.value)}
+                                        onChange={(e) =>
+                                            updateFilter(
+                                                'query',
+                                                e.target.value,
+                                            )
+                                        }
                                         placeholder="Dashboard, keyboard, charts, motion"
                                         className="min-w-0 flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400 dark:text-zinc-100"
                                     />
@@ -107,7 +119,11 @@ export function AdminAccessibilityPage() {
                                 <select
                                     value={filters.category}
                                     onChange={(e) =>
-                                        updateFilter('category', e.target.value as typeof filters.category)
+                                        updateFilter(
+                                            'category',
+                                            e.target
+                                                .value as typeof filters.category,
+                                        )
                                     }
                                     className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                                 >
@@ -124,20 +140,28 @@ export function AdminAccessibilityPage() {
                                 <select
                                     value={filters.status}
                                     onChange={(e) =>
-                                        updateFilter('status', e.target.value as typeof filters.status)
+                                        updateFilter(
+                                            'status',
+                                            e.target
+                                                .value as typeof filters.status,
+                                        )
                                     }
                                     className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                                 >
                                     <option value="all">All statuses</option>
                                     <option value="passing">Passing</option>
-                                    <option value="needs-review">Needs review</option>
+                                    <option value="needs-review">
+                                        Needs review
+                                    </option>
                                     <option value="failing">Failing</option>
                                 </select>
                             </label>
                             <Button
                                 variant="secondary"
                                 icon={Filter}
-                                onClick={() => updateFilter('status', 'needs-review')}
+                                onClick={() =>
+                                    updateFilter('status', 'needs-review')
+                                }
                             >
                                 Review
                             </Button>
@@ -164,7 +188,9 @@ export function AdminAccessibilityPage() {
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
-                                            <CategoryMark category={audit.category} />
+                                            <CategoryMark
+                                                category={audit.category}
+                                            />
                                             <h3 className="mt-3 text-sm font-semibold text-zinc-950 dark:text-zinc-50">
                                                 {audit.title}
                                             </h3>
@@ -184,7 +210,9 @@ export function AdminAccessibilityPage() {
                                             <span
                                                 className={cn(
                                                     'rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase',
-                                                    severityStyles[audit.severity],
+                                                    severityStyles[
+                                                        audit.severity
+                                                    ],
                                                 )}
                                             >
                                                 {audit.severity}
@@ -229,7 +257,9 @@ export function AdminAccessibilityPage() {
                             </h2>
                         </div>
                         <div className="space-y-2 text-sm">
-                            {(['passing', 'needs-review', 'failing'] as const).map((s) => (
+                            {(
+                                ['passing', 'needs-review', 'failing'] as const
+                            ).map((s) => (
                                 <button
                                     key={s}
                                     type="button"
@@ -241,9 +271,15 @@ export function AdminAccessibilityPage() {
                                             : 'border-zinc-200 dark:border-zinc-800',
                                     )}
                                 >
-                                    <span className="capitalize">{s.replace('-', ' ')}</span>
+                                    <span className="capitalize">
+                                        {s.replace('-', ' ')}
+                                    </span>
                                     <span className="font-semibold tabular-nums">
-                                        {visibleAudits.filter((a) => a.status === s).length}
+                                        {
+                                            visibleAudits.filter(
+                                                (a) => a.status === s,
+                                            ).length
+                                        }
                                     </span>
                                 </button>
                             ))}

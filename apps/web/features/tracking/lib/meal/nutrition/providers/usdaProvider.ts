@@ -12,8 +12,11 @@
  * Docs: https://fdc.nal.usda.gov/api-guide.html
  */
 
-import type { FoodSearchResult } from '../foodTypes';
-import { FoodProviderError, type FoodProvider } from './types';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
+import {
+    FoodProviderError,
+    type FoodProvider,
+} from '@/features/tracking/types/nutritionProviders';
 
 const BASE = 'https://api.nal.usda.gov/fdc/v1';
 const REQUEST_TIMEOUT_MS = 8000;

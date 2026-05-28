@@ -25,10 +25,7 @@ import {
     extractMealGoalConfig,
     mealRecordSummary,
 } from '@/features/tracking/lib/meal/helpers';
-import type {
-    MealViewMode,
-    MealRecord,
-} from '@/features/tracking/lib/meal/types';
+import type { MealViewMode, MealRecord } from '@/features/tracking/types/meal';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { BarcodeModal } from '@/features/tracking/components/meal/BarcodeModal';
 import { foodResultToMealMetadata } from '@/features/tracking/lib/meal/nutrition/foodItem';

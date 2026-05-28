@@ -1,4 +1,4 @@
-import type { DataSourceRegistryEntry } from './dataSourceTypes';
+import type { DataSourceRegistryEntry } from '../types/synthesisDataSources';
 import { DATA_SOURCE_REGISTRY } from './dataSources';
 
 export function getDataSource(id: string): DataSourceRegistryEntry | undefined {

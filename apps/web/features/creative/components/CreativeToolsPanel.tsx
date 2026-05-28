@@ -2,7 +2,7 @@
 
 import type { ComponentType } from 'react';
 import { cn } from '@/lib/utils/utils';
-import type { CreativeTool } from '../types';
+import type { CreativeTool } from '../types/creative';
 
 interface CreativeToolItem {
     id: CreativeTool;

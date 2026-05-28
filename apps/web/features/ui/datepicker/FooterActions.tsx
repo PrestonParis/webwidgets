@@ -1,4 +1,4 @@
-import { FooterActionsProps } from './types';
+import { FooterActionsProps } from '../types/datepicker';
 
 export function FooterActions({
     onCancel,

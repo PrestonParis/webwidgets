@@ -11,14 +11,14 @@ import {
     WIDGET_APPROX_H,
     ROW_STRIDE,
     SNAP_DIST,
-} from '@/features/dashboard/components/freeCanvasConfig';
+} from '@/features/dashboard/lib/freeCanvasConfig';
 import {
     autoPos,
     applyGridSnap,
     type Pos,
     type Size,
     type GuideLine,
-} from '@/features/dashboard/components/freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasUtils';
 
 interface UseFreeCanvasComputedOptions {
     layout: WidgetConfig[];

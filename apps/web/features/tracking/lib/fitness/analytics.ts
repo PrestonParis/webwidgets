@@ -1,6 +1,6 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { FitnessAnalytics } from './analyticsTypes';
-import type { WorkoutSession } from './types';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { FitnessAnalytics } from '@/features/tracking/types/fitnessAnalytics';
+import type { WorkoutSession } from '@/features/tracking/types/fitness';
 import { normalizeWorkoutEntries } from './normalize';
 import { detectPersonalRecords } from './progression';
 

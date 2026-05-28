@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { CollaborationFilters } from '../types';
+import type { CollaborationFilters } from '../types/collaboration';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
 export interface WorkspaceRecord {

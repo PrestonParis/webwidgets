@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNewsFeed } from '@/features/news/api/newsClient';
 import { filterFeedItems } from '@/features/news/search/feedSearchIndex';
-import type { RankedFeedItem } from '@/features/news/schemas/eventTypes';
+import type { RankedFeedItem } from '@/features/news/types/events';
 import type { NewsFeedFilters } from '@/features/news/types/news';
 
 const defaultFilters: NewsFeedFilters = {

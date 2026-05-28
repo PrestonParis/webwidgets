@@ -23,7 +23,7 @@ import {
 } from '@/features/tracking/lib/sleep/sleepDomain';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 type SleepTab = 'history' | 'charts' | 'heatmap' | 'goal';
 

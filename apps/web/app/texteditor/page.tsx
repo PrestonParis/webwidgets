@@ -1,4 +1,4 @@
-import type { TextEditorMode } from '@/features/texteditor/types';
+import type { TextEditorMode } from '@/features/texteditor/types/texteditor';
 import Header from '@/features/ui/components/Header';
 import TextEditorPage from '@/features/texteditor/components/TextEditorPage';
 

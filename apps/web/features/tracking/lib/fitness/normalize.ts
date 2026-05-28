@@ -1,7 +1,7 @@
 import type {
     TrackingEntry,
     TrackingMetadata,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 import type {
     ExerciseCategory,
     ExerciseEntry,
@@ -9,7 +9,7 @@ import type {
     SetType,
     WorkoutSession,
     WorkoutType,
-} from './types';
+} from '@/features/tracking/types/fitness';
 import { str, positive, stringArray } from './readers';
 
 const TYPE_MAP: Record<string, WorkoutType> = {

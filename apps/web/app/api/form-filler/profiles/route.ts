@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { createAdminClient } from '@/lib/supabase/adminClient';
-import type { FormFillerProfile } from '@/features/form-filler/types';
+import type { FormFillerProfile } from '@/features/form-filler/types/formFiller';
 
 const PROFILES_TAG = 'form-filler-profiles';
 

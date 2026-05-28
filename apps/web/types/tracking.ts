@@ -1,7 +1,7 @@
 import type {
     BaseTrackingEntry,
     TrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 import type { CreateSupplementPayload } from '@/features/tracking/types/supplement';
 
 export interface TrackingInsightsPanelProps {
