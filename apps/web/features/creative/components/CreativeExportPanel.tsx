@@ -15,7 +15,7 @@ interface CreativeExport {
 
 interface CreativeExportPanelProps {
     exports: CreativeExport[];
-    selectedProject: ProjectRecord | undefined;
+    selectedProject: ProjectRecord | null | undefined;
 }
 
 export function CreativeExportPanel({

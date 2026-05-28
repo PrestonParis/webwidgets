@@ -197,8 +197,10 @@ function GridView({
                 fullscreen={fullscreen}
                 onToggleFullscreen={onToggleFullscreen}
                 simplified={simplified}
-                onAddTracker={onAddTracker}
-                onAddAllTrackers={onAddAllTrackers}
+                {...(onAddTracker !== undefined ? { onAddTracker } : {})}
+                {...(onAddAllTrackers !== undefined
+                    ? { onAddAllTrackers }
+                    : {})}
             />
             {!simplified && effectiveMode === 'free' && ready && (
                 <div className="mb-4">

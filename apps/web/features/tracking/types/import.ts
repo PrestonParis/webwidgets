@@ -1,4 +1,4 @@
-import type { TrackingCategory } from './tracking';
+import type { TrackingCategory } from './trackingCategoryTypes';
 
 export type ImportFormat = 'csv' | 'json';
 

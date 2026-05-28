@@ -147,8 +147,10 @@ export function AddWidgetPanel({
                     presentTypes={presentTypes}
                     presentTrackerIds={presentTrackerIds}
                     onAdd={(type) => onAdd(type)}
-                    onAddTracker={onAddTracker}
-                    onAddAllTrackers={onAddAllTrackers}
+                    {...(onAddTracker !== undefined ? { onAddTracker } : {})}
+                    {...(onAddAllTrackers !== undefined
+                        ? { onAddAllTrackers }
+                        : {})}
                     isAdmin={isAdmin}
                     search={search}
                     selectedCategory={selectedCategory}

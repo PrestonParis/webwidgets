@@ -147,7 +147,9 @@ export async function PATCH(req: Request) {
         action: 'update_feature_flag',
         resourceType: 'feature_flag',
         resourceId: id,
-        before: before as Record<string, unknown> | null,
+        ...(before != null
+            ? { before: before as Record<string, unknown> }
+            : {}),
         after: updates as Record<string, unknown>,
         ...(ip2 !== undefined ? { ip: ip2 } : {}),
     });

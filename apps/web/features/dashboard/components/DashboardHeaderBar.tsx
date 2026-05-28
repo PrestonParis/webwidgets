@@ -371,8 +371,12 @@ export function DashboardHeaderBar({
                                 onAddFolder={() => {
                                     onAddFolder();
                                 }}
-                                onAddTracker={onAddTracker}
-                                onAddAllTrackers={onAddAllTrackers}
+                                {...(onAddTracker !== undefined
+                                    ? { onAddTracker }
+                                    : {})}
+                                {...(onAddAllTrackers !== undefined
+                                    ? { onAddAllTrackers }
+                                    : {})}
                                 onClose={() => setWidgetPanelOpen(false)}
                             />
                         )}

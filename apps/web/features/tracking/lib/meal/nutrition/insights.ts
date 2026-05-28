@@ -6,7 +6,7 @@
  */
 
 import { MEAL_TYPE_LABELS } from '@/features/tracking/lib/meal/helpers';
-import type { ExtendedNutritionAnalytics } from './analytics';
+import type { ExtendedNutritionAnalytics } from './analyticsTypes';
 import type { NutritionGoalConfig } from './goalTypes';
 
 export function buildExtendedInsights(
