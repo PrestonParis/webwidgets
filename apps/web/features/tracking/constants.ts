@@ -1,4 +1,4 @@
-import type { BuiltInCategory } from '@/features/tracking/types/tracking';
+import type { BuiltInCategory } from '@/features/tracking/types/trackingCategoryTypes';
 import type { MealType } from '@/features/tracking/types/metadata';
 
 export {

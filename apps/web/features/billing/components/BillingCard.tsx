@@ -61,7 +61,7 @@ export function BillingCard() {
         setError(null);
         try {
             const url = await createCheckoutSession(planId);
-            window.location.href = url;
+            window.location.assign(url);
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Something went wrong',
@@ -75,7 +75,7 @@ export function BillingCard() {
         setError(null);
         try {
             const url = await createPortalSession();
-            window.location.href = url;
+            window.location.assign(url);
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Something went wrong',

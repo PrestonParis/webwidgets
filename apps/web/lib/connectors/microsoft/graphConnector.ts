@@ -4,7 +4,7 @@ import { ProviderError } from '@/lib/connectors/providerError';
 // Microsoft Graph OAuth 2.0 — client credentials + per-user delegated tokens.
 // Setup: portal.azure.com → App registrations → register app → add client secret.
 // Store per-user access/refresh tokens in user_tokens (has_microsoft column) after
-// the /auth/microsoft/callback completes the OAuth code exchange.
+// the /api/auth/microsoft/callback completes the OAuth code exchange.
 
 const GRAPH_API = 'https://graph.microsoft.com/v1.0';
 const GRAPH_TOKEN_URL =

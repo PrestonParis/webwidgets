@@ -24,7 +24,10 @@ export function useDriveFiles(query?: string) {
     }, []);
 
     useEffect(() => {
-        void fetch(query);
+        const timeoutId = window.setTimeout(() => {
+            void fetch(query);
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [query, fetch]);
 
     return {

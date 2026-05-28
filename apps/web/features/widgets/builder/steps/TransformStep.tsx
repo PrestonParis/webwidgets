@@ -5,8 +5,8 @@ import { TRANSFORMATION_REGISTRY } from '@/features/widgets/synthesis/transforma
 import type {
     SynthesizedWidgetDefinition,
     SynthesizedTransformationDef,
-    WidgetTransformationType,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
+import type { WidgetTransformationType } from '@/features/widgets/synthesis/widgetTypes';
 
 interface TransformStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

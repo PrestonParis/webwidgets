@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FileUpload } from '@/features/uploads/types/upload';
 import {
     requestPresignedUrl,
-    confirmUpload,
+    uploadFileContent,
     deleteUpload,
     listUploads,
 } from '@/features/uploads/api/uploadApi';
@@ -42,7 +42,8 @@ export function useFileUpload(): UseFileUploadReturn {
     }, []);
 
     useEffect(() => {
-        reload();
+        const timeoutId = window.setTimeout(reload, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [reload]);
 
     const upload = useCallback(async (file: File) => {
@@ -51,37 +52,17 @@ export function useFileUpload(): UseFileUploadReturn {
         setUploadError(null);
 
         try {
-            const { fileId, presignedUrl } = await requestPresignedUrl(
+            const { fileId } = await requestPresignedUrl(
                 file.name,
                 file.type || 'application/octet-stream',
                 file.size,
             );
 
-            const xhr = new XMLHttpRequest();
-            await new Promise<void>((resolve, reject) => {
-                xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        setUploadProgress(
-                            Math.round((e.loaded / e.total) * 100),
-                        );
-                    }
-                });
-                xhr.addEventListener('load', () => {
-                    if (xhr.status >= 200 && xhr.status < 300) resolve();
-                    else reject(new Error(`S3 upload failed: ${xhr.status}`));
-                });
-                xhr.addEventListener('error', () =>
-                    reject(new Error('Upload network error')),
-                );
-                xhr.open('PUT', presignedUrl);
-                xhr.setRequestHeader(
-                    'Content-Type',
-                    file.type || 'application/octet-stream',
-                );
-                xhr.send(file);
-            });
-
-            const confirmed = await confirmUpload(fileId);
+            const confirmed = await uploadFileContent(
+                fileId,
+                file,
+                setUploadProgress,
+            );
             setFiles((prev) => [confirmed, ...prev]);
             setUploadState('idle');
             setUploadProgress(0);

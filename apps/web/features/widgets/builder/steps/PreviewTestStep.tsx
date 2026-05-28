@@ -1,10 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import type {
-    SynthesizedWidgetDefinition,
-    WidgetPreviewMode,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
+import type { WidgetPreviewMode } from '@/features/widgets/synthesis/widgetTypes';
 import { assembleWidget } from '@/features/widgets/synthesis/widgetAssemblyEngine';
 
 interface PreviewTestStepProps {

@@ -3,9 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
 export async function POST(req: NextRequest) {
-    if (!ML_SERVICE_URL) return NextResponse.json({ error: 'ML service not configured' }, { status: 503 });
+    if (!ML_SERVICE_URL)
+        return NextResponse.json(
+            { error: 'ML service not configured' },
+            { status: 503 },
+        );
     try {
-        const body = await req.json();
+        const body: unknown = await req.json();
         const res = await fetch(`${ML_SERVICE_URL}/rank-command-workstreams`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -16,6 +20,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(await res.json());
     } catch (err) {
         console.error('[ml/rank-command-workstreams]', err);
-        return NextResponse.json({ error: 'ML service unavailable' }, { status: 503 });
+        return NextResponse.json(
+            { error: 'ML service unavailable' },
+            { status: 503 },
+        );
     }
 }

@@ -13,16 +13,16 @@ import {
     TrackingKpi,
     TrackingSection,
 } from '@/features/tracking/components/TrackingSurface';
+import { normalizeMealEntries } from '@/features/tracking/lib/meal/normalize';
 import {
-    normalizeMealEntries,
     extractMealGoalConfig,
     formatMealTime,
     calorieStatus,
     calorieStatusLabel,
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ICONS,
-    type MealRecord,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
+import type { MealRecord } from '@/features/tracking/lib/meal/types';
 import {
     extractNutritionGoalConfig,
     computeGoalProgress,
@@ -40,7 +40,7 @@ import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import type {
     TrackingEntry,
     BaseTrackingEntry,
-} from '@/features/tracking/types/tracking';
+} from '@/features/tracking/types/trackingEntryTypes';
 
 type MealTab =
     | 'today'

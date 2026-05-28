@@ -21,7 +21,7 @@ import {
     formatMetadataDisplay,
 } from '@/features/tracking/lib/trackingUtils';
 import { MOOD_EMOJIS, MOOD_LABELS } from '@/features/tracking/labels';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 type MoodTab = 'history' | 'trends' | 'stats' | 'goals';
 

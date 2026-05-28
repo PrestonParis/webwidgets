@@ -56,7 +56,7 @@ export async function addWatchlistItem(
         config?: Record<string, unknown>;
     },
 ): Promise<WatchlistItem> {
-    const { data, error } = await supabase
+    const response = await supabase
         .from('watchlist_items')
         .insert({
             user_id: userId,
@@ -68,8 +68,10 @@ export async function addWatchlistItem(
         })
         .select()
         .single();
+    const { error } = response;
+    const data = response.data as unknown as DbWatchlistItemRow;
     if (error) throw error;
-    return rowToItem(data as DbWatchlistItemRow);
+    return rowToItem(data);
 }
 
 export async function deleteWatchlistItem(
@@ -104,15 +106,17 @@ export async function updateWatchlistItem(
         payload.display_name = input.displayName;
     if (input.currency !== undefined) payload.currency = input.currency;
     if (input.config !== undefined) payload.config = input.config;
-    const { data, error } = await supabase
+    const response = await supabase
         .from('watchlist_items')
         .update(payload)
         .eq('id', id)
         .eq('user_id', userId)
         .select()
         .single();
+    const { error } = response;
+    const data = response.data as unknown as DbWatchlistItemRow;
     if (error) throw error;
-    return rowToItem(data as DbWatchlistItemRow);
+    return rowToItem(data);
 }
 
 export async function addWatchlistReading(
@@ -123,7 +127,7 @@ export async function addWatchlistReading(
     source: string,
     metadata: Record<string, unknown> = {},
 ): Promise<WatchlistReading> {
-    const { data, error } = await supabase
+    const response = await supabase
         .from('watchlist_readings')
         .insert({
             item_id: itemId,
@@ -134,8 +138,10 @@ export async function addWatchlistReading(
         })
         .select()
         .single();
+    const { error } = response;
+    const data = response.data as unknown as DbWatchlistReadingRow;
     if (error) throw error;
-    return rowToReading(data as DbWatchlistReadingRow);
+    return rowToReading(data);
 }
 
 export async function listWatchlistReadings(

@@ -1,3 +1,15 @@
+export interface ForecastDay {
+    date: string;
+    weatherCode: number;
+    emoji: string;
+    description: string;
+    tempMax: number;
+    tempMin: number;
+    precipProbability: number;
+    isToday: boolean;
+    isPast: boolean;
+}
+
 export interface WeatherData {
     temp: number;
     feelsLike: number;

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { normalizedViewDocumentSchema } from '@/features/view/schemas/viewSchemas';
+import { normalizedViewDocumentSchema } from '@/features/view/schemas/objectSchemas';
 import { analyzeViewDocument } from '@/features/view/analyzers/viewAnalyzer';
 
 const bodySchema = z.object({ document: normalizedViewDocumentSchema });
@@ -12,5 +12,7 @@ export async function POST(request: Request) {
             { error: 'Invalid document' },
             { status: 400 },
         );
-    return NextResponse.json({ analysis: analyzeViewDocument(parsed.data.document) });
+    return NextResponse.json({
+        analysis: analyzeViewDocument(parsed.data.document),
+    });
 }

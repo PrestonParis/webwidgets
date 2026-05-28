@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from 'react';
 
 export type Density = 'comfortable' | 'standard' | 'compact';
 
@@ -37,50 +44,64 @@ const defaults: AccessibilityState = {
 function readStorage(): AccessibilityState {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return { ...defaults, ...(JSON.parse(raw) as Partial<AccessibilityState>) };
+        if (raw)
+            return {
+                ...defaults,
+                ...(JSON.parse(raw) as Partial<AccessibilityState>),
+            };
     } catch {}
     return defaults;
 }
 
-const AccessibilityContext = createContext<AccessibilityContextValue | null>(null);
+const AccessibilityContext = createContext<AccessibilityContextValue | null>(
+    null,
+);
 
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
-    const [state, setState] = useState<AccessibilityState>(defaults);
-
-    useEffect(() => {
-        setState(readStorage());
-    }, []);
+    const [state, setState] = useState<AccessibilityState>(readStorage);
 
     useEffect(() => {
         const body = document.body;
 
-        state.contrast
-            ? body.setAttribute('data-accessibility-contrast', '')
-            : body.removeAttribute('data-accessibility-contrast');
+        if (state.contrast) {
+            body.setAttribute('data-accessibility-contrast', '');
+        } else {
+            body.removeAttribute('data-accessibility-contrast');
+        }
 
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        state.reducedMotion || prefersReduced
-            ? body.setAttribute('data-reduced-motion', '')
-            : body.removeAttribute('data-reduced-motion');
+        const prefersReduced = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+        ).matches;
+        if (state.reducedMotion || prefersReduced) {
+            body.setAttribute('data-reduced-motion', '');
+        } else {
+            body.removeAttribute('data-reduced-motion');
+        }
 
-        state.focusOutlines
-            ? body.setAttribute('data-focus-outlines', '')
-            : body.removeAttribute('data-focus-outlines');
+        if (state.focusOutlines) {
+            body.setAttribute('data-focus-outlines', '');
+        } else {
+            body.removeAttribute('data-focus-outlines');
+        }
 
         body.setAttribute('data-density', state.density);
 
-        state.oneDimensionalMode
-            ? body.setAttribute('data-1d-mode', '')
-            : body.removeAttribute('data-1d-mode');
+        if (state.oneDimensionalMode) {
+            body.setAttribute('data-1d-mode', '');
+        } else {
+            body.removeAttribute('data-1d-mode');
+        }
     }, [state]);
 
     // Also respond to OS-level prefers-reduced-motion changes
     useEffect(() => {
         const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
         const handler = () => {
-            mq.matches
-                ? document.body.setAttribute('data-reduced-motion', '')
-                : !state.reducedMotion && document.body.removeAttribute('data-reduced-motion');
+            if (mq.matches) {
+                document.body.setAttribute('data-reduced-motion', '');
+            } else if (!state.reducedMotion) {
+                document.body.removeAttribute('data-reduced-motion');
+            }
         };
         mq.addEventListener('change', handler);
         return () => mq.removeEventListener('change', handler);
@@ -89,7 +110,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     const update = useCallback((patch: Partial<AccessibilityState>) => {
         setState((prev) => {
             const next = { ...prev, ...patch };
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+            } catch {}
             return next;
         });
     }, []);
@@ -114,6 +137,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
 export function useAccessibility(): AccessibilityContextValue {
     const ctx = useContext(AccessibilityContext);
-    if (!ctx) throw new Error('useAccessibility must be used within AccessibilityProvider');
+    if (!ctx)
+        throw new Error(
+            'useAccessibility must be used within AccessibilityProvider',
+        );
     return ctx;
 }

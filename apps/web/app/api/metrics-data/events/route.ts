@@ -48,7 +48,7 @@ export async function GET(req: Request) {
     // Mask user_id to partial UUID — never expose full identifiers
     const masked = events.map((e) => ({
         id: e.id,
-        userId: e.user_id ? (e.user_id as string).slice(0, 8) + '…' : null,
+        userId: e.user_id ? e.user_id.slice(0, 8) + '…' : null,
         type: e.type,
         source: e.source,
         metadata: e.metadata ?? null,

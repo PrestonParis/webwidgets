@@ -1,7 +1,7 @@
 'use client';
 
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useChartDimensions } from './useChartDimensions';
 
 interface EmergencyFundRunwayProps {
@@ -39,14 +39,17 @@ export function EmergencyFundRunwayChart({
         bottom: 24,
     });
     const svgRef = useRef<SVGSVGElement>(null);
-    const fmt =
-        formatAmount ??
-        ((n: number) =>
-            n.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 0,
-            }));
+    const fmt = useMemo(
+        () =>
+            formatAmount ??
+            ((n: number) =>
+                n.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                })),
+        [formatAmount],
+    );
     const currentMonths = monthlyExpenses > 0 ? cashTotal / monthlyExpenses : 0;
     const fillColor = getRunwayColor(currentMonths);
 

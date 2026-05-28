@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import { parseCSV } from '@/features/tracking/lib/import/csvParser';
 import { validateAndMap } from '@/features/tracking/lib/import/importValidator';
@@ -10,7 +9,7 @@ import type {
     ImportStep,
     ImportSummary,
 } from '@/features/tracking/types/import';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 export function useImport(onComplete: (count: number) => void): {
     step: ImportStep;

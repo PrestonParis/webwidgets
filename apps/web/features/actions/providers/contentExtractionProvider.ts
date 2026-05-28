@@ -56,7 +56,7 @@ export async function extractRssContent(input: {
             );
             return feed.items.slice(0, 20).map((item, index) => {
                 const content = readableFromHtml(
-                    item['content:encoded'] ??
+                    (item['content:encoded'] as string | undefined) ??
                         item.content ??
                         item.contentSnippet ??
                         '',

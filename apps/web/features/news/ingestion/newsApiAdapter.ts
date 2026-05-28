@@ -1,7 +1,7 @@
 import { getLogger } from '@/lib/observability/logger';
-import type { RawSourceEvent } from '@/features/news/schemas/eventSchemas';
+import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
 
-export async function ingestNewsApiProvider(
+export function ingestNewsApiProvider(
     providerId: string,
 ): Promise<RawSourceEvent[]> {
     const fetchedAt = new Date().toISOString();
@@ -10,5 +10,5 @@ export async function ingestNewsApiProvider(
     );
 
     void fetchedAt;
-    return [];
+    return Promise.resolve([]);
 }

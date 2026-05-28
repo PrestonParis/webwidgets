@@ -17,14 +17,7 @@ interface Btn {
 }
 
 export function BasicMode({ calc, compact = false }: BasicModeProps) {
-    const {
-        appendToExpression,
-        clear,
-        clearEntry,
-        negate,
-        calculate,
-        memoryAction,
-    } = calc;
+    const { appendToExpression, clear, negate, calculate, memoryAction } = calc;
 
     const rows: Btn[][] = [
         [

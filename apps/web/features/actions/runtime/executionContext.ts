@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
     actionExecutionContextSchema,
     type ActionRequestEnvelope,
-} from '@/features/actions/schemas/actionSchemas';
+} from '@/features/actions/schemas/actionPayloadSchemas';
 
 export interface ActionRuntimeContext {
     supabase?: SupabaseClient;

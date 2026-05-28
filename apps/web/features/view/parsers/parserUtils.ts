@@ -1,9 +1,11 @@
 import type {
     NormalizedViewDocument,
-    ViewFileCategory,
     ViewFileRef,
+} from '@/features/view/schemas/objectSchemas';
+import type {
+    ViewFileCategory,
     ViewRenderStrategy,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/enumSchemas';
 
 export function detectCategory(mimeType: string): ViewFileCategory {
     if (

@@ -7,11 +7,11 @@ import { recipeToMealEntry } from '@/features/tracking/lib/meal/nutrition/provid
 import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ORDER,
-    type MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
+import type { MealType } from '@/features/tracking/lib/meal/types';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
-import type { RecipeRecord } from '@/features/tracking/lib/meal/nutrition/types';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { RecipeRecord } from '@/features/tracking/lib/meal/nutrition/recipeTypes';
 
 interface RecipesPanelProps {
     onLog: (entry: BaseTrackingEntry) => Promise<void>;

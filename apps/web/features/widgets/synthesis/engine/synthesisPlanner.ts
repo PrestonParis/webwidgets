@@ -4,13 +4,15 @@ import {
     buildCapabilityGraph,
     findMissingCapabilities,
 } from '@/features/widgets/synthesis/engine/capabilityGraph';
+import type { SynthesizedPermissionDef } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import type {
-    SynthesizedPermissionDef,
     WidgetIntent,
-    WidgetLayoutType,
     WidgetSynthesisPlan,
+} from '@/features/widgets/synthesis/widgetIntentInterfaces';
+import type {
+    WidgetLayoutType,
     WidgetTransformationType,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetTypes';
 import { DATA_SOURCE_REGISTRY } from '@/features/widgets/synthesis/dataSourceRegistry';
 import { ACTION_REGISTRY } from '@/features/widgets/synthesis/actionRegistry';
 

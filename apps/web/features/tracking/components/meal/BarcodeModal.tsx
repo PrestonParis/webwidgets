@@ -8,7 +8,7 @@ import {
     ModalFooter,
 } from '@/features/ui/components/Modal';
 import { lookupBarcode } from '@/features/tracking/lib/meal/nutrition/providers';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/types';
+import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
 
 interface BarcodeModalProps {

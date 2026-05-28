@@ -21,8 +21,16 @@ function pickEmails(
     return emails;
 }
 
-function providerLabel(mail: Email) {
-    return mail.provider === 'outlook' ? 'Outlook' : 'Gmail';
+function providerLabel(mail: Email): string {
+    const p = mail.providers ?? (mail.provider ? [mail.provider] : ['gmail']);
+    if (p.length >= 2) return 'Gmail + Outlook';
+    return p[0] === 'outlook' ? 'Outlook' : 'Gmail';
+}
+
+function providerBadgeClass(mail: Email): string {
+    const p = mail.providers ?? (mail.provider ? [mail.provider] : ['gmail']);
+    if (p.length >= 2) return 'text-purple-500 dark:text-purple-300';
+    return p[0] === 'outlook' ? 'text-blue-400' : 'text-red-400';
 }
 
 export default function EmailWidget() {
@@ -38,11 +46,25 @@ export default function EmailWidget() {
         hasGoogleSync,
         hasMicrosoftSync,
     } = useEmails();
-    const canWeave = hasGoogleSync && hasMicrosoftSync;
+
     const visibleEmails = useMemo(
         () => pickEmails(view, emails, gmailEmails, outlookEmails),
         [emails, gmailEmails, outlookEmails, view],
     );
+
+    const viewNeedsConnect =
+        (view === 'gmail' && !hasGoogleSync) ||
+        (view === 'outlook' && !hasMicrosoftSync);
+
+    const TABS: { id: InboxWidgetView; label: string; active: boolean }[] = [
+        { id: 'gmail', label: 'Gmail', active: hasGoogleSync },
+        { id: 'outlook', label: 'Outlook', active: hasMicrosoftSync },
+        {
+            id: 'weave',
+            label: 'Weave',
+            active: hasGoogleSync || hasMicrosoftSync,
+        },
+    ];
 
     return (
         <WidgetShell
@@ -69,43 +91,27 @@ export default function EmailWidget() {
             ) : (
                 <div className="space-y-3">
                     <div className="flex items-center gap-1 rounded-lg bg-gray-50 p-1 dark:bg-zinc-800/70">
-                        {(['gmail', 'outlook'] as InboxWidgetView[]).map(
-                            (item) => {
-                                const connected =
-                                    item === 'gmail'
-                                        ? hasGoogleSync
-                                        : hasMicrosoftSync;
-                                return (
-                                    <button
-                                        key={item}
-                                        type="button"
-                                        disabled={!connected}
-                                        onClick={() => setView(item)}
-                                        className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold capitalize transition-colors ${
-                                            view === item
-                                                ? 'bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
-                                                : 'text-gray-400 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-500'
-                                        }`}
-                                    >
-                                        {item}
-                                    </button>
-                                );
-                            },
-                        )}
-                        <button
-                            type="button"
-                            disabled={!canWeave}
-                            onClick={() => setView('weave')}
-                            className={`rounded-md px-2 py-1 text-[10px] font-semibold transition-colors ${
-                                view === 'weave'
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 dark:text-blue-300'
-                            }`}
-                        >
-                            Weave
-                        </button>
+                        {TABS.map(({ id, label }) => (
+                            <button
+                                key={id}
+                                type="button"
+                                onClick={() => setView(id)}
+                                className={`flex-1 rounded-md px-2 py-1 text-[10px] font-semibold capitalize transition-colors ${
+                                    view === id
+                                        ? id === 'weave'
+                                            ? 'bg-blue-600 text-white shadow-sm'
+                                            : 'bg-white text-gray-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
+                                        : 'text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
                     </div>
-                    {visibleEmails.length > 0 ? (
+
+                    {viewNeedsConnect ? (
+                        <EmailConnectPrompt compact />
+                    ) : visibleEmails.length > 0 ? (
                         visibleEmails.slice(0, 3).map((mail) => (
                             <div
                                 key={mail.id}
@@ -123,7 +129,9 @@ export default function EmailWidget() {
                                         )}
                                 </div>
                                 {view === 'weave' && (
-                                    <p className="mb-0.5 text-[9px] font-semibold uppercase tracking-wide text-blue-400">
+                                    <p
+                                        className={`mb-0.5 text-[9px] font-semibold uppercase tracking-wide ${providerBadgeClass(mail)}`}
+                                    >
                                         {providerLabel(mail)}
                                     </p>
                                 )}

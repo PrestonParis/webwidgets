@@ -3,7 +3,7 @@
 import { TRACKING_ACTIONS } from '@/features/tracking/actions/trackingActions';
 import { buildTrackingAutomationRules } from '@/features/tracking/lib/trackingAutomations';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 interface TrackingAutomationPanelProps {
     entries: TrackingEntry[];

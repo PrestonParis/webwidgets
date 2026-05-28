@@ -119,7 +119,7 @@ function KeyRow({
 }
 
 export function ApiKeyConfigPanel() {
-    const { savedProviders, saving, hasKey, save, remove } = useModelKeys();
+    const { saving, hasKey, save, remove } = useModelKeys();
 
     return (
         <div className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">

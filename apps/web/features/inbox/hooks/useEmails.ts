@@ -20,6 +20,7 @@ const emailSchema = z.object({
 const inboxResponseSchema = z.object({
     emails: z.array(emailSchema).default([]),
     nextPageToken: z.string().nullable().optional(),
+    syncing: z.boolean().optional(),
 });
 
 const CACHE_TTL = 5 * 60 * 1000;
@@ -33,16 +34,52 @@ interface EmailsCache {
 let gmailCache: EmailsCache | null = null;
 let outlookCache: EmailsCache | null = null;
 
+function normalizeSubject(s: string): string {
+    return s
+        .replace(/^(re|fwd?|fw):\s*/i, '')
+        .trim()
+        .toLowerCase();
+}
+
+function senderKey(sender: string): string {
+    const match = /<([^>]+)>/.exec(sender);
+    return (match ? match[1] : sender).toLowerCase().trim();
+}
+
+function isCrossProviderDuplicate(a: Email, b: Email): boolean {
+    if (normalizeSubject(a.subject) !== normalizeSubject(b.subject))
+        return false;
+    if (senderKey(a.sender) !== senderKey(b.sender)) return false;
+    const diff = Math.abs(
+        new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+    return diff < 5 * 60 * 1000;
+}
+
 function mergeEmails(gmail: Email[], outlook: Email[]): Email[] {
-    const seen = new Set<string>();
-    const merged: Email[] = [];
-    for (const e of [...gmail, ...outlook]) {
-        if (!seen.has(e.id)) {
-            seen.add(e.id);
-            merged.push(e);
+    const matchedOutlookIds = new Set<string>();
+    const result: Email[] = [];
+
+    for (const g of gmail) {
+        const dup = outlook.find(
+            (o) =>
+                !matchedOutlookIds.has(o.id) && isCrossProviderDuplicate(g, o),
+        );
+        if (dup) {
+            matchedOutlookIds.add(dup.id);
+            result.push({ ...g, providers: ['gmail', 'outlook'] });
+        } else {
+            result.push({ ...g, providers: ['gmail'] });
         }
     }
-    return merged.sort(
+
+    for (const o of outlook) {
+        if (!matchedOutlookIds.has(o.id)) {
+            result.push({ ...o, providers: ['outlook'] });
+        }
+    }
+
+    return result.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
 }
@@ -83,25 +120,27 @@ async function persistClassification(
     sender: string,
     subject: string,
 ) {
-    await supabase
-        .from('email_classifications')
-        .upsert(
-            {
-                user_id: userId,
-                email_id,
-                category,
-                sender,
-                subject,
-                is_manual: true,
-            },
-            { onConflict: 'user_id,email_id' },
-        );
+    await supabase.from('email_classifications').upsert(
+        {
+            user_id: userId,
+            email_id,
+            category,
+            sender,
+            subject,
+            is_manual: true,
+        },
+        { onConflict: 'user_id,email_id' },
+    );
 }
 
 async function fetchProviderPage(
     provider: 'gmail' | 'outlook',
     token?: string,
-): Promise<{ emails: Email[]; nextPageToken: string | null } | null> {
+): Promise<{
+    emails: Email[];
+    nextPageToken: string | null;
+    syncing: boolean;
+} | null> {
     const base =
         provider === 'gmail' ? '/api/gmail/inbox' : '/api/outlook/inbox';
     const url = token ? `${base}?pageToken=${token}` : base;
@@ -111,6 +150,7 @@ async function fetchProviderPage(
     const parsed = inboxResponseSchema.safeParse(await res.json());
     if (!parsed.success) throw new Error(`Invalid ${provider} inbox response`);
     const data = parsed.data;
+    if (data.syncing) return { emails: [], nextPageToken: null, syncing: true };
     const providerEmails = data.emails.map((email) => ({
         ...email,
         provider,
@@ -124,6 +164,7 @@ async function fetchProviderPage(
             ...providerEmails.filter((e) => !existingIds.has(e.id)),
         ],
         nextPageToken: data.nextPageToken ?? null,
+        syncing: false,
     };
 }
 
@@ -143,13 +184,17 @@ export function useEmails() {
         () => gmailCache?.nextPageToken ?? null,
     );
     const [loading, setLoading] = useState(false);
+    const [syncing, setSyncing] = useState(false);
     const [isUnauthorized, setIsUnauthorized] = useState(false);
     const inflightKey = useRef<string | null>(null);
 
     useEffect(() => {
-        if (!connectionLoading) {
-            setIsUnauthorized(!hasAny);
-        }
+        const timeoutId = window.setTimeout(() => {
+            if (!connectionLoading) {
+                setIsUnauthorized(!hasAny);
+            }
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [hasAny, connectionLoading]);
 
     useEffect(() => {
@@ -167,12 +212,18 @@ export function useEmails() {
             try {
                 const fetches: Promise<void>[] = [];
 
+                let anySyncing = false;
+
                 if (hasGmail) {
                     fetches.push(
                         fetchProviderPage('gmail', gmailToken)
                             .then((result) => {
                                 if (!result) {
                                     setIsUnauthorized(!hasMicrosoft);
+                                    return;
+                                }
+                                if (result.syncing) {
+                                    anySyncing = true;
                                     return;
                                 }
                                 gmailCache = {
@@ -191,6 +242,10 @@ export function useEmails() {
                         fetchProviderPage('outlook')
                             .then((result) => {
                                 if (!result) return;
+                                if (result.syncing) {
+                                    anySyncing = true;
+                                    return;
+                                }
                                 outlookCache = {
                                     emails: result.emails,
                                     nextPageToken: null,
@@ -202,6 +257,7 @@ export function useEmails() {
                 }
 
                 await Promise.all(fetches);
+                setSyncing(anySyncing);
                 setEmails(
                     mergeEmails(
                         gmailCache?.emails ?? [],
@@ -239,6 +295,13 @@ export function useEmails() {
         connectionLoading,
     ]);
 
+    // Poll every 8s while the sync worker is populating email_snapshots.
+    useEffect(() => {
+        if (!syncing || !user || !hasAny) return;
+        const id = window.setInterval(() => void loadEmails(), 8_000);
+        return () => window.clearInterval(id);
+    }, [syncing, user, hasAny, loadEmails]);
+
     const handleManualClassify = async (
         email_id: string,
         category: string,
@@ -263,6 +326,7 @@ export function useEmails() {
         outlookEmails: outlookCache?.emails ?? [],
         nextPageToken,
         loading: loading || connectionLoading,
+        syncing,
         isUnauthorized: !connectionLoading && !hasAny,
         hasGoogleSync: hasGmail,
         hasMicrosoftSync: hasMicrosoft,

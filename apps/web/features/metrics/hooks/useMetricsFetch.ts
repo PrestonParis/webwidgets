@@ -19,30 +19,38 @@ export function useMetricsFetch<T>(
     const [tick, setTick] = useState(0);
 
     const fetcherRef = useRef(fetcher);
-    fetcherRef.current = fetcher;
+
+    useEffect(() => {
+        fetcherRef.current = fetcher;
+    }, [fetcher]);
 
     const depsKey = JSON.stringify(deps);
 
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
-        setError(null);
+        const timeoutId = window.setTimeout(() => {
+            setLoading(true);
+            setError(null);
 
-        fetcherRef
-            .current()
-            .then((d) => {
-                if (!cancelled) setData(d);
-            })
-            .catch((e: unknown) => {
-                if (!cancelled)
-                    setError(e instanceof Error ? e.message : 'Unknown error');
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
-            });
+            fetcherRef
+                .current()
+                .then((d) => {
+                    if (!cancelled) setData(d);
+                })
+                .catch((e: unknown) => {
+                    if (!cancelled)
+                        setError(
+                            e instanceof Error ? e.message : 'Unknown error',
+                        );
+                })
+                .finally(() => {
+                    if (!cancelled) setLoading(false);
+                });
+        }, 0);
 
         return () => {
             cancelled = true;
+            window.clearTimeout(timeoutId);
         };
     }, [depsKey, tick]);
 

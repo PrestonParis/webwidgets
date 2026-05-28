@@ -84,7 +84,9 @@ export function HabitPage() {
                                 newEmoji={newEmoji}
                                 onNameChange={setNewName}
                                 onEmojiChange={setNewEmoji}
-                                onSubmit={handleSubmit}
+                                onSubmit={(event) => {
+                                    void handleSubmit(event);
+                                }}
                                 onCancel={handleCancel}
                             />
                         </div>

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
     normalizedViewDocumentSchema,
     viewExportRequestSchema,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
 import { planViewExport } from '@/features/view/exporters/exportRegistry';
 
 const bodySchema = z.object({

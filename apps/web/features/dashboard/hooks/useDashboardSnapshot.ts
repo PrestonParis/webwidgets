@@ -6,7 +6,6 @@ import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import type { ScreenSnapshot } from '@/features/widgets/types/snapshot';
 import {
     DASHBOARD_BOOTSTRAP_WIDGET_COUNT,
-    dashboardSnapshotWidgetKey,
     snapshotWidgets,
 } from '@/features/dashboard/lib/dashboardSnapshotBootstrap';
 
@@ -18,6 +17,7 @@ type SnapshotState = {
 };
 
 const SNAPSHOT_CACHE_TTL_MS = 10_000;
+const SNAPSHOT_DENSE_WIDGET_LIMIT = 12;
 const snapshotCache = new Map<
     string,
     { snapshot: ScreenSnapshot; expiresAt: number }
@@ -31,10 +31,21 @@ export function useDashboardSnapshot(
     const [snapshot, setSnapshot] = useState<ScreenSnapshot | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
-    const widgetKey = dashboardSnapshotWidgetKey(layout);
     const widgets = useMemo(
         () => snapshotWidgets(layout, DASHBOARD_BOOTSTRAP_WIDGET_COUNT),
-        [widgetKey, layout],
+        [layout],
+    );
+    const snapshotEnabled = useMemo(
+        () =>
+            enabled &&
+            layout.filter(
+                (widget) =>
+                    widget.visible &&
+                    widget.containerId === 'main' &&
+                    widget.unpresented !== true &&
+                    widget.type !== 'folder',
+            ).length <= SNAPSHOT_DENSE_WIDGET_LIMIT,
+        [enabled, layout],
     );
     const requestKey = useMemo(
         () => JSON.stringify(widgets.map((w) => `${w.id}:${w.type}`)),
@@ -42,7 +53,12 @@ export function useDashboardSnapshot(
     );
 
     const refresh = useCallback(async () => {
-        if (!enabled) return;
+        if (!snapshotEnabled) {
+            setSnapshot(null);
+            setLoading(false);
+            setError(false);
+            return;
+        }
         if (widgets.length === 0) {
             setSnapshot(null);
             setLoading(false);
@@ -95,10 +111,13 @@ export function useDashboardSnapshot(
         } finally {
             setLoading(false);
         }
-    }, [enabled, requestKey, widgets]);
+    }, [requestKey, snapshotEnabled, widgets]);
 
     useEffect(() => {
-        void refresh();
+        const timeoutId = window.setTimeout(() => {
+            void refresh();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [refresh]);
 
     return { snapshot, loading, error, refresh };

@@ -6,42 +6,14 @@
  * pure and deterministic — safe to unit test and to call from render via useMemo.
  */
 
+import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
+import type { NutritionGoalConfig } from './goalTypes';
+import type { MacroSplit } from './nutritionTypes';
 import type {
-    MealRecord,
-    MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
-import type { MacroSplit, NutritionGoalConfig } from './types';
-
-export interface ExtendedNutritionAnalytics {
-    todayTotals: DayTotals;
-    sevenDayAvgCalories: number | null;
-    sevenDayAvgProtein: number | null;
-    thirtyDayAvgCalories: number | null;
-    thirtyDayAvgProtein: number | null;
-    caloriesTrend: Trend;
-    proteinTrend: Trend;
-    macroSplit7d: MacroSplit;
-    goalHitRate7d: number | null;
-    proteinHitRate7d: number | null;
-    mealsPerDayAvg7d: number | null;
-    mostFrequentFoods: { name: string; count: number }[];
-    mostLoggedMealType: { type: MealType; count: number } | null;
-    underProteinDays7d: number;
-    skippedDays7d: number;
-    daysWithData7d: number;
-    totalDaysLogged: number;
-}
-
-export interface DayTotals {
-    calories: number;
-    proteinGrams: number;
-    carbsGrams: number;
-    fatGrams: number;
-    fiberGrams: number;
-    mealCount: number;
-}
-
-export type Trend = 'up' | 'down' | 'stable' | null;
+    DayTotals,
+    ExtendedNutritionAnalytics,
+    Trend,
+} from './analyticsTypes';
 
 // ─── date helpers ───────────────────────────────────────────────────────────
 
@@ -95,60 +67,26 @@ export function dayTotals(records: MealRecord[], date: string): DayTotals {
 
 // ─── main analytics ─────────────────────────────────────────────────────────
 
-export function computeExtendedAnalytics(
+function calculatePerDayNutrients(
+    records: MealRecord[],
+    dates: string[],
+    field: 'calories' | 'proteinGrams',
+): number[] {
+    return dates
+        .map((d) =>
+            sumField(
+                records.filter((r) => r.date === d),
+                field,
+            ),
+        )
+        .filter((v) => v > 0);
+}
+
+function calculateGoalHitRates(
+    daysWithData: string[],
     records: MealRecord[],
     goals: NutritionGoalConfig,
-    now = new Date(),
-): ExtendedNutritionAnalytics {
-    const today = dayKey(0, now);
-    const last7 = dateRange(dayKey(-6, now), today);
-    const prior7 = dateRange(dayKey(-13, now), dayKey(-7, now));
-    const last30 = dateRange(dayKey(-29, now), today);
-
-    const perDayCalories = (dates: string[]): number[] =>
-        dates
-            .map((d) =>
-                sumField(
-                    records.filter((r) => r.date === d),
-                    'calories',
-                ),
-            )
-            .filter((v) => v > 0);
-    const perDayProtein = (dates: string[]): number[] =>
-        dates
-            .map((d) =>
-                sumField(
-                    records.filter((r) => r.date === d),
-                    'proteinGrams',
-                ),
-            )
-            .filter((v) => v > 0);
-
-    const last7Cal = perDayCalories(last7);
-    const last7Pro = perDayProtein(last7);
-    const prior7Cal = perDayCalories(prior7);
-    const prior7Pro = perDayProtein(prior7);
-
-    const sevenDayAvgCalories = avg(last7Cal);
-    const sevenDayAvgProtein = avg(last7Pro);
-    const thirtyDayAvgCalories = avg(perDayCalories(last30));
-    const thirtyDayAvgProtein = avg(perDayProtein(last30));
-
-    const caloriesTrend = trend(avg(last7Cal), avg(prior7Cal), 50);
-    const proteinTrend = trend(avg(last7Pro), avg(prior7Pro), 5);
-
-    // 7-day macro split
-    const last7Records = records.filter(
-        (r) => r.date >= last7[0]! && r.date <= today,
-    );
-    const macroSplit7d = computeMacroSplitFromRecords(last7Records);
-
-    // days with any data
-    const daysWithData = last7.filter((d) => records.some((r) => r.date === d));
-    const daysWithData7d = daysWithData.length;
-    const skippedDays7d = last7.length - daysWithData7d;
-
-    // goal hit rates over days-with-data
+): { goalHitRate7d: number | null; proteinHitRate7d: number | null } {
     const goalHitRate7d = rate(daysWithData, (d) => {
         if (!goals.calorieTarget && !goals.calorieMax) return null;
         const cal = sumField(
@@ -169,33 +107,86 @@ export function computeExtendedAnalytics(
         if (pro <= 0) return null;
         return pro >= goals.proteinMin;
     });
+    return { goalHitRate7d, proteinHitRate7d };
+}
 
-    const underProteinDays7d = goals.proteinMin
-        ? daysWithData.filter((d) => {
-              const pro = sumField(
-                  records.filter((r) => r.date === d),
-                  'proteinGrams',
-              );
-              return pro > 0 && pro < goals.proteinMin!;
-          }).length
-        : 0;
+function calculateUnderProteinDays(
+    daysWithData: string[],
+    records: MealRecord[],
+    proteinMin: number | null,
+): number {
+    if (!proteinMin) return 0;
+    return daysWithData.filter((d) => {
+        const pro = sumField(
+            records.filter((r) => r.date === d),
+            'proteinGrams',
+        );
+        return pro > 0 && pro < proteinMin;
+    }).length;
+}
 
-    // meals per day average (over days with data)
-    const mealsPerDayAvg7d =
-        daysWithData7d > 0
-            ? avg(
-                  daysWithData.map(
-                      (d) => records.filter((r) => r.date === d).length,
-                  ),
-              )
-            : null;
+function calculateMealsPerDayAvg(
+    daysWithData: string[],
+    records: MealRecord[],
+): number | null {
+    if (daysWithData.length === 0) return null;
+    return avg(
+        daysWithData.map((d) => records.filter((r) => r.date === d).length),
+    );
+}
 
-    // most frequent foods (by title)
+export function computeExtendedAnalytics(
+    records: MealRecord[],
+    goals: NutritionGoalConfig,
+    now = new Date(),
+): ExtendedNutritionAnalytics {
+    const today = dayKey(0, now);
+    const last7 = dateRange(dayKey(-6, now), today);
+    const prior7 = dateRange(dayKey(-13, now), dayKey(-7, now));
+    const last30 = dateRange(dayKey(-29, now), today);
+
+    const last7Cal = calculatePerDayNutrients(records, last7, 'calories');
+    const last7Pro = calculatePerDayNutrients(records, last7, 'proteinGrams');
+    const prior7Cal = calculatePerDayNutrients(records, prior7, 'calories');
+    const prior7Pro = calculatePerDayNutrients(records, prior7, 'proteinGrams');
+
+    const sevenDayAvgCalories = avg(last7Cal);
+    const sevenDayAvgProtein = avg(last7Pro);
+    const thirtyDayAvgCalories = avg(
+        calculatePerDayNutrients(records, last30, 'calories'),
+    );
+    const thirtyDayAvgProtein = avg(
+        calculatePerDayNutrients(records, last30, 'proteinGrams'),
+    );
+
+    const caloriesTrend = trend(avg(last7Cal), avg(prior7Cal), 50);
+    const proteinTrend = trend(avg(last7Pro), avg(prior7Pro), 5);
+
+    const last7Records = records.filter(
+        (r) => r.date >= last7[0]! && r.date <= today,
+    );
+    const macroSplit7d = computeMacroSplitFromRecords(last7Records);
+
+    const daysWithData = last7.filter((d) => records.some((r) => r.date === d));
+    const daysWithData7d = daysWithData.length;
+    const skippedDays7d = last7.length - daysWithData7d;
+
+    const { goalHitRate7d, proteinHitRate7d } = calculateGoalHitRates(
+        daysWithData,
+        records,
+        goals,
+    );
+
+    const underProteinDays7d = calculateUnderProteinDays(
+        daysWithData,
+        records,
+        goals.proteinMin,
+    );
+
+    const mealsPerDayAvg7d = calculateMealsPerDayAvg(daysWithData, records);
+
     const mostFrequentFoods = topFoods(records, 5);
-
-    // most logged meal type (all-time)
     const mostLoggedMealType = topMealType(records);
-
     const totalDaysLogged = new Set(records.map((r) => r.date)).size;
 
     return {

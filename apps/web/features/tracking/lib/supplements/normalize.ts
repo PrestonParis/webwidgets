@@ -1,97 +1,19 @@
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 import type { Supplement as StoredSupplement } from '@/features/tracking/types/supplement';
+import type { DoseStatus, OutcomeTarget, SupplementForm } from './baseTypes';
+import type { SupplementDefinition } from './definitionTypes';
+import type { SupplementSchedule } from './scheduleTypes';
 import type {
-    DietaryFlags,
-    DoseStatus,
-    Ingredient,
-    SupplementDefinition,
     EffectivenessCheckIn,
-    OutcomeTarget,
-    SupplementForm,
-    SupplementInventory,
     SupplementLog,
-    SupplementSchedule,
     SideEffectLog,
-} from './types';
+} from './logTypes';
+import { str, num, list, ingredients, dietaryFlags } from './readers';
+import { normalizeInventory, decrementInventory } from './inventory';
 
-function str(value: unknown): string | undefined {
-    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
+export { decrementInventory };
 
-function num(value: unknown): number | undefined {
-    if (typeof value === 'number' && Number.isFinite(value)) return value;
-    if (typeof value === 'string' && value.trim()) {
-        const parsed = Number(value);
-        if (Number.isFinite(parsed)) return parsed;
-    }
-    return undefined;
-}
-
-function bool(value: unknown): boolean | undefined {
-    return typeof value === 'boolean' ? value : undefined;
-}
-
-function list(value: unknown): string[] {
-    if (Array.isArray(value)) {
-        return value
-            .filter(
-                (item): item is string =>
-                    typeof item === 'string' && item.trim() !== '',
-            )
-            .map((item) => item.trim());
-    }
-    if (typeof value === 'string' && value.trim()) {
-        return value
-            .split(/[,;]/)
-            .map((item) => item.trim())
-            .filter(Boolean);
-    }
-    return [];
-}
-
-function ingredients(value: unknown, active: boolean): Ingredient[] {
-    if (Array.isArray(value)) {
-        return value
-            .map((item) => {
-                if (typeof item === 'string') return { name: item, active };
-                if (item && typeof item === 'object') {
-                    const record = item as Record<string, unknown>;
-                    const name = str(record['name']);
-                    if (!name) return null;
-                    const ingredient: Ingredient = { name, active };
-                    const amount = num(record['amount']);
-                    const unit = str(record['unit']);
-                    if (amount !== undefined) ingredient.amount = amount;
-                    if (unit !== undefined) ingredient.unit = unit;
-                    return ingredient;
-                }
-                return null;
-            })
-            .filter((item): item is Ingredient => item !== null);
-    }
-    return list(value).map((name) => ({ name, active }));
-}
-
-function dietaryFlags(meta: Record<string, unknown>): DietaryFlags {
-    const flags: DietaryFlags = {};
-    const vegan = bool(meta['vegan']);
-    const vegetarian = bool(meta['vegetarian']);
-    const glutenFree = bool(meta['glutenFree']);
-    const dairyFree = bool(meta['dairyFree']);
-    const soyFree = bool(meta['soyFree']);
-    const nutFree = bool(meta['nutFree']);
-    const shellfishFree = bool(meta['shellfishFree']);
-    if (vegan !== undefined) flags.vegan = vegan;
-    if (vegetarian !== undefined) flags.vegetarian = vegetarian;
-    if (glutenFree !== undefined) flags.glutenFree = glutenFree;
-    if (dairyFree !== undefined) flags.dairyFree = dairyFree;
-    if (soyFree !== undefined) flags.soyFree = soyFree;
-    if (nutFree !== undefined) flags.nutFree = nutFree;
-    if (shellfishFree !== undefined) flags.shellfishFree = shellfishFree;
-    return flags;
-}
-
-export function defaultSchedule(time = '08:00'): SupplementSchedule {
+function defaultSchedule(time = '08:00'): SupplementSchedule {
     return {
         frequency: 'daily',
         times: [time],
@@ -197,37 +119,6 @@ export function normalizeSupplementDefinitions(
     );
 }
 
-export function normalizeInventory(
-    meta: Record<string, unknown>,
-): SupplementInventory | null {
-    const quantityRemaining = num(meta['quantityRemaining']);
-    const dosesRemaining = num(meta['dosesRemaining']);
-    if (quantityRemaining === undefined && dosesRemaining === undefined)
-        return null;
-    const inventory: SupplementInventory = {
-        quantityRemaining: quantityRemaining ?? dosesRemaining ?? 0,
-        dosesRemaining: dosesRemaining ?? quantityRemaining ?? 0,
-        reorderThreshold: num(meta['reorderThreshold']) ?? 7,
-        adjustmentHistory: Array.isArray(meta['adjustmentHistory'])
-            ? (meta[
-                  'adjustmentHistory'
-              ] as SupplementInventory['adjustmentHistory'])
-            : [],
-    };
-    const doseSize = num(meta['doseSize']);
-    const expirationDate = str(meta['expirationDate']);
-    const storageLocation = str(meta['storageLocation']);
-    const supplier = str(meta['supplier']);
-    const cost = num(meta['cost']);
-    if (doseSize !== undefined) inventory.doseSize = doseSize;
-    if (expirationDate !== undefined) inventory.expirationDate = expirationDate;
-    if (storageLocation !== undefined)
-        inventory.storageLocation = storageLocation;
-    if (supplier !== undefined) inventory.supplier = supplier;
-    if (cost !== undefined) inventory.cost = cost;
-    return inventory;
-}
-
 export function normalizeSupplementLog(
     entry: TrackingEntry,
 ): SupplementLog | null {
@@ -323,30 +214,4 @@ export function normalizeSupplementLogs(
                 b.date.localeCompare(a.date) ||
                 (b.time ?? '').localeCompare(a.time ?? ''),
         );
-}
-
-export function decrementInventory(
-    definition: SupplementDefinition,
-    doses = 1,
-): SupplementInventory | null {
-    if (!definition.inventory) return null;
-    return {
-        ...definition.inventory,
-        quantityRemaining: Math.max(
-            0,
-            definition.inventory.quantityRemaining - doses,
-        ),
-        dosesRemaining: Math.max(
-            0,
-            definition.inventory.dosesRemaining - doses,
-        ),
-        adjustmentHistory: [
-            ...definition.inventory.adjustmentHistory,
-            {
-                date: new Date().toISOString(),
-                delta: -doses,
-                reason: 'Dose marked taken',
-            },
-        ],
-    };
 }

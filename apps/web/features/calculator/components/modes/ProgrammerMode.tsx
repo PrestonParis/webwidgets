@@ -32,10 +32,6 @@ function toBase(n: number, base: ProgrammerBase): string {
     }
 }
 
-function fromBase(s: string, base: ProgrammerBase): number {
-    return parseInt(s, base);
-}
-
 function parseInput(s: string, base: ProgrammerBase): number | null {
     if (!s) return null;
     const n = parseInt(s.replace(/\s/g, ''), base);
@@ -178,7 +174,7 @@ export function ProgrammerMode({ calc }: ProgrammerModeProps) {
                         value={inputValue}
                         onChange={(e) => {
                             const v = e.target.value.toUpperCase();
-                            if (allowedChars[inputBase]!.test(v)) {
+                            if (allowedChars[inputBase].test(v)) {
                                 setInputValue(v);
                                 const n = parseInput(v, inputBase);
                                 if (n !== null) calc.pushExpr(n.toString());

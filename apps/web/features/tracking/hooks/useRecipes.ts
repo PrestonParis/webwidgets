@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { localRecipeStore } from '@/features/tracking/lib/meal/nutrition/recipeStore';
 import type {
     RecipeDraft,
     RecipeRecord,
-} from '@/features/tracking/lib/meal/nutrition/types';
+} from '@/features/tracking/lib/meal/nutrition/recipeTypes';
 
 export function useRecipes(): {
     recipes: RecipeRecord[];
@@ -14,15 +14,13 @@ export function useRecipes(): {
     remove: (id: string) => void;
     reload: () => void;
 } {
-    const [recipes, setRecipes] = useState<RecipeRecord[]>([]);
+    const [recipes, setRecipes] = useState<RecipeRecord[]>(() =>
+        localRecipeStore.list(),
+    );
 
     const reload = useCallback(() => {
         setRecipes(localRecipeStore.list());
     }, []);
-
-    useEffect(() => {
-        reload();
-    }, [reload]);
 
     const create = useCallback(
         (draft: RecipeDraft) => {

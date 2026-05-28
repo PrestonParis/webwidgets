@@ -8,7 +8,9 @@ import { useCommandPalette } from '../store/useCommandPalette';
 import { WIDGET_CATALOG, type WidgetEntry } from '../lib/widgetCatalog';
 import type { NlpSuggestion } from '../hooks/useSearch';
 import type { FolderEntry } from '../store/useFolderRegistry';
-import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import { cn } from '@/lib/utils/utils';
+import { getWidgetCategory } from '@/features/dashboard/components/addWidgetConstants';
+import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 
 function widgetEmoji(type: string): string {
     return WIDGET_CATALOG.find((w) => w.type === type)?.emoji ?? '🧩';
@@ -102,24 +104,41 @@ function WidgetMatches({
     return (
         <section>
             <SectionTitle>Widgets</SectionTitle>
-            {widgets.map((w) => (
-                <Link
-                    key={w.type}
-                    href={w.href}
-                    onClick={onSelect}
-                    className="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                    <span className="text-base leading-none">{w.emoji}</span>
-                    <div className="min-w-0">
-                        <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                            {w.name}
-                        </p>
-                        <p className="text-xs text-zinc-400 truncate">
-                            {w.description}
-                        </p>
-                    </div>
-                </Link>
-            ))}
+            {widgets.map((w) => {
+                const category = getWidgetCategory(w.type);
+                return (
+                    <Link
+                        key={w.type}
+                        href={w.href}
+                        onClick={onSelect}
+                        className="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                        <span className="text-base leading-none">
+                            {w.emoji}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                                <p className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                                    {w.name}
+                                </p>
+                                {category && (
+                                    <span
+                                        className={cn(
+                                            'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold',
+                                            category.color.chip,
+                                        )}
+                                    >
+                                        {category.label}
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-zinc-400 truncate">
+                                {w.description}
+                            </p>
+                        </div>
+                    </Link>
+                );
+            })}
         </section>
     );
 }
@@ -163,24 +182,54 @@ function NlpMatches({
         <section>
             <SectionTitle>Suggested for you</SectionTitle>
             {suggestions.map((s) => (
-                <Link
+                <NlpMatchRow
                     key={s.widget}
-                    href={widgetHref(s.widget)}
-                    onClick={onSelect}
-                    className="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                    <span className="text-base leading-none">
-                        {widgetEmoji(s.widget)}
-                    </span>
-                    <p className="flex-1 min-w-0 text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                        {widgetName(s.widget)}
-                    </p>
-                    <span className="text-[10px] text-zinc-400 shrink-0">
-                        {Math.round(s.confidence * 100)}% match
-                    </span>
-                </Link>
+                    suggestion={s}
+                    onSelect={onSelect}
+                />
             ))}
         </section>
+    );
+}
+
+function NlpMatchRow({
+    suggestion,
+    onSelect,
+}: {
+    suggestion: NlpSuggestion;
+    onSelect: () => void;
+}) {
+    const category = getWidgetCategory(suggestion.widget);
+    return (
+        <Link
+            href={widgetHref(suggestion.widget)}
+            onClick={onSelect}
+            className="flex items-center gap-2.5 px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+        >
+            <span className="text-base leading-none">
+                {widgetEmoji(suggestion.widget)}
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                        {widgetName(suggestion.widget)}
+                    </p>
+                    {category && (
+                        <span
+                            className={cn(
+                                'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold',
+                                category.color.chip,
+                            )}
+                        >
+                            {category.label}
+                        </span>
+                    )}
+                </div>
+            </div>
+            <span className="text-[10px] text-zinc-400 shrink-0">
+                {Math.round(suggestion.confidence * 100)}% match
+            </span>
+        </Link>
     );
 }
 

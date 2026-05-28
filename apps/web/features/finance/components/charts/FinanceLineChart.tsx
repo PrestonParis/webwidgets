@@ -186,9 +186,11 @@ export function FinanceLineChart({
         }
 
         // Hover bisect
-        const bisect = d3.bisector<NetWorthSnapshot, Date>(
+        const bisector = d3.bisector<NetWorthSnapshot, Date>(
             (d) => new Date(d.date),
-        ).center;
+        );
+        const bisect = (items: NetWorthSnapshot[], date: Date) =>
+            bisector.center(items, date);
         const container = containerRef.current;
 
         g.append('rect')

@@ -5,11 +5,8 @@ import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import { getCategoryLabel } from '@/features/tracking/constants';
 import type { GoalTargetType } from '@/features/tracking/types/goals';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import {
-    describeFitnessGoal,
-    parseFitnessGoal,
-} from '@/features/tracking/lib/fitness/goals';
-import type { FitnessGoalType } from '@/features/tracking/lib/fitness/types';
+import { describeFitnessGoal } from '@/features/tracking/lib/fitness/goals';
+import type { FitnessGoalType } from '@/features/tracking/lib/fitness/goalTypes';
 
 const GOAL_PRESETS: Record<
     string,
@@ -36,6 +33,25 @@ const GOAL_PRESETS: Record<
     supplement: { targetType: 'daily_log', targetValue: 1, label: 'log daily' },
 };
 
+const FITNESS_GOAL_TYPES: ReadonlySet<string> = new Set([
+    'workouts_per_week',
+    'strength_volume',
+    'exercise_strength',
+    'cardio_distance',
+    'cardio_duration',
+    'calories_burned',
+    'mobility_minutes',
+    'active_days',
+    'muscle_frequency',
+]);
+
+function readFitnessGoalType(metricKey: string | undefined): FitnessGoalType {
+    if (metricKey && FITNESS_GOAL_TYPES.has(metricKey)) {
+        return metricKey as FitnessGoalType;
+    }
+    return 'workouts_per_week';
+}
+
 interface GoalSettingsPanelProps {
     category: string;
     customDefs?: CustomCategoryDef[];
@@ -58,18 +74,21 @@ export function GoalSettingsPanel({
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (goal) {
-            setTargetType(goal.targetType);
-            setMetricKey(goal.metricKey ?? '');
-            setTargetValue(goal.targetValue);
-            if (category === 'workout')
-                setFitnessType(parseFitnessGoal(goal).type);
-        } else if (preset) {
-            setTargetType(preset.targetType);
-            setMetricKey(preset.metricKey ?? '');
-            setTargetValue(preset.targetValue);
-        }
-    }, [goal, preset]);
+        const timeoutId = window.setTimeout(() => {
+            if (goal) {
+                setTargetType(goal.targetType);
+                setMetricKey(goal.metricKey ?? '');
+                setTargetValue(goal.targetValue);
+                if (category === 'workout')
+                    setFitnessType(readFitnessGoalType(goal.metricKey));
+            } else if (preset) {
+                setTargetType(preset.targetType);
+                setMetricKey(preset.metricKey ?? '');
+                setTargetValue(preset.targetValue);
+            }
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
+    }, [category, goal, preset]);
 
     const handleSave = async () => {
         setSaving(true);

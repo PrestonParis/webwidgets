@@ -1,7 +1,7 @@
 import type {
     NormalizedViewDocument,
     ViewLayer,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
 import type { ViewAnalysisResult } from '@/features/view/types/view';
 
 const ENTITY_PATTERN = /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g;

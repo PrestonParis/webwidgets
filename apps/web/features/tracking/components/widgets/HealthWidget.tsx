@@ -7,7 +7,6 @@ import {
     History,
     Import,
     PersonStanding,
-    Pill,
     Plus,
     Scale,
     Thermometer,
@@ -16,27 +15,27 @@ import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
-import HealthLogForm from '@/features/tracking/components/health/HealthLogForm';
-import AnatomicalBodyMap from '@/features/tracking/components/health/AnatomicalBodyMap';
-import BiometricChart from '@/features/tracking/components/health/BiometricChart';
-import { BodyIssuePanel } from '@/features/tracking/components/health/BodyIssuePanel';
+import HealthLogForm from '@/features/tracking/health/components/HealthLogForm';
+import AnatomicalBodyMap from '@/features/tracking/health/components/AnatomicalBodyMap';
+import BiometricChart from '@/features/tracking/health/components/BiometricChart';
+import { BodyIssuePanel } from '@/features/tracking/health/components/BodyIssuePanel';
 import {
     computeHealthAnalytics,
     getBiometricSeries,
     normalizeHealthEntries,
-} from '@/features/tracking/lib/health/analytics';
+} from '@/features/tracking/health/lib/analytics';
 import {
     computeWeightAnalytics,
     fmtWeight,
     normalizeWeightEntries,
-} from '@/features/tracking/lib/health/weightDomain';
-import { WeightLogForm } from '@/features/tracking/components/health/WeightLogForm';
+} from '@/features/tracking/health/lib/weightDomain';
+import { WeightLogForm } from '@/features/tracking/health/components/WeightLogForm';
 import { QuickActionButton } from '@/features/tracking/components/TrackingSurface';
-import { useInjuryLogs } from '@/features/tracking/hooks/useInjuryLogs';
-import { useBodyIssues } from '@/features/tracking/hooks/useBodyIssues';
-import type { BodyIssueDraft } from '@/features/tracking/lib/health/bodyIssues';
-import { getRegionLabel } from '@/features/tracking/lib/health/bodyRegions';
-import type { BiometricWindow } from '@/features/tracking/lib/health/types';
+import { useInjuryLogs } from '@/features/tracking/health/hooks/useInjuryLogs';
+import { useBodyIssues } from '@/features/tracking/health/hooks/useBodyIssues';
+import type { BodyIssueDraft } from '@/features/tracking/health/lib/bodyIssues';
+import { getRegionLabel } from '@/features/tracking/health/lib/bodyRegions';
+import type { BiometricWindow } from '@/features/tracking/health/lib/types';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 
 type ViewMode =

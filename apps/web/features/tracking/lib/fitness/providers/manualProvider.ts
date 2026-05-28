@@ -1,4 +1,5 @@
-import type { ExerciseEntry, WorkoutSession, WorkoutTemplate } from '../types';
+import type { ExerciseEntry, WorkoutSession } from '../types';
+import type { WorkoutTemplate } from '../templateTypes';
 import { calculateWorkoutTotals } from '../normalize';
 
 export function buildManualWorkout(input: {

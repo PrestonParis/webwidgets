@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type {
     ResearchSourceConfig,
     ResearchSourceKind,
@@ -35,13 +35,8 @@ function writeSources(value: StoredSources) {
 }
 
 export function useResearchSources() {
-    const [stored, setStored] = useState<StoredSources>({ sources: [] });
-    const [hasHydrated, setHasHydrated] = useState(false);
-
-    useEffect(() => {
-        setStored(readSources());
-        setHasHydrated(true);
-    }, []);
+    const [stored, setStored] = useState<StoredSources>(() => readSources());
+    const hasHydrated = true;
 
     const activeSource = useMemo(
         () =>

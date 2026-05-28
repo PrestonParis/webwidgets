@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import type { ContextPermissions } from '@/features/context/types/context';
 
@@ -53,21 +53,13 @@ function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
 }
 
 export function ContextPermissionsPanel() {
-    const [perms, setPerms] = useState<ContextPermissions>(DEFAULTS);
-    const [loaded, setLoaded] = useState(false);
-
-    useEffect(() => {
-        setPerms(loadPermissions());
-        setLoaded(true);
-    }, []);
+    const [perms, setPerms] = useState<ContextPermissions>(loadPermissions);
 
     const update = (key: keyof ContextPermissions, value: boolean) => {
         const next = { ...perms, [key]: value };
         setPerms(next);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     };
-
-    if (!loaded) return null;
 
     return (
         <div className="p-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-4">

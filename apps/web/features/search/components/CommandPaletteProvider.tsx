@@ -5,7 +5,7 @@ import { useCommandPalette } from '../store/useCommandPalette';
 import { CommandPalette } from './CommandPalette';
 
 export function CommandPaletteProvider({ children }: { children: ReactNode }) {
-    const { togglePalette, closePalette } = useCommandPalette();
+    const { togglePalette } = useCommandPalette();
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {

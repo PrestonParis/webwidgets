@@ -18,7 +18,7 @@ import { useFolderRegistry } from '@/features/search/store/useFolderRegistry';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 
 export function useDashboardLayout(trackers: Tracker[] | null) {
-    const { user, status } = useAuthContext();
+    const { user } = useAuthContext();
     const userId = user?.id ?? null;
     const safeTrackers = useMemo(() => trackers ?? [], [trackers]);
     const [layout, setLayout] = useState<WidgetConfig[]>([]);
@@ -37,7 +37,9 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
                 if (cached) {
                     const seenIds = readSeenTrackerIds(userId!);
-                    setLayout(reconcileLayout(cached, safeTrackers, sealed, seenIds));
+                    setLayout(
+                        reconcileLayout(cached, safeTrackers, sealed, seenIds),
+                    );
                     setReady(true);
                     showedCached = true;
                 }
@@ -59,7 +61,12 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
                 const seenTrackerIds = readSeenTrackerIds(userId!);
                 const finalLayout = source
-                    ? reconcileLayout(source, safeTrackers, sealed, seenTrackerIds)
+                    ? reconcileLayout(
+                          source,
+                          safeTrackers,
+                          sealed,
+                          seenTrackerIds,
+                      )
                     : buildDefaultLayout(safeTrackers);
 
                 // Mark all trackers as seen so future reconciles won't re-inject

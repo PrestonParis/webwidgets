@@ -5,7 +5,7 @@ import { getRequestUserId } from '@/features/backend/services/requestUser';
 import {
     deleteFinanceTransactionForUser,
     updateFinanceTransactionForUser,
-} from '@/features/finance/services/financeService';
+} from '@/features/finance/services/financeTransactionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 const patchSchema = z.object({

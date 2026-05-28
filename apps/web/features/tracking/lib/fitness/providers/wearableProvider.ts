@@ -5,14 +5,14 @@ function unavailable(id: string, label: string): WearableProvider {
         id,
         label,
         configured: false,
-        async syncStatus() {
-            return {
+        syncStatus() {
+            return Promise.resolve({
                 ok: false,
                 error: `${label} is not configured. Add provider credentials before syncing workouts.`,
-            };
+            });
         },
-        async fetchWorkouts() {
-            return [];
+        fetchWorkouts() {
+            return Promise.resolve([]);
         },
     };
 }

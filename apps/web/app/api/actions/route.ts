@@ -5,7 +5,7 @@ import {
     searchActionMetadata,
 } from '@/features/actions/registry/actionRegistry';
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
     const query = new URL(request.url).searchParams.get('query') ?? '';
     const actions = query.trim()
         ? searchActionMetadata(query)

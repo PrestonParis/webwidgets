@@ -1,4 +1,4 @@
-import type { EnrichedFeedItem } from '@/features/news/schemas/eventSchemas';
+import type { EnrichedFeedItem } from '@/features/news/schemas/eventTypes';
 import { rankFeedItems } from '@/features/news/ranking/rankFeedItems';
 
 const fixtureNow = new Date('2026-05-19T15:00:00.000Z');

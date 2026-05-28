@@ -19,6 +19,6 @@ export async function GET(): Promise<Response> {
 
     const health = await getSystemDataHealth();
     return NextResponse.json(health, {
-        status: health.status === 'ok' ? 200 : 503,
+        status: (health as { status: string }).status === 'ok' ? 200 : 503,
     });
 }

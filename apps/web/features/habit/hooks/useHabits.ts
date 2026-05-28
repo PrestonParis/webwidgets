@@ -53,6 +53,7 @@ function saveRecord<T>(key: string, record: Record<string, T>) {
 
 export function useHabits() {
     const { user } = useAuth();
+    const userId = user?.id;
     const [habits, setHabits] = useState<Habit[]>([]);
     const [completions, setCompletions] = useState<HabitCompletion[]>([]);
     const [loading, setLoading] = useState(true);
@@ -62,20 +63,23 @@ export function useHabits() {
     >({});
 
     useEffect(() => {
-        if (!user?.id) return;
-        const archiveKey = `habit_archived_${user.id}`;
-        const repeatKey = `habit_repeats_${user.id}`;
-        setArchivedIds(loadSet(archiveKey));
-        setRepeatConfigsState(loadRecord<RepeatConfig>(repeatKey));
-    }, [user?.id]);
+        if (!userId) return;
+        const timeoutId = window.setTimeout(() => {
+            const archiveKey = `habit_archived_${userId}`;
+            const repeatKey = `habit_repeats_${userId}`;
+            setArchivedIds(loadSet(archiveKey));
+            setRepeatConfigsState(loadRecord<RepeatConfig>(repeatKey));
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
+    }, [userId]);
 
     useEffect(() => {
-        if (!user?.id) return;
+        if (!userId) return;
         let cancelled = false;
 
         void (async () => {
             const thirtyDaysAgo = getThirtyDaysAgoIsoDate();
-            const res = await fetchHabitsAndCompletions(user.id, thirtyDaysAgo);
+            const res = await fetchHabitsAndCompletions(userId, thirtyDaysAgo);
 
             if (!cancelled) {
                 setHabits(res.habits);
@@ -87,7 +91,7 @@ export function useHabits() {
         return () => {
             cancelled = true;
         };
-    }, [user]);
+    }, [userId]);
 
     const {
         addHabit,
@@ -96,7 +100,7 @@ export function useHabits() {
         isCompletedToday,
         updateCompletionTime,
     } = useHabitActions({
-        userId: user?.id,
+        userId,
         completions,
         setHabits,
         setCompletions,
@@ -104,8 +108,8 @@ export function useHabits() {
 
     const archiveHabit = useCallback(
         (id: string) => {
-            if (!user?.id) return;
-            const key = `habit_archived_${user.id}`;
+            if (!userId) return;
+            const key = `habit_archived_${userId}`;
             setArchivedIds((prev) => {
                 const next = new Set(prev);
                 next.add(id);
@@ -113,13 +117,13 @@ export function useHabits() {
                 return next;
             });
         },
-        [user?.id],
+        [userId],
     );
 
     const unarchiveHabit = useCallback(
         (id: string) => {
-            if (!user?.id) return;
-            const key = `habit_archived_${user.id}`;
+            if (!userId) return;
+            const key = `habit_archived_${userId}`;
             setArchivedIds((prev) => {
                 const next = new Set(prev);
                 next.delete(id);
@@ -127,31 +131,31 @@ export function useHabits() {
                 return next;
             });
         },
-        [user?.id],
+        [userId],
     );
 
     const setRepeatConfig = useCallback(
         (habitId: string, config: RepeatConfig) => {
-            if (!user?.id) return;
-            const key = `habit_repeats_${user.id}`;
+            if (!userId) return;
+            const key = `habit_repeats_${userId}`;
             setRepeatConfigsState((prev) => {
                 const next = { ...prev, [habitId]: config };
                 saveRecord(key, next);
                 return next;
             });
         },
-        [user?.id],
+        [userId],
     );
 
     const importHabits = useCallback(
         async (names: string[]) => {
-            if (!user?.id) return [];
+            if (!userId) return [];
             const trimmed = names.map((n) => n.trim()).filter(Boolean);
             const created: Habit[] = [];
             for (const name of trimmed) {
                 const { data, error } = await supabase
                     .from('habits')
-                    .insert({ user_id: user.id, name, emoji: '✅' })
+                    .insert({ user_id: userId, name, emoji: '✅' })
                     .select('id, name, emoji, created_at')
                     .single();
                 if (!error && data) {
@@ -162,17 +166,17 @@ export function useHabits() {
             }
             return created;
         },
-        [user?.id],
+        [userId],
     );
 
     const getAllCompletions = useCallback(async () => {
-        if (!user?.id) return completions;
+        if (!userId) return completions;
         const { data } = await supabase
             .from('habit_completions')
             .select('id, habit_id, completed_date')
-            .eq('user_id', user.id);
+            .eq('user_id', userId);
         return (data ?? []) as HabitCompletion[];
-    }, [user?.id, completions]);
+    }, [userId, completions]);
 
     const getHabitStreak = useCallback(
         (habitId: string) => getStreak(habitId, completions),
@@ -219,7 +223,7 @@ export function useHabits() {
 
     const addCompletionForDate = useCallback(
         async (habitId: string, date: string) => {
-            if (!user?.id) return;
+            if (!userId) return;
             const existing = completions.find(
                 (c) =>
                     c.habit_id === habitId &&
@@ -230,7 +234,7 @@ export function useHabits() {
                     .from('habit_completions')
                     .insert({
                         habit_id: habitId,
-                        user_id: user.id,
+                        user_id: userId,
                         completed_date: date,
                     })
                     .select('id, habit_id, completed_date')
@@ -242,7 +246,7 @@ export function useHabits() {
                     ]);
             }
         },
-        [user?.id, completions],
+        [userId, completions],
     );
 
     return {

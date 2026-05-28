@@ -28,6 +28,48 @@ export async function confirmUpload(fileId: string): Promise<FileUpload> {
     return res.json() as Promise<FileUpload>;
 }
 
+export async function uploadFileContent(
+    fileId: string,
+    file: File,
+    onProgress?: (progress: number) => void,
+): Promise<FileUpload> {
+    const xhr = new XMLHttpRequest();
+    const upload = new Promise<FileUpload>((resolve, reject) => {
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                onProgress?.(Math.round((e.loaded / e.total) * 100));
+            }
+        });
+        xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                clearCachedJson('/api/uploads');
+                resolve(JSON.parse(xhr.responseText) as FileUpload);
+            } else {
+                try {
+                    const data = JSON.parse(xhr.responseText) as {
+                        error?: string;
+                    };
+                    reject(
+                        new Error(data.error ?? `Upload failed: ${xhr.status}`),
+                    );
+                } catch {
+                    reject(new Error(`Upload failed: ${xhr.status}`));
+                }
+            }
+        });
+        xhr.addEventListener('error', () =>
+            reject(new Error('Upload network error')),
+        );
+        xhr.open('PUT', `/api/uploads/${fileId}/content`);
+        xhr.setRequestHeader(
+            'Content-Type',
+            file.type || 'application/octet-stream',
+        );
+        xhr.send(file);
+    });
+    return upload;
+}
+
 export async function deleteUpload(fileId: string): Promise<void> {
     const res = await fetch(`/api/uploads/${fileId}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete file');

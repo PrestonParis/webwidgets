@@ -199,6 +199,14 @@ const manifests = [
         fallbackMode: 'skeleton',
     },
     {
+        id: 'employee-clock',
+        feature: 'timekeeping',
+        title: 'Employee Clock',
+        dataNeeds: [],
+        refreshPolicy: 'static',
+        fallbackMode: 'skeleton',
+    },
+    {
         id: 'chat',
         feature: 'chatbot',
         title: 'AI Chat',

@@ -35,7 +35,10 @@ export function useTrackingGoals(category?: string): {
     }, []);
 
     useEffect(() => {
-        void reload();
+        const timeoutId = window.setTimeout(() => {
+            void reload();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [reload]);
 
     const upsert = useCallback(

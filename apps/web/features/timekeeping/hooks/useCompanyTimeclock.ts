@@ -78,6 +78,8 @@ function mapEntry(row: TimeclockRow): TimeclockEntry {
 
 export function useCompanyTimeclock() {
     const { user } = useAuth();
+    const userId = user?.id ?? null;
+    const userEmail = user?.email ?? null;
     const [companies, setCompanies] = useState<Company[]>([]);
     const [memberships, setMemberships] = useState<CompanyMembership[]>([]);
     const [entries, setEntries] = useState<TimeclockEntry[]>([]);
@@ -100,10 +102,10 @@ export function useCompanyTimeclock() {
             memberships.find(
                 (membership) =>
                     membership.companyId === selectedCompanyId &&
-                    membership.userId === user?.id &&
+                    membership.userId === userId &&
                     membership.status === 'active',
             ) ?? null,
-        [memberships, selectedCompanyId, user?.id],
+        [memberships, selectedCompanyId, userId],
     );
 
     const activeEntry = useMemo(
@@ -111,10 +113,10 @@ export function useCompanyTimeclock() {
             entries.find(
                 (entry) =>
                     entry.companyId === selectedCompanyId &&
-                    entry.userId === user?.id &&
+                    entry.userId === userId &&
                     entry.clockOutAt === null,
             ) ?? null,
-        [entries, selectedCompanyId, user?.id],
+        [entries, selectedCompanyId, userId],
     );
 
     const companyEntries = useMemo(
@@ -133,7 +135,7 @@ export function useCompanyTimeclock() {
         currentMembership?.role === 'manager';
 
     const refetch = useCallback(async () => {
-        if (!user?.id) {
+        if (!userId) {
             setCompanies([]);
             setMemberships([]);
             setEntries([]);
@@ -145,13 +147,13 @@ export function useCompanyTimeclock() {
         setLoading(true);
         setError(null);
         try {
-            if (user.email) {
+            if (userEmail) {
                 await db
                     .from('company_memberships')
-                    .update({ user_id: user.id, status: 'active' })
+                    .update({ user_id: userId, status: 'active' })
                     .is('user_id', null)
                     .eq('status', 'invited')
-                    .ilike('email', user.email);
+                    .ilike('email', userEmail);
             }
 
             const [
@@ -209,34 +211,40 @@ export function useCompanyTimeclock() {
         } finally {
             setLoading(false);
         }
-    }, [selectedCompanyId, user?.id]);
+    }, [selectedCompanyId, userEmail, userId]);
 
     useEffect(() => {
-        void refetch();
+        const timeoutId = window.setTimeout(() => {
+            void refetch();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [refetch]);
 
     const createCompany = useCallback(
         async (name: string) => {
-            if (!user?.id) return;
+            if (!userId) return;
             const trimmed = name.trim();
             if (!trimmed) return;
             setSaving(true);
             setError(null);
             try {
-                const { data: companyRow, error: companyError } = await db
+                const companyResponse = await db
                     .from('companies')
-                    .insert({ name: trimmed, owner_id: user.id })
+                    .insert({ name: trimmed, owner_id: userId })
                     .select('*')
                     .single();
+                const { error: companyError } = companyResponse;
+                const companyRow =
+                    companyResponse.data as unknown as CompanyRow;
                 if (companyError) throw companyError;
-                const company = mapCompany(companyRow as CompanyRow);
+                const company = mapCompany(companyRow);
 
                 const { error: membershipError } = await db
                     .from('company_memberships')
                     .insert({
                         company_id: company.id,
-                        user_id: user.id,
-                        email: user.email ?? null,
+                        user_id: userId,
+                        email: userEmail,
                         role: 'owner',
                         status: 'active',
                     });
@@ -255,7 +263,7 @@ export function useCompanyTimeclock() {
                 setSaving(false);
             }
         },
-        [refetch, user?.email, user?.id],
+        [refetch, userEmail, userId],
     );
 
     const inviteMember = useCallback(
@@ -291,7 +299,7 @@ export function useCompanyTimeclock() {
 
     const clockIn = useCallback(
         async (notes?: string) => {
-            if (!selectedCompanyId || !user?.id || !currentMembership) return;
+            if (!selectedCompanyId || !userId || !currentMembership) return;
             setSaving(true);
             setError(null);
             try {
@@ -299,7 +307,7 @@ export function useCompanyTimeclock() {
                     .from('company_timeclock_entries')
                     .insert({
                         company_id: selectedCompanyId,
-                        user_id: user.id,
+                        user_id: userId,
                         notes: notes?.trim() || null,
                     });
                 if (clockError) throw clockError;
@@ -312,7 +320,7 @@ export function useCompanyTimeclock() {
                 setSaving(false);
             }
         },
-        [currentMembership, refetch, selectedCompanyId, user?.id],
+        [currentMembership, refetch, selectedCompanyId, userId],
     );
 
     const clockOut = useCallback(async () => {

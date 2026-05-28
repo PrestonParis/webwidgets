@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { DEFAULT_INSIGHT_CONSENT } from '@/features/tracking/types/insights';
 import type { InsightConsent } from '@/features/tracking/types/insights';
 
@@ -24,13 +24,7 @@ export function useInsightConsent(): {
     updateConsent: (updates: Partial<InsightConsent>) => void;
     anyConsentGranted: boolean;
 } {
-    const [consent, setConsent] = useState<InsightConsent>({
-        ...DEFAULT_INSIGHT_CONSENT,
-    });
-
-    useEffect(() => {
-        setConsent(loadConsent());
-    }, []);
+    const [consent, setConsent] = useState<InsightConsent>(() => loadConsent());
 
     const updateConsent = useCallback((updates: Partial<InsightConsent>) => {
         setConsent((prev) => {

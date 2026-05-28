@@ -1,9 +1,11 @@
 import type {
     SynthesizedWidgetDefinition,
+    SynthesizedPermissionDef,
+} from './widgetDefinitionInterfaces';
+import type {
     AssembledWidget,
     WidgetPreviewState,
-    SynthesizedPermissionDef,
-} from './widgetDefinitionSchema';
+} from './widgetBuilderInterfaces';
 import { getComponent, COMPONENT_REGISTRY } from './componentRegistry';
 import { getDataSource, DATA_SOURCE_REGISTRY } from './dataSourceRegistry';
 import { getAction } from './actionRegistry';

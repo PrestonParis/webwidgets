@@ -1,9 +1,9 @@
 import type {
     ExerciseDefinition,
     ExerciseSearchFilters,
-    ImportPreview,
     WorkoutSession,
 } from '../types';
+import type { ImportPreview } from '../importTypes';
 
 export interface ExerciseLibraryProvider {
     id: string;

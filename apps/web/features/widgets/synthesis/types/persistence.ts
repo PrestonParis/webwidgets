@@ -1,4 +1,4 @@
-import type { WidgetPersistenceRecord } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { WidgetPersistenceRecord } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 
 export type WidgetTemplateKind = WidgetPersistenceRecord['kind'];
 

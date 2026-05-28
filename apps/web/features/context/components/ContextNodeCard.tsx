@@ -1,6 +1,6 @@
 'use client';
 
-import type { ContextNode } from '@/features/context/types/context';
+import type { ContextNodeCardProps } from '@/features/context/types/context';
 import { NODE_COLORS, NODE_SIZES } from '@/features/context/lib/graphBuilder';
 
 const TYPE_EMOJI: Record<string, string> = {
@@ -12,13 +12,11 @@ const TYPE_EMOJI: Record<string, string> = {
     insight: '💡',
 };
 
-interface Props {
-    node: ContextNode;
-    selected: boolean;
-    onClick: (entityId: string) => void;
-}
-
-export function ContextNodeCard({ node, selected, onClick }: Props) {
+export function ContextNodeCard({
+    node,
+    selected,
+    onClick,
+}: ContextNodeCardProps) {
     const size = NODE_SIZES[node.entryType] ?? 40;
     const color = NODE_COLORS[node.entryType] ?? '#6b7280';
     const emoji = TYPE_EMOJI[node.entryType] ?? '●';

@@ -22,41 +22,51 @@ export function useReadingContent(
 
     useEffect(() => {
         if (!providerId || !documentId || !position) {
-            setResult(null);
-            return;
+            const timeoutId = window.setTimeout(() => {
+                setResult(null);
+            }, 0);
+            return () => window.clearTimeout(timeoutId);
         }
 
-        abortRef.current?.abort();
-        const controller = new AbortController();
-        abortRef.current = controller;
+        const timeoutId = window.setTimeout(() => {
+            abortRef.current?.abort();
+            const controller = new AbortController();
+            abortRef.current = controller;
 
-        setLoading(true);
-        setError(null);
+            setLoading(true);
+            setError(null);
 
-        void (async () => {
-            try {
-                const provider = getProviderOrThrow(providerId);
-                const data = await provider.getContent({
-                    documentId,
-                    position,
-                    ...(versionId && { versionId }),
-                    context: { includeFootnotes: true, includeCrossRefs: true },
-                });
-                if (controller.signal.aborted) return;
-                setResult(data);
-            } catch (err) {
-                if (controller.signal.aborted) return;
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Failed to load content',
-                );
-            } finally {
-                if (!controller.signal.aborted) setLoading(false);
-            }
-        })();
+            void (async () => {
+                try {
+                    const provider = getProviderOrThrow(providerId);
+                    const data = await provider.getContent({
+                        documentId,
+                        position,
+                        ...(versionId && { versionId }),
+                        context: {
+                            includeFootnotes: true,
+                            includeCrossRefs: true,
+                        },
+                    });
+                    if (controller.signal.aborted) return;
+                    setResult(data);
+                } catch (err) {
+                    if (controller.signal.aborted) return;
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : 'Failed to load content',
+                    );
+                } finally {
+                    if (!controller.signal.aborted) setLoading(false);
+                }
+            })();
+        }, 0);
 
-        return () => controller.abort();
+        return () => {
+            window.clearTimeout(timeoutId);
+            abortRef.current?.abort();
+        };
     }, [providerId, documentId, position, versionId]);
 
     return { result, loading, error };

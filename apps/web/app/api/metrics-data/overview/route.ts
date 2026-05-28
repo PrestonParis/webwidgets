@@ -40,35 +40,26 @@ export async function GET(req: Request) {
     const { from, to } = parsed.data;
     const admin = createAdminClient();
 
-    const [
-        dauCount,
-        widgetEvents,
-        actionEvents,
-        mlEvents,
-        emailEvents,
-        errorEvents,
-    ] = await Promise.all([
-        countActiveUsers(admin, { from, to }),
-        countEventsByType(admin, { from, to }, [
-            ANALYTICS_EVENTS.WIDGET_ADDED,
-            ANALYTICS_EVENTS.WIDGET_OPENED,
-        ]),
-        countEventsByType(admin, { from, to }, [
-            ANALYTICS_EVENTS.ACTION_SUGGESTED,
-            ANALYTICS_EVENTS.ACTION_ACCEPTED,
-            ANALYTICS_EVENTS.ACTION_FAILED,
-        ]),
-        countEventsByType(admin, { from, to }, [
-            ANALYTICS_EVENTS.ML_PREDICTION_CREATED,
-            ANALYTICS_EVENTS.ML_PREDICTION_LOW_CONFIDENCE,
-        ]),
-        countEventsByType(admin, { from, to }, [
-            ANALYTICS_EVENTS.EMAIL_PROCESSING_FAILED,
-        ]),
-        countEventsByType(admin, { from, to }, [
-            ANALYTICS_EVENTS.EMAIL_PROCESSING_FAILED,
-        ]),
-    ]);
+    const [dauCount, widgetEvents, actionEvents, mlEvents, errorEvents] =
+        await Promise.all([
+            countActiveUsers(admin, { from, to }),
+            countEventsByType(admin, { from, to }, [
+                ANALYTICS_EVENTS.WIDGET_ADDED,
+                ANALYTICS_EVENTS.WIDGET_OPENED,
+            ]),
+            countEventsByType(admin, { from, to }, [
+                ANALYTICS_EVENTS.ACTION_SUGGESTED,
+                ANALYTICS_EVENTS.ACTION_ACCEPTED,
+                ANALYTICS_EVENTS.ACTION_FAILED,
+            ]),
+            countEventsByType(admin, { from, to }, [
+                ANALYTICS_EVENTS.ML_PREDICTION_CREATED,
+                ANALYTICS_EVENTS.ML_PREDICTION_LOW_CONFIDENCE,
+            ]),
+            countEventsByType(admin, { from, to }, [
+                ANALYTICS_EVENTS.EMAIL_PROCESSING_FAILED,
+            ]),
+        ]);
 
     const byType = (types: string[], arr: typeof actionEvents) =>
         arr.find((r) => types.includes(r.type))?.count ?? 0;

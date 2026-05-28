@@ -11,6 +11,10 @@ const profileSchema = z.object({
     anthropic_api_key: z.string().nullable().optional(),
 });
 
+const tokenSchema = z.object({
+    has_calendar: z.boolean().optional(),
+});
+
 interface SettingsData {
     fullName: string;
     useAIEmail: boolean;
@@ -36,12 +40,16 @@ async function fetchUserSettingsData(user: User): Promise<SettingsData> {
             .maybeSingle(),
     ]);
     const parsed = profileSchema.safeParse(profileResult.data);
+    const profile = parsed.success ? parsed.data : null;
+    const token = tokenSchema.safeParse(tokenResult.data);
     return {
-        fullName: parsed.success ? (parsed.data.full_name ?? '') : '',
-        useAIEmail: profileResult.data?.use_ai_email ?? false,
-        anthropicApiKey: profileResult.data?.anthropic_api_key ?? '',
+        fullName: profile?.full_name ?? '',
+        useAIEmail: profile?.use_ai_email ?? false,
+        anthropicApiKey: profile?.anthropic_api_key ?? '',
         isGmailConnected: !!googleIdentity,
-        isCalendarConnected: tokenResult.data?.has_calendar ?? false,
+        isCalendarConnected: token.success
+            ? (token.data.has_calendar ?? false)
+            : false,
     };
 }
 
@@ -84,21 +92,24 @@ export function useSettings() {
     const [anthropicApiKey, setAnthropicApiKey] = useState('');
 
     useEffect(() => {
-        if (status === 'loading' || !user) {
-            setLoading(false);
-            return;
-        }
+        const timeoutId = window.setTimeout(() => {
+            if (status === 'loading' || !user) {
+                setLoading(false);
+                return;
+            }
 
-        const load = async () => {
-            const data = await fetchUserSettingsData(user);
-            setFullName(data.fullName);
-            setUseAIEmail(data.useAIEmail);
-            setAnthropicApiKey(data.anthropicApiKey);
-            setIsGmailConnected(data.isGmailConnected);
-            setIsCalendarConnected(data.isCalendarConnected);
-            setLoading(false);
-        };
-        void load();
+            const load = async () => {
+                const data = await fetchUserSettingsData(user);
+                setFullName(data.fullName);
+                setUseAIEmail(data.useAIEmail);
+                setAnthropicApiKey(data.anthropicApiKey);
+                setIsGmailConnected(data.isGmailConnected);
+                setIsCalendarConnected(data.isCalendarConnected);
+                setLoading(false);
+            };
+            void load();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [user, status]);
 
     const handleGoogleConnect = () => connectGmailOAuth(window.location.origin);
@@ -130,20 +141,16 @@ export function useSettings() {
         if (!user) return;
         const next = !useAIEmail;
         setUseAIEmail(next);
-        void db
-            .from('profiles')
-            .upsert({ id: user.id, use_ai_email: next });
+        void db.from('profiles').upsert({ id: user.id, use_ai_email: next });
     };
 
     const handleSaveApiKey = async () => {
         if (!user) return;
         setSaving(true);
-        const { error } = await db
-            .from('profiles')
-            .upsert({
-                id: user.id,
-                anthropic_api_key: anthropicApiKey || null,
-            });
+        const { error } = await db.from('profiles').upsert({
+            id: user.id,
+            anthropic_api_key: anthropicApiKey || null,
+        });
         setSaving(false);
         if (error) alert('Failed to save API key');
     };

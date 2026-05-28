@@ -1,13 +1,16 @@
 export function normalizeDate(value: unknown): string | null {
     if (!value) return null;
-    const s = String(value).trim();
+    if (typeof value !== 'string') return null;
+    const s = value.trim();
     const d = new Date(s);
     return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
 
 export function normalizeCurrency(value: unknown, decimals = 2): number | null {
     if (value === null || value === undefined) return null;
-    const n = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
+    if (typeof value !== 'string' && typeof value !== 'number') return null;
+    const strValue = String(value);
+    const n = parseFloat(strValue.replace(/[^0-9.-]/g, ''));
     return isNaN(n) ? null : parseFloat(n.toFixed(decimals));
 }
 
@@ -49,7 +52,14 @@ export function deduplicateRows<T extends Record<string, unknown>>(
 
 export function sanitizeString(value: unknown, maxLength = 1000): string {
     if (value === null || value === undefined) return '';
-    return String(value)
+    if (
+        typeof value !== 'string' &&
+        typeof value !== 'number' &&
+        typeof value !== 'boolean'
+    )
+        return '';
+    const strValue = String(value);
+    return strValue
         .trim()
         .replace(/[\x00-\x1F\x7F]/g, '')
         .slice(0, maxLength);

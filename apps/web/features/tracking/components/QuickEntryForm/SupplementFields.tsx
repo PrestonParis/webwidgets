@@ -5,7 +5,7 @@ import {
     COMMON_SYMPTOMS,
 } from '@/features/tracking/trackingData';
 import type { QuickEntryFormState } from '@/features/tracking/hooks/useQuickEntryForm';
-import type { TrackingCategory } from '@/features/tracking/types/tracking';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
 
 interface SupplementFieldsProps {
     category: TrackingCategory;

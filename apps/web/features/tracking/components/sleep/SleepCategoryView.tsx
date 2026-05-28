@@ -23,7 +23,7 @@ import {
 } from '@/features/tracking/lib/sleep/sleepDomain';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 type SleepTab = 'history' | 'charts' | 'heatmap' | 'goal';
 
@@ -115,13 +115,7 @@ function SleepHistoryTab({
 
 // ─── charts tab ────────────────────────────────────────────────────────────────
 
-function SleepChartsTab({
-    records,
-    analytics,
-}: {
-    records: SleepRecord[];
-    analytics: ReturnType<typeof computeSleepAnalytics>;
-}) {
+function SleepChartsTab({ records }: { records: SleepRecord[] }) {
     const withDuration = records.filter((r) => r.durationHours !== null);
 
     const barData = useMemo(
@@ -283,7 +277,7 @@ export function SleepCategoryView({
                             label="Last sleep"
                             value={
                                 lastRecord?.durationHours !== null && lastRecord
-                                    ? formatDuration(lastRecord.durationHours!)
+                                    ? formatDuration(lastRecord.durationHours)
                                     : '—'
                             }
                             sub={
@@ -355,7 +349,7 @@ export function SleepCategoryView({
             )}
             {activeTab === 'charts' && (
                 <TrackingSection>
-                    <SleepChartsTab records={records} analytics={analytics} />
+                    <SleepChartsTab records={records} />
                 </TrackingSection>
             )}
             {activeTab === 'heatmap' && (

@@ -37,24 +37,27 @@ export function useReadingState(
     useEffect(() => {
         if (!documentId) return;
         let cancelled = false;
-        setLoading(true);
-        void Promise.all([
-            readingApi.listBookmarks(documentId),
-            readingApi.listHighlights(documentId),
-            readingApi.listNotes(documentId),
-        ])
-            .then(([bm, hl, nt]) => {
-                if (cancelled) return;
-                setBookmarks(bm);
-                setHighlights(hl);
-                setNotes(nt);
-                setLoading(false);
-            })
-            .catch(() => {
-                if (!cancelled) setLoading(false);
-            });
+        const timeoutId = window.setTimeout(() => {
+            setLoading(true);
+            void Promise.all([
+                readingApi.listBookmarks(documentId),
+                readingApi.listHighlights(documentId),
+                readingApi.listNotes(documentId),
+            ])
+                .then(([bm, hl, nt]) => {
+                    if (cancelled) return;
+                    setBookmarks(bm);
+                    setHighlights(hl);
+                    setNotes(nt);
+                    setLoading(false);
+                })
+                .catch(() => {
+                    if (!cancelled) setLoading(false);
+                });
+        }, 0);
         return () => {
             cancelled = true;
+            window.clearTimeout(timeoutId);
         };
     }, [documentId]);
 

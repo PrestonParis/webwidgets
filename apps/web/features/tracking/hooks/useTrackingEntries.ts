@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import {
     fetchEntries,
@@ -11,7 +10,7 @@ import { OLD_STORAGE_KEY } from '@/features/tracking/constants';
 import type {
     TrackingEntry,
     FetchOptions,
-} from '@/features/tracking/types/tracking';
+} from '@/features/tracking/types/trackingEntryTypes';
 
 export function useTrackingEntries(options?: FetchOptions): {
     entries: TrackingEntry[];
@@ -23,8 +22,11 @@ export function useTrackingEntries(options?: FetchOptions): {
     const [entries, setEntries] = useState<TrackingEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const optionsRef = useRef(options);
-    optionsRef.current = options;
     const prevCategoryRef = useRef(options?.category);
+
+    useEffect(() => {
+        optionsRef.current = options;
+    }, [options]);
 
     const refetch = useCallback(async () => {
         if (!userId) {
@@ -44,25 +46,31 @@ export function useTrackingEntries(options?: FetchOptions): {
     }, [userId]);
 
     useEffect(() => {
-        if (!userId) {
-            setEntries([]);
-            setLoading(false);
-            return;
-        }
-
-        const run = async () => {
-            const hasOld = localStorage.getItem(OLD_STORAGE_KEY);
-            if (hasOld) {
-                try {
-                    await migrateFromLocalStorage(userId);
-                } catch (err) {
-                    console.error('[useTrackingEntries] migration error', err);
-                }
+        const timeoutId = window.setTimeout(() => {
+            if (!userId) {
+                setEntries([]);
+                setLoading(false);
+                return;
             }
-            await refetch();
-        };
 
-        void run();
+            const run = async () => {
+                const hasOld = localStorage.getItem(OLD_STORAGE_KEY);
+                if (hasOld) {
+                    try {
+                        await migrateFromLocalStorage(userId);
+                    } catch (err) {
+                        console.error(
+                            '[useTrackingEntries] migration error',
+                            err,
+                        );
+                    }
+                }
+                await refetch();
+            };
+
+            void run();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [userId, refetch]);
 
     useEffect(() => {

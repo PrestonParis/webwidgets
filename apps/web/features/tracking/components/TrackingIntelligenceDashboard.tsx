@@ -10,7 +10,7 @@ import {
     getCategoryColor,
 } from '@/features/tracking/constants';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 interface TrackingIntelligenceDashboardProps {
     entries: TrackingEntry[];

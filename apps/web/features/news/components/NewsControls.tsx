@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import type { EventCategory } from '@/features/news/schemas/eventSchemas';
+import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
 import type { NewsFeedFilters } from '@/features/news/types/news';
 import { cn } from '@/lib/utils/utils';
 

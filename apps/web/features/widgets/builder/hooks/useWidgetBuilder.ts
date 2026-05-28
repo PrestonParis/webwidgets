@@ -1,11 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
+import type { WidgetBuilderState } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import type {
-    WidgetBuilderState,
     WidgetBuilderStepId,
-    SynthesizedWidgetDefinition,
     WidgetPreviewMode,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
-import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetTypes';
+import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetConstants';
 import {
     validateWidgetDefinition,
     hasErrors,
@@ -54,9 +54,7 @@ export function useWidgetBuilder(): [WidgetBuilderState, WidgetBuilderActions] {
                     ...prev.definition,
                     ...patch,
                 } as SynthesizedWidgetDefinition;
-                const requiredPermissions = computeRequiredPermissions(
-                    next as SynthesizedWidgetDefinition,
-                );
+                const requiredPermissions = computeRequiredPermissions(next);
                 const withPermissions = {
                     ...next,
                     permissions: [

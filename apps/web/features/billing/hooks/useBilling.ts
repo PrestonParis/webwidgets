@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { db } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type {
@@ -17,15 +17,36 @@ interface UseBillingReturn {
     loading: boolean;
 }
 
+type BillingState = {
+    subscription: BillingSubscription | null;
+    loading: boolean;
+};
+type BillingAction =
+    | { type: 'loaded'; subscription: BillingSubscription | null }
+    | { type: 'no-user' };
+
+function billingReducer(
+    state: BillingState,
+    action: BillingAction,
+): BillingState {
+    switch (action.type) {
+        case 'loaded':
+            return { subscription: action.subscription, loading: false };
+        case 'no-user':
+            return { subscription: null, loading: false };
+    }
+}
+
 export function useBilling(): UseBillingReturn {
     const { userId } = useAuth();
-    const [subscription, setSubscription] =
-        useState<BillingSubscription | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [state, dispatch] = useReducer(billingReducer, {
+        subscription: null,
+        loading: true,
+    });
 
     useEffect(() => {
         if (!userId) {
-            setLoading(false);
+            dispatch({ type: 'no-user' });
             return;
         }
         let active = true;
@@ -39,14 +60,14 @@ export function useBilling(): UseBillingReturn {
             .maybeSingle()
             .then(({ data }) => {
                 if (!active) return;
-                setSubscription(
-                    data
+                dispatch({
+                    type: 'loaded',
+                    subscription: data
                         ? rowToSubscription(
                               data as unknown as BillingSubscriptionRow,
                           )
                         : null,
-                );
-                setLoading(false);
+                });
             });
 
         return () => {
@@ -54,6 +75,10 @@ export function useBilling(): UseBillingReturn {
         };
     }, [userId]);
 
-    const currentPlan = getPlan(subscription?.planId ?? 'free');
-    return { subscription, currentPlan, loading };
+    const currentPlan = getPlan(state.subscription?.planId ?? 'free');
+    return {
+        subscription: state.subscription,
+        currentPlan,
+        loading: state.loading,
+    };
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
-import type { FinanceTransaction } from '@/features/finance/types/finance';
+import type { AnomalyAlertBannerProps } from '@/features/finance/types/finance';
 
 interface AnomalyResult {
     id: string;
@@ -10,11 +10,7 @@ interface AnomalyResult {
     is_anomaly: boolean;
 }
 
-interface Props {
-    transactions: FinanceTransaction[];
-}
-
-export function AnomalyAlertBanner({ transactions }: Props) {
+export function AnomalyAlertBanner({ transactions }: AnomalyAlertBannerProps) {
     const [anomalies, setAnomalies] = useState<AnomalyResult[]>([]);
     const [dismissed, setDismissed] = useState(false);
 
@@ -34,14 +30,14 @@ export function AnomalyAlertBanner({ transactions }: Props) {
             }),
             signal: AbortSignal.timeout(5000),
         })
-            .then((r) => r.ok ? r.json() : null)
+            .then((r) => (r.ok ? r.json() : null))
             .then((data: { anomalies?: AnomalyResult[] } | null) => {
                 if (data?.anomalies) {
                     setAnomalies(data.anomalies.filter((a) => a.is_anomaly));
                 }
             })
             .catch(() => {});
-    }, [transactions.length]);
+    }, [transactions]);
 
     if (!anomalies.length || dismissed) return null;
 
@@ -50,9 +46,12 @@ export function AnomalyAlertBanner({ transactions }: Props) {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
             <div className="flex-1">
                 <span className="font-medium text-amber-300">
-                    {anomalies.length} unusual transaction{anomalies.length > 1 ? 's' : ''} detected
+                    {anomalies.length} unusual transaction
+                    {anomalies.length > 1 ? 's' : ''} detected
                 </span>
-                <span className="ml-1 text-amber-300/70">— review your recent activity</span>
+                <span className="ml-1 text-amber-300/70">
+                    — review your recent activity
+                </span>
             </div>
             <button
                 onClick={() => setDismissed(true)}

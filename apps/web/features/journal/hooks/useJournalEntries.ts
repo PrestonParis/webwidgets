@@ -46,16 +46,19 @@ export function useJournalEntries(
 
     useEffect(() => {
         let isMounted = true;
-        setEntries([]);
+        const timeoutId = window.setTimeout(() => {
+            setEntries([]);
 
-        const load = async () => {
-            const data = await fetchEntries();
-            if (isMounted && data) setEntries(data);
-        };
+            const load = async () => {
+                const data = await fetchEntries();
+                if (isMounted && data) setEntries(data);
+            };
 
-        void load();
+            void load();
+        }, 0);
         return () => {
             isMounted = false;
+            window.clearTimeout(timeoutId);
         };
     }, [fetchEntries, refreshKey]);
 
