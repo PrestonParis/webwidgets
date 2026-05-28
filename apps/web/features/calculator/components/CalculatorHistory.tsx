@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Pin, Trash2, Search, Download, X, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
-import type { HistoryEntry } from '../types';
+import type { HistoryEntry } from '../types/calculator';
 
 interface CalculatorHistoryProps {
     entries: HistoryEntry[];

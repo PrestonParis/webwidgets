@@ -6,8 +6,8 @@ import type {
     BaseTrackingEntry,
     FetchOptions,
     DbTrackingRow,
-} from '@/features/tracking/types/trackingEntryTypes';
-import type { EntrySource } from '@/features/tracking/types/trackingCategoryTypes';
+} from '@/features/tracking/types/trackingEntries';
+import type { EntrySource } from '@/features/tracking/types/trackingCategories';
 import { OLD_STORAGE_KEY } from '@/features/tracking/constants';
 
 function rowToEntry(row: DbTrackingRow): TrackingEntry {

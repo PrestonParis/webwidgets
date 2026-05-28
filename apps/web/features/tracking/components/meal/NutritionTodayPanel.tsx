@@ -16,10 +16,10 @@ import {
     MEAL_TYPE_ICONS,
     MEAL_TYPE_ORDER,
 } from '@/features/tracking/lib/meal/helpers';
-import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
+import type { MealRecord, MealType } from '@/features/tracking/types/meal';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
 
 interface NutritionTodayPanelProps {
     records: MealRecord[];

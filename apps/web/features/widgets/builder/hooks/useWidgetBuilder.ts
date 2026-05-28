@@ -4,7 +4,7 @@ import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/w
 import type {
     WidgetBuilderStepId,
     WidgetPreviewMode,
-} from '@/features/widgets/synthesis/widgetTypes';
+} from '@/features/widgets/types/synthesisWidgets';
 import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetConstants';
 import {
     validateWidgetDefinition,

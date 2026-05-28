@@ -1,4 +1,4 @@
-import type { FeatureDefinition } from '@/features/platform/types/featureTypes';
+import type { FeatureDefinition } from '@/features/platform/types/feature';
 
 export const FEATURE_REGISTRY: FeatureDefinition[] = [
     {

@@ -11,7 +11,10 @@ import {
     buildRecipeRecord,
     refreshRecipeNutrition,
 } from './providers/recipeProvider';
-import type { RecipeDraft, RecipeRecord } from './recipeTypes';
+import type {
+    RecipeDraft,
+    RecipeRecord,
+} from '@/features/tracking/types/nutritionRecipes';
 
 const STORAGE_KEY = 'nutrition_recipes_v1';
 

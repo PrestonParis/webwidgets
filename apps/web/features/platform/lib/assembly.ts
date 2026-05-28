@@ -1,11 +1,11 @@
 import type {
     AssemblyContext,
     WidgetEligibility,
-} from '@/features/platform/types/assemblyTypes';
+} from '@/features/platform/types/assembly';
 import type {
     WidgetAction,
     WidgetDefinition,
-} from '@/features/platform/types/widgetTypes';
+} from '@/features/platform/types/widget';
 import { FEATURE_REGISTRY } from '@/features/platform/registry/featureRegistry';
 import { WIDGET_REGISTRY } from '@/features/platform/registry/widgetRegistry';
 

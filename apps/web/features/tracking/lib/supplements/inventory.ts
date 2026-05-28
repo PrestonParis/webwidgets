@@ -1,4 +1,4 @@
-import type { SupplementInventory } from './inventoryTypes';
+import type { SupplementInventory } from '@/features/tracking/types/supplementInventory';
 import { num, str } from './readers';
 
 export function normalizeInventory(

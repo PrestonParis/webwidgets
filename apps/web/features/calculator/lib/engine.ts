@@ -12,7 +12,7 @@
  *   primary → NUM | CONST | FUNC '(' args ')' | '(' expr ')'
  */
 
-import type { AngleUnit } from '../types';
+import type { AngleUnit } from '../types/calculator';
 import { lex } from './engineTokenizer';
 import { Parser } from './engineParser';
 

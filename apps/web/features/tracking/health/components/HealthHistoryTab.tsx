@@ -8,7 +8,7 @@ import {
     TISSUE_TYPE_CONFIGS,
     type InjuryLog,
     type InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import { TrackingSection } from '@/features/tracking/components/TrackingSurface';
 import { InjuryHistoryCard } from './InjuryHistoryCard';
 

@@ -1,5 +1,5 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 import {
     getCategoryLabel as _getCatLabel,
     getCategoryColor as _getCatColor,

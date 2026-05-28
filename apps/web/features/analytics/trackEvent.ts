@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/adminClient';
-import type { TrackEventOptions } from './analyticsTypes';
+import type { TrackEventOptions } from './types/analytics';
 
 // Module-level singleton — reused across warm lambda invocations
 const admin = createAdminClient();

@@ -1,4 +1,8 @@
-import type { PersonalRecord, SetEntry, WorkoutSession } from './types';
+import type {
+    PersonalRecord,
+    SetEntry,
+    WorkoutSession,
+} from '@/features/tracking/types/fitness';
 
 export function estimateOneRepMax(weight: number, reps: number): number {
     if (weight <= 0 || reps <= 0) return 0;

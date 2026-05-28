@@ -5,7 +5,7 @@ import {
     getConversionJob,
     getDownloadUrl,
 } from '@/features/convert/lib/conversionClient';
-import type { ConversionJob } from '@/features/convert/lib/conversionTypes';
+import type { ConversionJob } from '@/features/convert/types/conversion';
 
 export interface JobEntry {
     file: File;

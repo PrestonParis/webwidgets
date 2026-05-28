@@ -1,6 +1,6 @@
 'use client';
 
-import type { FormFillerJob, JobHistoryProps } from '../types';
+import type { FormFillerJob, JobHistoryProps } from '../types/formFiller';
 
 const STATUS_STYLES: Record<FormFillerJob['status'], string> = {
     pending: 'bg-stone-100 text-stone-500 dark:bg-zinc-800 dark:text-zinc-400',

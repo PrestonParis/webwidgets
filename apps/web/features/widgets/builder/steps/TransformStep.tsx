@@ -6,7 +6,7 @@ import type {
     SynthesizedWidgetDefinition,
     SynthesizedTransformationDef,
 } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
-import type { WidgetTransformationType } from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetTransformationType } from '@/features/widgets/types/synthesisWidgets';
 
 interface TransformStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

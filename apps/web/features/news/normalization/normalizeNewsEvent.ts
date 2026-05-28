@@ -4,10 +4,7 @@ import {
     newsEventSchema,
     rawSourceEventSchema,
 } from '@/features/news/schemas/eventCoreSchemas';
-import type {
-    NewsEvent,
-    RawSourceEvent,
-} from '@/features/news/schemas/eventTypes';
+import type { NewsEvent, RawSourceEvent } from '@/features/news/types/events';
 
 export type NormalizationError =
     | { type: 'invalid-raw-event'; message: string; issues?: unknown }

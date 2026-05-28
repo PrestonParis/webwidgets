@@ -1,4 +1,4 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

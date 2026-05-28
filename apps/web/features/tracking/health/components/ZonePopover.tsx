@@ -8,7 +8,7 @@ import {
     type BodyZoneId,
     type PainType,
     type Severity,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 interface ZonePopoverProps {
     zoneId: BodyZoneId | null;

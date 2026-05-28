@@ -1,4 +1,4 @@
-import type { TrackEventOptions } from '@/features/analytics/analyticsTypes';
+import type { TrackEventOptions } from '@/features/analytics/types/analytics';
 
 const FLUSH_DELAY_MS = 1200;
 const DEDUPE_WINDOW_MS = 1500;

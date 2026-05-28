@@ -1,4 +1,4 @@
-import type { RankedFeedItem } from '@/features/news/schemas/eventTypes';
+import type { RankedFeedItem } from '@/features/news/types/events';
 import { groupTimelineEvents } from '@/features/news/services/timeline';
 import { getDevOnlyNewsItems } from '@/features/news/fixtures/devOnlyNewsFeed';
 

@@ -1,4 +1,4 @@
-import type { WidgetEntry } from './widgetCatalogTypes';
+import type { WidgetEntry } from '../types/widgetCatalog';
 
 export const WIDGET_CATALOG_PART_2: WidgetEntry[] = [
     {

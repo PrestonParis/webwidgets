@@ -6,7 +6,7 @@ import {
     availableSearchProviders,
     type FoodSearchOutcome,
 } from '@/features/tracking/lib/meal/nutrition/providers';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
 
 const DEBOUNCE_MS = 300;
 

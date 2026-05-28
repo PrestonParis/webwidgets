@@ -26,26 +26,19 @@ import type {
     WidgetRuntimeMetadata,
     WidgetRuntimeSnapshot,
     WidgetRuntimeStatus,
-    WidgetVisibilityLevel,
-} from './widgetRuntimeTypes';
+} from '../types/widgetRuntime';
 import {
     INITIAL_HYDRATION_BURST_COUNT,
     STAGGERED_HYDRATION_BATCH_SIZE,
     STAGGERED_HYDRATION_INTERVAL_MS,
     MAX_CONCURRENT_HYDRATIONS,
-    MAX_CONCURRENT_FETCHES,
     PRESSURE_THRESHOLDS,
     PRESSURE_THROTTLE_MULTIPLIERS,
-    HEAVY_WIDGET_DELAY_MS,
     NEAR_VIEWPORT_MARGIN_PX,
     BACKGROUND_MARGIN_PX,
-    MAX_QUEUE_WAIT_MS,
-    STARVATION_CHECK_INTERVAL_MS,
     DEV_RUNTIME_DEBUG_PANEL,
     DEV_RUNTIME_TOASTS,
     ENABLE_ADAPTIVE_PRESSURE_CONTROL,
-    ENABLE_PROGRESSIVE_BATCH_SCHEDULING,
-    ENABLE_STARVATION_PREVENTION,
 } from './dashboardRuntimeConfig';
 
 type RuntimeState = {
@@ -712,8 +705,23 @@ export function useDashboardRuntimeWidget({
         loadMore,
     } = runtime;
     const ref = useRef<HTMLDivElement | null>(null);
-    const [visible, setVisible] = useState(eager);
-    const [canHydrate, setCanHydrate] = useState(false);
+
+    // Initialize visible=true immediately for eager widgets or when
+    // IntersectionObserver is unavailable, so the effect never needs to call
+    // setVisible() synchronously in its body (which triggers the cascading-renders
+    // lint error). The observer callbacks call setVisible() asynchronously — fine.
+    const noIO =
+        typeof window === 'undefined' || !('IntersectionObserver' in window);
+    const [visible, setVisible] = useState(() => eager || noIO);
+
+    // Tracks whether this effect instance has already acquired a hydration slot,
+    // used only inside effects (never read during render — React Compiler forbids that).
+    // canHydrate is derived from runtime.state.hydratedIds instead (reactive, safe to read during render).
+    const hasHydratedRef = useRef(false);
+
+    // Mirrors visible for the nearVisibleObserver closure so it always reads the
+    // current value even between effect re-runs (refs update synchronously in callbacks).
+    const visibleRef = useRef(eager || noIO);
 
     useEffect(() => {
         registerWidget({
@@ -724,22 +732,22 @@ export function useDashboardRuntimeWidget({
     }, [eager, metadata, registerWidget, unregisterWidget]);
 
     useEffect(() => {
-        if (eager) {
+        // Eager / no-IO: visible is already true from useState init — just sync
+        // the runtime. No setVisible() call needed here.
+        if (eager || !('IntersectionObserver' in window)) {
             setWidgetVisible(metadata.id, true);
-            setVisible(true);
-            return;
+            return () => setWidgetVisible(metadata.id, false);
         }
         const node = ref.current;
-        if (!node || !('IntersectionObserver' in window)) {
+        if (!node) {
             setWidgetVisible(metadata.id, true);
-            setVisible(true);
-            return;
+            return () => setWidgetVisible(metadata.id, false);
         }
 
-        // Use 4-level visibility system with multiple observers
         const visibleObserver = new IntersectionObserver(
             ([entry]) => {
                 const nextVisible = Boolean(entry?.isIntersecting);
+                visibleRef.current = nextVisible;
                 setVisible(nextVisible);
                 if (nextVisible) {
                     setWidgetVisibilityLevel(metadata.id, 'visible');
@@ -750,7 +758,7 @@ export function useDashboardRuntimeWidget({
 
         const nearVisibleObserver = new IntersectionObserver(
             ([entry]) => {
-                if (entry?.isIntersecting && !visible) {
+                if (entry?.isIntersecting && !visibleRef.current) {
                     setWidgetVisibilityLevel(metadata.id, 'near-visible');
                 }
             },
@@ -786,22 +794,63 @@ export function useDashboardRuntimeWidget({
 
     const loaded = runtime.isWidgetLoaded(metadata.id);
     const status = runtime.getWidgetStatus(metadata.id);
+    const isInvalidStatus =
+        status === 'failed' || status === 'cooldown' || status === 'disabled';
+
+    // Derived from reactive runtime state — no local state, no ref access during
+    // render. hydratedIds persists after releaseHydration (which only removes from
+    // activeHydrationIds), keeping widgets rendered after the concurrency slot is
+    // released so the next waiting widget can acquire it.
+    const canHydrate =
+        visible &&
+        loaded &&
+        !isInvalidStatus &&
+        (runtime.state.hydratedIds.has(metadata.id) ||
+            runtime.state.activeHydrationIds.has(metadata.id));
+
     useEffect(() => {
-        if (
-            !visible ||
-            !loaded ||
-            status === 'failed' ||
-            status === 'cooldown' ||
-            status === 'disabled'
-        ) {
-            setCanHydrate(false);
+        if (!visible || !loaded || isInvalidStatus) {
+            hasHydratedRef.current = false;
             releaseHydration(metadata.id);
             return;
         }
-        const granted = requestHydration(metadata.id);
-        setCanHydrate(granted);
-        return () => releaseHydration(metadata.id);
-    }, [loaded, metadata.id, releaseHydration, requestHydration, visible]);
+
+        if (hasHydratedRef.current) {
+            // Already mounted — no slot needed; ensure cleanup still releases.
+            return () => releaseHydration(metadata.id);
+        }
+
+        // Try immediately; if the concurrency limit is hit, poll until a slot
+        // opens. Only this widget polls — avoids cascading re-renders from
+        // subscribing all widgets to activeHydrationIds.size.
+        const tryHydrate = (): boolean => {
+            if (!requestHydration(metadata.id)) return false;
+            hasHydratedRef.current = true;
+            // Release the slot after a short mounting window so the next waiting
+            // widget can start hydrating. canHydrate stays true via hasHydratedRef.
+            window.setTimeout(() => releaseHydration(metadata.id), 800);
+            return true;
+        };
+
+        if (tryHydrate()) return () => releaseHydration(metadata.id);
+
+        const interval = window.setInterval(() => {
+            if (hasHydratedRef.current || tryHydrate()) {
+                window.clearInterval(interval);
+            }
+        }, 150);
+        return () => {
+            window.clearInterval(interval);
+            releaseHydration(metadata.id);
+        };
+    }, [
+        isInvalidStatus,
+        loaded,
+        metadata.id,
+        releaseHydration,
+        requestHydration,
+        visible,
+    ]);
 
     return {
         ref,

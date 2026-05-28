@@ -2,8 +2,8 @@
 
 import React, { useCallback } from 'react';
 import type { BodyRegion } from '@/features/tracking/health/lib/bodyRegions';
-import type { RegionGeometry } from './svgFrontPaths';
-import type { RegionVisual } from './regionVisual';
+import type { RegionGeometry } from '@/features/tracking/health/lib/visuals/svgFrontPaths';
+import type { RegionVisual } from '@/features/tracking/health/lib/visuals/regionVisual';
 
 interface RegionPathProps {
     region: BodyRegion;

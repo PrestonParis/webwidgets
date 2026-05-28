@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { creativeExports, creativeTools } from '../data';
-import type { CreativeTool } from '../types';
+import type { CreativeTool } from '../types/creative';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
 export interface ProjectRecord {

@@ -1,5 +1,5 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { MealRecord, MealType } from './types';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { MealRecord, MealType } from '@/features/tracking/types/meal';
 
 function isMealType(value: unknown): value is MealType {
     return (

@@ -1,7 +1,7 @@
-import type { TimerState, TimerAction } from '../types';
+import type { TimerState, TimerAction } from '../types/timekeeping';
 import { reducer, createInitialTimerState } from './timerReducer';
 import { POMODORO_PHASE_LABELS } from '../constants';
-import type { PomodoroPhase } from '../types';
+import type { PomodoroPhase } from '../types/timekeeping';
 
 const STANDARD_TIMER_STORAGE_KEY = 'webwidgets:standard-timer-state:v1';
 

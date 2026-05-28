@@ -2,7 +2,7 @@ import type {
     MealRecord,
     DailyNutritionSummary,
     NutritionAnalytics,
-} from './types';
+} from '@/features/tracking/types/meal';
 
 export function buildDailySummary(
     date: string,

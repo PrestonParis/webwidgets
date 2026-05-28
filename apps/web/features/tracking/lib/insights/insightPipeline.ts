@@ -1,5 +1,5 @@
-import type { InsightProvider } from './types';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { InsightProvider } from '@/features/tracking/types/insightProviders';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type {
     Insight,
     InsightConsent,

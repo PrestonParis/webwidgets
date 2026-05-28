@@ -12,7 +12,7 @@ import {
     getWidgetCategory,
     WIDGET_CATEGORIES,
     type WidgetCategory,
-} from './addWidgetConstants';
+} from '@/features/dashboard/lib/addWidgetConstants';
 
 interface WidgetGridProps {
     presentTypes: Set<string>;

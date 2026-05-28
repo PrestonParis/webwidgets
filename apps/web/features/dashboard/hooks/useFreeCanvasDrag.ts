@@ -1,12 +1,16 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
-import { PROX_DIST, WIDGET_W, WIDGET_APPROX_H } from '@/features/dashboard/components/freeCanvasConfig';
+import {
+    PROX_DIST,
+    WIDGET_W,
+    WIDGET_APPROX_H,
+} from '@/features/dashboard/lib/freeCanvasConfig';
 import {
     type Pos,
     type Size,
     type GuideLine,
-} from '@/features/dashboard/components/freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasUtils';
 import { useWidgetSettingsContext } from '@/features/widgets/context/WidgetSettingsContext';
 import { useIdleDrift } from './useIdleDrift';
 
@@ -80,7 +84,10 @@ export function useFreeCanvasDrag({
     );
     const groupOffsetsRef = useRef<Map<string, Pos>>(new Map());
     const rafRef = useRef<number | null>(null);
-    const pendingMoveRef = useRef<{ id: string; e: React.PointerEvent<HTMLDivElement> } | null>(null);
+    const pendingMoveRef = useRef<{
+        id: string;
+        e: React.PointerEvent<HTMLDivElement>;
+    } | null>(null);
 
     const { stopDrift } = useIdleDrift(positions, setPositions);
 
@@ -130,7 +137,14 @@ export function useFreeCanvasDrag({
         const ownSize = sizes.get(id) ?? { w: WIDGET_W, h: WIDGET_APPROX_H };
         const { x, y, guides } = computeSnap(rawX, rawY, id, ownSize);
         setPositions(
-            buildPositionUpdate(id, x, y, ctx, visible, groupOffsetsRef.current),
+            buildPositionUpdate(
+                id,
+                x,
+                y,
+                ctx,
+                visible,
+                groupOffsetsRef.current,
+            ),
         );
         setGuideLines(guides);
         let closestId: string | null = null,

@@ -1,5 +1,8 @@
-import type { ExerciseDefinition, ExerciseSearchFilters } from '../types';
-import type { ExerciseLibraryProvider } from './types';
+import type {
+    ExerciseDefinition,
+    ExerciseSearchFilters,
+} from '@/features/tracking/types/fitness';
+import type { ExerciseLibraryProvider } from '@/features/tracking/types/fitnessProviders';
 
 export const LOCAL_EXERCISES: ExerciseDefinition[] = [
     {

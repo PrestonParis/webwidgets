@@ -21,7 +21,7 @@ import {
     type InjuryLogDraft,
     type InjuryStatus,
     type PainQuality,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import { InjuryLogFormBody, type InjuryFormState } from './InjuryLogFormBody';
 import { InjuryLogHistory } from './InjuryLogHistory';
 

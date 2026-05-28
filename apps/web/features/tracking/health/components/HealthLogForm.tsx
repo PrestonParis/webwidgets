@@ -14,8 +14,8 @@ import type {
     SicknessLog,
     SicknessType,
     TemperatureUnit,
-} from '@/features/tracking/health/lib/types';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/health/types/health';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 import { SicknessSection } from './SicknessSection';
 import { AllergySection } from './AllergySection';
 

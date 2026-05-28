@@ -5,7 +5,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useJournalEntries } from '@/features/journal/hooks/useJournalEntries';
 import { journalService } from '@/features/journal/api/journalService';
 import type { JournalEntry } from '@/features/journal/types/journal';
-import type { NoteType } from '@/features/texteditor/types';
+import type { NoteType } from '@/features/texteditor/types/texteditor';
 
 const storageKey = (t: NoteType) => `te_last_${t}_id`;
 

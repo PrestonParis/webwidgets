@@ -2,7 +2,7 @@
 
 import { useInsightConsent } from '@/features/tracking/hooks/useInsightConsent';
 import { useTrackingInsights } from '@/features/tracking/hooks/useTrackingInsights';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 interface InsightPanelProps {
     entries: TrackingEntry[];

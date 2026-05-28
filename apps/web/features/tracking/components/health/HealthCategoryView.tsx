@@ -23,7 +23,7 @@ import {
 import type {
     TrackingEntry,
     BaseTrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 type HealthTab = 'history' | 'trends' | 'stats' | 'goals';
 

@@ -8,7 +8,7 @@ import {
     deleteEntry,
 } from '@/features/tracking/api/trackingApi';
 import { migrateMoodLogs } from '@/features/tracking/api/moodMigrationApi';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 const MOOD_MIGRATION_KEY = 'tracking_mood_migrated';
 

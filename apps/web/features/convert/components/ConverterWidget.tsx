@@ -23,7 +23,7 @@ import {
     getConversionMetadata,
     isConversionExtension,
     type ConversionExtension,
-} from '@/features/convert/lib/conversionTypes';
+} from '@/features/convert/types/conversion';
 
 interface ConverterWidgetProps {
     fullPage?: boolean | undefined;

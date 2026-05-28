@@ -29,13 +29,13 @@ import {
 import {
     type BiometricWindow,
     type InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import { WeightBMIPanel } from './WeightBMIPanel';
 import type {
     BaseTrackingEntry,
     TrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 type HealthTab =
     | 'body'

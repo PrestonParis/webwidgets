@@ -3,7 +3,7 @@ import type {
     ProviderConnection,
 } from '@/features/tracking/types/providers';
 import type { HealthProvider } from '@/features/tracking/types/providers';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 export class OuraProvider implements HealthProviderAdapter {
     readonly provider: HealthProvider = 'oura';

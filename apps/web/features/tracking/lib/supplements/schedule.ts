@@ -1,7 +1,13 @@
-import type { DueDose, SupplementLog } from './logTypes';
-import type { DoseStatus, TimeOfDayGroup } from './baseTypes';
-import type { SupplementDefinition } from './definitionTypes';
-import type { SupplementSchedule } from './scheduleTypes';
+import type {
+    DueDose,
+    SupplementLog,
+} from '@/features/tracking/types/supplementLogs';
+import type {
+    DoseStatus,
+    TimeOfDayGroup,
+} from '@/features/tracking/types/supplementBase';
+import type { SupplementDefinition } from '@/features/tracking/types/supplementDefinitions';
+import type { SupplementSchedule } from '@/features/tracking/types/supplementSchedule';
 
 export function defaultSchedule(time = '08:00'): SupplementSchedule {
     return {

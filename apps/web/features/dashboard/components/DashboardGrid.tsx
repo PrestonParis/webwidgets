@@ -29,7 +29,10 @@ import { getWidgetMetadata } from '@/features/widgets/registry/widgetMetadata';
 import { DASHBOARD_BOOTSTRAP_WIDGET_COUNT } from '@/features/dashboard/lib/dashboardSnapshotBootstrap';
 import { ViewportWidgetMount } from './ViewportWidgetMount';
 import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
-import { getWidgetEmoji, getWidgetLabel } from './freeCanvasUtils';
+import {
+    getWidgetEmoji,
+    getWidgetLabel,
+} from '@/features/dashboard/lib/freeCanvasUtils';
 
 const DENSE_WIDGET_THRESHOLD = 12;
 const DENSE_WIDGET_BODY_BUDGET = 4;

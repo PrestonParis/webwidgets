@@ -3,7 +3,7 @@ import {
     type TissueType,
     type RegionView,
     type RegionSide,
-} from './types';
+} from '@/features/tracking/health/types/health';
 
 export function makeRegion(
     id: string,

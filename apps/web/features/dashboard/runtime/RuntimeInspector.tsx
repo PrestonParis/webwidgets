@@ -18,23 +18,18 @@ import {
  * - Persist visibility state in localStorage
  */
 export function RuntimeInspector() {
-    if (process.env.NODE_ENV === 'production') return null;
-
     const { state, snapshot } = useDashboardRuntime();
-    const [visible, setVisible] = useState(false);
-    const [expanded, setExpanded] = useState(false);
-
-    // Load visibility from localStorage on mount
-    useEffect(() => {
+    const [visible, setVisible] = useState(() => {
         try {
-            const stored = localStorage.getItem(
-                DEV_RUNTIME_INSPECTOR_STORAGE_KEY,
+            return (
+                localStorage.getItem(DEV_RUNTIME_INSPECTOR_STORAGE_KEY) ===
+                'true'
             );
-            if (stored === 'true') setVisible(true);
         } catch {
-            // Ignore localStorage errors
+            return false;
         }
-    }, []);
+    });
+    const [expanded, setExpanded] = useState(false);
 
     // Save visibility to localStorage when changed
     useEffect(() => {
@@ -60,6 +55,7 @@ export function RuntimeInspector() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+    if (process.env.NODE_ENV === 'production') return null;
     if (!visible) return null;
 
     const widgetRecords = Array.from(state.records.values());
@@ -69,9 +65,9 @@ export function RuntimeInspector() {
     const hydratingWidgets = widgetRecords.filter((r) =>
         state.activeHydrationIds.has(r.id),
     );
-    const hydratedWidgets = widgetRecords.filter((r) =>
+    /*const hydratedWidgets = widgetRecords.filter((r) =>
         state.hydratedIds.has(r.id),
-    );
+    );*/
     const failedWidgets = widgetRecords.filter((r) =>
         state.failedIds.has(r.id),
     );

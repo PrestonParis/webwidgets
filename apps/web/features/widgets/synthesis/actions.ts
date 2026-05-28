@@ -1,4 +1,4 @@
-import type { ActionRegistryEntry } from './actionTypes';
+import type { ActionRegistryEntry } from '../types/synthesisActions';
 import { ACTION_REGISTRY_PART_1 } from './actionsPart1';
 import { ACTION_REGISTRY_PART_2 } from './actionsPart2';
 import { ACTION_REGISTRY_PART_3 } from './actionsPart3';

@@ -1,8 +1,12 @@
 import type {
     TrackingEntry,
     TrackingMetadata,
-} from '@/features/tracking/types/trackingEntryTypes';
-import type { InjuryLog, InjuryStatus, RedFlag } from './types';
+} from '@/features/tracking/types/trackingEntries';
+import type {
+    InjuryLog,
+    InjuryStatus,
+    RedFlag,
+} from '@/features/tracking/health/types/health';
 import { lerpHex } from './analyticsCoerce';
 
 const SEVERITY_SCALES: Record<

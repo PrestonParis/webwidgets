@@ -1,7 +1,7 @@
 'use client';
 
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
-import type { WidgetLayoutType } from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetLayoutType } from '@/features/widgets/types/synthesisWidgets';
 
 interface LayoutStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

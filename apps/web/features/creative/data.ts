@@ -8,10 +8,7 @@ import {
     Shapes,
     Type,
 } from 'lucide-react';
-import type {
-    CreativeExportTarget,
-    CreativeTool,
-} from './types';
+import type { CreativeExportTarget, CreativeTool } from './types/creative';
 
 export const creativeTools: {
     id: CreativeTool;

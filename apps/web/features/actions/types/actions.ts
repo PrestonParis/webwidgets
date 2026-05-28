@@ -1,5 +1,5 @@
 import type { Json } from '@/types/supabase';
-import type { ConfidenceScore } from '@/features/intelligence/types/inferenceTypes';
+import type { ConfidenceScore } from '@/features/intelligence/types/inference';
 import type {
     ActionCategory,
     ApprovalState,

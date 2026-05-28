@@ -1,6 +1,6 @@
-import type { WidgetPermission } from '@/features/platform/types/widgetTypes';
-import type { WidgetTransformationType } from './widgetTypes';
-import type { DataSourceRegistryEntry } from './dataSourceTypes';
+import type { WidgetPermission } from '@/features/platform/types/widget';
+import type { WidgetTransformationType } from '../types/synthesisWidgets';
+import type { DataSourceRegistryEntry } from '../types/synthesisDataSources';
 
 const ALL_TRANSFORMS: WidgetTransformationType[] = [
     'pick_fields',

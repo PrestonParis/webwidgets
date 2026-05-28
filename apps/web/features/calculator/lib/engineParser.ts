@@ -1,4 +1,4 @@
-import type { AngleUnit } from '../types';
+import type { AngleUnit } from '../types/calculator';
 import { type Token, type TK } from './engineTokenizer';
 import { CONSTANTS, FUNCTION_NAMES, factN, applyFn } from './engineFunctions';
 

@@ -1,4 +1,4 @@
-import type { WearableProvider } from './types';
+import type { WearableProvider } from '@/features/tracking/types/fitnessProviders';
 
 function unavailable(id: string, label: string): WearableProvider {
     return {

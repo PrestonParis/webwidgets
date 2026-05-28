@@ -1,9 +1,14 @@
 'use client';
 
 import type { QuickEntryFormState } from '@/features/tracking/hooks/useQuickEntryForm';
-import type { ExerciseEntry } from '@/features/tracking/lib/fitness/types';
+import type { ExerciseEntry } from '@/features/tracking/types/fitness';
 import { calculateWorkoutTotals } from '@/features/tracking/lib/fitness/normalize';
-import { inputCls, labelCls, btnCls, makeExercise } from './workoutFieldsUtils';
+import {
+    inputCls,
+    labelCls,
+    btnCls,
+    makeExercise,
+} from '@/features/tracking/lib/quickEntry/workoutFieldsUtils';
 import { WorkoutExerciseRow } from './WorkoutExerciseRow';
 
 interface WorkoutFieldsProps {

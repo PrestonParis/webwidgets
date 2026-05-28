@@ -3,7 +3,7 @@ import type {
     Correlation,
 } from '@/features/tracking/types/analytics';
 import type { InsightConsent } from '@/features/tracking/types/insights';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import { extractMetricSeries } from '@/features/tracking/lib/analyticsEngine';
 import { getAllTrackingCategoryConfigs } from '@/features/tracking/lib/categoryConfig';
 

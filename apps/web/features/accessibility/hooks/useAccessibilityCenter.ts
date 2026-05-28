@@ -10,8 +10,11 @@ import type {
     AccessibilityFilters,
     AccessibilityMode,
     AccessibilityPreference,
-} from '../types';
-import { useAccessibility, type Density } from '../context/AccessibilityContext';
+} from '../types/accessibility';
+import {
+    useAccessibility,
+    type Density,
+} from '../context/AccessibilityContext';
 
 const defaultFilters: AccessibilityFilters = {
     query: '',
@@ -33,26 +36,42 @@ function densityToSlider(density: Density): number {
 
 export function useAccessibilityCenter() {
     const a11y = useAccessibility();
-    const [filters, setFilters] = useState<AccessibilityFilters>(defaultFilters);
+    const [filters, setFilters] =
+        useState<AccessibilityFilters>(defaultFilters);
     // Local state for modes not yet wired to global context
     const [localModes, setLocalModes] = useState<AccessibilityMode[]>(
         accessibilityModes.filter((m) => m.id !== 'mode-1d'),
     );
     const [saving, setSaving] = useState(false);
 
-    const preferences: AccessibilityPreference[] = accessibilityPreferences.map((pref) => {
-        switch (pref.id) {
-            case 'pref-contrast': return { ...pref, enabled: a11y.contrast };
-            case 'pref-motion': return { ...pref, enabled: a11y.reducedMotion };
-            case 'pref-focus': return { ...pref, enabled: a11y.focusOutlines };
-            case 'pref-density': return { ...pref, enabled: true, value: densityToSlider(a11y.density) };
-            case 'pref-captions': return { ...pref, enabled: a11y.transcriptionFirst };
-            default: return pref;
-        }
-    });
+    const preferences: AccessibilityPreference[] = accessibilityPreferences.map(
+        (pref) => {
+            switch (pref.id) {
+                case 'pref-contrast':
+                    return { ...pref, enabled: a11y.contrast };
+                case 'pref-motion':
+                    return { ...pref, enabled: a11y.reducedMotion };
+                case 'pref-focus':
+                    return { ...pref, enabled: a11y.focusOutlines };
+                case 'pref-density':
+                    return {
+                        ...pref,
+                        enabled: true,
+                        value: densityToSlider(a11y.density),
+                    };
+                case 'pref-captions':
+                    return { ...pref, enabled: a11y.transcriptionFirst };
+                default:
+                    return pref;
+            }
+        },
+    );
 
     const modes: AccessibilityMode[] = [
-        { ...accessibilityModes.find((m) => m.id === 'mode-1d')!, enabled: a11y.oneDimensionalMode },
+        {
+            ...accessibilityModes.find((m) => m.id === 'mode-1d')!,
+            enabled: a11y.oneDimensionalMode,
+        },
         ...localModes,
     ];
 
@@ -71,8 +90,10 @@ export function useAccessibilityCenter() {
                     .toLowerCase();
                 return (
                     (!query || haystack.includes(query)) &&
-                    (filters.category === 'all' || audit.category === filters.category) &&
-                    (filters.status === 'all' || audit.status === filters.status)
+                    (filters.category === 'all' ||
+                        audit.category === filters.category) &&
+                    (filters.status === 'all' ||
+                        audit.status === filters.status)
                 );
             }),
         [filters],
@@ -98,10 +119,18 @@ export function useAccessibilityCenter() {
 
     const togglePreference = (id: string) => {
         switch (id) {
-            case 'pref-contrast': a11y.setContrast(!a11y.contrast); break;
-            case 'pref-motion': a11y.setReducedMotion(!a11y.reducedMotion); break;
-            case 'pref-focus': a11y.setFocusOutlines(!a11y.focusOutlines); break;
-            case 'pref-captions': a11y.setTranscriptionFirst(!a11y.transcriptionFirst); break;
+            case 'pref-contrast':
+                a11y.setContrast(!a11y.contrast);
+                break;
+            case 'pref-motion':
+                a11y.setReducedMotion(!a11y.reducedMotion);
+                break;
+            case 'pref-focus':
+                a11y.setFocusOutlines(!a11y.focusOutlines);
+                break;
+            case 'pref-captions':
+                a11y.setTranscriptionFirst(!a11y.transcriptionFirst);
+                break;
         }
     };
 
@@ -124,7 +153,9 @@ export function useAccessibilityCenter() {
             a11y.setOneDimensionalMode(!a11y.oneDimensionalMode);
         } else {
             setLocalModes((prev) =>
-                prev.map((m) => (m.id === id ? { ...m, enabled: !m.enabled } : m)),
+                prev.map((m) =>
+                    m.id === id ? { ...m, enabled: !m.enabled } : m,
+                ),
             );
         }
     };
@@ -153,8 +184,12 @@ export function useAccessibilityCenter() {
         }
     }, [a11y]);
 
-    const passingCount = accessibilityAudits.filter((a) => a.status === 'passing').length;
-    const passingPercent = Math.round((passingCount / accessibilityAudits.length) * 100);
+    const passingCount = accessibilityAudits.filter(
+        (a) => a.status === 'passing',
+    ).length;
+    const passingPercent = Math.round(
+        (passingCount / accessibilityAudits.length) * 100,
+    );
 
     return {
         preferences,

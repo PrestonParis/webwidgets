@@ -6,7 +6,11 @@ import {
     useFormFillerProfiles,
     useFormFillerJobs,
 } from '../hooks/useFormFiller';
-import type { FormFillerProfile, FillFormProps, FormFillerJob } from '../types';
+import type {
+    FormFillerProfile,
+    FillFormProps,
+    FormFillerJob,
+} from '../types/formFiller';
 import { ProfileEditor } from './ProfileEditor';
 import { FillForm } from './FillForm';
 import { JobHistory } from './JobHistory';

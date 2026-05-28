@@ -5,7 +5,7 @@ import {
     formatMetadataDisplay,
 } from '@/features/tracking/lib/trackingUtils';
 import { getCategoryEmoji } from '@/features/tracking/constants';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 
 interface TableViewProps {
