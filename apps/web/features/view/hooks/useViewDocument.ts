@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import type { ViewFileRef } from '@/features/view/schemas/viewSchemas';
-import type { NormalizedViewDocument } from '@/features/view/schemas/viewSchemas';
+import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
+import type { NormalizedViewDocument } from '@/features/view/schemas/objectSchemas';
 
 async function parseFile(file: ViewFileRef): Promise<NormalizedViewDocument> {
     const response = await fetch('/api/view/parse', {

@@ -1,11 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type {
-    MemoryDifficulty,
-    MemoryFilters,
-    MemoryStatus,
-} from '../types';
+import type { MemoryDifficulty, MemoryFilters, MemoryStatus } from '../types';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
 export interface MemoryDeckRecord {
@@ -86,23 +82,33 @@ export function useMemorization() {
     }, [selectedDeckId]);
 
     useEffect(() => {
-        void fetchAll();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        const timeoutId = window.setTimeout(() => {
+            void fetchAll();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
+    }, [fetchAll]);
 
-    const createDeck = useCallback(async (data: { title: string; domain?: string; description?: string; source?: string }) => {
-        const res = await fetch('/api/memory/decks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!res.ok) throw new Error('Failed to create deck');
-        clearCachedJson('/api/memory/decks');
-        const deck = await res.json() as MemoryDeckRecord;
-        setDecks((prev) => [deck, ...prev]);
-        setSelectedDeckId(deck.id);
-        return deck;
-    }, []);
+    const createDeck = useCallback(
+        async (data: {
+            title: string;
+            domain?: string;
+            description?: string;
+            source?: string;
+        }) => {
+            const res = await fetch('/api/memory/decks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error('Failed to create deck');
+            clearCachedJson('/api/memory/decks');
+            const deck = (await res.json()) as MemoryDeckRecord;
+            setDecks((prev) => [deck, ...prev]);
+            setSelectedDeckId(deck.id);
+            return deck;
+        },
+        [],
+    );
 
     const deleteDeck = useCallback(async (id: string) => {
         await fetch(`/api/memory/decks/${id}`, { method: 'DELETE' });
@@ -112,30 +118,36 @@ export function useMemorization() {
         setCards((prev) => prev.filter((c) => c.deck_id !== id));
     }, []);
 
-    const createCard = useCallback(async (data: { deck_id: string; front: string; back: string }) => {
-        const res = await fetch('/api/memory/cards', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!res.ok) throw new Error('Failed to create card');
-        clearCachedJson('/api/memory/cards');
-        const card = await res.json() as MemoryCardRecord;
-        setCards((prev) => [card, ...prev]);
-        return card;
-    }, []);
+    const createCard = useCallback(
+        async (data: { deck_id: string; front: string; back: string }) => {
+            const res = await fetch('/api/memory/cards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error('Failed to create card');
+            clearCachedJson('/api/memory/cards');
+            const card = (await res.json()) as MemoryCardRecord;
+            setCards((prev) => [card, ...prev]);
+            return card;
+        },
+        [],
+    );
 
-    const gradeCard = useCallback(async (id: string, difficulty: MemoryDifficulty) => {
-        const res = await fetch(`/api/memory/cards/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ grade: difficulty }),
-        });
-        if (!res.ok) return;
-        clearCachedJson('/api/memory/cards');
-        const updated = await res.json() as MemoryCardRecord;
-        setCards((prev) => prev.map((c) => c.id === id ? updated : c));
-    }, []);
+    const gradeCard = useCallback(
+        async (id: string, difficulty: MemoryDifficulty) => {
+            const res = await fetch(`/api/memory/cards/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grade: difficulty }),
+            });
+            if (!res.ok) return;
+            clearCachedJson('/api/memory/cards');
+            const updated = (await res.json()) as MemoryCardRecord;
+            setCards((prev) => prev.map((c) => (c.id === id ? updated : c)));
+        },
+        [],
+    );
 
     const deleteCard = useCallback(async (id: string) => {
         await fetch(`/api/memory/cards/${id}`, { method: 'DELETE' });
@@ -143,32 +155,43 @@ export function useMemorization() {
         setCards((prev) => prev.filter((c) => c.id !== id));
     }, []);
 
-    const createRoutine = useCallback(async (data: { title: string; description?: string; domain?: string; minutes?: number }) => {
-        const res = await fetch('/api/memory/routines', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        if (!res.ok) throw new Error('Failed to create routine');
-        clearCachedJson('/api/memory/routines');
-        const routine = await res.json() as MemoryRoutineRecord;
-        setRoutines((prev) => [...prev, routine]);
-        return routine;
-    }, []);
+    const createRoutine = useCallback(
+        async (data: {
+            title: string;
+            description?: string;
+            domain?: string;
+            minutes?: number;
+        }) => {
+            const res = await fetch('/api/memory/routines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error('Failed to create routine');
+            clearCachedJson('/api/memory/routines');
+            const routine = (await res.json()) as MemoryRoutineRecord;
+            setRoutines((prev) => [...prev, routine]);
+            return routine;
+        },
+        [],
+    );
 
-    const toggleRoutine = useCallback(async (id: string) => {
-        const routine = routines.find((r) => r.id === id);
-        if (!routine) return;
-        const res = await fetch('/api/memory/routines', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, enabled: !routine.enabled }),
-        });
-        if (!res.ok) return;
-        clearCachedJson('/api/memory/routines');
-        const updated = await res.json() as MemoryRoutineRecord;
-        setRoutines((prev) => prev.map((r) => r.id === id ? updated : r));
-    }, [routines]);
+    const toggleRoutine = useCallback(
+        async (id: string) => {
+            const routine = routines.find((r) => r.id === id);
+            if (!routine) return;
+            const res = await fetch('/api/memory/routines', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, enabled: !routine.enabled }),
+            });
+            if (!res.ok) return;
+            clearCachedJson('/api/memory/routines');
+            const updated = (await res.json()) as MemoryRoutineRecord;
+            setRoutines((prev) => prev.map((r) => (r.id === id ? updated : r)));
+        },
+        [routines],
+    );
 
     const selectedDeck = useMemo(
         () => decks.find((d) => d.id === selectedDeckId) ?? decks[0] ?? null,
@@ -186,26 +209,36 @@ export function useMemorization() {
         () =>
             decks.filter((deck) => {
                 const query = filters.query.trim().toLowerCase();
-                const haystack = [deck.title, deck.description ?? '', deck.domain, deck.source ?? '', deck.status]
+                const haystack = [
+                    deck.title,
+                    deck.description ?? '',
+                    deck.domain,
+                    deck.source ?? '',
+                    deck.status,
+                ]
                     .join(' ')
                     .toLowerCase();
                 return (
                     (!query || haystack.includes(query)) &&
-                    (filters.domain === 'all' || deck.domain === filters.domain) &&
+                    (filters.domain === 'all' ||
+                        deck.domain === filters.domain) &&
                     (filters.status === 'all' || deck.status === filters.status)
                 );
             }),
         [decks, filters],
     );
 
-    const updateFilter = <Key extends keyof MemoryFilters>(key: Key, value: MemoryFilters[Key]) =>
-        setFilters((current) => ({ ...current, [key]: value }));
+    const updateFilter = <Key extends keyof MemoryFilters>(
+        key: Key,
+        value: MemoryFilters[Key],
+    ) => setFilters((current) => ({ ...current, [key]: value }));
 
     const resetFilters = () => setFilters(defaultFilters);
 
     const totalCards = cards.length;
     const masteredCards = cards.filter((c) => c.status === 'mastered').length;
-    const retentionPct = totalCards > 0 ? Math.round((masteredCards / totalCards) * 100) : 0;
+    const retentionPct =
+        totalCards > 0 ? Math.round((masteredCards / totalCards) * 100) : 0;
 
     return {
         decks,

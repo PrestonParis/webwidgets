@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNewsFeed } from '@/features/news/api/newsClient';
 import { filterFeedItems } from '@/features/news/search/feedSearchIndex';
-import type { RankedFeedItem } from '@/features/news/schemas/eventSchemas';
+import type { RankedFeedItem } from '@/features/news/schemas/eventTypes';
 import type { NewsFeedFilters } from '@/features/news/types/news';
 
 const defaultFilters: NewsFeedFilters = {
@@ -34,21 +34,34 @@ async function applyMlRanking(
             signal: AbortSignal.timeout(5000),
         });
         if (!res.ok) return items;
-        const data = await res.json() as { ranked?: { id: string; relevance_score: number }[] };
+        const data = (await res.json()) as {
+            ranked?: { id: string; relevance_score: number }[];
+        };
         if (!data.ranked?.length) return items;
-        const scoreMap = new Map(data.ranked.map((r) => [r.id, r.relevance_score]));
-        return [...items].sort((a, b) => (scoreMap.get(b.id) ?? b.rankScore) - (scoreMap.get(a.id) ?? a.rankScore));
+        const scoreMap = new Map(
+            data.ranked.map((r) => [r.id, r.relevance_score]),
+        );
+        return [...items].sort(
+            (a, b) =>
+                (scoreMap.get(b.id) ?? b.rankScore) -
+                (scoreMap.get(a.id) ?? a.rankScore),
+        );
     } catch {
         return items;
     }
 }
 
-export function useNewsFeed(initialFilters: Partial<NewsFeedFilters> = {}, userTopics: string[] = []) {
+export function useNewsFeed(
+    initialFilters: Partial<NewsFeedFilters> = {},
+    userTopics: string[] = [],
+) {
     const [filters, setFilters] = useState<NewsFeedFilters>({
         ...defaultFilters,
         ...initialFilters,
     });
-    const [mlRankedItems, setMlRankedItems] = useState<RankedFeedItem[] | null>(null);
+    const [mlRankedItems, setMlRankedItems] = useState<RankedFeedItem[] | null>(
+        null,
+    );
     const [mlRanked, setMlRanked] = useState(false);
     const prevItemCountRef = useRef(0);
 
@@ -59,16 +72,20 @@ export function useNewsFeed(initialFilters: Partial<NewsFeedFilters> = {}, userT
         refetchInterval: 5 * 60_000,
     });
 
-    const rawItems = query.data?.items ?? [];
+    const rawItems = useMemo(
+        () => query.data?.items ?? [],
+        [query.data?.items],
+    );
 
     useEffect(() => {
-        if (!rawItems.length || rawItems.length === prevItemCountRef.current) return;
+        if (!rawItems.length || rawItems.length === prevItemCountRef.current)
+            return;
         prevItemCountRef.current = rawItems.length;
         void applyMlRanking(rawItems, userTopics).then((ranked) => {
             setMlRankedItems(ranked);
             setMlRanked(true);
         });
-    }, [rawItems.length, userTopics]);
+    }, [rawItems, userTopics]);
 
     const items = mlRankedItems ?? rawItems;
     const filteredItems = useMemo(

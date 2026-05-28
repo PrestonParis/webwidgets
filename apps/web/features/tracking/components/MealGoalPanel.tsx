@@ -32,14 +32,17 @@ export function MealGoalPanel({ onClose }: MealGoalPanelProps) {
     const [proteinError, setProteinError] = useState('');
 
     useEffect(() => {
-        if (calorieGoal) {
-            setCalorieTarget(calorieGoal.targetValue);
-            setEnableCalories(true);
-        }
-        if (proteinGoal) {
-            setProteinMin(proteinGoal.targetValue);
-            setEnableProtein(true);
-        }
+        const timeoutId = window.setTimeout(() => {
+            if (calorieGoal) {
+                setCalorieTarget(calorieGoal.targetValue);
+                setEnableCalories(true);
+            }
+            if (proteinGoal) {
+                setProteinMin(proteinGoal.targetValue);
+                setEnableProtein(true);
+            }
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [calorieGoal, proteinGoal]);
 
     const validate = (): boolean => {

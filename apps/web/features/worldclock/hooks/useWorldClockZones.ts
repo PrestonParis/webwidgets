@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export interface ClockZone {
     label: string;
@@ -68,11 +68,7 @@ function loadZones(): string[] {
 }
 
 export function useWorldClockZones() {
-    const [activeTzs, setActiveTzs] = useState<string[]>(DEFAULT_TZS);
-
-    useEffect(() => {
-        setActiveTzs(loadZones());
-    }, []);
+    const [activeTzs, setActiveTzs] = useState<string[]>(() => loadZones());
 
     const addZone = useCallback((tz: string) => {
         setActiveTzs((prev) => {

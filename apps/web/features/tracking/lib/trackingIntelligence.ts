@@ -7,7 +7,7 @@ import {
 import { summarizeCategoryMetrics } from '@/features/tracking/lib/metricRenderer';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 import type { Correlation } from '@/features/tracking/types/analytics';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 export type TrackingInsight = {
     label: string;

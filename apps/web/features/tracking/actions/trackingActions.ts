@@ -1,7 +1,9 @@
-import type { TrackingActionDefinition } from '@/features/tracking/types/tracking';
+import type { TrackingActionDefinition } from '@/features/tracking/types/trackingActionTypes';
 
-function registeredAction(message: string): TrackingActionDefinition['handler'] {
-    return async () => ({ ok: true, message });
+function registeredAction(
+    message: string,
+): TrackingActionDefinition['handler'] {
+    return () => Promise.resolve({ ok: true, message });
 }
 
 export const TRACKING_ACTIONS: TrackingActionDefinition[] = [
@@ -67,7 +69,9 @@ export const TRACKING_ACTIONS: TrackingActionDefinition[] = [
             },
         ],
         routeTarget: '/tracking',
-        handler: registeredAction('Open goal settings for the selected category.'),
+        handler: registeredAction(
+            'Open goal settings for the selected category.',
+        ),
     },
     {
         id: 'tracking.plan_recovery',

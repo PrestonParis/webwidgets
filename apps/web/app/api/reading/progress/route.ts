@@ -37,19 +37,21 @@ export async function GET(req: Request) {
                 { status: 400 },
             );
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_positions')
             .select('*')
             .eq('user_id', user.id)
             .eq('document_id', documentId)
-            .maybeSingle();
+            .maybeSingle()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
-        if (error?.code === '42P01') return NextResponse.json(null);
+        if ((error as { code?: string })?.code === '42P01')
+            return NextResponse.json(null);
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });
-        return NextResponse.json(
-            data ? rowToProgress(data as Record<string, unknown>) : null,
-        );
+        return NextResponse.json(data ? rowToProgress(data) : null);
     } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -66,7 +68,7 @@ export async function POST(req: Request) {
             versionId?: string;
         };
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_positions')
             .upsert(
                 {
@@ -82,7 +84,10 @@ export async function POST(req: Request) {
                 { onConflict: 'user_id,document_id' },
             )
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });

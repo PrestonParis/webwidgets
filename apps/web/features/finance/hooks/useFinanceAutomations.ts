@@ -1,25 +1,29 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { FinanceAutomationRule } from '@/features/finance/types/finance';
 
 const STORAGE_KEY = 'finance-automation-disabled-rules';
 
 export function useFinanceAutomations(baseRules: FinanceAutomationRule[]) {
-    const [disabledRules, setDisabledRules] = useState<Set<string>>(new Set());
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
+    const [disabledRules, setDisabledRules] = useState<Set<string>>(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             try {
-                setDisabledRules(new Set(JSON.parse(stored)));
+                const parsed: unknown = JSON.parse(stored);
+                if (
+                    Array.isArray(parsed) &&
+                    parsed.every((item) => typeof item === 'string')
+                ) {
+                    return new Set(parsed);
+                }
             } catch {
-                setDisabledRules(new Set());
+                return new Set();
             }
         }
-        setMounted(true);
-    }, []);
+        return new Set();
+    });
+    const mounted = true;
 
     const toggleRule = useCallback((ruleId: string) => {
         setDisabledRules((prev) => {

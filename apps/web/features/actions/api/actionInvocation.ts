@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
     actionRequestEnvelopeSchema,
     type ActionRequestEnvelope,
-} from '@/features/actions/schemas/actionSchemas';
+} from '@/features/actions/schemas/actionPayloadSchemas';
 
 const maybeSerializedSchema = z.union([
     z.string(),
@@ -19,7 +19,9 @@ export async function parseActionInvocationRequest(
         typeof body === 'string'
             ? superjson.parse(body)
             : 'json' in body
-              ? superjson.deserialize(body as Parameters<typeof superjson.deserialize>[0])
+              ? superjson.deserialize(
+                    body as Parameters<typeof superjson.deserialize>[0],
+                )
               : body;
 
     return actionRequestEnvelopeSchema.parse(deserialized);

@@ -53,5 +53,14 @@ export function useReadingLibrary(): UseReadingLibraryState {
         return () => clearTimeout(timer);
     }, [load, search]);
 
-    return { documents, loading, error, search, setSearch, reload: load };
+    return {
+        documents,
+        loading,
+        error,
+        search,
+        setSearch,
+        reload: () => {
+            void load();
+        },
+    };
 }

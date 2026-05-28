@@ -3,7 +3,10 @@
  * Display is purely optional — only fields with data are shown.
  */
 
-import type { MicronutrientFieldMeta, MicronutrientProfile } from './types';
+import type {
+    MicronutrientFieldMeta,
+    MicronutrientProfile,
+} from './micronutrientTypes';
 
 export const MICRONUTRIENT_FIELDS: MicronutrientFieldMeta[] = [
     { key: 'potassiumMg', label: 'Potassium', unit: 'mg' },

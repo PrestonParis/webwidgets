@@ -17,17 +17,26 @@ export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const { data } = await supabase
+        const { data } = (await supabase
             .from('accessibility_settings')
             .select('*')
             .eq('user_id', userId)
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: unknown;
+        };
         return NextResponse.json(data ?? { user_id: userId, ...defaults });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -35,8 +44,8 @@ export async function PUT(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = await req.json() as Record<string, unknown>;
-        const { data, error } = await supabase
+        const body = (await req.json()) as Record<string, unknown>;
+        const { data, error } = (await supabase
             .from('accessibility_settings')
             .upsert({
                 user_id: userId,
@@ -44,13 +53,22 @@ export async function PUT(req: Request) {
                 updated_at: new Date().toISOString(),
             })
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
         if (error) throw error;
         return NextResponse.json(data);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }

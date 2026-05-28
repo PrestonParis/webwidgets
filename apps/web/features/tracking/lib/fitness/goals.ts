@@ -1,5 +1,6 @@
 import type { TrackingGoal } from '@/features/tracking/types/goals';
-import type { FitnessGoalConfig, WorkoutSession } from './types';
+import type { FitnessGoalConfig } from './goalTypes';
+import type { WorkoutSession } from './types';
 
 export function parseFitnessGoal(goal: TrackingGoal | null): FitnessGoalConfig {
     if (!goal) {

@@ -7,11 +7,11 @@ import {
 } from '@/features/widgets/synthesis/dataSourceRegistry';
 import { customApiConfigToDataSource } from '@/features/widgets/synthesis/custom/customWidgetContracts';
 import { validateCustomApiSource } from '@/features/widgets/synthesis/security/customWidgetSecurity';
+import type { CustomApiSourceConfig } from '@/features/widgets/synthesis/widgetIntentInterfaces';
 import type {
-    CustomApiSourceConfig,
     SynthesizedWidgetDefinition,
     SynthesizedDataSourceDef,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 interface DataSourceStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

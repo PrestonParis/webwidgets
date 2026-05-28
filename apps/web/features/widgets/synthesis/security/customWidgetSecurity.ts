@@ -3,7 +3,7 @@ import {
     customApiSourceConfigSchema,
     type CustomApiSourceConfigInput,
 } from '@/features/widgets/synthesis/schemas/widgetSynthesisSchemas';
-import type { WidgetValidationIssue } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { WidgetValidationIssue } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 
 const BLOCKED_HOSTS = [
     'localhost',

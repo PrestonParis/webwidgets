@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 
 interface UseFetchResult<T> {
     data: T | null;
@@ -10,36 +10,57 @@ interface UseFetchResult<T> {
 }
 
 export function useAdminFetch<T>(url: string): UseFetchResult<T> {
-    const [data, setData] = useState<T | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [tick, setTick] = useState(0);
+    type State = { data: T | null; loading: boolean; error: string | null };
+    type Action =
+        | { type: 'start' }
+        | { type: 'ok'; data: T }
+        | { type: 'err'; message: string };
+
+    const [state, dispatch] = useReducer(
+        (s: State, action: Action): State => {
+            switch (action.type) {
+                case 'start':
+                    return { ...s, loading: true, error: null };
+                case 'ok':
+                    return { data: action.data, loading: false, error: null };
+                case 'err':
+                    return { ...s, loading: false, error: action.message };
+            }
+        },
+        { data: null, loading: true, error: null },
+    );
+    const [tick, bumpTick] = useReducer((n: number) => n + 1, 0);
 
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
-        setError(null);
+        dispatch({ type: 'start' });
 
         fetch(url)
             .then(async (res) => {
                 const json = (await res.json()) as T;
                 if (!cancelled) {
-                    if (!res.ok)
-                        setError(
-                            (json as Record<string, string>).error ??
+                    if (!res.ok) {
+                        dispatch({
+                            type: 'err',
+                            message:
+                                (json as Record<string, string>).error ??
                                 'Request failed',
-                        );
-                    else setData(json);
+                        });
+                    } else {
+                        dispatch({ type: 'ok', data: json });
+                    }
                 }
             })
             .catch((err: unknown) => {
-                if (!cancelled)
-                    setError(
-                        err instanceof Error ? err.message : 'Unknown error',
-                    );
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
+                if (!cancelled) {
+                    dispatch({
+                        type: 'err',
+                        message:
+                            err instanceof Error
+                                ? err.message
+                                : 'Unknown error',
+                    });
+                }
             });
 
         return () => {
@@ -47,7 +68,12 @@ export function useAdminFetch<T>(url: string): UseFetchResult<T> {
         };
     }, [url, tick]);
 
-    const refetch = useCallback(() => setTick((t) => t + 1), []);
+    const refetch = useCallback(() => bumpTick(), []);
 
-    return { data, loading, error, refetch };
+    return {
+        data: state.data,
+        loading: state.loading,
+        error: state.error,
+        refetch,
+    };
 }

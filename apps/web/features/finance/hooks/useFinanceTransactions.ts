@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { listFinanceTransactions } from '@/features/finance/services/financeService';
 import {
-    listFinanceTransactions,
     createFinanceTransactionForUser,
     deleteFinanceTransactionForUser,
     updateFinanceTransactionForUser,
-} from '@/features/finance/services/financeService';
+} from '@/features/finance/services/financeTransactionService';
 import { db } from '@/lib/db/supabase';
 import type { FinanceTransaction } from '@/features/finance/types/finance';
 import type { SupabaseClient } from '@supabase/supabase-js';

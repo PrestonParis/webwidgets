@@ -2,18 +2,13 @@
 
 import { useState, useRef } from 'react';
 import { Send } from 'lucide-react';
-
-interface Props {
-    onSend: (content: string) => void;
-    disabled: boolean;
-    placeholder?: string;
-}
+import type { MessageInputProps } from '@/features/chatbot/types/chat';
 
 export function MessageInput({
     onSend,
     disabled,
     placeholder = 'Ask anything…',
-}: Props) {
+}: MessageInputProps) {
     const [text, setText] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 

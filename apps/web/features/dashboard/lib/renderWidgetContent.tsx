@@ -39,6 +39,9 @@ const ChessWidget = lazy(
 const TimekeepingWidget = lazy(
     () => import('@/features/timekeeping/components/TimekeepingWidget'),
 );
+const EmployeeClockWidget = lazy(
+    () => import('@/features/timekeeping/components/EmployeeClockWidget'),
+);
 const TimerWidget = lazy(
     () => import('@/features/timekeeping/components/TimerWidget'),
 );
@@ -166,6 +169,8 @@ export function renderWidgetContent(
             return wrap(<ChessWidget />);
         case 'timekeeping':
             return wrap(<TimekeepingWidget />);
+        case 'employee-clock':
+            return wrap(<EmployeeClockWidget />);
         case 'timer':
             return wrap(<TimerWidget />);
         case 'stopwatch':

@@ -5,12 +5,9 @@ import { BarChart } from '@/features/tracking/viz/BarChart';
 import { LineChart } from '@/features/tracking/viz/LineChart';
 import { computeExtendedAnalytics } from '@/features/tracking/lib/meal/nutrition/analytics';
 import { buildExtendedInsights } from '@/features/tracking/lib/meal/nutrition/insights';
-import {
-    MEAL_TYPE_LABELS,
-    type MealRecord,
-    type MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
-import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/types';
+import { MEAL_TYPE_LABELS } from '@/features/tracking/lib/meal/helpers';
+import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
+import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/goalTypes';
 
 interface NutritionAnalyticsPanelProps {
     records: MealRecord[];

@@ -21,9 +21,16 @@ let queue: Queue<NewsQueueJob> | null = null;
 
 function getRedisConnection() {
     if (!process.env.REDIS_URL) return null;
-    connection ??= new IORedis(process.env.REDIS_URL, {
-        maxRetriesPerRequest: null,
-    });
+    if (!connection) {
+        connection = new IORedis(process.env.REDIS_URL, {
+            maxRetriesPerRequest: null,
+            enableOfflineQueue: false,
+            retryStrategy: (times) =>
+                times > 3 ? null : Math.min(times * 200, 2000),
+        });
+        connection.on('error', () => {});
+    }
+    if (connection.status === 'end') return null;
     return connection;
 }
 
@@ -47,8 +54,16 @@ export async function enqueueNewsJob(job: NewsQueueJob) {
         );
         return { queued: false as const, reason: 'missing-redis-url' };
     }
-    await newsQueue.add(parsed.type, parsed);
-    return { queued: true as const };
+    try {
+        await newsQueue.add(parsed.type, parsed);
+        return { queued: true as const };
+    } catch (error) {
+        getLogger({ component: 'news-queue' }).warn(
+            { err: error, jobType: parsed.type },
+            'News queue unavailable; job not enqueued',
+        );
+        return { queued: false as const, reason: 'redis_unavailable' };
+    }
 }
 
 export function createNewsWorker() {
@@ -89,10 +104,7 @@ export function createNewsWorker() {
                 return { eventId: data.eventId, status: 'queued' };
             }
 
-            jobLog.info(
-                { scope: data.scope },
-                'ranking refresh job accepted',
-            );
+            jobLog.info({ scope: data.scope }, 'ranking refresh job accepted');
             return { scope: data.scope, status: 'queued' };
         },
         { connection: redis },

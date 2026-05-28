@@ -7,7 +7,6 @@ import { useReadingContent } from '@/features/reading/hooks/useReadingContent';
 import type { ReadingDocument } from '@/features/reading/types/document';
 import type { ReadingPosition } from '@/features/reading/types/positions';
 import type { ReadingPreferences } from '@/features/reading/types/plans';
-import type { ProviderEmbedContent } from '@/features/reading/types/content';
 
 interface ReadingDocumentViewProps {
     document: ReadingDocument;
@@ -53,7 +52,7 @@ export function ReadingDocumentView({
     ) {
         return (
             <ProviderEmbedReaderView
-                content={result.content as ProviderEmbedContent}
+                content={result.content}
                 title={document.title}
             />
         );

@@ -1,11 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Json } from '@/types/supabase';
 import { getLogger } from '@/lib/observability/logger';
+import type { ActionExecutionContext } from '@/features/actions/schemas/actionPayloadSchemas';
 import {
     insertActionExecutionSchema,
     type ActionEngineResult,
-    type ActionExecutionContext,
-} from '@/features/actions/schemas/actionSchemas';
+} from '@/features/actions/schemas/actionResultSchemas';
 
 export async function persistActionExecution(input: {
     supabase?: SupabaseClient;

@@ -1,14 +1,7 @@
 'use client';
 
-import {
-    Settings,
-    X,
-    Eye,
-    Layers,
-    Pin,
-} from 'lucide-react';
+import { Settings, X, Eye, Layers, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
-import type { WidgetSettings } from '@/features/widgets/types/widgets';
 import type { WidgetHeaderProps } from '@/features/widgets/types/widgetProps';
 import { colorMap } from '@/features/widgets/constants';
 import { useWidgetHeader } from '@/features/widgets/hooks/useWidgetHeader';
@@ -74,7 +67,12 @@ export function WidgetHeader({
     const isCompact = settings.size === 'compact';
 
     return (
-        <div className={cn('flex justify-between items-start', isCompact ? 'mb-3' : 'mb-6')}>
+        <div
+            className={cn(
+                'flex justify-between items-start',
+                isCompact ? 'mb-3' : 'mb-6',
+            )}
+        >
             {/* Title area */}
             <div className="flex items-center gap-3">
                 <div className="relative group/iconarea shrink-0">
@@ -87,7 +85,11 @@ export function WidgetHeader({
                         )}
                     >
                         <span className="w-4 h-4 flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4">
-                            {pinFlash ? <Pin size={16} className="fill-current" /> : icon}
+                            {pinFlash ? (
+                                <Pin size={16} className="fill-current" />
+                            ) : (
+                                icon
+                            )}
                         </span>
                     </div>
                     {onSettingsChange && (
@@ -101,7 +103,10 @@ export function WidgetHeader({
                                     : 'opacity-0 group-hover/iconarea:opacity-100 text-zinc-400 dark:text-zinc-500',
                             )}
                         >
-                            <Pin size={9} className={isPinned ? 'fill-current' : ''} />
+                            <Pin
+                                size={9}
+                                className={isPinned ? 'fill-current' : ''}
+                            />
                         </button>
                     )}
                 </div>
@@ -155,11 +160,17 @@ export function WidgetHeader({
                 {!oneDimensionalMode && onSettingsChange && (
                     <div ref={bgRef} className="relative">
                         <button
-                            onClick={() => { setBgOpen((v) => !v); setColorOpen(false); setVisOpen(false); }}
+                            onClick={() => {
+                                setBgOpen((v) => !v);
+                                setColorOpen(false);
+                                setVisOpen(false);
+                            }}
                             title="Background & opacity"
                             className={cn(
                                 'transition-opacity w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 dark:text-zinc-500 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300',
-                                bgOpen ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300' : 'opacity-0 group-hover:opacity-100',
+                                bgOpen
+                                    ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
+                                    : 'opacity-0 group-hover:opacity-100',
                             )}
                         >
                             <Layers className="w-3.5 h-3.5" />
@@ -169,7 +180,9 @@ export function WidgetHeader({
                                 settings={settings}
                                 onSettingsChange={onSettingsChange}
                                 fileInputRef={fileInputRef}
-                                onUploadClick={() => fileInputRef.current?.click()}
+                                onUploadClick={() =>
+                                    fileInputRef.current?.click()
+                                }
                                 onFileUpload={handleFileUpload}
                             />
                         )}
@@ -178,7 +191,11 @@ export function WidgetHeader({
                 {!oneDimensionalMode && onColorChange && (
                     <div ref={colorRef} className="relative">
                         <button
-                            onClick={() => { setColorOpen((v) => !v); setBgOpen(false); setVisOpen(false); }}
+                            onClick={() => {
+                                setColorOpen((v) => !v);
+                                setBgOpen(false);
+                                setVisOpen(false);
+                            }}
                             title="Change color"
                             className={cn(
                                 'opacity-0 group-hover:opacity-100 transition-opacity',
@@ -186,12 +203,20 @@ export function WidgetHeader({
                                 'w-7 h-7 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-zinc-800',
                             )}
                         >
-                            <span className={cn('w-3 h-3 rounded-full', colorMap[settings.color].swatch)} />
+                            <span
+                                className={cn(
+                                    'w-3 h-3 rounded-full',
+                                    colorMap[settings.color].swatch,
+                                )}
+                            />
                         </button>
                         {colorOpen && (
                             <ColorPicker
                                 currentColor={settings.color}
-                                onColorChange={(col) => { onColorChange(col); setColorOpen(false); }}
+                                onColorChange={(col) => {
+                                    onColorChange(col);
+                                    setColorOpen(false);
+                                }}
                             />
                         )}
                     </div>
@@ -199,11 +224,17 @@ export function WidgetHeader({
                 {!oneDimensionalMode && onSettingsChange && (
                     <div ref={visRef} className="relative">
                         <button
-                            onClick={() => { setVisOpen((v) => !v); setColorOpen(false); setBgOpen(false); }}
+                            onClick={() => {
+                                setVisOpen((v) => !v);
+                                setColorOpen(false);
+                                setBgOpen(false);
+                            }}
                             title="Visibility settings"
                             className={cn(
                                 'transition-opacity w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 dark:text-zinc-500 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300',
-                                visOpen ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300' : 'opacity-0 group-hover:opacity-100',
+                                visOpen
+                                    ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
+                                    : 'opacity-0 group-hover:opacity-100',
                             )}
                         >
                             <Eye className="w-3.5 h-3.5" />
@@ -231,11 +262,15 @@ export function WidgetHeader({
                             settingsOpen
                                 ? 'opacity-100 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
                                 : oneDimensionalMode
-                                    ? 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'
-                                    : 'opacity-0 group-hover:opacity-100',
+                                  ? 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'
+                                  : 'opacity-0 group-hover:opacity-100',
                         )}
                     >
-                        {settingsOpen ? <X className="w-3.5 h-3.5" /> : <Settings className="w-3.5 h-3.5" />}
+                        {settingsOpen ? (
+                            <X className="w-3.5 h-3.5" />
+                        ) : (
+                            <Settings className="w-3.5 h-3.5" />
+                        )}
                     </button>
                 )}
             </div>

@@ -22,7 +22,7 @@ export default function PlanPage() {
         setError(null);
         try {
             const url = await createCheckoutSession(planId);
-            window.location.href = url;
+            window.location.assign(url);
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Something went wrong',
@@ -36,7 +36,7 @@ export default function PlanPage() {
         setError(null);
         try {
             const url = await createPortalSession();
-            window.location.href = url;
+            window.location.assign(url);
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Something went wrong',

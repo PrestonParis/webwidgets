@@ -29,7 +29,7 @@ export const DEFAULT_WIDGET_SETTINGS: WidgetSettings = {
 };
 
 export const WIDGET_SIZE_DEFAULTS: Record<string, WidgetSize> = {
-    calendar: 'wide',
+    calendar: 'default',
 };
 
 export const WIDGET_COLOR_DEFAULTS: Record<string, WidgetColor> = {
@@ -39,6 +39,7 @@ export const WIDGET_COLOR_DEFAULTS: Record<string, WidgetColor> = {
     recovery: 'purple',
     converter: 'amber',
     timekeeping: 'orange',
+    'employee-clock': 'orange',
     todo: 'blue',
     weather: 'blue',
     worldclock: 'zinc',

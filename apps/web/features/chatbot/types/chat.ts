@@ -92,3 +92,30 @@ export interface SendMessagePayload {
     model: string;
     provider: ModelProvider;
 }
+
+export interface ConversationListProps {
+    conversations: ChatConversation[];
+    activeId: string | null;
+    onSelect: (id: string) => void;
+    onNew: () => void;
+    onDelete: (id: string) => void;
+}
+
+export interface MessageInputProps {
+    onSend: (content: string) => void;
+    disabled: boolean;
+    placeholder?: string;
+}
+
+export interface MessageListProps {
+    messages: ChatMessage[];
+    streamingContent: string;
+    isStreaming: boolean;
+}
+
+export interface ModelSelectorProps {
+    selectedModel: string;
+    onSelect: (modelId: string, provider: ModelProvider) => void;
+    savedProviders: ModelProvider[];
+    availability?: ModelProviderAvailability[];
+}

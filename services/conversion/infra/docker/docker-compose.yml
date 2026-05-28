@@ -105,6 +105,28 @@ services:
       minio:
         condition: service_healthy
 
+  sync_worker:
+    profiles: [sync]
+    build:
+      context: ../../../..
+      dockerfile: apps/sync-worker/Dockerfile
+    container_name: sync_worker
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://redis:6379
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID:-}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET:-}
+      MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID:-common}
+      SYNC_INTERVAL_MINUTES: ${SYNC_INTERVAL_MINUTES:-10}
+      SYNC_BATCH_SIZE: ${SYNC_BATCH_SIZE:-50}
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   conversion-postgres:
   conversion-minio:

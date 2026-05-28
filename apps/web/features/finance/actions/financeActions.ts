@@ -20,10 +20,11 @@ export type FinanceActionDefinition = {
     ) => Promise<{ ok: boolean; message: string }>;
 };
 
-const registeredAction = async (label: string) => ({
-    ok: true,
-    message: `${label} action is registered and ready for UI wiring.`,
-});
+const registeredAction = (label: string) =>
+    Promise.resolve({
+        ok: true,
+        message: `${label} action is registered and ready for UI wiring.`,
+    });
 
 export const FINANCE_ACTIONS: FinanceActionDefinition[] = [
     {

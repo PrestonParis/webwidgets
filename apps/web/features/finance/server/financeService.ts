@@ -1,9 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-    listFinanceAccountsForUser,
-    listFinanceSubscriptionsForUser,
-    listFinanceTransactionsForUser,
-} from '@/features/finance/services/financeService';
+import { listFinanceAccountsForUser } from '@/features/finance/services/financeAccountService';
+import { listFinanceSubscriptionsForUser } from '@/features/finance/services/financeSubscriptionService';
+import { listFinanceTransactionsForUser } from '@/features/finance/services/financeTransactionService';
 import { calculateFinanceOverview } from '@/features/finance/lib/financeAggregations';
 import { suggestFinanceActions } from '@/features/finance/lib/financePredictions';
 

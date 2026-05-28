@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import { Tracker } from '@/features/recovery/types/recovery';
@@ -48,24 +48,28 @@ async function fetchTrackersFromDB(userId: string): Promise<Tracker[]> {
 
 export function useTrackers() {
     const { user } = useAuthContext();
+    const userId = user?.id ?? null;
     const [trackers, setTrackers] = useState<Tracker[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchTrackers = async () => {
-        if (!user?.id) {
+    const fetchTrackers = useCallback(async () => {
+        if (!userId) {
             setTrackers([]);
             setLoading(false);
             return;
         }
 
-        const result = await fetchTrackersFromDB(user.id);
+        const result = await fetchTrackersFromDB(userId);
         setTrackers(result);
         setLoading(false);
-    };
+    }, [userId]);
 
     useEffect(() => {
-        fetchTrackers();
-    }, [user]);
+        const timeoutId = window.setTimeout(() => {
+            void fetchTrackers();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
+    }, [fetchTrackers]);
 
     return { trackers, setTrackers, loading, fetchTrackers };
 }

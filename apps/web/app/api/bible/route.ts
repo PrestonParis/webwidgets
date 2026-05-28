@@ -3,12 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 const BASE = 'https://api.scripture.api.bible/v1';
 
 // Allow only the endpoints the provider actually uses
-const ALLOWED_PATH = /^\/bibles(\/[\w-]+(\/books(\/[\w-]+)?|\/chapters\/[\w.]+|\/search)?)?$/;
+const ALLOWED_PATH =
+    /^\/bibles(\/[\w-]+(\/books(\/[\w-]+)?|\/chapters\/[\w.]+|\/search)?)?$/;
 
 export async function GET(req: NextRequest) {
     const apiKey = process.env.BIBLE_API_KEY;
     if (!apiKey) {
-        return NextResponse.json({ error: 'Bible API key not configured' }, { status: 503 });
+        return NextResponse.json(
+            { error: 'Bible API key not configured' },
+            { status: 503 },
+        );
     }
 
     const path = req.nextUrl.searchParams.get('path');
@@ -29,6 +33,6 @@ export async function GET(req: NextRequest) {
         next: { revalidate },
     });
 
-    const body = await res.json();
+    const body: unknown = await res.json();
     return NextResponse.json(body, { status: res.status });
 }

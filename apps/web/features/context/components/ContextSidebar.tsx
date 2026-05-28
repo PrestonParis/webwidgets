@@ -2,14 +2,8 @@
 
 import { useState } from 'react';
 import { X, Trash2 } from 'lucide-react';
-import type { ContextNode } from '@/features/context/types/context';
+import type { ContextSidebarProps } from '@/features/context/types/context';
 import { NODE_COLORS } from '@/features/context/lib/graphBuilder';
-
-interface Props {
-    node: ContextNode | null;
-    onClose: () => void;
-    onDelete: (entityId: string) => void;
-}
 
 function DataRow({ label, value }: { label: string; value: string }) {
     return (
@@ -17,14 +11,18 @@ function DataRow({ label, value }: { label: string; value: string }) {
             <span className="text-xs text-gray-400 uppercase tracking-wide">
                 {label}
             </span>
-            <span className="text-sm text-gray-700 dark:text-zinc-300 break-words">
+            <span className="text-sm text-gray-700 dark:text-zinc-300 wrap-break-word">
                 {value}
             </span>
         </div>
     );
 }
 
-export function ContextSidebar({ node, onClose, onDelete }: Props) {
+export function ContextSidebar({
+    node,
+    onClose,
+    onDelete,
+}: ContextSidebarProps) {
     const [confirmDelete, setConfirmDelete] = useState(false);
 
     if (!node) return null;

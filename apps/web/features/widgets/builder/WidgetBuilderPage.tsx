@@ -13,8 +13,8 @@ import { ActionStep } from '@/features/widgets/builder/steps/ActionStep';
 import { PermissionReviewStep } from '@/features/widgets/builder/steps/PermissionReviewStep';
 import { PreviewTestStep } from '@/features/widgets/builder/steps/PreviewTestStep';
 import { SaveWidgetStep } from '@/features/widgets/builder/steps/SaveWidgetStep';
-import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetDefinitionSchema';
-import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import { BUILDER_STEPS } from '@/features/widgets/synthesis/widgetConstants';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 interface WidgetBuilderPageProps {
     onSave?: (def: SynthesizedWidgetDefinition) => void;

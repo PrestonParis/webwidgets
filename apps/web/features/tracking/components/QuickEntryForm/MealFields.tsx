@@ -5,7 +5,7 @@ import type { QuickEntryFormState } from '@/features/tracking/hooks/useQuickEntr
 import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ORDER,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
 
 interface MealFieldsProps {
     form: QuickEntryFormState;

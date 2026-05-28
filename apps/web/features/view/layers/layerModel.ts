@@ -1,4 +1,4 @@
-import type { ViewLayer } from '@/features/view/schemas/viewSchemas';
+import type { ViewLayer } from '@/features/view/schemas/objectSchemas';
 
 export function createBaseLayers(): ViewLayer[] {
     return [

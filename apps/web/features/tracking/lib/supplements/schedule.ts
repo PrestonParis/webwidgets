@@ -1,10 +1,6 @@
-import type {
-    DueDose,
-    DoseStatus,
-    SupplementDefinition,
-    SupplementLog,
-    TimeOfDayGroup,
-} from './types';
+import type { DueDose, SupplementLog } from './logTypes';
+import type { DoseStatus, TimeOfDayGroup } from './baseTypes';
+import type { SupplementDefinition } from './definitionTypes';
 
 function dateKey(date: Date): string {
     const y = date.getFullYear();

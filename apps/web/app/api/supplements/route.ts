@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         const { supabase } = await createClients();
         const user = await getUserOrThrow(supabase);
         const body = (await req.json()) as CreateSupplementPayload;
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('supplements')
             .insert({
                 user_id: user.id,
@@ -40,7 +40,10 @@ export async function POST(req: Request) {
                 schedule_end: body.scheduleEnd ?? null,
             })
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: { message: string; code?: string } | null;
+        };
         if (error?.code === '42P01')
             return NextResponse.json(
                 { error: 'supplements table not ready — run migrations' },

@@ -1,10 +1,6 @@
 'use client';
 
-interface Props {
-    tz: string;
-    now: Date;
-    size?: number;
-}
+import type { AnalogClockProps } from '@/types/worldclock';
 
 function getTimeParts(
     tz: string,
@@ -27,7 +23,7 @@ function handEnd(cx: number, cy: number, angleDeg: number, length: number) {
     return { x: cx + length * Math.cos(rad), y: cy + length * Math.sin(rad) };
 }
 
-export function AnalogClock({ tz, now, size = 80 }: Props) {
+export function AnalogClock({ tz, now, size = 80 }: AnalogClockProps) {
     const { h, m, s } = getTimeParts(tz, now);
     const cx = size / 2;
     const r = size / 2 - 2;

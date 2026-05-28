@@ -116,13 +116,13 @@ const userUploadsProvider: ReadingProvider = {
         return doc;
     },
 
-    async getStructure(documentId: string): Promise<ReadingStructure> {
-        return {
+    getStructure(documentId: string): Promise<ReadingStructure> {
+        return Promise.resolve({
             documentId,
             hasVerses: false,
             hasPages: true,
             hasEpubLocations: false,
-        };
+        });
     },
 
     async getContent(
@@ -154,8 +154,12 @@ const userUploadsProvider: ReadingProvider = {
         };
     },
 
-    async search(_request: ReadingSearchRequest): Promise<ReadingSearchResult> {
-        return { query: _request.query, results: [], totalCount: 0 };
+    search(_request: ReadingSearchRequest): Promise<ReadingSearchResult> {
+        return Promise.resolve({
+            query: _request.query,
+            results: [],
+            totalCount: 0,
+        });
     },
 };
 

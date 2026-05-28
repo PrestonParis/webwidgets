@@ -10,7 +10,8 @@
  *   search:  https://world.openfoodfacts.org/cgi/search.pl
  */
 
-import type { FoodSearchResult, MicronutrientProfile } from '../types';
+import type { FoodSearchResult } from '../foodTypes';
+import type { MicronutrientProfile } from '../micronutrientTypes';
 import { FoodProviderError, type FoodProvider } from './types';
 
 const BASE = 'https://world.openfoodfacts.org';

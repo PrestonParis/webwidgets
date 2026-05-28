@@ -1,15 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type {
-    SupplementScheduleType,
-    CreateSupplementPayload,
-} from '@/features/tracking/types/supplement';
-
-interface Props {
-    onSubmit: (payload: CreateSupplementPayload) => Promise<void>;
-    onCancel: () => void;
-}
+import type { SupplementDefFormProps } from '@/types/tracking';
+import type { SupplementScheduleType } from '@/features/tracking/types/supplement';
 
 const inputCls =
     'w-full px-2 py-1.5 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-400';
@@ -30,7 +23,10 @@ const SCHEDULE_OPTS: {
     { value: 'window', label: 'Window', hint: 'Take within a time range' },
 ];
 
-export function SupplementDefForm({ onSubmit, onCancel }: Props) {
+export function SupplementDefForm({
+    onSubmit,
+    onCancel,
+}: SupplementDefFormProps) {
     const [basics, setBasics] = useState({ name: '', dose: '' });
     const [sched, setSched] = useState<{
         type: SupplementScheduleType;

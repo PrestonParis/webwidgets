@@ -45,7 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const loadSession = async () => {
             try {
                 // getUser() verifies the token with the auth server (secure)
-                const [{ data: { user }, error }, { data: { session } }] = await Promise.all([
+                const [
+                    {
+                        data: { user },
+                        error,
+                    },
+                    {
+                        data: { session },
+                    },
+                ] = await Promise.all([
                     supabase.auth.getUser(),
                     supabase.auth.getSession(),
                 ]);
@@ -64,22 +72,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        loadSession();
+        void loadSession();
 
         // Subscribe to auth state changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                if (!mounted) return;
-                
-                setSession(session);
-                setUser(session?.user ?? null);
-                setStatus(session ? 'authenticated' : 'unauthenticated');
-                
-                if (event === 'SIGNED_OUT') {
-                    setProfile(null);
-                }
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, session) => {
+            if (!mounted) return;
+
+            setSession(session);
+            setUser(session?.user ?? null);
+            setStatus(session ? 'authenticated' : 'unauthenticated');
+
+            if (event === 'SIGNED_OUT') {
+                setProfile(null);
             }
-        );
+        });
 
         return () => {
             mounted = false;
@@ -99,9 +107,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     .select('full_name, role')
                     .eq('id', user.id)
                     .single();
-                
+
                 if (error) throw error;
-                
+
                 if (mounted && data) {
                     setProfile(data);
                 }
@@ -110,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        loadProfile();
+        void loadProfile();
 
         return () => {
             mounted = false;
@@ -120,9 +128,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Refresh session manually
     const refresh = useCallback(async () => {
         try {
-            const { data: { session }, error } = await supabase.auth.refreshSession();
+            const {
+                data: { session },
+                error,
+            } = await supabase.auth.refreshSession();
             if (error) throw error;
-            
+
             setSession(session);
             setUser(session?.user ?? null);
             setStatus(session ? 'authenticated' : 'unauthenticated');
@@ -134,12 +145,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const accessToken = session?.access_token ?? null;
 
     return (
-        <AuthContext.Provider 
-            value={{ 
-                user, 
+        <AuthContext.Provider
+            value={{
+                user,
                 session,
-                status, 
-                profile, 
+                status,
+                profile,
                 accessToken,
                 refresh,
             }}

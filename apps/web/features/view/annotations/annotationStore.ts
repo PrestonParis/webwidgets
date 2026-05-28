@@ -1,4 +1,4 @@
-import type { ViewAnnotation } from '@/features/view/schemas/viewSchemas';
+import type { ViewAnnotation } from '@/features/view/schemas/objectSchemas';
 
 export function createAnnotation(
     input: Omit<ViewAnnotation, 'id' | 'createdAt'>,

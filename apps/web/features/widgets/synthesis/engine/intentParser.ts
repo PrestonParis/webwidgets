@@ -1,9 +1,9 @@
 import type {
     WidgetBuilderPurpose,
     WidgetComplexity,
-    WidgetIntent,
     WidgetIntentDomain,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetIntent } from '@/features/widgets/synthesis/widgetIntentInterfaces';
 
 const DOMAIN_TERMS: Record<WidgetIntentDomain, string[]> = {
     finance: [

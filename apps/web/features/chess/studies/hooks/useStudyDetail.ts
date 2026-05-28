@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import type { ChessStudy, StudyChapter } from '@/features/chess/types/chess';
 import { studyService } from '@/features/chess/studies/api/studyService';

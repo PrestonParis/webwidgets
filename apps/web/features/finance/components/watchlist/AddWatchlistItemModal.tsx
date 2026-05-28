@@ -39,6 +39,12 @@ const ASSET_HINTS: Record<
     custom: { placeholder: 'My metric', hint: 'You will log values manually' },
 };
 
+function formString(value: unknown): string {
+    return typeof value === 'string' || typeof value === 'number'
+        ? String(value)
+        : '';
+}
+
 export function AddWatchlistItemModal({
     item,
     onAdd,
@@ -51,11 +57,11 @@ export function AddWatchlistItemModal({
     const [displayName, setDisplayName] = useState(item?.displayName ?? '');
     const [currency, setCurrency] = useState(item?.currency ?? 'USD');
     const [targetPrice, setTargetPrice] = useState(
-        String(item?.config?.targetPrice ?? ''),
+        formString(item?.config?.targetPrice),
     );
-    const [notes, setNotes] = useState(String(item?.config?.notes ?? ''));
-    const [zpid, setZpid] = useState(String(item?.config?.zpid ?? ''));
-    const [coinId, setCoinId] = useState(String(item?.config?.coinId ?? ''));
+    const [notes, setNotes] = useState(formString(item?.config?.notes));
+    const [zpid, setZpid] = useState(formString(item?.config?.zpid));
+    const [coinId, setCoinId] = useState(formString(item?.config?.coinId));
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
 

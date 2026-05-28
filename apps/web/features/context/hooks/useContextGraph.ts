@@ -29,7 +29,7 @@ interface UseContextGraphReturn {
 export function useContextGraph(): UseContextGraphReturn {
     const { userId, status } = useAuth();
     const [entries, setEntries] = useState<ContextEntry[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [dataLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const refresh = useCallback(async () => {
@@ -48,11 +48,11 @@ export function useContextGraph(): UseContextGraphReturn {
     }, [userId]);
 
     useEffect(() => {
-        if (status !== 'authenticated') {
-            setLoading(false);
-            return;
-        }
-        void refresh();
+        if (status !== 'authenticated') return;
+        const timeoutId = window.setTimeout(() => {
+            void refresh();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [status, refresh]);
 
     const upsert = useCallback(async (payload: UpsertEntryPayload) => {
@@ -83,7 +83,7 @@ export function useContextGraph(): UseContextGraphReturn {
     return {
         graph,
         entries,
-        loading,
+        loading: status === 'authenticated' ? dataLoading : false,
         error,
         refresh,
         upsert,

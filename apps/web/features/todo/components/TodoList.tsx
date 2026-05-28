@@ -1,5 +1,12 @@
+import { useState } from 'react';
 import { CheckSquare, X } from 'lucide-react';
 import { Checkmark } from '@/icons/CheckMark';
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+} from '@/features/ui/components/Modal';
 import { TodoListProps } from '@/features/todo/types/todo';
 
 export function TodoList({
@@ -9,6 +16,8 @@ export function TodoList({
     onToggle,
     onDelete,
 }: TodoListProps) {
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+    const pendingTodo = todos.find((t) => t.id === pendingDeleteId);
     if (loading) {
         return (
             <div className="space-y-2">
@@ -59,7 +68,7 @@ export function TodoList({
                             {todo.text}
                         </span>
                         <button
-                            onClick={() => onDelete(todo.id)}
+                            onClick={() => setPendingDeleteId(todo.id)}
                             className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-red-500 dark:text-zinc-600 dark:hover:text-red-400 transition-all"
                         >
                             <X size={13} />
@@ -72,6 +81,52 @@ export function TodoList({
                     +{overflow} more tasks
                 </p>
             )}
+
+            <Modal
+                open={pendingDeleteId !== null}
+                onClose={() => setPendingDeleteId(null)}
+                size="sm"
+                aria-labelledby="todo-delete-title"
+            >
+                <ModalHeader
+                    id="todo-delete-title"
+                    title="Delete task?"
+                    onClose={() => setPendingDeleteId(null)}
+                />
+                <ModalBody>
+                    <p className="text-sm text-stone-600 dark:text-zinc-400">
+                        {pendingTodo ? (
+                            <>
+                                <span className="font-medium text-stone-800 dark:text-zinc-200">
+                                    &ldquo;{pendingTodo.text}&rdquo;
+                                </span>{' '}
+                                will be permanently deleted.
+                            </>
+                        ) : (
+                            'This task will be permanently deleted.'
+                        )}
+                    </p>
+                </ModalBody>
+                <ModalFooter>
+                    <button
+                        onClick={() => setPendingDeleteId(null)}
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-zinc-700 text-stone-600 dark:text-zinc-300 hover:bg-stone-50 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (pendingDeleteId) {
+                                onDelete(pendingDeleteId);
+                                setPendingDeleteId(null);
+                            }
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+                    >
+                        Delete
+                    </button>
+                </ModalFooter>
+            </Modal>
         </>
     );
 }

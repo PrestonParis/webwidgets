@@ -1,4 +1,16 @@
-The system should understand:
+## Cross-Widget Intelligence Goals
+
+ML Inference — Email classification, action extraction, and widget suggestions (TF-IDF + Logistic Regression; Claude fallback for paid tier)
+Examples:
+
+- Workout tracked → nutrition adjustments update automatically
+- Mood deterioration → recovery risk indicators increase
+- Calendar overload → productivity recommendations adapt
+- Email actions → calendar and tasks update automatically
+- Research notes → quiz/study widgets update
+- Finance stress → habit/recovery systems adapt
+- Multiple inboxes/calendars → unified intelligent views
+- The system should understand:
 
 - User habits
 - Preferred workflows

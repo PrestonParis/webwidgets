@@ -4,10 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
     createFinanceAccount,
-    deleteFinanceAccountForUser,
     listFinanceAccounts,
-    updateFinanceAccountForUser,
 } from '@/features/finance/services/financeService';
+import {
+    deleteFinanceAccountForUser,
+    updateFinanceAccountForUser,
+} from '@/features/finance/services/financeAccountService';
 import { db } from '@/lib/db/supabase';
 import type { FinanceAccount } from '@/features/finance/types/finance';
 import type { SupabaseClient } from '@supabase/supabase-js';

@@ -26,6 +26,8 @@ interface TimeSeriesChartProps {
     height?: number;
 }
 
+type ChartRow = { date: string } & Record<string, unknown>;
+
 const DEFAULT_COLOR = '#7c3aed';
 
 function formatDate(d: string): string {
@@ -33,24 +35,26 @@ function formatDate(d: string): string {
     return `${m}/${day}`;
 }
 
-function normaliseSingle(data: DailySeries[]): Record<string, unknown>[] {
+function normaliseSingle(data: DailySeries[]): ChartRow[] {
     return data.map(({ date, value }) => ({ date, value }));
 }
 
-function normaliseMulti(
-    data: Record<string, DailySeries[]>,
-): Record<string, unknown>[] {
-    const dateMap = new Map<string, Record<string, unknown>>();
+function normaliseMulti(data: Record<string, DailySeries[]>): ChartRow[] {
+    const dateMap = new Map<string, ChartRow>();
     for (const [key, rows] of Object.entries(data)) {
         for (const { date, value } of rows) {
             const entry = dateMap.get(date) ?? { date };
-            (entry as Record<string, unknown>)[key] = value;
+            entry[key] = value;
             dateMap.set(date, entry);
         }
     }
     return Array.from(dateMap.values()).sort((a, b) =>
-        (a.date as string).localeCompare(b.date as string),
+        a.date.localeCompare(b.date),
     );
+}
+
+function formatTooltipLabel(label: unknown): string {
+    return typeof label === 'string' ? formatDate(label) : '';
 }
 
 export function TimeSeriesChart({
@@ -60,9 +64,10 @@ export function TimeSeriesChart({
     height = 220,
 }: TimeSeriesChartProps) {
     const isMulti = !Array.isArray(data);
+    const multiData = isMulti ? data : null;
     const chartData = isMulti
-        ? normaliseMulti(data as Record<string, DailySeries[]>)
-        : normaliseSingle(data as DailySeries[]);
+        ? normaliseMulti(multiData)
+        : normaliseSingle(data);
 
     if (chartData.length === 0)
         return <MetricsEmptyState message="No data for selected range" />;
@@ -70,20 +75,14 @@ export function TimeSeriesChart({
     const lines: Series[] =
         series ??
         (isMulti
-            ? Object.keys(data as Record<string, DailySeries[]>).map(
-                  (k, i) => ({
-                      key: k,
-                      label: k,
-                      color:
-                          [
-                              '#7c3aed',
-                              '#2563eb',
-                              '#16a34a',
-                              '#d97706',
-                              '#dc2626',
-                          ][i % 5] ?? DEFAULT_COLOR,
-                  }),
-              )
+            ? Object.keys(multiData).map((k, i) => ({
+                  key: k,
+                  label: k,
+                  color:
+                      ['#7c3aed', '#2563eb', '#16a34a', '#d97706', '#dc2626'][
+                          i % 5
+                      ] ?? DEFAULT_COLOR,
+              }))
             : [
                   {
                       key: 'value',
@@ -115,7 +114,7 @@ export function TimeSeriesChart({
                         tick={{ fontSize: 10 }}
                     />
                     <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip labelFormatter={formatDate as any} />
+                    <Tooltip labelFormatter={formatTooltipLabel} />
                     {lines.length > 1 && (
                         <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
                     )}

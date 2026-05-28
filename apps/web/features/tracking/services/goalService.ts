@@ -6,13 +6,15 @@ export async function listGoals(
     supabase: SupabaseClient,
     userId: string,
 ): Promise<TrackingGoal[]> {
-    const { data, error } = await supabase
+    const response = await supabase
         .from('tracking_goals')
         .select('*')
         .eq('user_id', userId)
         .eq('active', true);
+    const { error } = response;
+    const data = response.data as unknown as DbGoalRow[] | null;
     if (error) throw error;
-    return (data ?? []).map((r) => rowToGoal(r as DbGoalRow));
+    return (data ?? []).map((r) => rowToGoal(r));
 }
 
 export async function getGoal(
@@ -20,15 +22,17 @@ export async function getGoal(
     userId: string,
     category: string,
 ): Promise<TrackingGoal | null> {
-    const { data, error } = await supabase
+    const response = await supabase
         .from('tracking_goals')
         .select('*')
         .eq('user_id', userId)
         .eq('category', category)
         .eq('active', true)
         .maybeSingle();
+    const { error } = response;
+    const data = response.data as unknown as DbGoalRow | null;
     if (error) throw error;
-    return data ? rowToGoal(data as DbGoalRow) : null;
+    return data ? rowToGoal(data) : null;
 }
 
 export async function upsertGoal(
@@ -36,7 +40,7 @@ export async function upsertGoal(
     userId: string,
     goal: Omit<TrackingGoal, 'id' | 'userId' | 'createdAt'>,
 ): Promise<TrackingGoal> {
-    const { data, error } = await supabase
+    const response = await supabase
         .from('tracking_goals')
         .upsert(
             {
@@ -51,8 +55,10 @@ export async function upsertGoal(
         )
         .select()
         .single();
+    const { error } = response;
+    const data = response.data as unknown as DbGoalRow;
     if (error) throw error;
-    return rowToGoal(data as DbGoalRow);
+    return rowToGoal(data);
 }
 
 export async function deleteGoal(

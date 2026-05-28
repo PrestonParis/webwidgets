@@ -3,7 +3,7 @@ import {
     actionExecutionsTotal,
     actionQueueLatency,
 } from '@/lib/observability/metrics';
-import type { ActionEngineResult } from '@/features/actions/schemas/actionSchemas';
+import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
 
 export function recordActionResult(result: ActionEngineResult) {
     const actionId = result.actionId ?? 'unknown';

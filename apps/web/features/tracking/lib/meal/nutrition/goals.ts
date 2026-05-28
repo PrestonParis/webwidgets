@@ -23,7 +23,7 @@ import type {
     GoalPreset,
     GoalProgressItem,
     NutritionGoalConfig,
-} from './types';
+} from './goalTypes';
 
 export type MealGoalMetricKey =
     | 'calories'

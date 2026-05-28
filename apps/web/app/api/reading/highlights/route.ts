@@ -49,7 +49,7 @@ export async function POST(req: Request) {
             color: string;
         };
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_highlights')
             .insert({
                 user_id: user.id,
@@ -60,7 +60,10 @@ export async function POST(req: Request) {
                 color: body.color,
             })
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });

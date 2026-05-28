@@ -12,7 +12,7 @@
  * Docs: https://fdc.nal.usda.gov/api-guide.html
  */
 
-import type { FoodSearchResult } from '../types';
+import type { FoodSearchResult } from '../foodTypes';
 import { FoodProviderError, type FoodProvider } from './types';
 
 const BASE = 'https://api.nal.usda.gov/fdc/v1';
@@ -162,9 +162,9 @@ export const usdaProvider: FoodProvider = {
         }
     },
 
-    async lookupBarcode(): Promise<FoodSearchResult | null> {
+    lookupBarcode(): Promise<FoodSearchResult | null> {
         // USDA FDC does not support barcode lookup.
-        return null;
+        return Promise.resolve(null);
     },
 
     async getById(externalId: string): Promise<FoodSearchResult | null> {

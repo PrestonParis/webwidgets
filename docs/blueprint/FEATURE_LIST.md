@@ -1,507 +1,1429 @@
 # WebWidgets Feature List
 
-features/ Feature-scoped modules (65+ features)
-├── accessibility/ Accessibility center widget and settings page
-├── actions/ Action engine — extract, queue, execute email/calendar actions
-├── admin/ Admin panel (users, flags, audit, metrics, ML, jobs)
-├── analytics/ PostHog event tracking
-├── audit/ Audit log service
-├── auth/ Supabase Auth, Google OAuth, sign-in form
-├── automation/ Automation evaluator + registry
-├── backend/ Shared request utilities (requestUser, service registry)
-├── billing/ Stripe plans, checkout, PricingCard, BillingCard
-├── calculator/ Multi-mode calculator (basic, scientific, programmer, financial, datetime)
-├── calendar/ Google Calendar integration (events, EventFormModal)
-├── chatbot/ Multi-model AI chat (Claude, GPT-4o, Gemini)
-├── chess/ Games library, analysis board, studies, move trainer
-├── collaboration/ Collaborative workspace widget and page
-├── context/ Context graph — knowledge nodes, AI memory, permissions
-├── convert/ Unit + currency converter widget
-├── countdown/ Event countdown widget
-├── creative/ Creative studio widget and page
-├── currency/ Exchange rate widget (Open Exchange Rates)
-├── dashboard/ Widget grid, free canvas, drag-and-drop, scenes, folders
-├── developer/ Developer tools page
-├── feedback/ In-product user feedback
-├── files/ File format conversion registry and service
-├── finance/ Net worth, accounts, subscriptions, transactions, watchlist
-├── form-filler/ Playwright-powered form autofill
-├── habit/ Habit tracker with streaks
-├── help/ In-product help system
-├── import-export/ Data import/export pipeline
-├── inbox/ Gmail integration, ML email classification, action extraction
-├── integrations/ Integration catalog cards
-├── intelligence/ ML inference service, smart recommendations
-├── jobs/ Background job runner + service
-├── journal/ TipTap rich-text journal (autosave, transcription)
-├── knowledge/ Knowledge item registry
-├── memorization/ Memorization widget and page
-├── metrics/ Internal metrics dashboard
-├── mood/ Mood logging widget
-├── news/ News Intel — RSS/NewsAPI ingestion, ranking, search
-├── notifications/ Notification bell, status dot
-├── onboarding/ Multi-step onboarding flow (goals, integrations, workspace gen)
-├── personalization/ Personalization service
-├── platform/ Widget registry, dashboard library, platform persistence
-├── pomodoro/ Pomodoro / focus timer
-├── privacy/ Privacy policy, terms pages
-├── reading/ Reading platform — Bible, Quran, PDFs, provider abstraction
-├── recovery/ Addiction recovery trackers (heatmap, milestones, review)
-├── research/ Research queue widget and workspace (Obsidian vault, academic pipeline)
-├── scratchpad/ Quick-note scratchpad
-├── search/ Global search bar + widget catalog
-├── security/ Consent records + security page
-├── settings/ General, profile, appearance, integrations, plan & billing
-├── texteditor/ TipTap-based text editor + note manager
-├── timekeeping/ Timer / stopwatch / event countdown widget
-├── todo/ To-do list + habit section
-├── tracking/ Health tracking — sleep, workout, meal, mood, supplements
-├── tutorials/ In-product tutorials widget and page
-├── ui/ Shared UI (Header, Footer, DatePicker, LoadingState)
-├── uploads/ S3 file uploads + Google Drive browser (FilesWidget)
-├── view/ File viewer (CSV, PDF, image, JSON parsers)
-├── weather/ Open-Meteo weather widget
-├── widgets/ Widget shell, settings panel, synthesis engine, builder
-├── workflows/ n8n workflow trigger service
-└── worldclock/ World clock (analog + digital) widget
+## Time Category
 
-- **Productivity**
-  - `inbox` — Gmail integration, ML email classification, action extraction
-  - `todo` — To-do list + habit section
-  - `habit` — Habit tracker with streaks
-  - `calendar` — Google Calendar integration (events, EventFormModal)
-  - `pomodoro` — Pomodoro / focus timer
-  - `timekeeping` — Timer / stopwatch / event countdown widget
-  - `countdown` — Event countdown widget
-  - `automation` — Automation evaluator + registry
-- **Communication & AI**
-  - `chatbot` — Multi-model AI chat (Claude, GPT-4o, Gemini)
-- **Writing & Knowledge**
-  - `journal` — TipTap rich-text journal (autosave, transcription)
-  - `texteditor` — TipTap-based text editor + note manager
-  - `scratchpad` — Quick-note scratchpad
-  - `reading` — Reading platform — Bible, Quran, PDFs, provider abstraction
-  - `news` — News Intel — RSS/NewsAPI ingestion, ranking, search
-  - `research` — Research queue widget and workspace (Obsidian vault, academic pipeline)
-  - `knowledge` — Knowledge item registry
-- **Health & Wellness**
-  - `recovery` — Addiction recovery trackers (heatmap, milestones, review)
-  - `tracking` — Health tracking — sleep, workout, meal, mood, supplements
-  - `mood` — Mood logging widget
-- **Finance**
-  - `finance` — Net worth, accounts, subscriptions, transactions, watchlist
-  - `currency` — Exchange rate widget (Open Exchange Rates)
-- **Learning**
-  - `memorization` — Memorization widget and page
-  - `tutorials` — In-product tutorials widget and page
-- **Developer Tools**
-  - `developer` — Developer tools page
-- **Conversion & Utilities**
-  - `convert` — Unit + currency converter widget
-  - `calculator` — Multi-mode calculator (basic, scientific, programmer, financial, datetime)
-  - `files` — File format conversion registry and service
-- **Creative**
-  - `creative` — Creative studio widget and page
-  - `view` — File viewer (CSV, PDF, image, JSON parsers)
-  - `form-filler` — Playwright-powered form autofill
-- **General**
-  - `weather` — Open-Meteo weather widget
-  - `worldclock` — World clock (analog + digital) widget
-  - `uploads` — S3 file uploads + Google Drive browser (FilesWidget)
-- **AI & Intelligence**
-  - `context` — Context graph — knowledge nodes, AI memory, permissions
-  - `widgets` — Widget shell, settings panel, synthesis engine, builder
-  - `intelligence` — ML inference service, smart recommendations
-- **Collaboration**
-  - `collaboration` — Collaborative workspace widget and page
-- **Games & Strategy**
-  - `chess` — Games library, analysis board, studies, move trainer
-- **Accessibility**
-  - `accessibility` — Accessibility center widget and settings page
-- **Platform**
-  - `dashboard` — Widget grid, free canvas, drag-and-drop, scenes, folders
-  - `search` — Global search bar + widget catalog
-  - `onboarding` — Multi-step onboarding flow (goals, integrations, workspace gen)
-  - `settings` — General, profile, appearance, integrations, plan & billing
-  - `billing` — Stripe plans, checkout, PricingCard, BillingCard
-  - `import-export` — Data import/export pipeline
-  - `notifications` — Notification bell, status dot
-  - `integrations` — Integration catalog cards
-  - `feedback` — In-product user feedback
-  - `help` — In-product help system
-- **Infrastructure**
-  - `actions` — Action engine — extract, queue, execute email/calendar actions
-  - `analytics` — PostHog event tracking
-  - `audit` — Audit log service
-  - `auth` — Supabase Auth, Google OAuth, sign-in form
-  - `backend` — Shared request utilities (requestUser, service registry)
-  - `jobs` — Background job runner + service
-  - `metrics` — Internal metrics dashboard
-  - `personalization` — Personalization service
-  - `platform` — Widget registry, dashboard library, platform persistence
-  - `privacy` — Privacy policy, terms pages
-  - `security` — Consent records + security page
-  - `admin` — Admin panel (users, flags, audit, metrics, ML, jobs)
-  - `ui` — Shared UI (Header, Footer, DatePicker, LoadingState)
-  - `workflows` — n8n workflow trigger service
+- timekeeping
+  - Brief Description
+    - Timer, stopwatch, event countdown, pomodoro, and world clock.
+  - Features
+    - Timer.
+    - Stopwatch.
+    - Event countdown.
+    - Pomodoro.
+    - World clock.
+    - Employee/employer clock in/out and break timer management.
+  - Syncs With
+    - #notifications
+    - #employee-clock
+  - Representations
+    - #widget
+    - #page
 
-## Tutorials
+- pomodoro
+  - Brief Description
+    - Pomodoro / focus timer.
+  - Features
+    - Pomodoro focus sessions.
+    - Focus timer.
+  - Syncs With
+    - #timekeeping
+  - Representations
+    - #widget
 
-Onboarding flows and in-product guidance for widget setup and customization.
+- countdown
+  - Brief Description
+    - Event countdown widget.
+  - Features
+    - Timer countdown.
+    - Event countdown.
+    - Track upcoming dates, deadlines, launches, and events.
+  - Syncs With
+    - #notifications
+    - #timekeeping
+  - Representations
+    - #widget
 
-. This includes the major widgets, pages, integrations, dashboards, and workflow tools needed for WebWidgets
+- timer
+  - Brief Description
+    - Normal countdown timer.
+  - Features
+    - Set a duration.
+    - Count down.
+    - Alarm-style timing.
+    - Cooking and focus use cases.
+  - Syncs With
+    - #timekeeping
+  - Representations
+    - #widget
 
-## Custom Widgets + API Integration
+- worldclock
+  - Brief Description
+    - World clock with analog and digital clocks.
+  - Features
+    - Analog clocks.
+    - Digital clocks.
+    - Multi-timezone support.
+    - Time zones.
+  - Syncs With
+    - #timekeeping
+  - Representations
+    - #widget
 
-Third-party developers build widgets against the WebWidgets platform. Widgets integrate with the intent engine and appear in generated workspaces like native widgets.
+- stopwatch
+  - Brief Description
+    - Stopwatch with lap tracking.
+  - Features
+    - Elapsed time.
+    - Lap tracking.
+    - Split timing.
+    - Race timing.
+  - Syncs With
+    - #timekeeping
+  - Representations
+    - #widget
 
-## Cross-Widget Intelligence Goals
+- employee-clock
+  - Brief Description
+    - Employee and employer time clock.
+  - Features
+    - Clock in/out.
+    - Break timer management.
+    - Workplace-based injury log.
+    - Image attachment.
+    - Tag others.
+    - Reference: Driver 360emkay, furl station locater, mileage, communication, vehicle inspection (Company App Wrapper).
+  - Syncs With
+    - #timekeeping
+    - #notifications
+    - #tracking
+  - Representations
+    - #widget
+    - #page
 
-Examples:
+## Text Editor Category
 
-- Workout tracked → nutrition adjustments update automatically
-- Mood deterioration → recovery risk indicators increase
-- Calendar overload → productivity recommendations adapt
-- Email actions → calendar and tasks update automatically
-- Research notes → quiz/study widgets update
-- Finance stress → habit/recovery systems adapt
-- Multiple inboxes/calendars → unified intelligent views
+- texteditor
+  - Brief Description
+    - TipTap-based text editor.
+  - Features
+    - TipTap-based text editor + note manager.
+    - Geared to be a long-form, general editor.
+    - "On This Day" archive.
+    - Transcription.
+    - Write documents, journal entries, and quick notes.
+  - Syncs With
+    - #researchqueue
+    - #notes
+    - #journal
+  - Representations
+    - #page
+    - #widget
 
-The system should evolve from:
+- journal
+  - Brief Description
+    - TipTap rich-text journal.
+  - Features
+    - Autosave.
+    - Transcription.
+    - Temporary delete.
+    - Drafts.
+    - "On This Day" historical archive.
+  - Syncs With
+    - #texteditor
+    - #researchqueue
+  - Representations
+    - #widget
+    - #page
 
-- isolated widgets
+- notes
+  - Brief Description
+    - Rich-text note editor with note manager.
+  - Features
+    - Rich-text notes.
+    - Note manager.
+    - Transcription.
+    - Markdown notes.
+    - Notes compilation.
+    - Audio brain dump.
+  - Syncs With
+    - #researchqueue
+    - #texteditor
+  - Representations
+    - #widget
 
-Toward:
+- scratchpad
+  - Brief Description
+    - Quick-note scratchpad.
+  - Features
+    - Quick capture.
+    - Scratch notes.
+  - Syncs With
+    - #texteditor
+  - Representations
+    - #widget
 
-- cooperative intelligence systems
+## Utilities and Files
 
-## Weave Architecture Goals
+- inbox
+  - Brief Description
+    - Gmail integration, ML email classification, and action extraction.
+  - Features
+    - Gmail integration.
+    - Outlook integration.
+    - ML-powered classification.
+    - Action extraction.
+    - Action confirmation.
+    - Create calendar events.
+    - Create todos.
+    - Email inbox filtered, grouped, and AI-actioned.
+    - Smart Email Inbox (Filtered, Grouped).
+    - AI email-based insights and actions.
+    - Weave Inboxes feature.
+  - Syncs With
+    - #actions
+    - #calendar
+    - #todo
+  - Representations
+    - #widget
+    - #page
 
-The weave system should support:
+- todo
+  - Brief Description
+    - To-do list with habit section.
+  - Features
+    - Task list.
+    - Subtasks.
+    - Recurring tasks.
+    - Habits section.
+    - To-do and reminders.
+    - Kanban task board.
+    - Reminders and notifications.
+  - Syncs With
+    - #calendar
+    - #notifications
+    - #actions
+    - #habit
+  - Representations
+    - #widget
+    - #page
 
-- shared context propagation
-- event-driven updates
-- unified action pipelines
-- cross-widget recommendations
-- multi-widget workflows
-- graph-based relationships
-- orchestration-aware widgets
+- calendar
+  - Brief Description
+    - Google Calendar integration with event creation and management.
+  - Features
+    - Google Calendar integration.
+    - Events.
+    - EventFormModal.
+    - Event adding (super custom).
+    - Calendar weave.
+  - Syncs With
+    - #inbox
+    - #todo
+    - #actions
+  - Representations
+    - #widget
+    - #page
 
-Widgets should become nodes in a contextual intelligence graph.
+- calculator
+  - Brief Description
+    - Multi-mode calculator.
+  - Features
+    - Basic mode.
+    - Scientific mode.
+    - Programmer mode.
+    - Financial mode.
+    - Datetime mode.
+    - Calculator history.
+  - Syncs With
+    - #finance
+    - #utilities
+  - Representations
+    - #widget
+    - #page
 
-# Widget Ecosystem
+- convert
+  - Brief Description
+    - Unit, currency, and file format converter.
+  - Features
+    - Unit conversion.
+    - Currency converter.
+    - File format converter.
+    - File conversion service.
+    - Separate Go/Python sidecar.
+    - Conversion & Utilities.
+    - Converter app.
+  - Syncs With
+    - #files
+    - #uploads
+    - #currency
+  - Representations
+    - #widget
+    - #page
+    - #service
 
-WebWidgets is a library of composable, domain-specific tools the intelligence layer assembles into workspaces.
+- currency
+  - Brief Description
+    - Exchange rate widget using Open Exchange Rates.
+  - Features
+    - Exchange rates.
+    - Currency conversion.
+    - Open Exchange Rates provider.
+  - Syncs With
+    - #convert
+    - #finance
+  - Representations
+    - #widget
 
-Productivity
-Email inbox (filtered, grouped, AI-actioned), to-do and reminders, kanban, calendar, Pomodoro timer, deep work timer, countdown timer
+- files
+  - Brief Description
+    - File format conversion registry and service.
+  - Features
+    - File storage.
+    - File format conversion registry.
+    - File format conversion service.
+    - S3 file uploads.
+    - Google Drive browser.
+    - Upload files to S3.
+    - Browse Google Drive.
+  - Syncs With
+    - #uploads
+    - #view
+    - #convert
+    - #import-export
+  - Representations
+    - #page
+    - #widget
+    - #service
 
-Knowledge & Writing
-Journal, markdown notes, long-form editor, transcription, audio brain dump, auto-researcher, "On This Day" archive
+- uploads
+  - Brief Description
+    - S3 file uploads and Google Drive browser.
+  - Features
+    - S3 uploads.
+    - Google Drive browser.
+    - FilesWidget.
+    - Uploaded files.
+  - Syncs With
+    - #files
+    - #view
+    - #convert
+  - Representations
+    - #widget
+    - #service
 
-Health & Body
-Sleep tracker, injury/soreness heatmap, biometric trend chart, mood/energy logger, workout tracker, muscle heatmap, form debugger (video + AI feedback), nutrition/meal tracker, allergy checker, low-tox scanner, food symptoms tracker, supplement and intake tracker
+- view
+  - Brief Description
+    - Universal file viewer.
+  - Features
+    - CSV parser.
+    - PDF parser.
+    - Image parser.
+    - JSON parser.
+    - Markdown support.
+    - Annotations.
+    - Transforms.
+    - File Viewer.
+  - Syncs With
+    - #files
+    - #uploads
+    - #convert
+  - Representations
+    - #widget
+    - #page
 
-Finance
-Net worth, portfolio tracker (stocks, crypto, assets), subscription auditor, burn rate calculator, dividend income forecast, expense breakdown
+- weather
+  - Brief Description
+    - Local weather forecast via Open-Meteo.
+  - Features
+    - Open-Meteo weather widget.
+    - Local weather forecast.
+  - Syncs With
+    - #dashboard
+  - Representations
+    - #widget
 
-Developer
-API endpoint tester, terminal cheat sheet, database schema visualizer, system resource monitor, network speed test, cron job tracker, Docker container manager, logs streamer
+- form-filler
+  - Brief Description
+    - Playwright-powered browser form autofill.
+  - Features
+    - Browser form autofill.
+    - Playwright-powered filling.
+  - Syncs With
+    - #actions
+    - #tools
+  - Representations
+    - #widget
+    - #page
 
-Converter
-Unit conversion, currency converter, file format converter
+## Logging and Tracking
 
-Creative
-Canvas, photo gallery, vision board, SVG path visualizer, remove background
+- tracking
+  - Brief Description
+    - Comprehensive health tracking for sleep, workout, meal, mood, and supplements.
+  - Features
+    - Health tracking.
+    - Sleep tracker.
+    - Workout tracker.
+    - Meal tracker.
+    - Mood tracker.
+    - Supplements tracker.
+    - Goals.
+    - Health & Body.
+    - Sleep tracker, injury/soreness heatmap, biometric trend chart, mood/energy logger, workout tracker, muscle heatmap, form debugger (video + AI feedback), nutrition/meal tracker, allergy checker, low-tox scanner, food symptoms tracker, supplement and intake tracker.
+    - Break timer for workouts.
+  - Syncs With
+    - #timekeeping
+    - #notifications
+    - #recovery
+  - Representations
+    - #widget
+    - #page
 
-General
-Weather, world clock, file storage, search (widget search + external app suggester), break timer
+- tracking-health
+  - Brief Description
+    - Health tracker for body heatmap, biometrics, and health logging.
+  - Features
+    - Health tracker.
+    - Health widget.
+    - Injury and soreness heatmap.
+    - Biometric trend chart (HRV/RHR).
+    - Body heatmap.
+    - Weight tracker.
+    - BMI calculator.
+    - Workplace based injury log, image attachment, tag others.
+  - Syncs With
+    - #tracking
+    - #employee-clock
+  - Representations
+    - #widget
+    - #page
 
-Games & Strategy
-Chess (analysis board, move trainer, Stockfish integration), Trivia and other games
+- tracking-sleep
+  - Brief Description
+    - Sleep tracker.
+  - Features
+    - Sleep duration.
+    - Sleep quality.
+    - Sleep trends.
+    - Quality.
+    - Duration.
+  - Syncs With
+    - #tracking
+    - #recovery
+  - Representations
+    - #widget
+    - #page
 
-Employee/Employer Functions
-Clock in/out
+- tracking-workout
+  - Brief Description
+    - Workout tracker.
+  - Features
+    - Volume monitor.
+    - Goals.
+    - Highlight muscles targeted.
+    - Combine with pain monitor.
+    - Transcribe workout.
+    - Form debugging.
+    - Videos.
+    - AI feedback.
+    - Muscle heatmap.
+  - Syncs With
+    - #tracking
+    - #tracking-health
+    - #timekeeping
+  - Representations
+    - #widget
+    - #page
 
-External Integrations
-GitHub contribution heatmap, Obsidian vault explorer, YouTube video listener, trending music (X API), wrapper widget (external app + WebWidgets features)
+- tracking-meal
+  - Brief Description
+    - Meal logging and nutrition review shell.
+  - Features
+    - Nutrition.
+    - Food search.
+    - Meal tracker.
+    - Add foods.
+    - Add meals.
+    - Food reception.
+    - Allergy checker.
+    - Low-tox scanner.
+    - Food symptoms.
+    - Weight loss plan.
+  - Syncs With
+    - #tracking
+    - #tracking-health
+  - Representations
+    - #widget
+    - #page
 
-- Widget configuration
+- tracking-mood
+  - Brief Description
+    - Mood and energy logging with history.
+  - Features
+    - Mood logging widget.
+    - Mood patterns linked to routines and recovery context.
+    - Mood / Energy Logger.
+    - History.
+  - Syncs With
+    - #tracking
+    - #recovery
+  - Representations
+    - #widget
+    - #page
 
-A major planned feature is the Context Diagram: a graph-based visualization of user context across the app, APIs, database, files, widgets, workflows, automations, and inferred patterns.
-Feedback,
+- tracking-supplements
+  - Brief Description
+    - Supplement and intake tracker.
+  - Features
+    - Supplements list.
+    - Med checklist.
+    - Reminders.
+    - Intake tracker.
+    - Supplement and intake tracking.
+  - Syncs With
+    - #tracking
+    - #notifications
+  - Representations
+    - #widget
+    - #page
 
-## Productivity
+- recovery
+  - Brief Description
+    - Addiction recovery tracker with streaks, heatmap, urge and relapse logging, milestones, and review.
+  - Features
+    - Recovery trackers.
+    - Heatmap.
+    - Milestones.
+    - Review.
+    - Sobriety streaks.
+    - Addiction quitting.
+    - Low-Profile Mode (UI).
+    - Recovery setup.
+  - Syncs With
+    - #tracking-mood
+    - #tracking
+  - Representations
+    - #widget
+    - #page
 
-- Email Inbox — Gmail and Outlook integration with ML-powered classification, action extraction, and action confirmation (create calendar events, todos)
-- To-Do — Task list with subtasks, recurring tasks, and habits section
-- Habit Tracker — Habit definitions with streaks and completion history
-- Calendar — Google Calendar integration with event creation and management
-- Pomodoro / Focus Timer — Pomodoro sessions and deep work timer modes
-- Countdown / Timekeeping — Timer, stopwatch, and event countdown
+- habit
+  - Brief Description
+    - Habit tracker with streaks.
+  - Features
+    - Habit definitions.
+    - Streaks.
+    - Completion history.
+    - All logging.
+  - Syncs With
+    - #todo
+    - #tracking
+  - Representations
+    - #widget
+    - #page
 
----
-
-## Communication
-
-- AI Chat — Multi-model chat supporting Claude, GPT-4o, and Gemini with conversation history
-- Automation — Automation evaluator and registry for conditional widget actions
-
----
-
-## Writing & Knowledge
-
-- Journal — TipTap rich-text journal with autosave, drafts, transcription
-- Notes — Rich-text note editor with note manager
-- Scratchpad — Quick-note scratchpad
-- Reading — Reading platform for Bible, Quran, and PDFs; highlights, bookmarks, inline notes, reading plans with streak tracking
-- News — News Intel with RSS/NewsAPI ingestion, ML ranking, and search
-- Research Queue — Research workspace with queue management
-
----
-
-## Health & Wellness
-
-- Recovery Tracker — Addiction recovery tracker with streaks, heatmap, urge and relapse logging, milestones
-- Health Tracking — Comprehensive logging for sleep, workouts, meals, mood, and supplements with goals
-- Mood Logger — Mood and energy logging with history
-
----
+- mood
+  - Brief Description
+    - Mood logging widget.
+  - Features
+    - Mood logging.
+    - Mood history.
+    - Mood energy logging.
+  - Syncs With
+    - #tracking-mood
+    - #recovery
+  - Representations
+    - #widget
 
 ## Finance
 
-- Finance — Net worth tracker, manual account balances, subscription auditor, transaction log, stock/crypto/real estate watchlist with live quotes
+- finance
+  - Brief Description
+    - Net worth, accounts, subscriptions, transactions, and watchlist.
+  - Features
+    - Net worth tracker.
+    - Manual account balances.
+    - Subscription auditor.
+    - Transaction log.
+    - Stock watchlist.
+    - Crypto watchlist.
+    - Real estate watchlist with live quotes.
+    - Portfolio tracker for stocks, crypto, and assets.
+    - Monthly burn rate calculator.
+    - Dividend income forecast.
+    - Expense breakdown.
+    - Expense category pie chart.
+    - From Excel.
+    - Asset monitor.
+    - Traditional stocks.
+    - Crypto.
+    - Utilities (Oil, etc.).
+    - Finance app.
+  - Syncs With
+    - #currency
+    - #calculator
+    - #import-export
+  - Representations
+    - #widget
+    - #page
 
----
+## WebWidgets
 
-## Learning
+- automation
+  - Brief Description
+    - Automation evaluator and registry for conditional widget actions.
+  - Features
+    - Automation evaluator.
+    - Automation registry.
+    - Safe triggers.
+    - Approvals.
+    - Consent-aware workflow rules.
+    - Conditional widget actions.
+    - Suggested automations from onboarding and connected services.
+    - Widget automations.
+  - Syncs With
+    - #actions
+    - #workflows
+    - #widgets
+    - #onboarding
+  - Representations
+    - #widget
+    - #page
 
-- Memorization — Memorization widget and page
-- Tutorials — In-product tutorials and onboarding guidance
+- chatbot
+  - Brief Description
+    - Multi-model AI chat.
+  - Features
+    - Claude.
+    - GPT-4o.
+    - Gemini.
+    - Conversation history.
+    - AI Chat.
+  - Syncs With
+    - #context
+    - #widgets
+    - #search
+  - Representations
+    - #widget
+    - #page
 
----
+- widgets
+  - Brief Description
+    - Widget shell, settings panel, synthesis engine, and builder.
+  - Features
+    - Widget shell.
+    - Settings panel.
+    - Synthesis engine.
+    - Builder.
+    - Widget Builder.
+    - Custom widget synthesis from natural language intent via synthesis engine.
+    - Third-party developers build widgets against the WebWidgets platform.
+    - Widgets integrate with the intent engine and appear in generated workspaces like native widgets.
+    - Shared context propagation.
+    - Event-driven updates.
+    - Unified action pipelines.
+    - Cross-widget recommendations.
+    - Multi-widget workflows.
+    - Graph-based relationships.
+    - Orchestration-aware widgets.
+    - Weave widgets.
+  - Syncs With
+    - #platform
+    - #dashboard
+    - #context
+    - #automation
+  - Representations
+    - #widget
+    - #page
+    - #builder
 
-## Developer Tools
+- context
+  - Brief Description
+    - Context graph with knowledge nodes, goal tracking, AI memory, and permissions.
+  - Features
+    - Context graph.
+    - Knowledge nodes.
+    - AI memory.
+    - Permissions.
+    - Widgets should become nodes in a contextual intelligence graph.
+    - Context diagram.
+    - Graph-based visualization of user context across the app, APIs, database, files, widgets, workflows, automations, and inferred patterns.
+    - Literal context diagram (modifiable).
+    - LLM history.
+  - Syncs With
+    - #widgets
+    - #chatbot
+    - #automation
+    - #files
+    - #workflows
+  - Representations
+    - #widget
+    - #page
 
-- Developer Tools — Developer tools page with API tester, terminal cheat sheet, schema visualizer, system monitor, and more
+- collaboration
+  - Brief Description
+    - Collaborative workspace widget and page.
+  - Features
+    - Collaborative workspace.
+    - Collaboration/Workspace Sync.
+    - Collaboration Workspace.
+  - Syncs With
+    - #context
+    - #widgets
+  - Representations
+    - #widget
+    - #page
 
----
+- intelligence
+  - Brief Description
+    - ML inference service and smart recommendations.
+  - Features
+    - ML inference service.
+    - Smart recommendations.
+    - AI & Intelligence.
+  - Syncs With
+    - #admin
+    - #chatbot
+    - #personalization
+  - Representations
+    - #service
 
-## Conversion & Utilities
+- wrapper-widget
+  - Brief Description
+    - External app functionality with WebWidgets features.
+  - Features
+    - Wrapper Widget.
+    - External/Wrapper-Based.
+    - External app functionality + WebWidgets features.
+    - GitHub Contribution Heatmap.
+    - Obsidian Vault Explorer.
+    - YouTube video listener.
+    - Trending music (X API).
+    - Wrapper widget for external app + WebWidgets features.
+  - Syncs With
+    - #integrations
+    - #widgets
+    - #context
+  - Representations
+    - #widget
+    - #wrapper
 
-- Unit & Currency Converter — Unit conversion across categories and live exchange rates
-- Calculator — Calculator with multiple modes and history
-- File Format Converter — File conversion service (separate Go/Python sidecar)
+## Tools
 
----
+- research
+  - Brief Description
+    - Research queue widget and workspace with Obsidian vault and academic pipeline.
+  - Features
+    - Research workspace.
+    - Queue management.
+    - Research Queue.
+    - Observatory research pipelines into your vault.
+    - Obsidian vault.
+    - Academic pipeline.
+    - Auto-researcher.
+    - Topic search.
+    - Wikipedia sources.
+    - YouTube sources.
+  - Syncs With
+    - #texteditor
+    - #notes
+    - #knowledge
+    - #wrapper-widget
+  - Representations
+    - #widget
+    - #page
 
-## Creative
+- accessibility
+  - Brief Description
+    - Accessibility center widget and settings page.
+  - Features
+    - Accessibility Center.
+    - Accessibility settings widget.
+    - Accessibility settings page.
+  - Syncs With
+    - #settings
+    - #admin
+  - Representations
+    - #widget
+    - #page
 
-- Creative Studio — Creative studio widget and workspace page
-- File Viewer — Universal viewer for CSV, PDF, images, JSON, and markdown; supports annotations and transforms
-- Form Filler — Playwright-powered browser form autofill
+- developer
+  - Brief Description
+    - Developer tools page.
+  - Features
+    - API endpoint tester.
+    - API testing.
+    - Terminal cheat sheet.
+    - Database schema visualizer.
+    - System resource monitor.
+    - Network speed test.
+    - Cron job tracker.
+    - Docker container manager.
+    - Logs streamer.
+    - Logs.
+    - Schemas.
+    - Developer Workspace.
+    - Code Editor, Terminal.
+    - Webwidgets CLI - one for users, one for launching services.
+    - System Resource Monitor (CPU/RAM).
+  - Syncs With
+    - #jobs
+    - #metrics
+    - #admin
+    - #backend
+  - Representations
+    - #page
+    - #widget
 
----
+- datahealth
+  - Brief Description
+    - System health widget.
+  - Features
+    - System Health.
+    - Data health.
+    - Internal diagnostics.
+  - Syncs With
+    - #developer
+    - #metrics
+  - Representations
+    - #widget
+    - #page
 
-## General
+## Entertainment and Creative
 
-- Weather — Local weather forecast via Open-Meteo
-- World Clock — Analog and digital world clocks with multi-timezone support
-- File Storage — S3 file uploads and Google Drive browser
+- reading
+  - Brief Description
+    - Reading platform for Bible, Quran, PDFs, and provider abstraction.
+  - Features
+    - Bible.
+    - Quran.
+    - PDFs.
+    - Ebooks.
+    - Provider abstraction.
+    - Highlights.
+    - Bookmarks.
+    - Inline notes.
+    - Reading plans.
+    - Streak tracking.
+  - Syncs With
+    - #notes
+    - #memorization
+    - #knowledge
+  - Representations
+    - #widget
+    - #page
 
----
+- news
+  - Brief Description
+    - News Intel with RSS/NewsAPI ingestion, ML ranking, and search.
+  - Features
+    - RSS ingestion.
+    - NewsAPI ingestion.
+    - Ranking.
+    - ML ranking.
+    - Search.
+    - News Intel.
+  - Syncs With
+    - #intelligence
+    - #search
+  - Representations
+    - #widget
+    - #page
 
-## AI & Intelligence
+- music
+  - Brief Description
+    - Trending music via X API.
+  - Features
+    - Trending Music (X API).
+    - Auto-Add Music.
+  - Syncs With
+    - #wrapper-widget
+    - #integrations
+  - Representations
+    - #widget
+    - #service
 
-- Context Diagram — Context graph with knowledge nodes, goal tracking, and AI memory
-- Widget Builder — Custom widget synthesis from natural language intent via synthesis engine
-- ML Inference — Email classification, action extraction, and widget suggestions (TF-IDF + Logistic Regression; Claude fallback for paid tier)
+- chess
+  - Brief Description
+    - Chess games library, analysis board, studies, and move trainer.
+  - Features
+    - Games library.
+    - Analysis board.
+    - Studies.
+    - Move trainer.
+    - Chess Helper.
+    - Study chapters.
+    - PGN import.
+    - Lichess game sync.
+    - Repertoire Generator.
+    - Stockfish integration.
+    - Games & Strategy.
+    - Trivia and other games.
+  - Syncs With
+    - #integrations
+    - #memorization
+  - Representations
+    - #widget
+    - #page
 
----
+- creative
+  - Brief Description
+    - Creative studio widget and workspace page.
+  - Features
+    - Canvas.
+    - Photo gallery.
+    - Vision board.
+    - SVG path visualizer.
+    - Remove background.
+    - Drawing.
+    - Graphic Design.
+    - Creative Studio.
+    - Creative studio widget and workspace page.
+    - Tree Diagram: Logo.
+  - Syncs With
+    - #files
+    - #view
+    - #intelligence
+  - Representations
+    - #widget
+    - #page
 
-## Collaboration
+- memorization
+  - Brief Description
+    - Memorization widget and page.
+  - Features
+    - Memorization.
+    - Memorization widget.
+    - Memorization page.
+    - Learning.
+  - Syncs With
+    - #reading
+    - #chess
+    - #knowledge
+  - Representations
+    - #widget
+    - #page
 
-- Collaboration Workspace — Collaborative workspace widget and page
+- tutorials
+  - Brief Description
+    - In-product tutorials and onboarding guidance.
+  - Features
+    - Tutorials.
+    - In-product tutorials.
+    - Onboarding guidance.
+    - Widget setup guidance.
+    - Customization guidance.
+  - Syncs With
+    - #onboarding
+    - #help
+  - Representations
+    - #widget
+    - #page
 
----
+## Knowledge and Miscellaneous
 
-## Games & Strategy
+- knowledge
+  - Brief Description
+    - Knowledge item registry.
+  - Features
+    - Knowledge items.
+    - Registry.
+    - Personal documents.
+    - Live Resume.
+    - Paste and include reference.
+    - Summarize data (tables).
+  - Syncs With
+    - #context
+    - #reading
+    - #research
+    - #notes
+  - Representations
+    - #service
+    - #page
 
-- Chess — Analysis board, move trainer, study chapters, PGN import, Lichess game sync
+- collaboration-risk
+  - Brief Description
+    - Collaboration handoff risk and workspace intelligence.
+  - Features
+    - Collaboration risk detection.
+    - Handoff awareness.
+    - Workspace sync.
+  - Syncs With
+    - #collaboration
+    - #intelligence
+  - Representations
+    - #service
 
----
+- activity
+  - Brief Description
+    - Activity feed.
+  - Features
+    - Activity Feed.
+    - Dashboard activity signals.
+  - Syncs With
+    - #dashboard
+    - #notifications
+  - Representations
+    - #widget
 
-## Accessibility
+- command-center
+  - Brief Description
+    - Command center workspace orchestration.
+  - Features
+    - Command Center.
+    - Workstreams.
+    - Orchestration ranking.
+  - Syncs With
+    - #actions
+    - #automation
+    - #intelligence
+  - Representations
+    - #page
+    - #widget
 
-- Accessibility Center — Accessibility settings widget and page
+- insight-cards
+  - Brief Description
+    - Insight cards for dashboard intelligence.
+  - Features
+    - Insight Cards.
+    - Cross-widget recommendations.
+    - Intelligence snippets.
+  - Syncs With
+    - #context
+    - #intelligence
+    - #widgets
+  - Representations
+    - #widget
 
----
+- action-cards
+  - Brief Description
+    - Action cards for suggested or queued actions.
+  - Features
+    - Action Cards.
+    - Suggested actions.
+    - Queued actions.
+  - Syncs With
+    - #actions
+    - #automation
+  - Representations
+    - #widget
+
+- folder
+  - Brief Description
+    - Moveable, styleable widget container.
+  - Features
+    - Folders.
+    - Nested folders.
+    - Click to reveal contained widgets.
+    - Container for dashboard organization.
+  - Syncs With
+    - #dashboard
+    - #widgets
+  - Representations
+    - #widget
+
+- external-app-suggester
+  - Brief Description
+    - External website/app suggester.
+  - Features
+    - External Website/App Suggester.
+    - Wrapper recommendations.
+    - App suggestions from search.
+  - Syncs With
+    - #search
+    - #wrapper-widget
+  - Representations
+    - #component
+    - #service
+
+- food-delivery
+  - Brief Description
+    - Food delivery idea.
+  - Features
+    - Food Delivery.
+  - Syncs With
+    - #tracking-meal
+  - Representations
+    - #future-feature
+
+- screen-viewer
+  - Brief Description
+    - Screen viewer idea.
+  - Features
+    - Screen Viewer.
+  - Syncs With
+    - #developer
+    - #view
+  - Representations
+    - #future-feature
+
+- live-resume
+  - Brief Description
+    - Live resume idea.
+  - Features
+    - Live Resume.
+  - Syncs With
+    - #knowledge
+    - #texteditor
+  - Representations
+    - #future-feature
+
+- personal-documents
+  - Brief Description
+    - Personal documents idea.
+  - Features
+    - Personal Documents.
+  - Syncs With
+    - #files
+    - #knowledge
+    - #view
+  - Representations
+    - #future-feature
 
 ## Platform
 
-- Dashboard — Widget grid and free canvas with drag-and-drop layout, scenes, folders, and widget bucket
-- Search — Global search bar and widget catalog with suggestions
-- Onboarding — Multi-step setup flow covering goals, integrations, and initial workspace generation
-- Settings — Profile, appearance, integrations, and plan management
-- Billing — Stripe subscription management with checkout and customer portal
-- Import / Export — Data import and export pipeline
-- Notifications — Notification bell, status dot, and alert system
-- Integrations — Integration catalog for Google, Microsoft, GitHub, Linear, Slack, and more
-- Admin — Internal admin panel covering users, feature flags, audit logs, metrics, ML, and background jobs
-- Feedback — In-product user feedback
-- Help — In-product help system
+- settings
+  - Brief Description
+    - General, profile, appearance, integrations, plan & billing.
+  - Features
+    - Profile management.
+    - Appearance management.
+    - Integration settings.
+    - Plan and billing management.
+  - Syncs With
+    - #integrations
+    - #billing
+  - Representations
+    - #page
 
-### Product Overall
+- feedback
+  - Brief Description
+    - In-product user feedback.
+  - Features
+    - User feedback capture.
+    - Feedback workflow for product improvements.
+  - Syncs With
+    - #platform
+  - Representations
+    - #page
+    - #service
 
-- Main Website
-  - WebWidgets.me
-  - http://webwidgets.you (Future Redirect)
-- Handbag Mode
-  - Web Extension
-    - Cross-Site Cart/Product Saving
-  - Overlay-Based Tab
-    - Take Certain widgets with you
-- Desktop and Mobile App
-- Tutorials
-- Custom Widgets
-  - API Integration
-- Unsorted Suggestions
-  - Break Timer for Workouts
-  - Remove Background
+- actions
+  - Brief Description
+    - Action engine for extracting, queuing, and executing email/calendar actions.
+  - Features
+    - Extract actions.
+    - Queue actions.
+    - Execute email actions.
+    - Execute calendar actions.
+    - Action confirmation for creating calendar events and todos.
+  - Syncs With
+    - #inbox
+    - #calendar
+    - #workflows
+  - Representations
+    - #service
 
-* Tree Diagram: Logo
-* Literal Context Diagram (modifiable)
-  - LLM History
-* Live Resume
-* Personal Documents
-* Accessibility
-* Food Delivery
-* Memorization
-* Drawing, Graphic Design
-* Weight loss plan
-* Not overwhelming
-* Screen Viewer
-* Code Editor, Terminal
-* Collaboration/Workspace Sync
-* Summarize data (tables)
-* Paste and include reference
-* Workplace based injury log, image attachment, tag others
-* Reference: Driver 360emkay, furl station locater, mileage, communication, vehicle inspection (Company App Wrapper)
-* Demo w/o signin
-* Webwidgets CLI - One for users, one for launching services
+- analytics
+  - Brief Description
+    - PostHog event tracking.
+  - Features
+    - Product analytics.
+    - Event tracking.
+  - Syncs With
+    - #metrics
+    - #platform
+  - Representations
+    - #service
 
-### Utility
+- audit
+  - Brief Description
+    - Audit log service.
+  - Features
+    - Internal audit logs.
+    - Admin visibility into changes and activity.
+  - Syncs With
+    - #admin
+    - #security
+  - Representations
+    - #service
+    - #page
 
-- (Text Editor) App
-  - Journal
-    - Temporary Delete
-  - Notes
-    - Long-Form Transcription
-    - Markdown Note Editor
-    - Auto-Researcher
-      - Notes Compilation
-      - "On This Day" Historical Archive
-    - (Audio) Brain Dump
-  - General Editor
-    - Long-Form Editor
+- auth
+  - Brief Description
+    - Supabase Auth, Google OAuth, and sign-in form.
+  - Features
+    - Supabase authentication.
+    - Google OAuth.
+    - Sign-in flow.
+    - Demo without sign-in.
+  - Syncs With
+    - #settings
+    - #integrations
+  - Representations
+    - #page
+    - #service
 
-* (Productivity) App
-  - Smart Email Inbox (Filtered, Grouped)
-    - AI Email-Based Insights and Actions
-    - Weave Inboxes feature
-  - To-Do and Reminders
-    - Kanban Task Board
-    - Reminders (+Notifs)
-  - Calendar
-    - Event Adding (Super Custom)
-    - Calendar weave
-  - Pomodoro / Deep Work Timer
-* (Converter) App
-  - Unit Conversion
-  - Currency Converter
-  - File Format Converter
+- backend
+  - Brief Description
+    - Shared request utilities and service registry.
+  - Features
+    - requestUser utility.
+    - Service registry.
+    - Shared backend request utilities.
+  - Syncs With
+    - #platform
+  - Representations
+    - #service
 
-- (General) App
-  - Local Weather Forecast
-  - Clock
-    - World Clock
-    - Time zones
-  - File Storage
-- Tracker(s) App
-  - Health
-    - Sleep Tracker
-      - Quality
-      - Duration
-    - Injury
-      - Injury and Soreness Heatmap
-    - Biometric Trend Chart (HRV/RHR)
-    - - Mood / Energy Logger
-  - Recovery Tracker
-    - Addiction Quitting
-    - Low-Profile Mode (UI)
-    - Sync: Mood Track
-  - Workout Tracker
-    - Volume Monitor
-    - Goals
-    - Highlight Muscles Targeted (Combine with Pain Monitor)
-    - Transcribe workout
-    - Form Debugging
-      - Videos
-      - AI feedback
-  - Nutrition
-    - Weight Tracker
-    - BMI Calculator
-    - Food Search
-    - Meal Tracker
-      - Add Foods, Meals
-    - Food Reception
-      - Allergy Checker
-      - Low-Tox Scanner
-      - Food Symptoms
-  - Intake Tracker
-    - Supplements List
-    - Med Checklist
-    - Reminders
-  - Trending Music (X API)
-    - Auto-Add Music
-- (Finance) App
-  - Net Worth
-    - Portfolio
-    - Subscription Auditor
-    - Monthly Burn Rate Calculator
-    * Dividend Income Forecast
-    * Expense Category Pie Chart
-      - From Excel
-  * Asset Monitor
-    - Traditional Stocks
-    - Crypto
-    - Utilities (Oil, etc.)
-- Search Bar
-  - Widget Search and Suggester
-  - External Website/App Suggester
+- jobs
+  - Brief Description
+    - Background job runner and service.
+  - Features
+    - Background job execution.
+    - Job service.
+    - Cron job tracking.
+  - Syncs With
+    - #developer
+    - #admin
+  - Representations
+    - #service
+    - #page
 
-### Miscellaneous
+- metrics
+  - Brief Description
+    - Internal metrics dashboard.
+  - Features
+    - Internal metrics dashboard.
+    - System metrics views.
+  - Syncs With
+    - #analytics
+    - #admin
+  - Representations
+    - #page
 
-- API Endpoint Tester
-- Terminal / Command Cheat Sheet
-- Database Schema Visualizer
-- System Resource Monitor (CPU/RAM)
-- Network Speed Test
-- Cron Job Status Tracker
-- Docker Container Manager
-- Logs Streamer (FastAPI/Supabase)
-- Canvas
-- Chess Helper
-  - Repertoire Generator
-  - Move Trainer
-  - Analysis Board
-  -
-- SVG Path Visualizer
-- Photo Gallery / Vision Board
+- personalization
+  - Brief Description
+    - Personalization service.
+  - Features
+    - Personalization for workspace generation.
+    - Adapts widgets and recommendations to user goals.
+  - Syncs With
+    - #onboarding
+    - #platform
+  - Representations
+    - #service
 
-### External/Wrapper-Based
+- platform
+  - Brief Description
+    - Widget registry, dashboard library, and platform persistence.
+  - Features
+    - Widget registry.
+    - Dashboard widget library.
+    - Platform persistence.
+    - Feature-scoped modules (65+ features).
+    - This includes the major widgets, pages, integrations, dashboards, and workflow tools needed for WebWidgets.
+  - Syncs With
+    - #dashboard
+    - #widgets
+  - Representations
+    - #service
 
-- GitHub Contribution Heatmap
-- Obsidian Vault Explorer
-- Wrapper Widget: External App Functionality + WebWidgets features
-  - YouTube (video listener)
+- privacy
+  - Brief Description
+    - Privacy policy and terms pages.
+  - Features
+    - Privacy policy page.
+    - Terms page.
+  - Syncs With
+    - #security
+    - #settings
+  - Representations
+    - #page
+
+- security
+  - Brief Description
+    - Consent records and security page.
+  - Features
+    - Consent records.
+    - Security page.
+    - Permission review.
+  - Syncs With
+    - #privacy
+    - #actions
+    - #automation
+  - Representations
+    - #page
+    - #service
+
+- ui
+  - Brief Description
+    - Shared UI primitives.
+  - Features
+    - Header.
+    - Footer.
+    - DatePicker.
+    - LoadingState.
+  - Syncs With
+    - #platform
+  - Representations
+    - #component-library
+
+- workflows
+  - Brief Description
+    - n8n workflow trigger service.
+  - Features
+    - n8n workflow triggers.
+    - Workflow orchestration.
+  - Syncs With
+    - #automation
+    - #actions
+  - Representations
+    - #service
+
+- dashboard
+  - Brief Description
+    - Widget grid and free canvas with drag-and-drop layout, scenes, folders, and widget bucket.
+  - Features
+    - Widget grid.
+    - Free canvas.
+    - Drag-and-drop layout.
+    - Scenes.
+    - Folders.
+    - Widget bucket.
+    - Initial workspace generation.
+  - Syncs With
+    - #platform
+    - #widgets
+    - #onboarding
+  - Representations
+    - #page
+
+- search
+  - Brief Description
+    - Global search bar and widget catalog with suggestions.
+  - Features
+    - Widget search.
+    - Widget catalog.
+    - Suggestions.
+    - External website/app suggester.
+    - Search bar.
+  - Syncs With
+    - #widgets
+    - #chatbot
+  - Representations
+    - #component
+    - #page
+
+- onboarding
+  - Brief Description
+    - Multi-step setup flow covering goals, integrations, and initial workspace generation.
+  - Features
+    - Goals setup.
+    - Integrations setup.
+    - Workspace generation.
+    - In-product guidance for widget setup and customization.
+  - Syncs With
+    - #personalization
+    - #dashboard
+    - #tutorials
+  - Representations
+    - #page
+
+- billing
+  - Brief Description
+    - Stripe subscription management with checkout and customer portal.
+  - Features
+    - Stripe plans.
+    - Checkout.
+    - Customer portal.
+    - PricingCard.
+    - BillingCard.
+  - Syncs With
+    - #settings
+  - Representations
+    - #page
+    - #component
+
+- import-export
+  - Brief Description
+    - Data import and export pipeline.
+  - Features
+    - Data import.
+    - Data export.
+  - Syncs With
+    - #files
+    - #uploads
+  - Representations
+    - #page
+    - #service
+
+- notifications
+  - Brief Description
+    - Notification bell, status dot, and alert system.
+  - Features
+    - Notification bell.
+    - Status dot.
+    - Alert system.
+    - Reminders and notifications.
+  - Syncs With
+    - #todo
+    - #intake
+    - #countdown
+  - Representations
+    - #component
+    - #service
+
+- integrations
+  - Brief Description
+    - Integration catalog for Google, Microsoft, GitHub, Linear, Slack, and more.
+  - Features
+    - Google integration.
+    - Microsoft integration.
+    - GitHub integration.
+    - Linear integration.
+    - Slack integration.
+    - Integration catalog cards.
+    - External integrations.
+  - Syncs With
+    - #settings
+    - #auth
+    - #widgets
+  - Representations
+    - #page
+    - #service
+
+- admin
+  - Brief Description
+    - Internal admin panel covering users, feature flags, audit logs, metrics, ML, and background jobs.
+  - Features
+    - Users.
+    - Feature flags.
+    - Audit logs.
+    - Metrics.
+    - ML.
+    - Background jobs.
+  - Syncs With
+    - #audit
+    - #metrics
+    - #jobs
+    - #intelligence
+  - Representations
+    - #page
+
+- help
+  - Brief Description
+    - In-product help system.
+  - Features
+    - In-product help.
+    - Guidance for users.
+  - Syncs With
+    - #tutorials
+    - #onboarding
+  - Representations
+    - #page
+    - #widget
+
+## Uncharacterized
+
+- Add buttons to header with links to pages
+- Modify add widget folders

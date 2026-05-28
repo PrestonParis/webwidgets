@@ -1,8 +1,8 @@
+import type { CustomApiSourceConfig } from '@/features/widgets/synthesis/widgetIntentInterfaces';
 import type {
-    CustomApiSourceConfig,
     SynthesizedDataSourceDef,
     SynthesizedWidgetDefinition,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 export function customApiConfigToDataSource(
     config: CustomApiSourceConfig,

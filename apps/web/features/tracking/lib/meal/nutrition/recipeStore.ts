@@ -11,7 +11,7 @@ import {
     buildRecipeRecord,
     refreshRecipeNutrition,
 } from './providers/recipeProvider';
-import type { RecipeDraft, RecipeRecord } from './types';
+import type { RecipeDraft, RecipeRecord } from './recipeTypes';
 
 const STORAGE_KEY = 'nutrition_recipes_v1';
 
@@ -28,7 +28,7 @@ function readAll(): RecipeRecord[] {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return [];
-        const parsed = JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
         return Array.isArray(parsed) ? (parsed as RecipeRecord[]) : [];
     } catch {
         return [];

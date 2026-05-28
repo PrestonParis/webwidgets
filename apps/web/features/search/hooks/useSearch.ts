@@ -7,7 +7,7 @@ import {
     type FolderEntry,
 } from '../store/useFolderRegistry';
 import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
-import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 
 export interface NlpSuggestion {
     widget: string;

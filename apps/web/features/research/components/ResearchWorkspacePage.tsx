@@ -42,9 +42,12 @@ export function ResearchWorkspacePage() {
 
     useEffect(() => {
         if (!activeSource) return;
-        setSourceName(activeSource.name);
-        setSourceKind(activeSource.kind);
-        setSourcePath(activeSource.rootPath);
+        const timeoutId = window.setTimeout(() => {
+            setSourceName(activeSource.name);
+            setSourceKind(activeSource.kind);
+            setSourcePath(activeSource.rootPath);
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [activeSource]);
 
     const canRun =

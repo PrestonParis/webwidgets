@@ -25,7 +25,7 @@ import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { computeSupplementAnalytics } from '@/features/tracking/lib/supplements/analytics';
 import { scheduleLabel } from '@/features/tracking/lib/supplements/schedule';
-import type { DueDose } from '@/features/tracking/lib/supplements/types';
+import type { DueDose } from '@/features/tracking/lib/supplements/logTypes';
 
 type ViewMode =
     | 'add'
@@ -40,10 +40,6 @@ type ViewMode =
     | 'inventory'
     | 'effectiveness'
     | 'safety';
-
-function todayKey(): string {
-    return new Date().toISOString().slice(0, 10);
-}
 
 export default function SupplementWidget() {
     const [mode, setMode] = useState<ViewMode>('add');

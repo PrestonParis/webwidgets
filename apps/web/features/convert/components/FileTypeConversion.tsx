@@ -91,8 +91,11 @@ export function FileTypeConversion({ compact }: FileTypeConversionProps) {
             });
 
             if (!response.ok) {
-                const body = await response.json().catch(() => null);
-                throw new Error(body?.error ?? 'File conversion failed.');
+                const body: unknown = await response.json().catch(() => null);
+                throw new Error(
+                    (body as { error?: string } | null)?.error ??
+                        'File conversion failed.',
+                );
             }
 
             const blob = await response.blob();
@@ -201,7 +204,9 @@ export function FileTypeConversion({ compact }: FileTypeConversionProps) {
 
                 <button
                     type="button"
-                    onClick={handleConvert}
+                    onClick={() => {
+                        void handleConvert();
+                    }}
                     disabled={isConverting || !selectedCapability || !file}
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
                 >

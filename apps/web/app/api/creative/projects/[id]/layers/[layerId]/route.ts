@@ -10,21 +10,30 @@ export async function PATCH(
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { layerId } = await params;
-        const body = await req.json() as Record<string, unknown>;
-        const { data, error } = await supabase
+        const body = (await req.json()) as Record<string, unknown>;
+        const { data, error } = (await supabase
             .from('creative_layers')
             .update(body)
             .eq('id', layerId)
             .eq('user_id', userId)
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
         if (error) throw error;
         return NextResponse.json(data);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -45,8 +54,14 @@ export async function DELETE(
         return new NextResponse(null, { status: 204 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }

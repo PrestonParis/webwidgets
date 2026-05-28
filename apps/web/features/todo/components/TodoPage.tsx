@@ -64,7 +64,9 @@ export function TodoPage() {
                     <TodoForm
                         input={input}
                         onChange={setInput}
-                        onSubmit={handleSubmit}
+                        onSubmit={(e) => {
+                            void handleSubmit(e);
+                        }}
                         inputRef={inputRef}
                     />
                     <TodoList

@@ -8,8 +8,8 @@ import {
 import type {
     SynthesizedWidgetDefinition,
     SynthesizedComponentDef,
-    WidgetComponentCategory,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
+import type { WidgetComponentCategory } from '@/features/widgets/synthesis/widgetTypes';
 
 interface ComponentStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

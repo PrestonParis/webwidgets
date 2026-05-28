@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { localSavedMealStore } from '@/features/tracking/lib/meal/nutrition/savedMealStore';
 import type {
     SavedMealDraft,
     SavedMealRecord,
-} from '@/features/tracking/lib/meal/nutrition/types';
+} from '@/features/tracking/lib/meal/nutrition/savedMealTypes';
 
 export function useSavedMeals(): {
     savedMeals: SavedMealRecord[];
@@ -14,15 +14,13 @@ export function useSavedMeals(): {
     remove: (id: string) => void;
     reload: () => void;
 } {
-    const [savedMeals, setSavedMeals] = useState<SavedMealRecord[]>([]);
+    const [savedMeals, setSavedMeals] = useState<SavedMealRecord[]>(() =>
+        localSavedMealStore.list(),
+    );
 
     const reload = useCallback(() => {
         setSavedMeals(localSavedMealStore.list());
     }, []);
-
-    useEffect(() => {
-        reload();
-    }, [reload]);
 
     const create = useCallback(
         (draft: SavedMealDraft) => {

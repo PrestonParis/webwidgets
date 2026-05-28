@@ -1,6 +1,6 @@
 import { parseCSV } from '@/features/tracking/lib/import/csvParser';
-import type { ImportPreview } from '@/features/tracking/lib/fitness/types';
-import type { SupplementLog } from './types';
+import type { ImportPreview } from '@/features/tracking/lib/fitness/importTypes';
+import type { SupplementLog } from './logTypes';
 
 function get(row: Record<string, string>, keys: string[]): string | undefined {
     for (const key of keys) {

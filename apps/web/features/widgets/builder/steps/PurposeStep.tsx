@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type {
-    WidgetBuilderPurpose,
-    SynthesizedWidgetDefinition,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { WidgetBuilderPurpose } from '@/features/widgets/synthesis/widgetTypes';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
 
 interface PurposeStepProps {

@@ -5,7 +5,7 @@ import {
     mutabilitySchema,
     providerScopeSchema,
     queueabilitySchema,
-} from '@/features/actions/schemas/actionSchemas';
+} from '@/features/actions/schemas/actionEnumSchemas';
 
 export interface ActionDefinition<Input = unknown, Output = unknown> {
     id: string;

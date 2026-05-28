@@ -8,7 +8,7 @@ import { getUpload } from '@/features/uploads/services/uploadService';
 import { s3, S3_BUCKET, hasS3Config } from '@/lib/aws/s3Client';
 import { getParserForMime } from '@/features/view/registry/parserRegistry';
 import { validateViewFile } from '@/features/view/security/contentSecurity';
-import { viewFileRefSchema } from '@/features/view/schemas/viewSchemas';
+import { viewFileRefSchema } from '@/features/view/schemas/objectSchemas';
 import { getLogger } from '@/lib/observability/logger';
 
 const bodySchema = z.object({ file: viewFileRefSchema });
@@ -71,7 +71,10 @@ export async function POST(request: Request) {
         const text = file.url
             ? await fetchUploadText(file.url, file.mimeType)
             : undefined;
-        const document = await parser.parse({ file, ...(text !== undefined && { text }) });
+        const document = await parser.parse({
+            file,
+            ...(text !== undefined && { text }),
+        });
         getLogger({
             component: 'view-parse',
             fileId: file.id,

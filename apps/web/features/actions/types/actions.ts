@@ -2,14 +2,14 @@ import type { Json } from '@/types/supabase';
 import type { ConfidenceScore } from '@/features/intelligence/types/inferenceTypes';
 import type {
     ActionCategory,
-    ActionEngineResult,
-    ActionRequestEnvelope,
     ApprovalState,
     DestructiveLevel,
     Mutability,
     ProviderScope,
     Queueability,
-} from '@/features/actions/schemas/actionSchemas';
+} from '@/features/actions/schemas/actionEnumSchemas';
+import type { ActionRequestEnvelope } from '@/features/actions/schemas/actionPayloadSchemas';
+import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
 import type { ActionDefinition } from '@/features/actions/schemas/definitionSchemas';
 
 export type {

@@ -2,7 +2,7 @@ import Papa from 'papaparse';
 import type { ViewParseInput } from '@/features/view/types/view';
 import { normalizedDocument } from '@/features/view/parsers/parserUtils';
 
-export async function parseCsvFile(input: ViewParseInput) {
+export function parseCsvFile(input: ViewParseInput) {
     const text = input.text ?? '';
     const parsed = Papa.parse<Record<string, unknown>>(text, {
         header: true,
@@ -12,21 +12,23 @@ export async function parseCsvFile(input: ViewParseInput) {
     const rows = parsed.data.slice(0, 500);
     const fields = parsed.meta.fields ?? Object.keys(rows[0] ?? {});
 
-    return normalizedDocument({
-        file: input.file,
-        strategy: 'csv_table',
-        searchableText: text,
-        renderable: { rows, fields, errors: parsed.errors.slice(0, 5) },
-        metadata: {
-            rowCount: parsed.data.length,
-            fields,
-            truncated: parsed.data.length > rows.length,
-        },
-        analysisHints: [
-            'schema-inference',
-            'statistics',
-            'timeline-extraction',
-        ],
-        sanitized: true,
-    });
+    return Promise.resolve(
+        normalizedDocument({
+            file: input.file,
+            strategy: 'csv_table',
+            searchableText: text,
+            renderable: { rows, fields, errors: parsed.errors.slice(0, 5) },
+            metadata: {
+                rowCount: parsed.data.length,
+                fields,
+                truncated: parsed.data.length > rows.length,
+            },
+            analysisHints: [
+                'schema-inference',
+                'statistics',
+                'timeline-extraction',
+            ],
+            sanitized: true,
+        }),
+    );
 }

@@ -10,6 +10,8 @@ export interface IntegrationState {
 }
 
 type IntegrationMap = Record<string, IntegrationState>;
+type UserIdentity = { provider?: string };
+type IntegrationKeyRow = { provider: string };
 
 const GOOGLE_OAUTH_IDS = ['gmail', 'google_calendar', 'google_drive'];
 const MICROSOFT_OAUTH_IDS = ['outlook', 'outlook_calendar'];
@@ -26,8 +28,9 @@ export function useIntegrations() {
             return;
         }
 
-        const hasGoogleIdentity = !!user.identities?.find(
-            (i: any) => i.provider === 'google',
+        const identities = (user.identities ?? []) as UserIdentity[];
+        const hasGoogleIdentity = identities.some(
+            (identity) => identity.provider === 'google',
         );
 
         const [tokensResult, keysResult] = await Promise.all([
@@ -43,9 +46,9 @@ export function useIntegrations() {
         ]);
 
         const tokens = tokensResult.data;
-        const savedProviders = new Set(
-            (keysResult.data ?? []).map((r) => r.provider),
-        );
+        const keyRows =
+            (keysResult.data as unknown as IntegrationKeyRow[] | null) ?? [];
+        const savedProviders = new Set(keyRows.map((row) => row.provider));
 
         const next: IntegrationMap = {};
         GOOGLE_OAUTH_IDS.forEach((id) => {
@@ -86,7 +89,10 @@ export function useIntegrations() {
     }, [user, status]);
 
     useEffect(() => {
-        load();
+        const timeoutId = window.setTimeout(() => {
+            void load();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [user, status, load]);
 
     const connectGoogle = useCallback(async (scopes: string[]) => {
@@ -101,41 +107,57 @@ export function useIntegrations() {
     }, []);
 
     const connectMicrosoft = useCallback(() => {
-        window.location.href = `/api/auth/microsoft/start?redirect=${encodeURIComponent(window.location.pathname)}`;
+        window.location.assign(
+            `/api/auth/microsoft/start?redirect=${encodeURIComponent(window.location.pathname)}`,
+        );
     }, []);
 
-    const saveKey = useCallback(async (providerId: string, key: string) => {
-        if (!user || !key.trim()) return;
-        setSaving(providerId);
-        await supabase.from('user_integration_keys').upsert(
-            {
-                user_id: user.id,
-                provider: providerId,
-                api_key: key.trim(),
-            },
-            { onConflict: 'user_id,provider' },
-        );
-        setSaving(null);
-        setStates((prev) => ({
-            ...prev,
-            [providerId]: { connected: true, hasKey: true },
-        }));
-    }, [user]);
+    const saveKey = useCallback(
+        async (providerId: string, key: string) => {
+            if (!user || !key.trim()) return;
+            setSaving(providerId);
+            await supabase.from('user_integration_keys').upsert(
+                {
+                    user_id: user.id,
+                    provider: providerId,
+                    api_key: key.trim(),
+                },
+                { onConflict: 'user_id,provider' },
+            );
+            setSaving(null);
+            setStates((prev) => ({
+                ...prev,
+                [providerId]: { connected: true, hasKey: true },
+            }));
+        },
+        [user],
+    );
 
-    const removeKey = useCallback(async (providerId: string) => {
-        if (!user) return;
-        setSaving(providerId);
-        await supabase
-            .from('user_integration_keys')
-            .delete()
-            .eq('user_id', user.id)
-            .eq('provider', providerId);
-        setSaving(null);
-        setStates((prev) => ({
-            ...prev,
-            [providerId]: { connected: false, hasKey: false },
-        }));
-    }, [user]);
+    const removeKey = useCallback(
+        async (providerId: string) => {
+            if (!user) return;
+            setSaving(providerId);
+            await supabase
+                .from('user_integration_keys')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('provider', providerId);
+            setSaving(null);
+            setStates((prev) => ({
+                ...prev,
+                [providerId]: { connected: false, hasKey: false },
+            }));
+        },
+        [user],
+    );
 
-    return { states, loading, saving, connectGoogle, connectMicrosoft, saveKey, removeKey };
+    return {
+        states,
+        loading,
+        saving,
+        connectGoogle,
+        connectMicrosoft,
+        saveKey,
+        removeKey,
+    };
 }

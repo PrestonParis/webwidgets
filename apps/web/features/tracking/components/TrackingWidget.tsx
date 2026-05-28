@@ -24,7 +24,7 @@ import {
     getCategoryLabel,
     TRACKING_CATEGORIES,
 } from '@/features/tracking/constants';
-import type { TrackingCategory } from '@/features/tracking/types/tracking';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
 import type { Tracker } from '@/features/recovery/types/recovery';
 
 type ViewMode = 'log' | 'graph' | 'heatmap' | 'stats' | 'timeline' | 'recovery';
@@ -84,7 +84,7 @@ function RecoveryPanel({ trackers }: { trackers: Tracker[] }) {
     );
 }
 
-type ActiveCategory = TrackingCategory | 'recovery';
+type ActiveCategory = TrackingCategory;
 
 function CategoryPicker({
     active,

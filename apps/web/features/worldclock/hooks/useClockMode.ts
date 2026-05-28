@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export type ClockMode = 'digital' | 'military' | 'analog';
 
@@ -15,11 +15,7 @@ function loadMode(): ClockMode {
 }
 
 export function useClockMode() {
-    const [mode, setModeState] = useState<ClockMode>(DEFAULT);
-
-    useEffect(() => {
-        setModeState(loadMode());
-    }, []);
+    const [mode, setModeState] = useState<ClockMode>(() => loadMode());
 
     const setMode = (m: ClockMode) => {
         localStorage.setItem(STORAGE_KEY, m);

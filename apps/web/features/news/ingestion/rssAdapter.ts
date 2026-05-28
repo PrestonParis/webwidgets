@@ -2,10 +2,8 @@ import { Readability } from '@mozilla/readability';
 import Parser from 'rss-parser';
 import { getLogger, traced } from '@/lib/observability/logger';
 import { getProviderLimiter } from '@/features/news/ingestion/rateLimiters';
-import {
-    rawSourceEventSchema,
-    type RawSourceEvent,
-} from '@/features/news/schemas/eventSchemas';
+import { rawSourceEventSchema } from '@/features/news/schemas/eventCoreSchemas';
+import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
 
 const parser = new Parser();
 
@@ -38,7 +36,9 @@ export async function ingestRssFeed(
                     payload: {
                         ...item,
                         contentText: extractReadableText(
-                            item['content:encoded'] ?? item.content,
+                            typeof item['content:encoded'] === 'string'
+                                ? item['content:encoded']
+                                : item.content,
                         ),
                         sourcePriority: 0.65,
                     },

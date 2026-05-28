@@ -20,145 +20,23 @@ import {
     QuickActionButton,
     WidgetStat,
 } from '@/features/tracking/components/TrackingSurface';
+import { normalizeMealEntries } from '@/features/tracking/lib/meal/normalize';
 import {
-    normalizeMealEntries,
-    computeMealAnalytics,
     extractMealGoalConfig,
-    calorieStatus,
-    calorieStatusLabel,
-    buildDailySummary,
-    groupByMealType,
-    formatMealTime,
     mealRecordSummary,
-    MEAL_TYPE_LABELS,
-    MEAL_TYPE_ICONS,
-    MEAL_TYPE_ORDER,
-    type MealViewMode,
-    type MealRecord,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
+import type {
+    MealViewMode,
+    MealRecord,
+} from '@/features/tracking/lib/meal/types';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { BarcodeModal } from '@/features/tracking/components/meal/BarcodeModal';
-import { foodResultToMealMetadata } from '@/features/tracking/lib/meal/nutrition/normalize';
+import { foodResultToMealMetadata } from '@/features/tracking/lib/meal/nutrition/foodItem';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import { BarChart } from '@/features/tracking/viz/BarChart';
-import { LineChart } from '@/features/tracking/viz/LineChart';
-
-function todayKey(): string {
-    return new Date().toISOString().slice(0, 10);
-}
-
-// ─── sub-components ────────────────────────────────────────────────────────────
-
-function GoalProgressBar({
-    label,
-    value,
-    target,
-    color = 'green',
-}: {
-    label: string;
-    value: number;
-    target: number;
-    color?: 'green' | 'blue';
-}) {
-    const pct = Math.min(100, Math.round((value / target) * 100));
-    const barColor = color === 'green' ? 'bg-green-500' : 'bg-blue-500';
-    return (
-        <div>
-            <div className="flex justify-between mb-0.5">
-                <span className="text-[10px] text-gray-500 dark:text-zinc-400">
-                    {label}
-                </span>
-                <span className="text-[10px] font-medium text-gray-700 dark:text-zinc-300">
-                    {Math.round(value)}/{target}
-                    <span className="text-gray-400 dark:text-zinc-500 ml-0.5">
-                        ({pct}%)
-                    </span>
-                </span>
-            </div>
-            <div
-                className="h-1.5 rounded-full bg-gray-100 dark:bg-zinc-700 overflow-hidden"
-                role="progressbar"
-                aria-valuenow={pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${label}: ${pct}%`}
-            >
-                <div
-                    className={`h-full rounded-full transition-all ${barColor}`}
-                    style={{ width: `${pct}%` }}
-                />
-            </div>
-        </div>
-    );
-}
-
-function MealCard({ record }: { record: MealRecord }) {
-    const icon = record.mealType ? MEAL_TYPE_ICONS[record.mealType] : '🍽️';
-    return (
-        <div className="flex items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl p-2.5">
-            <span className="text-sm shrink-0 mt-0.5">{icon}</span>
-            <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-green-800 dark:text-green-200 truncate">
-                    {record.title ??
-                        (record.mealType
-                            ? MEAL_TYPE_LABELS[record.mealType]
-                            : 'Meal')}
-                </p>
-                <p className="text-[10px] text-green-600 dark:text-green-400 mt-0.5">
-                    {[
-                        record.calories !== null
-                            ? `${Math.round(record.calories)} kcal`
-                            : null,
-                        record.proteinGrams !== null
-                            ? `${Math.round(record.proteinGrams)}g protein`
-                            : null,
-                        formatMealTime(record) || null,
-                    ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                </p>
-            </div>
-        </div>
-    );
-}
-
-function EmptyMealsState({
-    onLog,
-    onGoal,
-}: {
-    onLog: () => void;
-    onGoal: () => void;
-}) {
-    return (
-        <div className="text-center py-6 space-y-3">
-            <p className="text-2xl">🍽️</p>
-            <p className="text-sm text-gray-600 dark:text-zinc-400 font-medium">
-                No meals logged yet
-            </p>
-            <p className="text-xs text-gray-400 dark:text-zinc-500">
-                Start tracking your nutrition
-            </p>
-            <div className="flex gap-2 justify-center">
-                <button
-                    type="button"
-                    onClick={onLog}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
-                >
-                    Log your first meal
-                </button>
-                <button
-                    type="button"
-                    onClick={onGoal}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:border-green-300 hover:text-green-500 transition-colors"
-                >
-                    Set nutrition goals
-                </button>
-            </div>
-        </div>
-    );
-}
-
-// ─── view tabs ─────────────────────────────────────────────────────────────────
+import { MealSummaryView } from '@/features/tracking/components/meal/MealSummaryView';
+import { MealTodayView } from '@/features/tracking/components/meal/MealTodayView';
+import { MealHistoryView } from '@/features/tracking/components/meal/MealHistoryView';
+import { MealTrendsView } from '@/features/tracking/components/meal/MealTrendsView';
 
 type MealWidgetView =
     | MealViewMode
@@ -168,389 +46,9 @@ type MealWidgetView =
     | 'goal'
     | 'saved';
 
-// ─── Summary view ──────────────────────────────────────────────────────────────
-
-function SummaryView({
-    records,
-    calorieTarget,
-    proteinMin,
-    onLog,
-    onGoal,
-}: {
-    records: MealRecord[];
-    calorieTarget: number | null;
-    proteinMin: number | null;
-    onLog: () => void;
-    onGoal: () => void;
-}) {
-    const today = todayKey();
-    const todayRecords = records.filter((r) => r.date === today);
-    const todayCals = todayRecords.reduce((s, r) => s + (r.calories ?? 0), 0);
-    const todayProtein = todayRecords.reduce(
-        (s, r) => s + (r.proteinGrams ?? 0),
-        0,
-    );
-    const status = calorieStatus(todayCals, calorieTarget);
-    const statusColors: Record<typeof status, string> = {
-        on_track: 'text-green-600 dark:text-green-400',
-        under_target: 'text-yellow-500 dark:text-yellow-400',
-        over_target: 'text-red-500 dark:text-red-400',
-        no_goal: 'text-gray-400 dark:text-zinc-500',
-    };
-
-    if (records.length === 0) {
-        return <EmptyMealsState onLog={onLog} onGoal={onGoal} />;
-    }
-
-    return (
-        <div className="space-y-3">
-            {/* Today stats row */}
-            <div className="grid grid-cols-3 gap-2">
-                <div className="text-center">
-                    <p className="text-lg font-bold text-gray-800 dark:text-zinc-200">
-                        {todayRecords.length}
-                    </p>
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                        Meals today
-                    </p>
-                </div>
-                {todayCals > 0 && (
-                    <div className="text-center">
-                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {Math.round(todayCals)}
-                        </p>
-                        <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                            Calories
-                        </p>
-                    </div>
-                )}
-                {todayProtein > 0 && (
-                    <div className="text-center">
-                        <p className="text-lg font-bold text-blue-500 dark:text-blue-400">
-                            {Math.round(todayProtein)}g
-                        </p>
-                        <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                            Protein
-                        </p>
-                    </div>
-                )}
-            </div>
-
-            {/* Status badge */}
-            <p className={`text-xs font-medium ${statusColors[status]}`}>
-                {calorieStatusLabel(status)}
-                {status !== 'no_goal' &&
-                    todayCals > 0 &&
-                    ` · ${Math.round(todayCals)} kcal`}
-            </p>
-
-            {/* Goal progress bars */}
-            {calorieTarget !== null && todayCals > 0 && (
-                <GoalProgressBar
-                    label="Calories"
-                    value={todayCals}
-                    target={calorieTarget}
-                    color="green"
-                />
-            )}
-            {proteinMin !== null && todayProtein > 0 && (
-                <GoalProgressBar
-                    label="Protein"
-                    value={todayProtein}
-                    target={proteinMin}
-                    color="blue"
-                />
-            )}
-
-            {/* Latest meal */}
-            {records[0] && (
-                <div>
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-500 mb-1">
-                        Latest · {formatDate(records[0].date)}
-                    </p>
-                    <MealCard record={records[0]} />
-                </div>
-            )}
-        </div>
-    );
+function todayKey(): string {
+    return new Date().toISOString().slice(0, 10);
 }
-
-// ─── Today view ────────────────────────────────────────────────────────────────
-
-function TodayView({
-    records,
-    onEdit,
-    onDelete,
-}: {
-    records: MealRecord[];
-    onEdit: (r: MealRecord) => void;
-    onDelete: (id: string) => void;
-}) {
-    const today = todayKey();
-    const todayRecords = records.filter((r) => r.date === today);
-    const grouped = useMemo(
-        () => groupByMealType(todayRecords),
-        [todayRecords],
-    );
-
-    if (todayRecords.length === 0) {
-        return (
-            <p className="text-xs text-center text-gray-400 dark:text-zinc-500 py-6">
-                Nothing logged today.
-            </p>
-        );
-    }
-
-    return (
-        <div className="space-y-3">
-            {MEAL_TYPE_ORDER.filter((t) => grouped[t].length > 0).map(
-                (mealType) => (
-                    <div key={mealType}>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-zinc-500 mb-1">
-                            {MEAL_TYPE_ICONS[mealType]}{' '}
-                            {MEAL_TYPE_LABELS[mealType]}
-                        </p>
-                        <div className="space-y-1">
-                            {grouped[mealType].map((r) => (
-                                <div
-                                    key={r.id}
-                                    className="flex items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl p-2.5 group"
-                                >
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-medium text-green-800 dark:text-green-200 truncate">
-                                            {r.title ??
-                                                MEAL_TYPE_LABELS[mealType]}
-                                        </p>
-                                        <p className="text-[10px] text-green-600 dark:text-green-400 mt-0.5">
-                                            {[
-                                                r.calories !== null
-                                                    ? `${Math.round(r.calories)} kcal`
-                                                    : null,
-                                                r.proteinGrams !== null
-                                                    ? `${Math.round(r.proteinGrams)}g protein`
-                                                    : null,
-                                            ]
-                                                .filter(Boolean)
-                                                .join(' · ')}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            type="button"
-                                            onClick={() => onEdit(r)}
-                                            className="text-[10px] text-indigo-400 hover:text-indigo-600"
-                                            aria-label={`Edit ${r.title ?? mealType}`}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => onDelete(r.id)}
-                                            className="text-[10px] text-red-400 hover:text-red-600"
-                                            aria-label={`Delete ${r.title ?? mealType}`}
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ),
-            )}
-        </div>
-    );
-}
-
-// ─── History view ──────────────────────────────────────────────────────────────
-
-function HistoryView({
-    records,
-    onEdit,
-    onDelete,
-}: {
-    records: MealRecord[];
-    onEdit: (r: MealRecord) => void;
-    onDelete: (id: string) => void;
-}) {
-    if (records.length === 0) {
-        return (
-            <p className="text-xs text-center text-gray-400 dark:text-zinc-500 py-6">
-                No meal history yet.
-            </p>
-        );
-    }
-
-    // Group newest-first by date
-    const byDate = new Map<string, MealRecord[]>();
-    for (const r of records) {
-        const list = byDate.get(r.date) ?? [];
-        list.push(r);
-        byDate.set(r.date, list);
-    }
-
-    return (
-        <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-            {Array.from(byDate.entries()).map(([date, dayRecords]) => (
-                <div key={date}>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-zinc-500 mb-1 sticky top-0 bg-white dark:bg-zinc-900 py-0.5">
-                        {formatDate(date)}
-                    </p>
-                    <div className="space-y-1">
-                        {dayRecords.map((r) => (
-                            <div
-                                key={r.id}
-                                className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group"
-                            >
-                                <span className="text-sm shrink-0">
-                                    {r.mealType
-                                        ? MEAL_TYPE_ICONS[r.mealType]
-                                        : '🍽️'}
-                                </span>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-800 dark:text-zinc-200 truncate">
-                                        {r.title ??
-                                            (r.mealType
-                                                ? MEAL_TYPE_LABELS[r.mealType]
-                                                : 'Meal')}
-                                    </p>
-                                    <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                                        {[
-                                            r.calories !== null
-                                                ? `${Math.round(r.calories)} kcal`
-                                                : null,
-                                            r.proteinGrams !== null
-                                                ? `${Math.round(r.proteinGrams)}g protein`
-                                                : null,
-                                        ]
-                                            .filter(Boolean)
-                                            .join(' · ')}
-                                    </p>
-                                </div>
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => onEdit(r)}
-                                        className="text-[10px] text-indigo-400 hover:text-indigo-600"
-                                        aria-label={`Edit ${r.title ?? 'meal'}`}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => onDelete(r.id)}
-                                        className="text-[10px] text-red-400 hover:text-red-600"
-                                        aria-label={`Delete ${r.title ?? 'meal'}`}
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-// ─── Trends view ───────────────────────────────────────────────────────────────
-
-function TrendsView({
-    records,
-    calorieTarget,
-    proteinMin,
-}: {
-    records: MealRecord[];
-    calorieTarget: number | null;
-    proteinMin: number | null;
-}) {
-    if (records.length < 3) {
-        return (
-            <p className="text-xs text-center text-gray-400 dark:text-zinc-500 py-6">
-                Log at least 3 meals to see trends.
-            </p>
-        );
-    }
-
-    // Build 7-day calorie bar chart data
-    const barData = useMemo(() => {
-        const days: { label: string; value: number }[] = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0, 10);
-            const label = d.toLocaleDateString('en-US', {
-                weekday: 'short',
-            });
-            const total = records
-                .filter((r) => r.date === key)
-                .reduce((s, r) => s + (r.calories ?? 0), 0);
-            days.push({ label, value: total });
-        }
-        return days;
-    }, [records]);
-
-    const analytics = useMemo(
-        () =>
-            computeMealAnalytics(records, {
-                calorieTarget,
-                proteinMin,
-            }),
-        [records, calorieTarget, proteinMin],
-    );
-
-    return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-xl p-2.5">
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                        7-day avg calories
-                    </p>
-                    <p className="text-sm font-bold text-gray-800 dark:text-zinc-200 mt-0.5">
-                        {analytics.sevenDayAvgCalories !== null
-                            ? `${Math.round(analytics.sevenDayAvgCalories)} kcal`
-                            : '—'}
-                    </p>
-                </div>
-                <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-xl p-2.5">
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                        7-day avg protein
-                    </p>
-                    <p className="text-sm font-bold text-gray-800 dark:text-zinc-200 mt-0.5">
-                        {analytics.sevenDayAvgProtein !== null
-                            ? `${Math.round(analytics.sevenDayAvgProtein)}g`
-                            : '—'}
-                    </p>
-                </div>
-            </div>
-
-            {analytics.goalCalorieHitRate7d !== null && (
-                <div className="text-xs text-gray-600 dark:text-zinc-400">
-                    Hit calorie goal{' '}
-                    <span className="font-semibold text-green-500">
-                        {Math.round(analytics.goalCalorieHitRate7d * 100)}%
-                    </span>{' '}
-                    of days this week
-                </div>
-            )}
-
-            <div>
-                <p className="text-[10px] text-gray-400 dark:text-zinc-500 mb-2">
-                    Calories — last 7 days
-                </p>
-                <BarChart
-                    data={barData.filter((d) => d.value > 0)}
-                    color="#22c55e"
-                    height={120}
-                    emptyMessage="No calorie data yet"
-                />
-            </div>
-        </div>
-    );
-}
-
-// ─── main widget ───────────────────────────────────────────────────────────────
 
 export default function MealWidget() {
     const [activeView, setActiveView] = useState<MealWidgetView>('log');
@@ -570,14 +68,12 @@ export default function MealWidget() {
         () => extractMealGoalConfig(allGoals),
         [allGoals],
     );
-
     const { calorieTarget, proteinMin } = goalConfig;
 
     const handleEdit = (r: MealRecord) => {
         setEditRecord(r);
         setActiveView('log');
     };
-
     const handleDeleteMeal = (id: string) => {
         void handleDelete(id);
     };
@@ -724,7 +220,6 @@ export default function MealWidget() {
                     </QuickActionButton>
                 </div>
 
-                {/* Log entry / edit form */}
                 {activeView === 'log' || editRecord ? (
                     <div className="space-y-2">
                         {editRecord && (
@@ -755,9 +250,8 @@ export default function MealWidget() {
                     </div>
                 ) : (
                     <>
-                        {/* Active view content */}
                         {activeView === 'summary' && (
-                            <SummaryView
+                            <MealSummaryView
                                 records={records}
                                 calorieTarget={calorieTarget}
                                 proteinMin={proteinMin}
@@ -766,21 +260,21 @@ export default function MealWidget() {
                             />
                         )}
                         {activeView === 'today' && (
-                            <TodayView
+                            <MealTodayView
                                 records={records}
                                 onEdit={handleEdit}
                                 onDelete={handleDeleteMeal}
                             />
                         )}
                         {activeView === 'history' && (
-                            <HistoryView
+                            <MealHistoryView
                                 records={records}
                                 onEdit={handleEdit}
                                 onDelete={handleDeleteMeal}
                             />
                         )}
                         {activeView === 'trends' && (
-                            <TrendsView
+                            <MealTrendsView
                                 records={records}
                                 calorieTarget={calorieTarget}
                                 proteinMin={proteinMin}
@@ -830,6 +324,7 @@ export default function MealWidget() {
                         )}
                     </>
                 )}
+
                 <BarcodeModal
                     open={showBarcode}
                     onClose={() => setShowBarcode(false)}

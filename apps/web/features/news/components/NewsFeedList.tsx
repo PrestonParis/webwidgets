@@ -1,7 +1,7 @@
 'use client';
 
 import { Bookmark, Clock3, ExternalLink, Sparkles } from 'lucide-react';
-import type { RankedFeedItem } from '@/features/news/schemas/eventSchemas';
+import type { RankedFeedItem } from '@/features/news/schemas/eventTypes';
 import { cn } from '@/lib/utils/utils';
 
 function timeAgo(iso: string) {
