@@ -19,6 +19,7 @@ interface PlanningAgendaPanelProps {
     onAddEvent: () => void;
     onEditEvent: (event: CalendarEvent) => void;
     onDeleteEvent: (event: CalendarEvent) => Promise<void>;
+    onSelectDate: (date: Date) => void;
 }
 
 export function PlanningAgendaPanel({
@@ -29,6 +30,7 @@ export function PlanningAgendaPanel({
     onAddEvent,
     onEditEvent,
     onDeleteEvent,
+    onSelectDate,
 }: PlanningAgendaPanelProps) {
     const upcomingDays = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(today);
@@ -94,9 +96,11 @@ export function PlanningAgendaPanel({
                     {upcomingDays.map((day, i) => {
                         const dayEvents = getDayEvents(day);
                         return (
-                            <div
+                            <button
                                 key={i}
-                                className="flex items-start gap-3 py-1.5 px-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors"
+                                type="button"
+                                onClick={() => onSelectDate(day)}
+                                className="flex w-full items-start gap-3 py-1.5 px-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors text-left"
                             >
                                 <div className="text-center shrink-0 w-9 pt-0.5">
                                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase leading-none">
@@ -135,7 +139,7 @@ export function PlanningAgendaPanel({
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            </button>
                         );
                     })}
                 </div>

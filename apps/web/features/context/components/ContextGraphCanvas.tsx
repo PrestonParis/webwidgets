@@ -31,9 +31,12 @@ export function ContextGraphCanvas({
         >
             {graph.nodes.length === 0 && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
-                    <span className="text-4xl">🕸️</span>
-                    <p className="text-sm">
-                        Your context graph will appear here after onboarding.
+                    <p className="text-sm font-medium text-gray-600 dark:text-zinc-300">
+                        No context nodes yet
+                    </p>
+                    <p className="max-w-sm text-center text-xs">
+                        Use widgets, chat, or connected services and the graph
+                        will fill in as context is captured.
                     </p>
                 </div>
             )}

@@ -43,7 +43,7 @@ function normalizeSubject(s: string): string {
 
 function senderKey(sender: string): string {
     const match = /<([^>]+)>/.exec(sender);
-    return (match ? match[1] : sender).toLowerCase().trim();
+    return (match?.[1] ?? sender).toLowerCase().trim();
 }
 
 function isCrossProviderDuplicate(a: Email, b: Email): boolean {

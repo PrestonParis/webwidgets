@@ -61,7 +61,7 @@ export function MemorizationRoutines({
                     <div className="flex items-center gap-2">
                         <Repeat2 size={17} className="text-blue-500" />
                         <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                            Review routines
+                            Study Schedule
                         </h2>
                     </div>
                     <Button
@@ -137,8 +137,7 @@ export function MemorizationRoutines({
 
                 {!loading && routines.length === 0 ? (
                     <div className="rounded-lg bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-950">
-                        No routines yet. Add one to schedule regular review
-                        sessions.
+                        Add a daily goal or session target.
                     </div>
                 ) : (
                     <div className="grid gap-3">

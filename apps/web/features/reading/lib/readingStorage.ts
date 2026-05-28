@@ -7,6 +7,36 @@ import { DEFAULT_READING_PREFERENCES } from '@/features/reading/types/plans';
 
 const PREFS_KEY = 'reading_prefs';
 const POSITION_PREFIX = 'reading_pos_';
+const BIBLE_LIBRARY_KEY = 'reading_bible_library';
+
+// Minimal shape stored per saved translation — enough to reconstruct a
+// ReadingDocument without a network call on every library load.
+export interface SavedBibleTranslation {
+    id: string;
+    title: string;
+    language: string;
+    abbreviation: string;
+}
+
+export function loadBibleLibrary(): SavedBibleTranslation[] {
+    if (typeof window === 'undefined') return [];
+    try {
+        const raw = localStorage.getItem(BIBLE_LIBRARY_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw) as SavedBibleTranslation[];
+    } catch {
+        return [];
+    }
+}
+
+export function saveBibleLibrary(translations: SavedBibleTranslation[]): void {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(BIBLE_LIBRARY_KEY, JSON.stringify(translations));
+    } catch {
+        // Quota exceeded — silently ignore
+    }
+}
 
 export function loadPreferences(): ReadingPreferences {
     if (typeof window === 'undefined') return DEFAULT_READING_PREFERENCES;

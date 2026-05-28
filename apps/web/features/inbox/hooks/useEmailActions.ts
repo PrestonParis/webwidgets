@@ -47,6 +47,7 @@ function notifyNewActions(
                 title: action.title,
                 body: action.description ?? action.type,
                 category: action.type === 'deadline' ? 'alert' : 'info',
+                href: '/inbox',
             });
             markNotified(action.id);
         }

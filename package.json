@@ -6,7 +6,7 @@
     "predev": "open -a Docker && until docker info > /dev/null 2>&1; do sleep 1; done && (supabase status > /dev/null 2>&1 || supabase start || true) && until supabase status > /dev/null 2>&1; do sleep 2; done",
     "dev": "npm run dev:conversion",
     "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:ml\"",
-    "dev:frontend": "cd apps/web && NODE_OPTIONS=--max-old-space-size=4096 next dev --webpack --disable-source-maps",
+    "dev:frontend": "cd apps/web && NODE_OPTIONS=--max-old-space-size=4096 next dev",
     "clean:next-cache": "rm -rf apps/web/.next",
     "dev:ml": "services/ml_service/venv/bin/uvicorn --app-dir services/ml_service main:app --port 8000",
     "dev:ml:reload": "services/ml_service/venv/bin/uvicorn --app-dir services/ml_service main:app --port 8000 --reload",
