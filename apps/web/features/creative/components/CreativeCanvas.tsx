@@ -7,8 +7,8 @@ import type { LayerRecord, ProjectRecord } from '../hooks/useCreativeStudio';
 
 interface CreativeCanvasProps {
     activeTool: string;
-    selectedProject: ProjectRecord | undefined;
-    selectedLayer: LayerRecord | undefined;
+    selectedProject: ProjectRecord | null | undefined;
+    selectedLayer: LayerRecord | null | undefined;
     layers: LayerRecord[];
     selectedLayerId: string;
     setSelectedLayerId: (id: string) => void;

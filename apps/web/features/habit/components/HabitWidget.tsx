@@ -413,10 +413,19 @@ export default function HabitWidget() {
                                         frequencyLabel={frequencyLabel(
                                             repeatConfigs[habit.id],
                                         )}
-                                        completionId={todayCompletion?.id}
-                                        completionTime={
-                                            todayCompletion?.completed_date
-                                        }
+                                        {...(todayCompletion?.id !== undefined
+                                            ? {
+                                                  completionId:
+                                                      todayCompletion.id,
+                                              }
+                                            : {})}
+                                        {...(todayCompletion?.completed_date !==
+                                        undefined
+                                            ? {
+                                                  completionTime:
+                                                      todayCompletion.completed_date,
+                                              }
+                                            : {})}
                                         onEditTime={(id, value) => {
                                             void updateCompletionTime(
                                                 id,

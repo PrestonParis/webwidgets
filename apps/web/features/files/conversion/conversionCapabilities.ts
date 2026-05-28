@@ -107,7 +107,7 @@ function isImageFormat(format: FileConversionFormat) {
 function getAdaptersForRoute(
     from: FileConversionFormat,
     to: FileConversionFormat,
-) {
+): FileConversionAdapter[] {
     if (from === 'unknown') return hostedUniversalAdapters;
     if (to === 'pdf' || from === 'pdf') return pdfAdapters;
     if (isOfficeFormat(from) || isOfficeFormat(to)) return officeAdapters;
