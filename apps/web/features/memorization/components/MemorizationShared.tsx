@@ -3,7 +3,7 @@
 import { Brain } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { domainIcons } from '../data';
-import type { MemoryDifficulty, MemoryStatus } from '../types';
+import type { MemoryDifficulty, MemoryStatus } from '../types/memorization';
 
 export const statusStyles: Record<MemoryStatus, string> = {
     new: 'border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300',

@@ -11,7 +11,7 @@ import {
     setLastActiveEntryId,
 } from '@/features/texteditor/hooks/useWidgetEditor';
 import type { JournalEntry } from '@/features/journal/types/journal';
-import type { NoteType } from '@/features/texteditor/types';
+import type { NoteType } from '@/features/texteditor/types/texteditor';
 
 export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
     const { user } = useAuth();

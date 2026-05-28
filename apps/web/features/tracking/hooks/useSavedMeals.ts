@@ -5,7 +5,7 @@ import { localSavedMealStore } from '@/features/tracking/lib/meal/nutrition/save
 import type {
     SavedMealDraft,
     SavedMealRecord,
-} from '@/features/tracking/lib/meal/nutrition/savedMealTypes';
+} from '@/features/tracking/types/savedMeals';
 
 export function useSavedMeals(): {
     savedMeals: SavedMealRecord[];

@@ -1,5 +1,5 @@
-import type { WidgetPermission } from '@/features/platform/types/widgetTypes';
-import type { AutomationRegistryEntry } from './actionTypes';
+import type { WidgetPermission } from '@/features/platform/types/widget';
+import type { AutomationRegistryEntry } from '../types/synthesisActions';
 
 function auto(
     id: string,

@@ -22,7 +22,7 @@ import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ICONS,
 } from '@/features/tracking/lib/meal/helpers';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 import {
     extractNutritionGoalConfig,
     computeGoalProgress,
@@ -40,7 +40,7 @@ import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import type {
     TrackingEntry,
     BaseTrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 type MealTab =
     | 'today'

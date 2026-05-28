@@ -1,6 +1,6 @@
 import FlexSearch from 'flexsearch';
 import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
-import type { RankedFeedItem } from '@/features/news/schemas/eventTypes';
+import type { RankedFeedItem } from '@/features/news/types/events';
 import type { NewsFeedFilters } from '@/features/news/types/news';
 
 export interface FeedSearchDocument {

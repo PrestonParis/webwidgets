@@ -1,7 +1,8 @@
 import type {
+    FileConversionAdapter,
     FileConversionCapability,
     FileConversionFormat,
-} from '@/features/files/conversion/types';
+} from '@/features/files/types/conversion';
 import {
     fileConversionFormats,
     fileConversionFormatOrder,

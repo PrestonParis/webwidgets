@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { WidgetBuilderPurpose } from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetBuilderPurpose } from '@/features/widgets/types/synthesisWidgets';
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
 

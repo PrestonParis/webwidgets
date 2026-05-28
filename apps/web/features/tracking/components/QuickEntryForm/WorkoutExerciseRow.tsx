@@ -4,14 +4,14 @@ import type {
     ExerciseEntry,
     SetEntry,
     SetType,
-} from '@/features/tracking/lib/fitness/types';
+} from '@/features/tracking/types/fitness';
 import {
     inputCls,
     btnCls,
     SET_TYPES,
     makeSet,
     numericSetPatch,
-} from './workoutFieldsUtils';
+} from '@/features/tracking/lib/quickEntry/workoutFieldsUtils';
 
 interface WorkoutExerciseRowProps {
     exercise: ExerciseEntry;

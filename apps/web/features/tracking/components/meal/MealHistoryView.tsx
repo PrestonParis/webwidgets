@@ -5,7 +5,7 @@ import {
     MEAL_TYPE_LABELS,
 } from '@/features/tracking/lib/meal/helpers';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 interface MealHistoryViewProps {
     records: MealRecord[];

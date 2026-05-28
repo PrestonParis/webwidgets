@@ -3,7 +3,7 @@ import Parser from 'rss-parser';
 import { getLogger, traced } from '@/lib/observability/logger';
 import { getProviderLimiter } from '@/features/news/ingestion/rateLimiters';
 import { rawSourceEventSchema } from '@/features/news/schemas/eventCoreSchemas';
-import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
+import type { RawSourceEvent } from '@/features/news/types/events';
 
 const parser = new Parser();
 

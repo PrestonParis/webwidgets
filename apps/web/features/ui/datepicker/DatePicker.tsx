@@ -7,7 +7,7 @@ import { CalendarGrid } from './CalendarGrid';
 import { QuickActions } from './QuickActions';
 import { FooterActions } from './FooterActions';
 import { useDatePickerState } from './useDatePickerState';
-import { DatePickerProps, QuickActionKey } from './types';
+import { DatePickerProps, QuickActionKey } from '../types/datepicker';
 
 const MONTH_NAMES = [
     'January',

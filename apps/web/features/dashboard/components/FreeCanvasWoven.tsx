@@ -12,7 +12,7 @@ import {
     INTERACTIVE,
     getWidgetEmoji,
     getWidgetLabel,
-} from './freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasUtils';
 
 interface WovenTabBarProps {
     members: WidgetConfig[];

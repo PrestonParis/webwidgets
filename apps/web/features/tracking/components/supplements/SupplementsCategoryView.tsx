@@ -29,7 +29,7 @@ import {
 } from '@/features/tracking/lib/supplements/safety';
 import { searchSupplementLibrary } from '@/features/tracking/lib/supplements/providers/libraryProvider';
 import type { SupplementsCategoryViewProps } from '@/types/tracking';
-import type { SupplementSearchResult } from '@/features/tracking/lib/supplements/definitionTypes';
+import type { SupplementSearchResult } from '@/features/tracking/types/supplementDefinitions';
 
 const sectionCls =
     'rounded-2xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4';

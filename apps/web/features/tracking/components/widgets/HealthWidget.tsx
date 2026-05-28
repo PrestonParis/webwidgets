@@ -35,7 +35,7 @@ import { useInjuryLogs } from '@/features/tracking/health/hooks/useInjuryLogs';
 import { useBodyIssues } from '@/features/tracking/health/hooks/useBodyIssues';
 import type { BodyIssueDraft } from '@/features/tracking/health/lib/bodyIssues';
 import { getRegionLabel } from '@/features/tracking/health/lib/bodyRegions';
-import type { BiometricWindow } from '@/features/tracking/health/lib/types';
+import type { BiometricWindow } from '@/features/tracking/health/types/health';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 
 type ViewMode =

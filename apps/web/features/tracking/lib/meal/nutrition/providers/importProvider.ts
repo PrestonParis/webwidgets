@@ -10,14 +10,14 @@
  */
 
 import Papa from 'papaparse';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { MealType } from '@/features/tracking/lib/meal/types';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { MealType } from '@/features/tracking/types/nutritionProviders';
 import type {
     ExistingMealSignature,
     NutritionImportFormat,
     NutritionImportPreview,
     NutritionImportRow,
-} from '../importTypes';
+} from '@/features/tracking/types/nutritionImport';
 
 // ─── column synonyms ────────────────────────────────────────────────────────
 

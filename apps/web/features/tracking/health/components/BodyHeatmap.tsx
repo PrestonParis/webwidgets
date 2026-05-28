@@ -5,8 +5,12 @@ import {
     BODY_ZONE_LABELS,
     type BodyMap,
     type BodyZoneId,
-} from '@/features/tracking/health/lib/types';
-import { ANTERIOR_ZONES, POSTERIOR_ZONES, type Shape } from './heatmapZones';
+} from '@/features/tracking/health/types/health';
+import {
+    ANTERIOR_ZONES,
+    POSTERIOR_ZONES,
+    type Shape,
+} from '@/features/tracking/health/lib/visuals/heatmapZones';
 
 const NEUTRAL_LIGHT = '#e5e7eb';
 const SORENESS_LOW = '#fef9c3';

@@ -4,7 +4,7 @@ import {
     MUSCLE_TISSUE,
     BONE_TISSUE,
     CORE_TISSUE,
-} from './types';
+} from '@/features/tracking/health/types/health';
 
 export const FRONT_LOWER_REGIONS: BodyRegion[] = [
     {

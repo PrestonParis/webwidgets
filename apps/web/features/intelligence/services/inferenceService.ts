@@ -6,7 +6,7 @@ import type {
     InferenceRequest,
     InferenceResult,
     PredictionTask,
-} from '@/features/intelligence/types/inferenceTypes';
+} from '@/features/intelligence/types/inference';
 
 export interface RunInferenceInput<TInput = Json> {
     userId?: string;

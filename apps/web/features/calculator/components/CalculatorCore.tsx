@@ -12,7 +12,7 @@ import { ProgrammerMode } from './modes/ProgrammerMode';
 import { FinancialMode } from './modes/FinancialMode';
 import { DateTimeMode } from './modes/DateTimeMode';
 import { exportHistory } from '../lib/storage';
-import type { CalcMode } from '../types';
+import type { CalcMode } from '../types/calculator';
 
 const MODE_LABELS: Record<CalcMode, string> = {
     basic: 'Basic',

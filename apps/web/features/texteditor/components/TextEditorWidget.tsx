@@ -5,7 +5,7 @@ import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { ModeSelector } from '@/features/texteditor/components/ModeSelector';
 import { WidgetNoteEditor } from '@/features/texteditor/components/WidgetNoteEditor';
-import type { TextEditorMode } from '@/features/texteditor/types';
+import type { TextEditorMode } from '@/features/texteditor/types/texteditor';
 
 const modeIcons: Record<TextEditorMode, React.ReactNode> = {
     document: <FileText size={15} />,

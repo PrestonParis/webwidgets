@@ -13,7 +13,7 @@ import {
 import type {
     FileConversionCapability,
     FileConversionFormat,
-} from '@/features/files/conversion/types';
+} from '@/features/files/types/conversion';
 import { cn } from '@/lib/utils/utils';
 
 const selectClass =

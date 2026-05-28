@@ -7,7 +7,7 @@ import {
     useRichEditorState,
 } from '@/features/texteditor/hooks/useRichEditorState';
 import type { JournalEntry } from '@/features/journal/types/journal';
-import type { NoteType } from '@/features/texteditor/types';
+import type { NoteType } from '@/features/texteditor/types/texteditor';
 
 interface RichEditorProps {
     entry: JournalEntry | null;

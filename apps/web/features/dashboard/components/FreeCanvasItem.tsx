@@ -10,7 +10,11 @@ import { BucketWidgetContext } from '@/features/dashboard/lib/BucketWidgetContex
 import { UnpresentWidgetContext } from '@/features/dashboard/lib/UnpresentWidgetContext';
 import { StatusDot } from '@/features/notifications/components/StatusDot';
 import { FreeCanvasResizeHandles } from './FreeCanvasResizeHandles';
-import { type Pos, type Size, INTERACTIVE } from './freeCanvasUtils';
+import {
+    type Pos,
+    type Size,
+    INTERACTIVE,
+} from '@/features/dashboard/lib/freeCanvasUtils';
 
 interface GlueButtonProps {
     id: string;
@@ -182,7 +186,9 @@ export function FreeItem({
                 isProximityHint &&
                     'ring-2 ring-blue-400/60 ring-offset-2 rounded-3xl',
                 isViewportPinned && 'ring-2 ring-emerald-400/50 rounded-3xl',
-                isPinned ? 'cursor-default' : 'cursor-grab active:cursor-grabbing',
+                isPinned
+                    ? 'cursor-default'
+                    : 'cursor-grab active:cursor-grabbing',
             )}
             onPointerDown={(e) => {
                 if (isPinned) return;

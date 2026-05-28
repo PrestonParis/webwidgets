@@ -4,7 +4,7 @@ import {
     JOINT_TISSUE,
     LIMB_TISSUE,
     MUSCLE_TISSUE,
-} from './types';
+} from '@/features/tracking/health/types/regions';
 
 export const BACK_REGIONS: BodyRegion[] = [
     {

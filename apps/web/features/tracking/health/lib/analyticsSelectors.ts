@@ -1,5 +1,5 @@
-import type { TrackingMetadata } from '@/features/tracking/types/trackingEntryTypes';
-import { isBodyZoneId } from './types';
+import type { TrackingMetadata } from '@/features/tracking/types/trackingEntries';
+import { isBodyZoneId } from '@/features/tracking/health/types/health';
 import type {
     BiometricDataPoint,
     BiometricWindow,
@@ -12,7 +12,7 @@ import type {
     InjuryStatus,
     RegionSummary,
     Severity,
-} from './types';
+} from '@/features/tracking/health/types/health';
 import { BODY_REGION_MAP } from './bodyRegions';
 import type { TissueType } from './bodyRegions';
 

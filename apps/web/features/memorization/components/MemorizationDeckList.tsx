@@ -5,7 +5,7 @@ import { Filter, Plus, Search } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import { cn } from '@/lib/utils/utils';
-import type { MemoryFilters } from '../types';
+import type { MemoryFilters } from '../types/memorization';
 import type { MemoryDeckRecord } from '../hooks/useMemorization';
 import { DomainMark, statusStyles } from './MemorizationShared';
 

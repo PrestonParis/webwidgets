@@ -21,7 +21,10 @@ import HiddenWidgetsTray from './HiddenWidgetsTray';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
 import { ViewportWidgetMount } from './ViewportWidgetMount';
 import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
-import { getWidgetEmoji, getWidgetLabel } from './freeCanvasUtils';
+import {
+    getWidgetEmoji,
+    getWidgetLabel,
+} from '@/features/dashboard/lib/freeCanvasUtils';
 import { DashboardRuntimeControls } from './DashboardRuntimeControls';
 
 const DENSE_FOLDER_WIDGET_THRESHOLD = 12;

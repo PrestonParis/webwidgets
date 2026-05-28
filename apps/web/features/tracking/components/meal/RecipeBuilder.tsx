@@ -7,11 +7,11 @@ import { foodResultToItem } from '@/features/tracking/lib/meal/nutrition/foodIte
 import type {
     FoodItem,
     FoodSearchResult,
-} from '@/features/tracking/lib/meal/nutrition/foodTypes';
+} from '@/features/tracking/types/nutritionFood';
 import type {
     RecipeDraft,
     RecipeRecord,
-} from '@/features/tracking/lib/meal/nutrition/recipeTypes';
+} from '@/features/tracking/types/nutritionRecipes';
 
 interface RecipeBuilderProps {
     initial?: RecipeRecord;

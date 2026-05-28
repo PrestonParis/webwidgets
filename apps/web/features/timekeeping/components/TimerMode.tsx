@@ -5,7 +5,7 @@ import { Play, Pause, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { useTimer } from '../hooks/useTimer';
 import { TIMER_LABELS, POMODORO_PHASE_LABELS } from '../constants';
-import type { TimerSubMode } from '../types';
+import type { TimerSubMode } from '../types/timekeeping';
 import { useWidgetSize } from '@/features/widgets/context/WidgetSizeContext';
 import { TimerProgressRing } from '@/icons/TimerProgressRing';
 import { PomodoroPlanEditor } from './PomodoroPlanEditor';

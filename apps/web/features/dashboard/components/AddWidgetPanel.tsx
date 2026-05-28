@@ -6,7 +6,7 @@ import { getDashboardWidgetLibrary } from '@/features/platform/lib/dashboardWidg
 import { useIsAdmin } from '@/features/admin/hooks/useIsAdmin';
 import type { Tracker } from '@/features/recovery/types/recovery';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
-import { type WidgetCategory } from './addWidgetConstants';
+import { type WidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
 import { UnpresentedSection } from './AddWidgetUnpresented';
 import { WidgetGrid, CategoryGrid } from './AddWidgetGrids';
 

@@ -3,7 +3,7 @@
 import type {
     AllergySeverity,
     AllergyTrigger,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 const ALLERGY_TRIGGERS: AllergyTrigger[] = [
     'pollen',

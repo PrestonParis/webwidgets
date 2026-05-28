@@ -8,15 +8,21 @@
  *   - caches results in a session-level Map to avoid re-hitting APIs
  */
 
-import type { FoodSearchResult } from '../foodTypes';
+import type { FoodSearchResult } from '@/features/tracking/types/nutritionFood';
 import { NUTRITION_FLAGS } from '../../featureFlags';
-import { FoodProviderError, type FoodProvider } from './types';
+import {
+    FoodProviderError,
+    type FoodProvider,
+} from '@/features/tracking/types/nutritionProviders';
 import { manualProvider } from './manualProvider';
 import { openFoodFactsProvider } from './openFoodFactsProvider';
 import { usdaProvider } from './usdaProvider';
 
-export { FoodProviderError } from './types';
-export type { FoodProvider, FoodProviderErrorCode } from './types';
+export { FoodProviderError } from '@/features/tracking/types/nutritionProviders';
+export type {
+    FoodProvider,
+    FoodProviderErrorCode,
+} from '@/features/tracking/types/nutritionProviders';
 
 /** Ordered list of all known providers (manual last as fallback). */
 const ALL_PROVIDERS: FoodProvider[] = [

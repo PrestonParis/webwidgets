@@ -1,5 +1,5 @@
 import { getLogger } from '@/lib/observability/logger';
-import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
+import type { RawSourceEvent } from '@/features/news/types/events';
 
 export function ingestNewsApiProvider(
     providerId: string,

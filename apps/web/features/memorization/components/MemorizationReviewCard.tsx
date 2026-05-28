@@ -2,7 +2,7 @@
 
 import { Layers3, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
-import type { MemoryDifficulty } from '../types';
+import type { MemoryDifficulty } from '../types/memorization';
 import type {
     MemoryCardRecord,
     MemoryDeckRecord,

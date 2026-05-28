@@ -5,13 +5,16 @@
  * its ingredient FoodItems, and to turn a recipe into a loggable meal entry.
  */
 
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { MealType } from '@/features/tracking/lib/meal/types';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { MealType } from '@/features/tracking/types/nutritionProviders';
 import { foodItemToMetadata } from '../foodItem';
 import { sumFoodItems, divideTotals } from '../totals';
-import type { FoodItem } from '../foodTypes';
-import type { NutritionTotals } from '../nutritionTypes';
-import type { RecipeDraft, RecipeRecord } from '../recipeTypes';
+import type { FoodItem } from '@/features/tracking/types/nutritionFood';
+import type { NutritionTotals } from '@/features/tracking/types/nutrition';
+import type {
+    RecipeDraft,
+    RecipeRecord,
+} from '@/features/tracking/types/nutritionRecipes';
 
 /** Compute total + per-serving nutrition for a set of ingredients. */
 export function computeRecipeNutrition(

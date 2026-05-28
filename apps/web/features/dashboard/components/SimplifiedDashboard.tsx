@@ -9,7 +9,10 @@ import { UnpresentWidgetContext } from '@/features/dashboard/lib/UnpresentWidget
 import { StatusDot } from '@/features/notifications/components/StatusDot';
 import { ViewportWidgetMount } from './ViewportWidgetMount';
 import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
-import { getWidgetEmoji, getWidgetLabel } from './freeCanvasUtils';
+import {
+    getWidgetEmoji,
+    getWidgetLabel,
+} from '@/features/dashboard/lib/freeCanvasUtils';
 import { DashboardRuntimeControls } from './DashboardRuntimeControls';
 
 const DENSE_SIMPLIFIED_WIDGET_THRESHOLD = 12;

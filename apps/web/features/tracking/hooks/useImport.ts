@@ -9,7 +9,7 @@ import type {
     ImportStep,
     ImportSummary,
 } from '@/features/tracking/types/import';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 export function useImport(onComplete: (count: number) => void): {
     step: ImportStep;

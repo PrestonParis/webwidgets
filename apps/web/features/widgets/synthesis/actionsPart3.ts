@@ -1,5 +1,5 @@
-import type { WidgetPermission } from '@/features/platform/types/widgetTypes';
-import type { ActionRegistryEntry } from './actionTypes';
+import type { WidgetPermission } from '@/features/platform/types/widget';
+import type { ActionRegistryEntry } from '../types/synthesisActions';
 
 function act(
     id: string,

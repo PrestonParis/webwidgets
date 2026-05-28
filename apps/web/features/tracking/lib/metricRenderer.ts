@@ -1,7 +1,7 @@
 import { getTrackingCategoryConfig } from '@/features/tracking/lib/categoryConfig';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { TrackingMetricConfig } from '@/features/tracking/types/trackingConfigTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { TrackingMetricConfig } from '@/features/tracking/types/trackingConfig';
 
 export type RenderedMetric = {
     key: string;

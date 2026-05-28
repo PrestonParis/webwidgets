@@ -3,7 +3,7 @@ import type {
     SynthesizedWidgetStatus,
     WidgetBuilderStepId,
     WidgetPreviewMode,
-} from './widgetTypes';
+} from '../types/synthesisWidgets';
 import type {
     SynthesizedPermissionDef,
     SynthesizedWidgetDefinition,

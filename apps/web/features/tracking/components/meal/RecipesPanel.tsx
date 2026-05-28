@@ -8,10 +8,10 @@ import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ORDER,
 } from '@/features/tracking/lib/meal/helpers';
-import type { MealType } from '@/features/tracking/lib/meal/types';
+import type { MealType } from '@/features/tracking/types/meal';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { RecipeRecord } from '@/features/tracking/lib/meal/nutrition/recipeTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { RecipeRecord } from '@/features/tracking/types/nutritionRecipes';
 
 interface RecipesPanelProps {
     onLog: (entry: BaseTrackingEntry) => Promise<void>;

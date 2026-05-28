@@ -13,11 +13,11 @@ import type {
     InjuryLog,
     InjuryLogDraft,
     InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import type {
     BaseTrackingEntry,
     TrackingEntry,
-} from '@/features/tracking/types/trackingEntryTypes';
+} from '@/features/tracking/types/trackingEntries';
 
 interface UseInjuryLogsArgs {
     entries: TrackingEntry[];

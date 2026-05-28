@@ -7,7 +7,7 @@ import { GraphView } from './GraphView';
 import { HeatmapView } from './HeatmapView';
 import { TimelineView } from './TimelineView';
 import { StatsView } from './StatsView';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 
 interface LogViewProps {

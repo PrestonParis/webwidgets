@@ -1,4 +1,4 @@
-import type { TransformationRegistryEntry } from './transformationTypes';
+import type { TransformationRegistryEntry } from '../types/synthesisTransformations';
 import { TRANSFORMATION_REGISTRY } from './transformations';
 import {
     getTransformation,

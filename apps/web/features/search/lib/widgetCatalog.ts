@@ -1,4 +1,4 @@
-import type { WidgetEntry } from './widgetCatalogTypes';
+import type { WidgetEntry } from '../types/widgetCatalog';
 import { WIDGET_CATALOG_PART_1 } from './widgetCatalogPart1';
 import { WIDGET_CATALOG_PART_2 } from './widgetCatalogPart2';
 import { WIDGET_CATALOG_PART_3 } from './widgetCatalogPart3';

@@ -6,7 +6,7 @@
  * and testable.
  */
 
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 function csvCell(value: string | number | null | undefined): string {
     if (value === null || value === undefined) return '';

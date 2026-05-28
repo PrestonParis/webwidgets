@@ -3,7 +3,7 @@ import type {
     MealType,
     MealGoalConfig,
     NutritionAnalytics,
-} from './types';
+} from '@/features/tracking/types/meal';
 
 // ─── goal helpers ──────────────────────────────────────────────────────────────
 

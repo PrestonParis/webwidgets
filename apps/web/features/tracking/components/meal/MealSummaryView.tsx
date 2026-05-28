@@ -8,7 +8,7 @@ import {
     calorieStatusLabel,
 } from '@/features/tracking/lib/meal/helpers';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 function todayKey(): string {
     return new Date().toISOString().slice(0, 10);

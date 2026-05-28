@@ -26,14 +26,18 @@ import { useFreeCanvasDrag } from '@/features/dashboard/hooks/useFreeCanvasDrag'
 import { useFreeCanvasResize } from '@/features/dashboard/hooks/useFreeCanvasResize';
 import { useFreeCanvasRelations } from '@/features/dashboard/hooks/useFreeCanvasRelations';
 import { useFreeCanvasComputed } from '@/features/dashboard/hooks/useFreeCanvasComputed';
-import { GRID, WIDGET_W, WIDGET_APPROX_H } from './freeCanvasConfig';
+import {
+    GRID,
+    WIDGET_W,
+    WIDGET_APPROX_H,
+} from '@/features/dashboard/lib/freeCanvasConfig';
 import {
     autoPos,
     getWidgetEmoji,
     getWidgetLabel,
     type Pos,
     type Size,
-} from './freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasUtils';
 
 interface FreeCanvasProps extends DashboardGridProps {
     snapRule: SnapRule;

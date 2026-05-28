@@ -3,7 +3,7 @@
 import { useTrackingEntries } from './useTrackingEntries';
 import { useTrackingActions } from './useTrackingActions';
 import { useTrackers } from '@/features/recovery/hooks/useTrackers';
-import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 
 export function useTrackingWidgetData(category: TrackingCategory) {
     const { entries, refetch } = useTrackingEntries({ category, limit: 30 });

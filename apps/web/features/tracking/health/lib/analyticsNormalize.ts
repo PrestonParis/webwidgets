@@ -1,8 +1,12 @@
 import type {
     TrackingEntry,
     TrackingMetadata,
-} from '@/features/tracking/types/trackingEntryTypes';
-import { isBodyZoneId, INJURY_STATUSES, PAIN_QUALITIES } from './types';
+} from '@/features/tracking/types/trackingEntries';
+import {
+    isBodyZoneId,
+    INJURY_STATUSES,
+    PAIN_QUALITIES,
+} from '@/features/tracking/health/types/health';
 import type {
     AllergyLog,
     BiometricDataPoint,
@@ -15,7 +19,7 @@ import type {
     InjuryStatus,
     PainQuality,
     RedFlag,
-} from './types';
+} from '@/features/tracking/health/types/health';
 import type { TissueType } from './bodyRegions';
 import {
     str,

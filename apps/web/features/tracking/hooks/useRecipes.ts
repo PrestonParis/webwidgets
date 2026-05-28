@@ -5,7 +5,7 @@ import { localRecipeStore } from '@/features/tracking/lib/meal/nutrition/recipeS
 import type {
     RecipeDraft,
     RecipeRecord,
-} from '@/features/tracking/lib/meal/nutrition/recipeTypes';
+} from '@/features/tracking/types/nutritionRecipes';
 
 export function useRecipes(): {
     recipes: RecipeRecord[];

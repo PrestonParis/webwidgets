@@ -1,5 +1,9 @@
-import type { CalcPersistedState, HistoryEntry, CalcSettings } from '../types';
-import { DEFAULT_SETTINGS } from '../types';
+import type {
+    CalcPersistedState,
+    HistoryEntry,
+    CalcSettings,
+} from '../types/calculator';
+import { DEFAULT_SETTINGS } from '../types/calculator';
 
 const STORAGE_KEY = 'calculator_state';
 const MAX_HISTORY = 200;

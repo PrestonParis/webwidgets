@@ -11,7 +11,7 @@ import type {
     PomodoroPhase,
     PomodoroStep,
     PomodoroStepKind,
-} from '../types';
+} from '../types/timekeeping';
 
 const MIN_DURATION_SECONDS = 1;
 const MAX_DURATION_SECONDS = 24 * 60 * 60;

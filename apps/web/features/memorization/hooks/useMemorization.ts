@@ -1,7 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { MemoryDifficulty, MemoryFilters, MemoryStatus } from '../types';
+import type {
+    MemoryDifficulty,
+    MemoryFilters,
+    MemoryStatus,
+} from '../types/memorization';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
 export interface MemoryDeckRecord {

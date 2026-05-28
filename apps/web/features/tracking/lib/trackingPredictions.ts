@@ -9,8 +9,8 @@ import {
 } from '@/features/tracking/lib/categoryConfig';
 import { summarizeCategoryMetrics } from '@/features/tracking/lib/metricRenderer';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { TrackingPrediction } from '@/features/tracking/types/trackingActionTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { TrackingPrediction } from '@/features/tracking/types/trackingActions';
 
 const DEFAULT_CONSENT = {
     crossCategoryCorrelations: true,

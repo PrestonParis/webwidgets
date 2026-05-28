@@ -2,7 +2,7 @@
 
 import * as d3 from 'd3';
 import { useEffect, useMemo, useRef } from 'react';
-import { useChartDimensions } from './useChartDimensions';
+import { useChartDimensions } from '@/features/finance/hooks/useChartDimensions';
 
 interface EmergencyFundRunwayProps {
     cashTotal: number;

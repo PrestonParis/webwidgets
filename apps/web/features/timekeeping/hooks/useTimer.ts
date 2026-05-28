@@ -23,7 +23,7 @@ import {
     getPomodoroServerSnapshot,
     dispatchPomodoro,
 } from '../lib/pomodoroStore';
-import type { TimerSubMode, PomodoroStepKind } from '../types';
+import type { TimerSubMode, PomodoroStepKind } from '../types/timekeeping';
 
 export function useTimer(initialSubMode: TimerSubMode = 'standard') {
     const [localState, localDispatch] = useReducer(

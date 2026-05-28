@@ -1,5 +1,5 @@
-import type { WidgetComponentCategory } from './widgetTypes';
-import type { ComponentRegistryEntry } from './componentTypes';
+import type { WidgetComponentCategory } from '../types/synthesisWidgets';
+import type { ComponentRegistryEntry } from '../types/synthesisComponents';
 
 function comp(
     id: string,

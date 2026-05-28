@@ -1,5 +1,5 @@
-import type { MicronutrientProfile } from './micronutrientTypes';
-import type { FoodSource } from './foodTypes';
+import type { MicronutrientProfile } from '@/features/tracking/types/nutritionMicronutrients';
+import type { FoodSource } from '@/features/tracking/types/nutritionFood';
 
 export function readNumber(value: unknown): number | undefined {
     if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {

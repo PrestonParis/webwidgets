@@ -3,7 +3,7 @@
 import type {
     SicknessType,
     TemperatureUnit,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 const SICKNESS_TYPES: SicknessType[] = [
     'cold',
