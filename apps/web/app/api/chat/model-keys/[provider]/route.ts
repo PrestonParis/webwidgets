@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { db } from '@/lib/db/supabase';
 import { deleteModelKey } from '@/features/chatbot/services/chatService';
 import type { SupabaseClient } from '@supabase/supabase-js';

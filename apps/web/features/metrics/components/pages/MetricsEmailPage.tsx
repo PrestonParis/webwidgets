@@ -7,7 +7,7 @@ import { MetricCard } from '../MetricCard';
 import { MetricsErrorState } from '../MetricsErrorState';
 import { MetricsEmptyState } from '../MetricsEmptyState';
 import type { AnalyticsEventRow } from '../../types/metrics';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 import { Mail, CheckCircle, XCircle } from 'lucide-react';
 
 interface EmailData {

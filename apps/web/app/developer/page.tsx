@@ -1,4 +1,4 @@
-import { DeveloperPage } from '@/features/developer/DeveloperPage';
+import { DeveloperPage } from '@/features/developer/components/DeveloperPage';
 
 export default function Page() {
     return <DeveloperPage />;

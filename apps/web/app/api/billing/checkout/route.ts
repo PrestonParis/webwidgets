@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     fetchCustomerId,
     upsertCustomer,
-} from '@/features/billing/services/billingService';
+} from '@/features/billing/lib/billingService';
 import {
     stripe,
     STRIPE_PRICE_IDS,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { listEntries } from '@/features/context/services/contextService';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
 import type { SupabaseClient } from '@supabase/supabase-js';

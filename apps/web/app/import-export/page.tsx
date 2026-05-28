@@ -1,4 +1,4 @@
-import { ImportExportPage } from '@/features/import-export/ImportExportPage';
+import { ImportExportPage } from '@/features/import-export/components/ImportExportPage';
 
 export default function Page() {
     return <ImportExportPage />;

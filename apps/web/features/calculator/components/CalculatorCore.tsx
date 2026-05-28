@@ -6,11 +6,11 @@ import { cn } from '@/lib/utils/utils';
 import { useCalculator, type CalcControls } from '../hooks/useCalculator';
 import { CalculatorDisplay } from './CalculatorDisplay';
 import { CalculatorHistory } from './CalculatorHistory';
-import { BasicMode } from './modes/BasicMode';
-import { ScientificMode } from './modes/ScientificMode';
-import { ProgrammerMode } from './modes/ProgrammerMode';
-import { FinancialMode } from './modes/FinancialMode';
-import { DateTimeMode } from './modes/DateTimeMode';
+import { BasicMode } from './BasicMode';
+import { ScientificMode } from './ScientificMode';
+import { ProgrammerMode } from './ProgrammerMode';
+import { FinancialMode } from './FinancialMode';
+import { DateTimeMode } from './DateTimeMode';
 import { exportHistory } from '../lib/storage';
 import type { CalcMode } from '../types/calculator';
 

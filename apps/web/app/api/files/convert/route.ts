@@ -4,8 +4,8 @@ import {
     FileConversionError,
     getOutputFilename,
     getOutputMimeType,
-} from '@/features/files/conversion/conversionService';
-import { isFileConversionFormat } from '@/features/files/conversion/conversionRegistry';
+} from '@/features/files/lib/conversionService';
+import { isFileConversionFormat } from '@/features/files/lib/conversionRegistry';
 
 const MAX_TEXT_FILE_BYTES = 5 * 1024 * 1024;
 

@@ -22,7 +22,7 @@ import { DashboardHeaderBar } from './DashboardHeaderBar';
 import { SimplifiedDashboard } from './SimplifiedDashboard';
 import type { Scene } from '@/features/dashboard/hooks/useScenes';
 import { useDashboardPage } from '@/features/dashboard/hooks/useDashboardPage';
-import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
+import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
 import { useDashboardSnapshot } from '@/features/dashboard/hooks/useDashboardSnapshot';
 import { DashboardSnapshotProvider } from '@/features/dashboard/lib/DashboardSnapshotContext';
 import { DashboardRuntimeProvider } from '@/features/dashboard/runtime/DashboardRuntimeProvider';

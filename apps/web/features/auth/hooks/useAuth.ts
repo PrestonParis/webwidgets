@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { supabase } from '@/lib/db/supabase';
 
 async function signUpWithEmail(email: string, password: string) {

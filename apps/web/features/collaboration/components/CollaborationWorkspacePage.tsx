@@ -18,7 +18,7 @@ import {
 import { Button } from '@/features/ui/components/Button';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import { cn } from '@/lib/utils/utils';
-import { scopeIcons } from '../data';
+import { scopeIcons } from '../constants';
 import { useCollaborationWorkspace } from '../hooks/useCollaborationWorkspace';
 import type {
     HandoffRecord,
