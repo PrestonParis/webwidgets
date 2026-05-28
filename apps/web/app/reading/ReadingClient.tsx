@@ -3,10 +3,10 @@
 import dynamic from 'next/dynamic';
 import { PageLoading } from '@/features/ui/loading';
 
-const ReadingWorkspacePage = dynamic(
+const ReadingPage = dynamic(
     () =>
-        import('@/features/reading/components/ReadingWorkspacePage').then(
-            (module) => module.ReadingWorkspacePage,
+        import('@/features/reading/components/ReadingPage').then(
+            (module) => module.ReadingPage,
         ),
     {
         ssr: false,
@@ -15,5 +15,5 @@ const ReadingWorkspacePage = dynamic(
 );
 
 export function ReadingClient() {
-    return <ReadingWorkspacePage />;
+    return <ReadingPage />;
 }

@@ -3,22 +3,22 @@ import type { ModelOption, ModelProvider } from '@/features/chatbot/types/chat';
 export const MODEL_OPTIONS: ModelOption[] = [
     {
         provider: 'anthropic',
-        modelId: 'claude-sonnet-4-20250514',
-        label: 'Claude Sonnet 4',
+        modelId: 'claude-sonnet-4-6',
+        label: 'Claude Sonnet 4.6',
         requiresUserKey: false,
         description: 'Balanced performance and speed',
     },
     {
         provider: 'anthropic',
-        modelId: 'claude-opus-4-1-20250805',
-        label: 'Claude Opus 4.1',
+        modelId: 'claude-opus-4-7',
+        label: 'Claude Opus 4.7',
         requiresUserKey: false,
-        description: 'Most capable — uses your Anthropic key',
+        description: 'Most capable Anthropic model',
     },
     {
         provider: 'anthropic',
-        modelId: 'claude-3-5-haiku-20241022',
-        label: 'Claude Haiku 3.5',
+        modelId: 'claude-haiku-4-5-20251001',
+        label: 'Claude Haiku 4.5',
         requiresUserKey: false,
         description: 'Fast and lightweight',
     },
@@ -59,12 +59,12 @@ export const MODEL_OPTIONS: ModelOption[] = [
     },
 ];
 
-export const DEFAULT_MODEL_ID = 'claude-sonnet-4-20250514';
+export const DEFAULT_MODEL_ID = 'claude-sonnet-4-6';
 export const DEFAULT_PROVIDER: ModelProvider = 'anthropic';
 
 export const DEFAULT_MODEL_BY_PROVIDER: Record<ModelProvider, string> = {
-    anthropic: 'claude-sonnet-4-20250514',
-    openai: 'gpt-4.1-mini',
+    anthropic: 'claude-sonnet-4-6',
+    openai: 'gpt-4.1',
     google: 'gemini-2.5-flash',
 };
 

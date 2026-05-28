@@ -1,10 +1,13 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Settings2 } from 'lucide-react';
 import { DayCell } from '@/features/calendar/components/CalendarDayCell';
 import { EventDetail } from '@/features/calendar/components/EventDetail';
 import { CalendarNotConnected } from '@/features/calendar/components/CalendarNotConnected';
 import { EventFormModal } from '@/features/calendar/components/EventFormModal';
+import { CalendarSettingsModal } from '@/features/calendar/components/CalendarSettingsModal';
+import { useCalendarSettings } from '@/features/calendar/hooks/useCalendarSettings';
 import {
     useCalendarPage,
     isSameDay,
@@ -52,6 +55,8 @@ export function CalendarPage() {
         selectedLabel,
         createInitialData,
     } = useCalendarPage();
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const { settings, updateSettings } = useCalendarSettings();
 
     if (isNotConnected) return <CalendarNotConnected />;
 
@@ -67,6 +72,13 @@ export function CalendarPage() {
                             Syncing…
                         </span>
                     )}
+                    <button
+                        onClick={() => setSettingsOpen(true)}
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                        aria-label="Calendar settings"
+                    >
+                        <Settings2 size={15} className="text-zinc-400" />
+                    </button>
                     <button
                         onClick={openCreate}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#4f6ef7] hover:bg-[#3d5ce0] text-white text-xs font-medium transition-colors"
@@ -195,6 +207,13 @@ export function CalendarPage() {
                 editEvent={editingEvent}
                 initialData={editingEvent ? undefined : createInitialData}
             />
+            {settingsOpen && (
+                <CalendarSettingsModal
+                    settings={settings}
+                    onSave={updateSettings}
+                    onClose={() => setSettingsOpen(false)}
+                />
+            )}
         </div>
     );
 }

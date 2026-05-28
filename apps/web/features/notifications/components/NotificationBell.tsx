@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotificationStore } from '../hooks/useNotificationStore';
@@ -30,16 +31,30 @@ function timeAgo(timestamp: number): string {
 function NotificationItem({
     n,
     onRead,
+    onClose,
 }: {
     n: Notification;
     onRead: (id: string) => void;
+    onClose: () => void;
 }) {
+    const router = useRouter();
+
+    function handleClick() {
+        onRead(n.id);
+        if (n.href) {
+            router.push(n.href);
+            onClose();
+        }
+    }
+
     return (
         <button
-            onClick={() => onRead(n.id)}
+            onClick={handleClick}
             className={cn(
                 'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors',
-                'hover:bg-zinc-50 dark:hover:bg-zinc-900/60',
+                n.href
+                    ? 'hover:bg-blue-50 dark:hover:bg-blue-950/20'
+                    : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/60',
                 n.read && 'opacity-45',
             )}
         >
@@ -57,9 +72,16 @@ function NotificationItem({
                     {n.body}
                 </p>
             </div>
-            <span className="shrink-0 text-[10px] text-zinc-400 mt-0.5 tabular-nums">
-                {timeAgo(n.timestamp)}
-            </span>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="text-[10px] text-zinc-400 tabular-nums">
+                    {timeAgo(n.timestamp)}
+                </span>
+                {n.href && !n.read && (
+                    <span className="text-[9px] font-semibold text-blue-500">
+                        → View
+                    </span>
+                )}
+            </div>
         </button>
     );
 }
@@ -146,6 +168,7 @@ export function NotificationBell() {
                                         key={n.id}
                                         n={n}
                                         onRead={markRead}
+                                        onClose={() => setOpen(false)}
                                     />
                                 ))
                             )}

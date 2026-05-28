@@ -11,6 +11,8 @@ import type {
     CalendarEvent,
     CalendarEventInput,
 } from '@/features/calendar/types/calendar';
+import { useCalendarSettings } from '../hooks/useCalendarSettings';
+import { cn } from '@/lib/utils/utils';
 
 interface FormState {
     summary: string;
@@ -22,6 +24,7 @@ interface FormState {
     endDate: string;
     endTime: string;
     colorId: string;
+    categoryId: string;
 }
 
 export interface EventFormModalProps {
@@ -44,18 +47,48 @@ function todayStr() {
     return new Date().toISOString().split('T')[0]!;
 }
 
-function defaultForm(initial?: Partial<FormState>): FormState {
+function timeToMinutes(t: string): number {
+    const [h, m] = t.split(':').map(Number);
+    return (h ?? 0) * 60 + (m ?? 0);
+}
+
+function minutesToTime(total: number): string {
+    const clamped = Math.max(0, Math.min(23 * 60 + 59, total));
+    const h = Math.floor(clamped / 60);
+    const m = clamped % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function shiftEndTime(startTime: string, durationMinutes: number): string {
+    return minutesToTime(timeToMinutes(startTime) + durationMinutes);
+}
+
+function getDuration(startTime: string, endTime: string): number {
+    const diff = timeToMinutes(endTime) - timeToMinutes(startTime);
+    return diff > 0 ? diff : 60;
+}
+
+function defaultForm(
+    initial?: Partial<FormState>,
+    defaultDuration = 60,
+): FormState {
+    const startTime = initial?.startTime ?? '09:00';
+    const endTime =
+        initial?.endTime ?? shiftEndTime(startTime, defaultDuration);
     return {
         summary: '',
         description: '',
         location: '',
         allDay: false,
         startDate: todayStr(),
-        startTime: '09:00',
+        startTime,
         endDate: todayStr(),
-        endTime: '10:00',
+        endTime,
         colorId: '',
+        categoryId: '',
         ...initial,
+        // always recompute endTime if startTime came from initial but endTime didn't
+        ...(initial?.startTime && !initial?.endTime ? { endTime } : {}),
     };
 }
 
@@ -78,6 +111,7 @@ function parseEventToForm(event: CalendarEvent): FormState {
             endDate: endDisplay,
             endTime: '10:00',
             colorId: event.colorId ?? '',
+            categoryId: '',
         };
     }
     const startDt = new Date(event.start.dateTime ?? '');
@@ -93,6 +127,7 @@ function parseEventToForm(event: CalendarEvent): FormState {
         endDate: (event.end.dateTime ?? '').split('T')[0] ?? '',
         endTime: `${pad(endDt.getHours())}:${pad(endDt.getMinutes())}`,
         colorId: event.colorId ?? '',
+        categoryId: '',
     };
 }
 
@@ -129,15 +164,72 @@ function buildInput(form: FormState): CalendarEventInput {
 interface FormFieldsProps {
     form: FormState;
     set: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
+    setStartTime: (t: string) => void;
     error: string | null;
     onSubmit: (e: React.FormEvent) => void;
+    defaultDuration: number;
 }
-function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
+
+function EventFormFields({
+    form,
+    set,
+    setStartTime,
+    error,
+    onSubmit,
+    defaultDuration,
+}: FormFieldsProps) {
+    const { settings } = useCalendarSettings();
+
+    function handleCategoryClick(catId: string) {
+        const same = form.categoryId === catId;
+        if (same) {
+            set('categoryId', '');
+            return;
+        }
+        const cat = settings.categories.find((c) => c.id === catId);
+        if (!cat) return;
+        const duration = cat.defaultDurationMinutes;
+        set('categoryId', catId);
+        set('colorId', cat.colorId);
+        set('endTime', shiftEndTime(form.startTime, duration));
+        set('endDate', form.startDate);
+    }
+
     return (
         <form
             onSubmit={onSubmit}
             className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
         >
+            {/* Categories */}
+            {settings.categories.length > 0 && (
+                <div>
+                    <label className={labelCls}>Category</label>
+                    <div className="flex flex-wrap gap-1.5">
+                        {settings.categories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => handleCategoryClick(cat.id)}
+                                className={cn(
+                                    'flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-semibold border transition-colors',
+                                    form.categoryId === cat.id
+                                        ? 'bg-[#4f6ef7] border-[#4f6ef7] text-white'
+                                        : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-zinc-500',
+                                )}
+                            >
+                                <span>{cat.emoji}</span>
+                                <span>{cat.name}</span>
+                                <span className="opacity-50">
+                                    {cat.defaultDurationMinutes < 60
+                                        ? `${cat.defaultDurationMinutes}m`
+                                        : `${cat.defaultDurationMinutes / 60}h`}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div>
                 <label className={labelCls}>Title *</label>
                 <input
@@ -148,6 +240,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                     autoFocus
                 />
             </div>
+
             <label className="flex items-center gap-2 cursor-pointer select-none">
                 <div
                     className={`relative w-9 h-5 rounded-full transition-colors ${form.allDay ? 'bg-[#4f6ef7]' : 'bg-zinc-700'}`}
@@ -159,6 +252,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                 </div>
                 <span className="text-xs text-zinc-400">All day</span>
             </label>
+
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className={labelCls}>Start date</label>
@@ -166,7 +260,12 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                         type="date"
                         className={inputCls}
                         value={form.startDate}
-                        onChange={(e) => set('startDate', e.target.value)}
+                        onChange={(e) => {
+                            set('startDate', e.target.value);
+                            // Keep end date in sync if it was same-day
+                            if (form.startDate === form.endDate)
+                                set('endDate', e.target.value);
+                        }}
                     />
                 </div>
                 {!form.allDay && (
@@ -176,11 +275,12 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                             type="time"
                             className={inputCls}
                             value={form.startTime}
-                            onChange={(e) => set('startTime', e.target.value)}
+                            onChange={(e) => setStartTime(e.target.value)}
                         />
                     </div>
                 )}
             </div>
+
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className={labelCls}>End date</label>
@@ -203,6 +303,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                     </div>
                 )}
             </div>
+
             <div>
                 <label className={labelCls}>Location</label>
                 <input
@@ -212,6 +313,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                     onChange={(e) => set('location', e.target.value)}
                 />
             </div>
+
             <div>
                 <label className={labelCls}>Description</label>
                 <textarea
@@ -222,6 +324,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                     onChange={(e) => set('description', e.target.value)}
                 />
             </div>
+
             <div>
                 <label className={labelCls}>Color</label>
                 <div className="flex flex-wrap gap-2">
@@ -236,6 +339,7 @@ function EventFormFields({ form, set, error, onSubmit }: FormFieldsProps) {
                     ))}
                 </div>
             </div>
+
             {error && <p className="text-xs text-red-400">{error}</p>}
         </form>
     );
@@ -270,14 +374,36 @@ function EventFormModalContent({
     initialData,
 }: Omit<EventFormModalProps, 'open'>) {
     const isEdit = Boolean(editEvent);
+    const { settings, getCategoryById } = useCalendarSettings();
     const [form, setForm] = useState<FormState>(() =>
-        editEvent ? parseEventToForm(editEvent) : defaultForm(initialData),
+        editEvent
+            ? parseEventToForm(editEvent)
+            : defaultForm(initialData, settings.defaultDurationMinutes),
     );
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     function set<K extends keyof FormState>(key: K, value: FormState[K]) {
         setForm((f) => ({ ...f, [key]: value }));
+    }
+
+    // When start time changes: preserve the current duration (or category default) and shift end time.
+    function setStartTime(newStart: string) {
+        setForm((f) => {
+            const cat = f.categoryId
+                ? getCategoryById(f.categoryId)
+                : undefined;
+            const duration = cat
+                ? cat.defaultDurationMinutes
+                : getDuration(f.startTime, f.endTime);
+            return {
+                ...f,
+                startTime: newStart,
+                endTime: shiftEndTime(newStart, duration),
+                // If the dates were the same, keep end date aligned
+                endDate: f.startDate === f.endDate ? f.startDate : f.endDate,
+            };
+        });
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -329,10 +455,10 @@ function EventFormModalContent({
                 <EventFormFields
                     form={form}
                     set={set}
+                    setStartTime={setStartTime}
                     error={error}
-                    onSubmit={(e) => {
-                        void handleSubmit(e);
-                    }}
+                    defaultDuration={settings.defaultDurationMinutes}
+                    onSubmit={(e) => void handleSubmit(e)}
                 />
                 <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-zinc-800">
                     <button
@@ -343,9 +469,9 @@ function EventFormModalContent({
                         Cancel
                     </button>
                     <button
-                        onClick={(e) => {
-                            void handleSubmit(e as unknown as React.FormEvent);
-                        }}
+                        onClick={(e) =>
+                            void handleSubmit(e as unknown as React.FormEvent)
+                        }
                         disabled={saving}
                         className="px-4 py-1.5 rounded-lg bg-[#4f6ef7] text-white text-sm font-medium hover:bg-[#3d5ce0] disabled:opacity-50 transition-colors"
                     >

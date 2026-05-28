@@ -24,12 +24,16 @@ export interface ContextEntry {
 export interface ContextNode extends ContextEntry {
     x: number;
     y: number;
+    connectionCount?: number;
+    activityScore?: number;
 }
 
 export interface ContextEdge {
     from: string;
     to: string;
     label?: string;
+    kind?: 'explicit' | 'workflow' | 'category' | 'semantic' | 'temporal';
+    weight?: number;
 }
 
 export interface ContextGraph {
@@ -95,11 +99,15 @@ export interface ContextGraphCanvasProps {
 export interface ContextNodeCardProps {
     node: ContextNode;
     selected: boolean;
+    dimmed?: boolean;
     onClick: (entityId: string) => void;
 }
 
 export interface ContextSidebarProps {
     node: ContextNode | null;
+    graph: ContextGraph;
+    onSelectNode: (entityId: string) => void;
+    onUpsert: (payload: UpsertEntryPayload) => Promise<void>;
     onClose: () => void;
     onDelete: (entityId: string) => void;
 }
