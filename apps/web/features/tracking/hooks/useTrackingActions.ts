@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import {
     addEntry,
     updateEntry,

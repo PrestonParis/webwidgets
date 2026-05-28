@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { insertUploadRecord } from '@/features/uploads/services/uploadService';
 import { s3, S3_BUCKET, buildS3Key, hasS3Config } from '@/lib/aws/s3Client';
 

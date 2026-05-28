@@ -14,8 +14,8 @@ import {
 import { cn } from '@/lib/utils/utils';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import { useAccessibilityCenter } from '../hooks/useAccessibilityCenter';
-import { useAccessibility } from '../context/AccessibilityContext';
-import type { Density } from '../context/AccessibilityContext';
+import { useAccessibility } from './AccessibilityContext';
+import type { Density } from './AccessibilityContext';
 import type {
     AccessibilityPreference,
     AccessibilityMode,

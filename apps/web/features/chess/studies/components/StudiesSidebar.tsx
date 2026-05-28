@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { useRouter } from 'next/navigation';
 import { StudiesSidebarProps } from '@/features/chess/studies/types/studies';
 import { z } from 'zod';

@@ -7,10 +7,10 @@ import type {
     Mutability,
     ProviderScope,
     Queueability,
-} from '@/features/actions/schemas/actionEnumSchemas';
-import type { ActionRequestEnvelope } from '@/features/actions/schemas/actionPayloadSchemas';
-import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
-import type { ActionDefinition } from '@/features/actions/schemas/definitionSchemas';
+} from '@/features/actions/lib/schemas/actionEnumSchemas';
+import type { ActionRequestEnvelope } from '@/features/actions/lib/schemas/actionPayloadSchemas';
+import type { ActionEngineResult } from '@/features/actions/lib/schemas/actionResultSchemas';
+import type { ActionDefinition } from '@/features/actions/lib/schemas/definitionSchemas';
 
 export type {
     ActionCategory,

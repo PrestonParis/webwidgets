@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { useNotificationStore } from '@/features/notifications/hooks/useNotificationStore';
 
 function trackerNeedsReview(trackerId: string): boolean {

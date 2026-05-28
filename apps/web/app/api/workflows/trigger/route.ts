@@ -3,7 +3,7 @@ import { ZodError } from 'zod';
 import type { Json } from '@/types/supabase';
 import { captureError } from '@/lib/observability/sentry';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { workflowTriggerRequestSchema } from '@/features/workflows/schemas/workflows';
 import { triggerWorkflow } from '@/features/workflows/server/workflowService';
 

@@ -3,7 +3,7 @@
 import { useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { ContextCaptureProvider } from '@/features/context/context/ContextCaptureContext';
+import { ContextCaptureProvider } from '@/features/context/components/ContextCaptureContext';
 import { upsertEntry } from '@/features/context/api/contextApi';
 import type { UpsertEntryPayload } from '@/features/context/types/context';
 

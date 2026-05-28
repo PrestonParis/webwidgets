@@ -7,7 +7,7 @@ import {
     upsertSubscription,
     cancelSubscriptionRecord,
     upsertCustomer,
-} from '@/features/billing/services/billingService';
+} from '@/features/billing/lib/billingService';
 import { STRIPE_PRICE_IDS } from '@/lib/stripe/stripeClient';
 import { getStripeWebhookSecret } from '@/lib/stripe/stripeClient';
 

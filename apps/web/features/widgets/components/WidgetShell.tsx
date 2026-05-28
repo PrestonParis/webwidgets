@@ -18,7 +18,7 @@ import { WidgetHeader } from './WidgetHeader';
 import { WidgetSettingsPanel } from './WidgetSettingsPanel';
 import { WidgetFooter } from './WidgetFooter';
 import { WidgetSizeContext } from '@/features/widgets/context/WidgetSizeContext';
-import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
+import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
 const WIDGET_INFO: [string, string][] = [
     ['Rename', 'Double-click the title'],
     ['Style', 'Gear icon → color, state, opacity'],
@@ -249,7 +249,11 @@ export default function WidgetShell({
                   paddingLeft: crop.left,
               }
             : undefined;
-    const padClass = oneDimensionalMode ? 'p-8' : settings.size === 'compact' ? 'p-4' : 'p-6';
+    const padClass = oneDimensionalMode
+        ? 'p-8'
+        : settings.size === 'compact'
+          ? 'p-4'
+          : 'p-6';
 
     return (
         <div

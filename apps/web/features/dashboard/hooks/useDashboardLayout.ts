@@ -15,7 +15,7 @@ import {
     saveSeenTrackerIds,
 } from '../lib/dashboardLayout';
 import { useFolderRegistry } from '@/features/search/store/useFolderRegistry';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 
 export function useDashboardLayout(trackers: Tracker[] | null) {
     const { user } = useAuthContext();

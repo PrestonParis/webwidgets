@@ -3,7 +3,7 @@ import superjson from 'superjson';
 import {
     listActionMetadata,
     searchActionMetadata,
-} from '@/features/actions/registry/actionRegistry';
+} from '@/features/actions/lib/actionRegistry';
 
 export function GET(request: Request) {
     const query = new URL(request.url).searchParams.get('query') ?? '';

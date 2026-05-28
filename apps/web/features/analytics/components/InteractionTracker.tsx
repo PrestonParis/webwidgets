@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 import {
     flushAnalyticsEvents,
     trackEvent,
-} from '@/features/analytics/trackEventClient';
+} from '@/features/analytics/hooks/trackEventClient';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const INTERACTIVE_SELECTOR =

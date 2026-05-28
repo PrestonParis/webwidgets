@@ -6,8 +6,8 @@ import {
     requireAdminUser,
     forbidden,
 } from '@/features/admin/lib/adminPermissions';
-import { countEventsByDay } from '@/features/analytics/analyticsQueries';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+import { countEventsByDay } from '@/features/analytics/lib/analyticsQueries';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 
 const querySchema = z.object({
     from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

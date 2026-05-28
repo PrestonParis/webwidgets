@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     saveModelKey,
     listSavedProviders,
@@ -36,7 +36,7 @@ export async function GET() {
                       ? Boolean(process.env.OPENAI_API_KEY)
                       : Boolean(
                             process.env.GEMINI_API_KEY ??
-                                process.env.GOOGLE_API_KEY,
+                            process.env.GOOGLE_API_KEY,
                         );
             return {
                 provider,

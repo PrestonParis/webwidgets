@@ -8,7 +8,7 @@ import type {
     BillingSubscriptionRow,
 } from '@/features/billing/types/billing';
 import { rowToSubscription } from '@/features/billing/types/billing';
-import { getPlan } from '@/features/billing/constants/plans';
+import { getPlan } from '@/features/billing/constants';
 import type { BillingPlan } from '@/features/billing/types/billing';
 
 interface UseBillingReturn {
