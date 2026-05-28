@@ -23,7 +23,7 @@ import type {
     TutorialDifficulty,
     TutorialLesson,
     TutorialStatus,
-} from '../types';
+} from '../types/tutorials';
 
 const difficultyStyles: Record<TutorialDifficulty, string> = {
     starter:
@@ -123,7 +123,9 @@ function LessonCard({
                 </span>
                 <Button
                     size="sm"
-                    variant={lesson.status === 'complete' ? 'secondary' : 'primary'}
+                    variant={
+                        lesson.status === 'complete' ? 'secondary' : 'primary'
+                    }
                     icon={lesson.status === 'complete' ? Check : Play}
                     onClick={() => onAdvance(lesson.id)}
                 >
@@ -174,10 +176,13 @@ export function TutorialsPage() {
                             </span>
                         </div>
                         <h1 className="mt-4 text-3xl font-semibold text-zinc-950 dark:text-zinc-50 md:text-4xl">
-                            Learn the personal operating layer one workflow at a time.
+                            Learn the personal operating layer one workflow at a
+                            time.
                         </h1>
                         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                            Persistent guided paths for dashboard setup, widget composition, automations, privacy, integrations, and research workflows.
+                            Persistent guided paths for dashboard setup, widget
+                            composition, automations, privacy, integrations, and
+                            research workflows.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -191,7 +196,9 @@ export function TutorialsPage() {
                         <Button
                             icon={Sparkles}
                             onClick={() =>
-                                toast.success('Personalized learning path generated from workspace usage.')
+                                toast.success(
+                                    'Personalized learning path generated from workspace usage.',
+                                )
                             }
                         >
                             Generate path
@@ -229,7 +236,8 @@ export function TutorialsPage() {
                                     onChange={(event) =>
                                         updateFilter(
                                             'track',
-                                            event.target.value as typeof filters.track,
+                                            event.target
+                                                .value as typeof filters.track,
                                         )
                                     }
                                     className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
@@ -249,7 +257,8 @@ export function TutorialsPage() {
                                     onChange={(event) =>
                                         updateFilter(
                                             'difficulty',
-                                            event.target.value as typeof filters.difficulty,
+                                            event.target
+                                                .value as typeof filters.difficulty,
                                         )
                                     }
                                     className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"

@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/adminClient';
 import type {
     FormFillerProfile,
     FormFillerJob,
-} from '@/features/form-filler/types';
+} from '@/features/form-filler/types/formFiller';
 
 type QueryResult<T> = { data: T | null; error: { message: string } | null };
 

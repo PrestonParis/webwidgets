@@ -1,4 +1,4 @@
-import type { WidgetBuilderStepId } from './widgetTypes';
+import type { WidgetBuilderStepId } from '../types/synthesisWidgets';
 
 export interface WidgetBuilderStepConfig {
     id: WidgetBuilderStepId;

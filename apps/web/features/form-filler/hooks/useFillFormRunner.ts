@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { FormFillerJob, FillFormProps } from '../types';
+import type { FormFillerJob, FillFormProps } from '../types/formFiller';
 
 export function useFillFormRunner({
     profiles,

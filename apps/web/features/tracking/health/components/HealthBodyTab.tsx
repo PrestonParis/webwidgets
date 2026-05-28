@@ -6,8 +6,8 @@ import HealthLogForm from './HealthLogForm';
 import { TrackingSection } from '@/features/tracking/components/TrackingSurface';
 import { getRegionLabel } from '@/features/tracking/health/lib/bodyRegions';
 import type { BodyIssue } from '@/features/tracking/health/lib/bodyIssues';
-import type { InjuryLog } from '@/features/tracking/health/lib/types';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { InjuryLog } from '@/features/tracking/health/types/health';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 interface RegionSummary {
     regionId: string;

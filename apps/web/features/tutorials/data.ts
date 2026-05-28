@@ -9,7 +9,7 @@ import type {
     TutorialLesson,
     TutorialPlaybook,
     TutorialTrack,
-} from './types';
+} from './types/tutorials';
 
 export const tutorialTracks: TutorialTrack[] = [
     {

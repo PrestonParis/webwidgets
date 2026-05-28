@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Copy, Check, RotateCcw, RotateCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { validateExpression } from '../lib/engine';
-import type { AngleUnit } from '../types';
+import type { AngleUnit } from '../types/calculator';
 
 interface CalculatorDisplayProps {
     expression: string;

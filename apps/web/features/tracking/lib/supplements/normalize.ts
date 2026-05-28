@@ -1,12 +1,16 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { Supplement as StoredSupplement } from '@/features/tracking/types/supplement';
-import type { DoseStatus, OutcomeTarget, SupplementForm } from './baseTypes';
-import type { SupplementDefinition } from './definitionTypes';
+import type {
+    DoseStatus,
+    OutcomeTarget,
+    SupplementForm,
+} from '@/features/tracking/types/supplementBase';
+import type { SupplementDefinition } from '@/features/tracking/types/supplementDefinitions';
 import type {
     EffectivenessCheckIn,
     SupplementLog,
     SideEffectLog,
-} from './logTypes';
+} from '@/features/tracking/types/supplementLogs';
 import { str, num, list, ingredients, dietaryFlags } from './readers';
 import { normalizeInventory, decrementInventory } from './inventory';
 import { defaultSchedule } from './schedule';

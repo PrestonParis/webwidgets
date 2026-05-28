@@ -1,4 +1,4 @@
-import type { TrackingActionDefinition } from '@/features/tracking/types/trackingActionTypes';
+import type { TrackingActionDefinition } from '@/features/tracking/types/trackingActions';
 
 function registeredAction(
     message: string,

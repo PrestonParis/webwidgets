@@ -7,8 +7,8 @@ import {
     MIN_W,
     MAX_W,
     MIN_H,
-} from '@/features/dashboard/components/freeCanvasConfig';
-import { type Size } from '@/features/dashboard/components/freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasConfig';
+import { type Size } from '@/features/dashboard/lib/freeCanvasUtils';
 
 interface UseFreeCanvasResizeOptions {
     sizes: Map<string, Size>;

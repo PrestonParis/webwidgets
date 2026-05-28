@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Save } from 'lucide-react';
-import type { ProfileEditorProps } from '../types';
-import { STANDARD_FIELDS } from '../types';
+import type { ProfileEditorProps } from '../types/formFiller';
+import { STANDARD_FIELDS } from '../types/formFiller';
 
 interface FieldStateProps {
     fields: Record<string, string>;

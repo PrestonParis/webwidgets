@@ -16,35 +16,81 @@ import { useToastContext } from '@/features/ui/components/ToastProvider';
 import { useAccessibilityCenter } from '../hooks/useAccessibilityCenter';
 import { useAccessibility } from '../context/AccessibilityContext';
 import type { Density } from '../context/AccessibilityContext';
-import type { AccessibilityPreference, AccessibilityMode } from '../types';
+import type {
+    AccessibilityPreference,
+    AccessibilityMode,
+} from '../types/accessibility';
 
 // ─── plain-language display config ────────────────────────────────────────────
 
-interface PrefDisplay { label: string; detail: string; icon: LucideIcon }
+interface PrefDisplay {
+    label: string;
+    detail: string;
+    icon: LucideIcon;
+}
 
 const PREF_DISPLAY: Record<string, PrefDisplay> = {
-    'pref-contrast': { label: 'High contrast',        detail: 'Make text and controls easier to see.',        icon: Eye },
-    'pref-motion':   { label: 'Reduce motion',         detail: 'Fewer animations and transitions.',            icon: MousePointer2 },
-    'pref-focus':    { label: 'Focus outlines',        detail: 'Always show keyboard focus rings.',            icon: Keyboard },
-    'pref-density':  { label: 'Spacing',               detail: 'How much room the interface uses.',            icon: Brain },
-    'pref-captions': { label: 'Show transcriptions',   detail: 'Prefer text for audio and video content.',     icon: AudioLines },
+    'pref-contrast': {
+        label: 'High contrast',
+        detail: 'Make text and controls easier to see.',
+        icon: Eye,
+    },
+    'pref-motion': {
+        label: 'Reduce motion',
+        detail: 'Fewer animations and transitions.',
+        icon: MousePointer2,
+    },
+    'pref-focus': {
+        label: 'Focus outlines',
+        detail: 'Always show keyboard focus rings.',
+        icon: Keyboard,
+    },
+    'pref-density': {
+        label: 'Spacing',
+        detail: 'How much room the interface uses.',
+        icon: Brain,
+    },
+    'pref-captions': {
+        label: 'Show transcriptions',
+        detail: 'Prefer text for audio and video content.',
+        icon: AudioLines,
+    },
 };
 
 const MODE_DISPLAY: Record<string, { label: string; detail: string }> = {
-    'mode-reader':   { label: 'Reader comfort',       detail: 'Larger text and calmer contrast for reading.' },
-    'mode-keyboard': { label: 'Keyboard navigation',  detail: 'Navigate with keyboard commands and shortcuts.' },
-    'mode-low-load': { label: 'Low cognitive load',   detail: 'Simpler views and fewer distractions.' },
+    'mode-reader': {
+        label: 'Reader comfort',
+        detail: 'Larger text and calmer contrast for reading.',
+    },
+    'mode-keyboard': {
+        label: 'Keyboard navigation',
+        detail: 'Navigate with keyboard commands and shortcuts.',
+    },
+    'mode-low-load': {
+        label: 'Low cognitive load',
+        detail: 'Simpler views and fewer distractions.',
+    },
 };
 
 const DENSITY_OPTIONS: { value: Density; label: string }[] = [
     { value: 'comfortable', label: 'Comfortable' },
-    { value: 'standard',    label: 'Standard' },
-    { value: 'compact',     label: 'Compact' },
+    { value: 'standard', label: 'Standard' },
+    { value: 'compact', label: 'Compact' },
 ];
 
 // ─── toggle ───────────────────────────────────────────────────────────────────
 
-function Toggle({ enabled, onToggle, label, large }: { enabled: boolean; onToggle: () => void; label: string; large?: boolean }) {
+function Toggle({
+    enabled,
+    onToggle,
+    label,
+    large,
+}: {
+    enabled: boolean;
+    onToggle: () => void;
+    label: string;
+    large?: boolean;
+}) {
     return (
         <button
             type="button"
@@ -56,7 +102,9 @@ function Toggle({ enabled, onToggle, label, large }: { enabled: boolean; onToggl
                 'relative shrink-0 rounded-full transition-colors duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-zinc-100 focus-visible:ring-offset-2',
                 large ? 'h-8 w-14' : 'h-6 w-11',
-                enabled ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-700',
+                enabled
+                    ? 'bg-zinc-900 dark:bg-zinc-100'
+                    : 'bg-zinc-200 dark:bg-zinc-700',
             )}
         >
             <span
@@ -64,8 +112,12 @@ function Toggle({ enabled, onToggle, label, large }: { enabled: boolean; onToggl
                     'absolute top-1/2 -translate-y-1/2 rounded-full bg-white shadow-sm transition-all duration-200 dark:bg-zinc-950',
                     large ? 'h-6 w-6' : 'h-4.5 w-4.5',
                     enabled
-                        ? large ? 'left-[calc(100%-1.75rem)]' : 'left-[calc(100%-1.25rem)]'
-                        : large ? 'left-1' : 'left-1',
+                        ? large
+                            ? 'left-[calc(100%-1.75rem)]'
+                            : 'left-[calc(100%-1.25rem)]'
+                        : large
+                          ? 'left-1'
+                          : 'left-1',
                 )}
             />
         </button>
@@ -74,7 +126,12 @@ function Toggle({ enabled, onToggle, label, large }: { enabled: boolean; onToggl
 
 // ─── preference row ───────────────────────────────────────────────────────────
 
-function PrefRow({ pref, density, onToggle, onDensity }: {
+function PrefRow({
+    pref,
+    density,
+    onToggle,
+    onDensity,
+}: {
     pref: AccessibilityPreference;
     density: Density;
     onToggle: () => void;
@@ -117,7 +174,11 @@ function PrefRow({ pref, density, onToggle, onDensity }: {
                 )}
             </div>
             {pref.control === 'toggle' && (
-                <Toggle enabled={pref.enabled} onToggle={onToggle} label={display.label} />
+                <Toggle
+                    enabled={pref.enabled}
+                    onToggle={onToggle}
+                    label={display.label}
+                />
             )}
         </div>
     );
@@ -125,7 +186,13 @@ function PrefRow({ pref, density, onToggle, onDensity }: {
 
 // ─── 1D mode hero ─────────────────────────────────────────────────────────────
 
-function OneDModeHero({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+function OneDModeHero({
+    enabled,
+    onToggle,
+}: {
+    enabled: boolean;
+    onToggle: () => void;
+}) {
     return (
         <div
             className={cn(
@@ -137,14 +204,33 @@ function OneDModeHero({ enabled, onToggle }: { enabled: boolean; onToggle: () =>
         >
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className={cn('text-lg font-semibold', enabled ? 'text-white dark:text-zinc-50' : 'text-zinc-900 dark:text-zinc-50')}>
+                    <p
+                        className={cn(
+                            'text-lg font-semibold',
+                            enabled
+                                ? 'text-white dark:text-zinc-50'
+                                : 'text-zinc-900 dark:text-zinc-50',
+                        )}
+                    >
                         Simplified workspace
                     </p>
-                    <p className={cn('mt-1 text-sm', enabled ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400')}>
+                    <p
+                        className={cn(
+                            'mt-1 text-sm',
+                            enabled
+                                ? 'text-zinc-400'
+                                : 'text-zinc-500 dark:text-zinc-400',
+                        )}
+                    >
                         Focus on one thing at a time.
                     </p>
                 </div>
-                <Toggle enabled={enabled} onToggle={onToggle} label="Simplified workspace mode" large />
+                <Toggle
+                    enabled={enabled}
+                    onToggle={onToggle}
+                    label="Simplified workspace mode"
+                    large
+                />
             </div>
             <ul className="mt-5 space-y-2.5">
                 {[
@@ -152,11 +238,34 @@ function OneDModeHero({ enabled, onToggle }: { enabled: boolean; onToggle: () =>
                     'Advanced controls are hidden by default',
                     'Text and spacing are enlarged throughout',
                 ].map((benefit) => (
-                    <li key={benefit} className="flex items-center gap-2.5 text-sm">
-                        <span className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full', enabled ? 'bg-emerald-500' : 'bg-zinc-100 dark:bg-zinc-800')}>
-                            <Check size={11} className={enabled ? 'text-white' : 'text-zinc-400 dark:text-zinc-500'} />
+                    <li
+                        key={benefit}
+                        className="flex items-center gap-2.5 text-sm"
+                    >
+                        <span
+                            className={cn(
+                                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                                enabled
+                                    ? 'bg-emerald-500'
+                                    : 'bg-zinc-100 dark:bg-zinc-800',
+                            )}
+                        >
+                            <Check
+                                size={11}
+                                className={
+                                    enabled
+                                        ? 'text-white'
+                                        : 'text-zinc-400 dark:text-zinc-500'
+                                }
+                            />
                         </span>
-                        <span className={enabled ? 'text-zinc-300' : 'text-zinc-600 dark:text-zinc-400'}>
+                        <span
+                            className={
+                                enabled
+                                    ? 'text-zinc-300'
+                                    : 'text-zinc-600 dark:text-zinc-400'
+                            }
+                        >
                             {benefit}
                         </span>
                     </li>
@@ -168,7 +277,13 @@ function OneDModeHero({ enabled, onToggle }: { enabled: boolean; onToggle: () =>
 
 // ─── mode row ─────────────────────────────────────────────────────────────────
 
-function ModeRow({ mode, onToggle }: { mode: AccessibilityMode; onToggle: () => void }) {
+function ModeRow({
+    mode,
+    onToggle,
+}: {
+    mode: AccessibilityMode;
+    onToggle: () => void;
+}) {
     const display = MODE_DISPLAY[mode.id];
     const label = display?.label ?? mode.name;
     const detail = display?.detail ?? mode.description;
@@ -176,8 +291,12 @@ function ModeRow({ mode, onToggle }: { mode: AccessibilityMode; onToggle: () => 
     return (
         <div className="flex items-center gap-4 py-5">
             <div className="flex-1 min-w-0">
-                <p className="text-base font-medium text-zinc-900 dark:text-zinc-100">{label}</p>
-                <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{detail}</p>
+                <p className="text-base font-medium text-zinc-900 dark:text-zinc-100">
+                    {label}
+                </p>
+                <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                    {detail}
+                </p>
             </div>
             <Toggle enabled={mode.enabled} onToggle={onToggle} label={label} />
         </div>
@@ -232,7 +351,6 @@ export function AccessibilityCenterPage() {
             )}
         >
             <div className="mx-auto max-w-xl">
-
                 {/* ── header ── */}
                 <div className="mb-10">
                     <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
@@ -280,7 +398,10 @@ export function AccessibilityCenterPage() {
                             {otherModes.map((mode, i) => (
                                 <div key={mode.id}>
                                     {i > 0 && <Divider />}
-                                    <ModeRow mode={mode} onToggle={() => toggleMode(mode.id)} />
+                                    <ModeRow
+                                        mode={mode}
+                                        onToggle={() => toggleMode(mode.id)}
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -307,7 +428,6 @@ export function AccessibilityCenterPage() {
                         {saving ? 'Saving…' : 'Save preferences'}
                     </button>
                 </div>
-
             </div>
         </main>
     );

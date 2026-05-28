@@ -1,4 +1,4 @@
-import { QuickActionsProps, QuickActionKey } from './types';
+import { QuickActionsProps, QuickActionKey } from '../types/datepicker';
 
 const ITEMS: { key: QuickActionKey; label: string }[] = [
     { key: 'now', label: 'Now' },

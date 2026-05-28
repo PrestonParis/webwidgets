@@ -201,7 +201,7 @@ export function installDashboardFetchGuard(): () => void {
             });
             clearResourceFailure(cooldownKey);
             return response.clone();
-        } catch (error) {
+        } catch {
             return cooldownResponse(cooldownKey);
         }
     };

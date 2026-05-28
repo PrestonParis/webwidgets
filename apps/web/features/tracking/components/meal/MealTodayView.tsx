@@ -7,7 +7,7 @@ import {
     MEAL_TYPE_ORDER,
     groupByMealType,
 } from '@/features/tracking/lib/meal/helpers';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 function todayKey(): string {
     return new Date().toISOString().slice(0, 10);

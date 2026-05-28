@@ -2,12 +2,18 @@ import {
     isConversionExtension,
     supportedConversionMatrix,
     type ConversionExtension,
-} from '@/features/convert/lib/conversionTypes';
+} from '@/features/convert/types/conversion';
 
 export type ConversionPlacement = 'local' | 'remote' | 'unsupported';
 
 const tinyLocalLimitBytes = 512 * 1024;
-const localRoutes = new Set(['md:html', 'txt:html', 'html:txt', 'md:txt', 'txt:md']);
+const localRoutes = new Set([
+    'md:html',
+    'txt:html',
+    'html:txt',
+    'md:txt',
+    'txt:md',
+]);
 const riskyRemoteExtensions = new Set([
     'doc',
     'docx',
@@ -72,10 +78,19 @@ export function chooseLocalOrRemoteConversion(
 }
 
 const IMAGE_EXTENSIONS = new Set<string>([
-    'png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'bmp', 'svg',
+    'png',
+    'jpg',
+    'jpeg',
+    'webp',
+    'gif',
+    'tiff',
+    'bmp',
+    'svg',
 ]);
 
-export function getTargetsForSource(sourceExtension: string): ConversionExtension[] {
+export function getTargetsForSource(
+    sourceExtension: string,
+): ConversionExtension[] {
     if (!isConversionExtension(sourceExtension)) return ['pdf'];
 
     const remoteTargets = supportedConversionMatrix

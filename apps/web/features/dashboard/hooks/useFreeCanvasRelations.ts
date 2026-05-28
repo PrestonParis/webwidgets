@@ -5,7 +5,7 @@ import {
     WIDGET_W,
     WIDGET_APPROX_H,
     GRID,
-} from '@/features/dashboard/components/freeCanvasConfig';
+} from '@/features/dashboard/lib/freeCanvasConfig';
 import {
     type Pos,
     type Size,
@@ -13,7 +13,7 @@ import {
     closestEdgeMidpoints,
     removeGlueGroupId,
     removeWeaveGroupId,
-} from '@/features/dashboard/components/freeCanvasUtils';
+} from '@/features/dashboard/lib/freeCanvasUtils';
 import type { GlueConnector } from '@/features/dashboard/components/GlueConnectors';
 
 interface RelationsOptions {

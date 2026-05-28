@@ -1,4 +1,4 @@
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { TrackingGoal } from '@/features/tracking/types/goals';
 import { calculateSleepDuration } from '@/features/tracking/lib/trackingUtils';
 

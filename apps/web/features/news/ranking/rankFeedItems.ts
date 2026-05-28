@@ -3,7 +3,7 @@ import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
 import type {
     EnrichedFeedItem,
     RankedFeedItem,
-} from '@/features/news/schemas/eventTypes';
+} from '@/features/news/types/events';
 import { rankedFeedItemSchema } from '@/features/news/schemas/eventCoreSchemas';
 
 const categoryWeights: Record<EventCategory, number> = {

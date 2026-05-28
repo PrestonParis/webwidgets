@@ -24,7 +24,7 @@ import {
     getCategoryLabel,
     TRACKING_CATEGORIES,
 } from '@/features/tracking/constants';
-import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 import type { Tracker } from '@/features/recovery/types/recovery';
 
 type ViewMode = 'log' | 'graph' | 'heatmap' | 'stats' | 'timeline' | 'recovery';

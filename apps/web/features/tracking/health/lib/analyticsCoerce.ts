@@ -5,7 +5,7 @@ import type {
     Severity,
     SicknessType,
     TemperatureUnit,
-} from './types';
+} from '@/features/tracking/health/types/health';
 
 export function str(value: unknown): string | undefined {
     return typeof value === 'string' && value.trim() ? value.trim() : undefined;

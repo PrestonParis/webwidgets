@@ -4,7 +4,11 @@ import Image from 'next/image';
 import { Play } from 'lucide-react';
 import { LoadingSpinner } from '@/features/ui/loading';
 import { useFillFormRunner } from '../hooks/useFillFormRunner';
-import type { FormFillerJob, FillFormProps, FormFillerProfile } from '../types';
+import type {
+    FormFillerJob,
+    FillFormProps,
+    FormFillerProfile,
+} from '../types/formFiller';
 
 interface FillFormFieldsProps {
     profiles: FormFillerProfile[];

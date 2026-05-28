@@ -1,5 +1,5 @@
-import type { BuiltInCategory } from '@/features/tracking/types/trackingCategoryTypes';
-import type { TrackingCategoryConfig } from '@/features/tracking/types/trackingConfigTypes';
+import type { BuiltInCategory } from '@/features/tracking/types/trackingCategories';
+import type { TrackingCategoryConfig } from '@/features/tracking/types/trackingConfig';
 
 const TRACKING_CATEGORY_CONFIGS: Record<
     BuiltInCategory,

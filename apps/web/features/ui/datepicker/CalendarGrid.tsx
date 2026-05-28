@@ -1,5 +1,5 @@
 import { DAYS } from '@/lib/utils/time';
-import { CalendarGridProps } from './types';
+import { CalendarGridProps } from '../types/datepicker';
 
 export function CalendarGrid({
     firstDay,

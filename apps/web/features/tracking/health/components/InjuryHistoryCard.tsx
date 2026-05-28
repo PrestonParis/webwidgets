@@ -5,7 +5,7 @@ import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import type {
     InjuryLog,
     InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 export const STATUS_TONE: Record<InjuryStatus, string> = {
     active: 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300',

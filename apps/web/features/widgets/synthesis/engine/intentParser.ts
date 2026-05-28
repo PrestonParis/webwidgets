@@ -2,7 +2,7 @@ import type {
     WidgetBuilderPurpose,
     WidgetComplexity,
     WidgetIntentDomain,
-} from '@/features/widgets/synthesis/widgetTypes';
+} from '@/features/widgets/types/synthesisWidgets';
 import type { WidgetIntent } from '@/features/widgets/synthesis/widgetIntentInterfaces';
 
 const DOMAIN_TERMS: Record<WidgetIntentDomain, string[]> = {

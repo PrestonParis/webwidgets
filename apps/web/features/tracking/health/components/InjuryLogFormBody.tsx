@@ -10,7 +10,7 @@ import {
     type InjuryStatus,
     type PainQuality,
     type TissueTypeConfig,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import type {
     BodyRegion,
     TissueType,

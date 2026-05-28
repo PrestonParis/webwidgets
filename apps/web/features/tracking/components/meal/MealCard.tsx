@@ -5,7 +5,7 @@ import {
     MEAL_TYPE_LABELS,
     formatMealTime,
 } from '@/features/tracking/lib/meal/helpers';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 export function MealCard({ record }: { record: MealRecord }) {
     const icon = record.mealType ? MEAL_TYPE_ICONS[record.mealType] : '🍽️';

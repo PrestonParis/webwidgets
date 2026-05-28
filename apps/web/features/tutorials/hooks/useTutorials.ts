@@ -1,17 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-    tutorialLessons,
-    tutorialPlaybooks,
-    tutorialTracks,
-} from '../data';
+import { tutorialLessons, tutorialPlaybooks, tutorialTracks } from '../data';
 import type {
     TutorialFilters,
     TutorialLesson,
     TutorialPlaybook,
     TutorialTrack,
-} from '../types';
+} from '../types/tutorials';
 
 const defaultFilters: TutorialFilters = {
     query: '',
@@ -49,7 +45,9 @@ export function useTutorials() {
     const [lessons, setLessons] = useState<TutorialLesson[]>(tutorialLessons);
     const [playbooks, setPlaybooks] =
         useState<TutorialPlaybook[]>(tutorialPlaybooks);
-    const [activeTrackId, setActiveTrackId] = useState(tutorialTracks[0]?.id ?? '');
+    const [activeTrackId, setActiveTrackId] = useState(
+        tutorialTracks[0]?.id ?? '',
+    );
 
     const activeTrack =
         tutorialTracks.find((track) => track.id === activeTrackId) ??

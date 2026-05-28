@@ -1,5 +1,5 @@
 import { rawSourceEventSchema } from '@/features/news/schemas/eventCoreSchemas';
-import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
+import type { RawSourceEvent } from '@/features/news/types/events';
 
 export function createInternalNewsEvent(
     payload: Record<string, unknown>,

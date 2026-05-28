@@ -10,7 +10,7 @@ import { getComponent, COMPONENT_REGISTRY } from './componentRegistry';
 import { getDataSource, DATA_SOURCE_REGISTRY } from './dataSourceRegistry';
 import { getAction } from './actionRegistry';
 import { validateWidgetDefinition, hasErrors } from './widgetValidation';
-import type { WidgetPermission } from '@/features/platform/types/widgetTypes';
+import type { WidgetPermission } from '@/features/platform/types/widget';
 import { getTransformation } from '@/features/widgets/synthesis/transformationRegistry';
 
 const PERMISSION_REASONS: Record<string, string> = {

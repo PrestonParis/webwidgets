@@ -12,7 +12,7 @@ import type {
 import type {
     WidgetLayoutType,
     WidgetTransformationType,
-} from '@/features/widgets/synthesis/widgetTypes';
+} from '@/features/widgets/types/synthesisWidgets';
 import { DATA_SOURCE_REGISTRY } from '@/features/widgets/synthesis/dataSourceRegistry';
 import { ACTION_REGISTRY } from '@/features/widgets/synthesis/actionRegistry';
 

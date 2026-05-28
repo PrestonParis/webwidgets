@@ -1,4 +1,4 @@
-import type { TimerState, TimerAction } from '../types';
+import type { TimerState, TimerAction } from '../types/timekeeping';
 import {
     reducer,
     createInitialTimerState,

@@ -6,8 +6,8 @@ export type {
     RegionView,
     TissueType,
     BodyRegion,
-} from './regions/types';
-import type { BodyRegion } from './regions/types';
+} from '@/features/tracking/health/types/regions';
+import type { BodyRegion } from '@/features/tracking/health/types/regions';
 
 import { FRONT_UPPER_REGIONS } from './regions/frontUpperRegions';
 import {

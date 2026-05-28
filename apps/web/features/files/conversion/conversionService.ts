@@ -7,7 +7,7 @@ import {
 import type {
     FileConversionFormat,
     TextConversionInput,
-} from '@/features/files/conversion/types';
+} from '@/features/files/types/conversion';
 
 export class FileConversionError extends Error {
     constructor(message: string) {

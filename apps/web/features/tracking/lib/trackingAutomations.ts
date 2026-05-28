@@ -2,8 +2,8 @@ import { calcCategoryStats } from '@/features/tracking/lib/analyticsEngine';
 import { findCorrelations } from '@/features/tracking/lib/correlationEngine';
 import { getAllTrackingCategoryConfigs } from '@/features/tracking/lib/categoryConfig';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingAutomationRule } from '@/features/tracking/types/trackingActionTypes';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingAutomationRule } from '@/features/tracking/types/trackingActions';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 const CONSENT = {
     crossCategoryCorrelations: true,

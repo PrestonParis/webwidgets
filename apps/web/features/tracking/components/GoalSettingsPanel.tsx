@@ -6,7 +6,7 @@ import { getCategoryLabel } from '@/features/tracking/constants';
 import type { GoalTargetType } from '@/features/tracking/types/goals';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 import { describeFitnessGoal } from '@/features/tracking/lib/fitness/goals';
-import type { FitnessGoalType } from '@/features/tracking/lib/fitness/goalTypes';
+import type { FitnessGoalType } from '@/features/tracking/types/fitnessGoals';
 
 const GOAL_PRESETS: Record<
     string,

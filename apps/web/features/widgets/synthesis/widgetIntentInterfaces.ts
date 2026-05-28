@@ -4,7 +4,7 @@ import type {
     WidgetLayoutType,
     WidgetComplexity,
     WidgetIntentDomain,
-} from './widgetTypes';
+} from '../types/synthesisWidgets';
 import type { SynthesizedPermissionDef } from './widgetDefinitionInterfaces';
 
 export interface WidgetIntent {

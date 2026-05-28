@@ -2,7 +2,7 @@ import type {
     AllergyProfile,
     SafetyWarning,
     SupplementDefinition,
-} from './definitionTypes';
+} from '@/features/tracking/types/supplementDefinitions';
 
 const STIMULANTS = [
     'caffeine',

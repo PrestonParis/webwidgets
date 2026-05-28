@@ -12,7 +12,7 @@ import {
     type WeightUnit,
 } from '@/features/tracking/health/lib/weightDomain';
 import { WeightHeightInput, ftInToCm } from './WeightHeightInput';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 interface WeightLogFormProps {
     onSubmit: (entry: BaseTrackingEntry) => Promise<void>;

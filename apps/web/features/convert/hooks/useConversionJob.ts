@@ -6,7 +6,7 @@ import {
     getDownloadUrl,
     startConversionJob,
 } from '@/features/convert/lib/conversionClient';
-import type { ConversionJob } from '@/features/convert/lib/conversionTypes';
+import type { ConversionJob } from '@/features/convert/types/conversion';
 
 export function useConversionJob() {
     const [job, setJob] = useState<ConversionJob | null>(null);

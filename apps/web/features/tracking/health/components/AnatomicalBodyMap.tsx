@@ -6,9 +6,9 @@ import type { TissueType } from '@/features/tracking/health/lib/bodyRegions';
 import type {
     InjuryLog,
     InjuryStatus,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 import type { BodyIssue } from '@/features/tracking/health/lib/bodyIssues';
-import { resolveRegionVisual } from './regionVisual';
+import { resolveRegionVisual } from '@/features/tracking/health/lib/visuals/regionVisual';
 import { BodyView } from './BodyView';
 import { SearchBar } from './SearchBar';
 import {
@@ -21,7 +21,7 @@ import {
     FRONT_GEOMETRY,
     DENTAL_GEOMETRY,
     type RegionGeometry,
-} from './svgFrontPaths';
+} from '@/features/tracking/health/lib/visuals/svgFrontPaths';
 import {
     BACK_GEOMETRY,
     BONE_FRONT_GEOMETRY,
@@ -30,7 +30,7 @@ import {
     TENDON_BACK_GEOMETRY,
     NERVE_FRONT_GEOMETRY,
     NERVE_BACK_GEOMETRY,
-} from './svgBackPaths';
+} from '@/features/tracking/health/lib/visuals/svgBackPaths';
 
 type AnatomyView =
     | 'surface'

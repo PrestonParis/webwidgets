@@ -6,7 +6,7 @@
 import type {
     MicronutrientFieldMeta,
     MicronutrientProfile,
-} from './micronutrientTypes';
+} from '@/features/tracking/types/nutritionMicronutrients';
 
 export const MICRONUTRIENT_FIELDS: MicronutrientFieldMeta[] = [
     { key: 'potassiumMg', label: 'Potassium', unit: 'mg' },

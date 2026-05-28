@@ -8,7 +8,7 @@ import {
     getCategoryEmoji,
     getCategoryLabel,
 } from '@/features/tracking/constants';
-import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 import { SleepFields } from './SleepFields';
 import { WorkoutFields } from './WorkoutFields';

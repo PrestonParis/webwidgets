@@ -1,7 +1,7 @@
 import type {
     WidgetCategory,
     WidgetDefinition,
-} from '@/features/platform/types/widgetTypes';
+} from '@/features/platform/types/widget';
 
 export const WIDGET_REGISTRY: WidgetDefinition[] = [
     widget(

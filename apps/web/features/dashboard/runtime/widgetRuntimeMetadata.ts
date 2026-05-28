@@ -5,7 +5,7 @@ import type {
     WidgetRuntimeMetadata,
     WidgetPriority,
     WidgetLoadStrategy,
-} from './widgetRuntimeTypes';
+} from '../types/widgetRuntime';
 import { PRIORITY_SCORES, WEIGHT_SCORES } from './dashboardRuntimeConfig';
 
 const CRITICAL_WIDGET_TYPES = new Set([

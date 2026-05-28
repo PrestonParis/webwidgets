@@ -75,7 +75,7 @@ export function CreativeCanvas({
                 </div>
             </div>
 
-            <div className="relative h-[680px] overflow-auto bg-zinc-100 p-8 dark:bg-zinc-950">
+            <div className="relative h-170 overflow-auto bg-zinc-100 p-8 dark:bg-zinc-950">
                 {!selectedProject ? (
                     <div className="flex h-full items-center justify-center">
                         <div className="text-center">
@@ -95,14 +95,14 @@ export function CreativeCanvas({
                     </div>
                 ) : (
                     <div
-                        className="relative mx-auto h-[520px] w-[780px] rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                        className="relative mx-auto h-130 w-195 rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
                         style={{
                             transform: `scale(${zoom / 100})`,
                             transformOrigin: 'top center',
                         }}
                     >
                         {snapToGrid && (
-                            <div className="absolute inset-0 rounded-lg bg-[linear-gradient(to_right,rgba(113,113,122,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(113,113,122,0.12)_1px,transparent_1px)] bg-[size:24px_24px]" />
+                            <div className="absolute inset-0 rounded-lg bg-[linear-gradient(to_right,rgba(113,113,122,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(113,113,122,0.12)_1px,transparent_1px)] bg-size-[24px_24px]" />
                         )}
                         {layers.length === 0 ? (
                             <div className="flex h-full items-center justify-center">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import type { FormFillerProfile, FormFillerJob } from '../types';
+import type { FormFillerProfile, FormFillerJob } from '../types/formFiller';
 
 const PROFILES_API = '/api/form-filler/profiles';
 const FILL_API = '/api/form-filler/fill';

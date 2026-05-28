@@ -5,7 +5,7 @@ import type {
     WidgetLayoutType,
     WidgetCreatorTag,
     WidgetComplexity,
-} from './widgetTypes';
+} from '../types/synthesisWidgets';
 
 export interface SynthesizedDataSourceDef {
     id: string;

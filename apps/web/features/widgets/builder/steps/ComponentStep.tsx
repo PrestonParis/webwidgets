@@ -9,7 +9,7 @@ import type {
     SynthesizedWidgetDefinition,
     SynthesizedComponentDef,
 } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
-import type { WidgetComponentCategory } from '@/features/widgets/synthesis/widgetTypes';
+import type { WidgetComponentCategory } from '@/features/widgets/types/synthesisWidgets';
 
 interface ComponentStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

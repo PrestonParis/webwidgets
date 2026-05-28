@@ -6,14 +6,14 @@
  * pure and deterministic — safe to unit test and to call from render via useMemo.
  */
 
-import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
-import type { NutritionGoalConfig } from './goalTypes';
-import type { MacroSplit } from './nutritionTypes';
+import type { MealRecord, MealType } from '@/features/tracking/types/meal';
+import type { NutritionGoalConfig } from '@/features/tracking/types/nutritionGoals';
+import type { MacroSplit } from '@/features/tracking/types/nutrition';
 import type {
     DayTotals,
     ExtendedNutritionAnalytics,
     Trend,
-} from './analyticsTypes';
+} from '@/features/tracking/types/nutritionAnalytics';
 
 // ─── date helpers ───────────────────────────────────────────────────────────
 

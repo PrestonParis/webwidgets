@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils/utils';
-import type { TextEditorMode } from '@/features/texteditor/types';
-import { MODE_LABELS } from '@/features/texteditor/types';
+import type { TextEditorMode } from '@/features/texteditor/types/texteditor';
+import { MODE_LABELS } from '@/features/texteditor/types/texteditor';
 
 const MODES: TextEditorMode[] = ['document', 'journal', 'note'];
 

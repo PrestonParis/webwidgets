@@ -14,7 +14,7 @@ import {
 import type {
     BiometricDataPoint,
     BiometricWindow,
-} from '@/features/tracking/health/lib/types';
+} from '@/features/tracking/health/types/health';
 
 const HRV_COLOR = '#6366f1'; // indigo
 const RHR_COLOR = '#f43f5e'; // rose

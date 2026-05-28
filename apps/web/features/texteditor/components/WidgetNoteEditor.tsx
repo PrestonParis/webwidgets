@@ -9,7 +9,7 @@ import { FilePlus, PanelTopClose, PanelTop } from 'lucide-react';
 import { Toolbar } from './Toolbar';
 import { useWidgetEditor } from '@/features/texteditor/hooks/useWidgetEditor';
 import { TE_STYLES } from '@/features/texteditor/constants';
-import type { NoteType } from '@/features/texteditor/types';
+import type { NoteType } from '@/features/texteditor/types/texteditor';
 
 const AUTOSAVE_MS = 1500;
 

@@ -10,7 +10,7 @@ import type {
     AccessibilityAuditItem,
     AccessibilityMode,
     AccessibilityPreference,
-} from './types';
+} from './types/accessibility';
 
 export const accessibilityPreferences: AccessibilityPreference[] = [
     {

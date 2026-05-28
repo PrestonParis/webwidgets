@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils/utils';
 import type { CalcControls } from '../../hooks/useCalculator';
-import type { ProgrammerBase } from '../../types';
+import type { ProgrammerBase } from '../../types/calculator';
 import { evaluate } from '../../lib/engine';
 
 interface ProgrammerModeProps {

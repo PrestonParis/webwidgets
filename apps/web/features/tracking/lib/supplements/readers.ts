@@ -1,4 +1,7 @@
-import type { DietaryFlags, Ingredient } from './ingredientTypes';
+import type {
+    DietaryFlags,
+    Ingredient,
+} from '@/features/tracking/types/supplementIngredients';
 
 function str(value: unknown): string | undefined {
     return typeof value === 'string' && value.trim() ? value.trim() : undefined;

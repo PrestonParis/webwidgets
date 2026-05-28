@@ -4,8 +4,8 @@ import { hashInferenceInput } from '@/features/intelligence/lib/redaction';
 import type {
     InferenceRequest,
     InferenceResult,
-} from '@/features/intelligence/types/inferenceTypes';
-import type { MLProvider } from '@/features/intelligence/types/providerTypes';
+} from '@/features/intelligence/types/inference';
+import type { MLProvider } from '@/features/intelligence/types/provider';
 
 export function createInternalMlProvider(): MLProvider {
     return {

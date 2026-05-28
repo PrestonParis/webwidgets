@@ -2,11 +2,11 @@
 
 import { useRef, useCallback, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { Pos } from '@/features/dashboard/components/freeCanvasUtils';
+import type { Pos } from '@/features/dashboard/lib/freeCanvasUtils';
 import {
     WIDGET_W,
     WIDGET_APPROX_H,
-} from '@/features/dashboard/components/freeCanvasConfig';
+} from '@/features/dashboard/lib/freeCanvasConfig';
 
 const IDLE_MS = 60_000;
 const DRIFT_FPS = 24;

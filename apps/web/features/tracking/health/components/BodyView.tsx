@@ -7,9 +7,12 @@ import {
     type BodyIssue,
 } from '@/features/tracking/health/lib/bodyIssues';
 import RegionPath from './RegionPath';
-import type { RegionGeometry } from './svgFrontPaths';
-import { VIEW_SURFACE, IMAGE_LAYER } from './svgFrontPaths';
-import type { RegionVisual } from './regionVisual';
+import type { RegionGeometry } from '@/features/tracking/health/lib/visuals/svgFrontPaths';
+import {
+    VIEW_SURFACE,
+    IMAGE_LAYER,
+} from '@/features/tracking/health/lib/visuals/svgFrontPaths';
+import type { RegionVisual } from '@/features/tracking/health/lib/visuals/regionVisual';
 
 type AnatomyView =
     | 'surface'

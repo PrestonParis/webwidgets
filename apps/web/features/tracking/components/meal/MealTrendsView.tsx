@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { computeMealAnalytics } from '@/features/tracking/lib/meal/analytics';
 import { BarChart } from '@/features/tracking/viz/BarChart';
-import type { MealRecord } from '@/features/tracking/lib/meal/types';
+import type { MealRecord } from '@/features/tracking/types/meal';
 
 interface MealTrendsViewProps {
     records: MealRecord[];

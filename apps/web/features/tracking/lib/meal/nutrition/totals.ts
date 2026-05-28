@@ -1,4 +1,7 @@
-import type { NutritionTotals, MacroSplit } from './nutritionTypes';
+import type {
+    NutritionTotals,
+    MacroSplit,
+} from '@/features/tracking/types/nutrition';
 import { round } from './helpers';
 
 export function emptyTotals(): NutritionTotals {

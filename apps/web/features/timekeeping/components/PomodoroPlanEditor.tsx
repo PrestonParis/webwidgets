@@ -2,7 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
-import type { PomodoroStep, PomodoroStepKind } from '../types';
+import type { PomodoroStep, PomodoroStepKind } from '../types/timekeeping';
 import { DurationFields } from './DurationFields';
 
 interface PomodoroPlanEditorProps {

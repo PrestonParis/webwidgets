@@ -1,4 +1,4 @@
-import type { LLMProvider } from '@/features/intelligence/types/providerTypes';
+import type { LLMProvider } from '@/features/intelligence/types/provider';
 
 export const EXTERNAL_LLM_PROVIDERS: LLMProvider[] = [
     llmProvider('openai', Boolean(process.env.OPENAI_API_KEY)),
