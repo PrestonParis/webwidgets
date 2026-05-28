@@ -1,8 +1,8 @@
 'use client';
 
 import { type ReactNode } from 'react';
-import { AuthProvider } from '@/features/auth/context/AuthContext';
-import { AccessibilityProvider } from '@/features/accessibility/context/AccessibilityContext';
+import { AuthProvider } from '@/features/auth/components/AuthContext';
+import { AccessibilityProvider } from '@/features/accessibility/components/AccessibilityContext';
 import { TickProvider } from '@/lib/tick';
 import { ContextCaptureGateway } from '@/features/context/components/ContextCaptureGateway';
 import { NewsQueryProvider } from '@/features/news/components/QueryProvider';

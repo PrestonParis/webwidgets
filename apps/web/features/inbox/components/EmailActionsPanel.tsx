@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { EmailAction, ActionType } from '@/features/inbox/types/inbox';
 import { supabase } from '@/lib/db/supabase';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { createCalendarEvent } from '@/features/calendar/api/calendarMutations';
 
 const TYPE_CONFIG: Record<
@@ -152,7 +152,9 @@ function ActionRow({
                     <button
                         onClick={() => {
                             if (added || !user?.id) return;
-                            void addToTodo(action, user.id).then(() => setAdded(true));
+                            void addToTodo(action, user.id).then(() =>
+                                setAdded(true),
+                            );
                         }}
                         className={`text-[10px] font-semibold transition-colors ${
                             added

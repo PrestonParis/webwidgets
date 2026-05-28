@@ -2,9 +2,9 @@
 
 import superjson, { type SuperJSONResult } from 'superjson';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ActionRequestEnvelope } from '@/features/actions/schemas/actionPayloadSchemas';
-import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
-import type { ActionDefinitionMetadata } from '@/features/actions/schemas/definitionSchemas';
+import type { ActionRequestEnvelope } from '@/features/actions/lib/schemas/actionPayloadSchemas';
+import type { ActionEngineResult } from '@/features/actions/lib/schemas/actionResultSchemas';
+import type { ActionDefinitionMetadata } from '@/features/actions/lib/schemas/definitionSchemas';
 
 async function invokeAction(
     envelope: ActionRequestEnvelope,

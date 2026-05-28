@@ -11,7 +11,7 @@ import { useMetricsFilter } from '../../hooks/useMetricsFilter';
 import { useMetricsFetch } from '../../hooks/useMetricsFetch';
 import { fetchEvents } from '../../lib/metricsApi';
 import type { AnalyticsEventRow } from '../../types/metrics';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 
 interface EventsData {
     events: AnalyticsEventRow[];

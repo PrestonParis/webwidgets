@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { runResearchPipeline } from '@/features/research/server/researchService';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 
 export const runtime = 'nodejs';
 

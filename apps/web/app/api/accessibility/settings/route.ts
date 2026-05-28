@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 
 const defaults = {
     high_contrast: false,

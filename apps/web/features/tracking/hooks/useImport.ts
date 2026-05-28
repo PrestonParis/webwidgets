@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { parseCSV } from '@/features/tracking/lib/import/csvParser';
 import { validateAndMap } from '@/features/tracking/lib/import/importValidator';
 import { addEntry } from '@/features/tracking/api/trackingApi';

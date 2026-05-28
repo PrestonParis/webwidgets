@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
 import { cn } from '@/lib/utils/utils';
-import { categoryIcons } from '@/features/accessibility/data';
+import { categoryIcons } from '@/features/accessibility/constants';
 import { useAccessibilityCenter } from '@/features/accessibility/hooks/useAccessibilityCenter';
 import type {
     AccessibilityCategory,

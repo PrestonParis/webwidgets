@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import type { ChessStudy, StudyChapter } from '@/features/chess/types/chess';
 import { studyService } from '@/features/chess/studies/api/studyService';
 

@@ -9,8 +9,8 @@ import {
 import {
     countEventsByDay,
     countEventsByType,
-} from '@/features/analytics/analyticsQueries';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+} from '@/features/analytics/lib/analyticsQueries';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 
 const querySchema = z.object({
     from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

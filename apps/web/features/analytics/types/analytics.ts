@@ -1,4 +1,4 @@
-import type { EventName } from '../eventNames';
+import type { EventName } from '../lib/eventNames';
 
 export interface TrackEventOptions {
     userId?: string;

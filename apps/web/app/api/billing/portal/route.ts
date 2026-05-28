@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
-import { fetchCustomerId } from '@/features/billing/services/billingService';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { fetchCustomerId } from '@/features/billing/lib/billingService';
 import { stripe, hasStripeConfig } from '@/lib/stripe/stripeClient';
 
 export async function POST(req: Request) {

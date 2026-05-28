@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import ProfileForm from './ProfileForm';
 import ProfileStatus from './ProfileStatus';
 import { User } from '@supabase/supabase-js';

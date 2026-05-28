@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 
 export async function GET() {
@@ -9,7 +9,9 @@ export async function GET() {
         const userId = await getRequestUserId(supabase);
         const { data, error } = await supabase
             .from('memory_routines')
-            .select('id,user_id,title,description,domain,minutes,enabled,created_at')
+            .select(
+                'id,user_id,title,description,domain,minutes,enabled,created_at',
+            )
             .eq('user_id', userId)
             .order('created_at', { ascending: true })
             .limit(50);
@@ -20,9 +22,15 @@ export async function GET() {
         return NextResponse.json(data ?? []);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -30,7 +38,12 @@ export async function POST(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = await req.json() as { title: string; description?: string; domain?: string; minutes?: number };
+        const body = (await req.json()) as {
+            title: string;
+            description?: string;
+            domain?: string;
+            minutes?: number;
+        };
         const { data, error } = await supabase
             .from('memory_routines')
             .insert({
@@ -41,15 +54,23 @@ export async function POST(req: Request) {
                 minutes: body.minutes ?? 10,
                 enabled: false,
             })
-            .select('id,user_id,title,description,domain,minutes,enabled,created_at')
+            .select(
+                'id,user_id,title,description,domain,minutes,enabled,created_at',
+            )
             .single();
         if (error) throw error;
         return NextResponse.json(data, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -57,21 +78,32 @@ export async function PATCH(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = await req.json() as { id: string } & Record<string, unknown>;
+        const body = (await req.json()) as { id: string } & Record<
+            string,
+            unknown
+        >;
         const { id, ...updates } = body;
         const { data, error } = await supabase
             .from('memory_routines')
             .update(updates)
             .eq('id', id)
             .eq('user_id', userId)
-            .select('id,user_id,title,description,domain,minutes,enabled,created_at')
+            .select(
+                'id,user_id,title,description,domain,minutes,enabled,created_at',
+            )
             .single();
         if (error) throw error;
         return NextResponse.json(data);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }

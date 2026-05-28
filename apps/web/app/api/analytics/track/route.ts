@@ -1,7 +1,7 @@
 import { NextResponse, after } from 'next/server';
 import { z } from 'zod';
-import { trackEventServer } from '@/features/analytics/trackEvent';
-import type { EventName } from '@/features/analytics/eventNames';
+import { trackEventServer } from '@/features/analytics/hooks/trackEvent';
+import type { EventName } from '@/features/analytics/lib/eventNames';
 import { getGoWorkerClient } from '@/lib/goWorker/client';
 import type { GoWorkerEvent } from '@/lib/goWorker/types';
 

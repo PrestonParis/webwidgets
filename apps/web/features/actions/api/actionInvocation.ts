@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
     actionRequestEnvelopeSchema,
     type ActionRequestEnvelope,
-} from '@/features/actions/schemas/actionPayloadSchemas';
+} from '@/features/actions/lib/schemas/actionPayloadSchemas';
 
 const maybeSerializedSchema = z.union([
     z.string(),

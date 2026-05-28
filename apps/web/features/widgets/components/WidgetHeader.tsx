@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils/utils';
 import type { WidgetHeaderProps } from '@/features/widgets/types/widgetProps';
 import { colorMap } from '@/features/widgets/constants';
 import { useWidgetHeader } from '@/features/widgets/hooks/useWidgetHeader';
-import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
+import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
 import {
     BackgroundPanel,
     ColorPicker,

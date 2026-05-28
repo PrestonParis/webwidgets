@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { creativeExports, creativeTools } from '../data';
+import { creativeExports, creativeTools } from '../constants';
 import type { CreativeTool } from '../types/creative';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 
 export async function GET() {
@@ -9,7 +9,9 @@ export async function GET() {
         const userId = await getRequestUserId(supabase);
         const { data, error } = await supabase
             .from('command_workstreams')
-            .select('id,user_id,title,domain,owner,status,priority,progress,next_step,due,blockers,automations,confidence,created_at')
+            .select(
+                'id,user_id,title,domain,owner,status,priority,progress,next_step,due,blockers,automations,confidence,created_at',
+            )
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(75);
@@ -20,9 +22,15 @@ export async function GET() {
         return NextResponse.json(data ?? []);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -30,7 +38,7 @@ export async function POST(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = await req.json() as {
+        const body = (await req.json()) as {
             title: string;
             domain?: string;
             owner?: string;
@@ -51,14 +59,22 @@ export async function POST(req: Request) {
                 next_step: body.next_step ?? null,
                 due: body.due ?? null,
             })
-            .select('id,user_id,title,domain,owner,status,priority,progress,next_step,due,blockers,automations,confidence,created_at')
+            .select(
+                'id,user_id,title,domain,owner,status,priority,progress,next_step,due,blockers,automations,confidence,created_at',
+            )
             .single();
         if (error) throw error;
         return NextResponse.json(data, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }

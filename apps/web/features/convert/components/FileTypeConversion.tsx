@@ -9,7 +9,7 @@ import {
     getFileConversionTargets,
     getPreferredTarget,
     inferFileConversionFormat,
-} from '@/features/files/conversion/conversionRegistry';
+} from '@/features/files/lib/conversionRegistry';
 import type {
     FileConversionCapability,
     FileConversionFormat,

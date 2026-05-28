@@ -6,7 +6,7 @@ import {
     requireAdminUser,
     forbidden,
 } from '@/features/admin/lib/adminPermissions';
-import { fetchRecentEvents } from '@/features/analytics/analyticsQueries';
+import { fetchRecentEvents } from '@/features/analytics/lib/analyticsQueries';
 
 const querySchema = z.object({
     from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

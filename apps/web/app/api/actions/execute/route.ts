@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import superjson from 'superjson';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
-import { executeUnifiedAction } from '@/features/actions/engine/actionEngine';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { executeUnifiedAction } from '@/features/actions/lib/actionEngine';
 import { parseActionInvocationRequest } from '@/features/actions/api/actionInvocation';
 
 export async function POST(req: Request) {
