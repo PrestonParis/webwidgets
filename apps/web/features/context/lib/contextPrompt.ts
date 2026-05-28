@@ -6,7 +6,7 @@ function summarizeData(data: Record<string, unknown>): string {
     if (typeof data['lastInteraction'] === 'string')
         parts.push(`last used: ${data['lastInteraction']}`);
     if (typeof data['notes'] === 'string' && data['notes'])
-        parts.push(data['notes'] as string);
+        parts.push(data['notes']);
     if (typeof data['count'] === 'number')
         parts.push(`count: ${data['count']}`);
     if (typeof data['streak'] === 'number')

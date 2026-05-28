@@ -257,6 +257,7 @@ export interface DashboardHeaderBarProps {
     onToggleFullscreen: () => void;
     simplified?: boolean;
     onAddTracker?: (tracker: Tracker) => void;
+    onAddAllTrackers?: (trackers: Tracker[]) => void;
 }
 
 export function DashboardHeaderBar({
@@ -284,6 +285,7 @@ export function DashboardHeaderBar({
     onToggleFullscreen,
     simplified = false,
     onAddTracker,
+    onAddAllTrackers,
 }: DashboardHeaderBarProps) {
     const [widgetPanelOpen, setWidgetPanelOpen] = useState(false);
     const [removePanelOpen, setRemovePanelOpen] = useState(false);
@@ -370,6 +372,7 @@ export function DashboardHeaderBar({
                                     onAddFolder();
                                 }}
                                 onAddTracker={onAddTracker}
+                                onAddAllTrackers={onAddAllTrackers}
                                 onClose={() => setWidgetPanelOpen(false)}
                             />
                         )}

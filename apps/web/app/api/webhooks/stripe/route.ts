@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     try {
         switch (event.type) {
             case 'checkout.session.completed': {
-                const session = event.data.object as Stripe.Checkout.Session;
+                const session = event.data.object;
                 if (session.mode !== 'subscription' || !session.subscription)
                     break;
                 const sub = await stripe.subscriptions.retrieve(
@@ -109,14 +109,11 @@ export async function POST(req: Request) {
             }
             case 'customer.subscription.updated':
             case 'customer.subscription.created': {
-                await handleSubscription(
-                    event.data.object as Stripe.Subscription,
-                    adminDb,
-                );
+                await handleSubscription(event.data.object, adminDb);
                 break;
             }
             case 'customer.subscription.deleted': {
-                const sub = event.data.object as Stripe.Subscription;
+                const sub = event.data.object;
                 await cancelSubscriptionRecord(adminDb, sub.id);
                 break;
             }

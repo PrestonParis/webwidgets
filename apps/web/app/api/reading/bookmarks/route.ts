@@ -45,7 +45,7 @@ export async function POST(req: Request) {
             label?: string;
         };
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_bookmarks')
             .insert({
                 user_id: user.id,
@@ -54,7 +54,10 @@ export async function POST(req: Request) {
                 ...(body.label !== undefined && { label: body.label }),
             })
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });

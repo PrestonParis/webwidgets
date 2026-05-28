@@ -1,7 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from '@/features/ui/components/Modal';
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+} from '@/features/ui/components/Modal';
 import { FormField, TextArea } from '@/features/ui/components/FormField';
 import { Button } from '@/features/ui/components/Button';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
@@ -35,7 +40,9 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
         setForm((prev) => ({ ...prev, [field]: value }));
     }
 
-    const hasContent = Object.values(form).some((v) => v.trim().length > 0);
+    const hasContent = Object.values(form).some(
+        (v) => typeof v === 'string' && v.trim().length > 0,
+    );
 
     async function handleSubmit() {
         if (!hasContent) return;
@@ -57,7 +64,12 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
     }
 
     return (
-        <Modal open onClose={onClose} size="md" aria-labelledby="feedback-title">
+        <Modal
+            open
+            onClose={onClose}
+            size="md"
+            aria-labelledby="feedback-title"
+        >
             <ModalHeader
                 id="feedback-title"
                 title="Share Feedback"
@@ -76,7 +88,10 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
                     />
                 </FormField>
 
-                <FormField label="What were you trying to do?" htmlFor="fb-wanted">
+                <FormField
+                    label="What were you trying to do?"
+                    htmlFor="fb-wanted"
+                >
                     <TextArea
                         id="fb-wanted"
                         rows={2}

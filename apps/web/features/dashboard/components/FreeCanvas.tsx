@@ -18,17 +18,29 @@ import FolderWidget from './FolderWidget';
 import RecoveryFolderWidget from '@/features/recovery/components/RecoveryFolderWidget';
 import { FreeItem } from './FreeCanvasItem';
 import { WovenItem } from './FreeCanvasWoven';
+import { ViewportWidgetMount } from './ViewportWidgetMount';
+import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
+import { DashboardRuntimeControls } from './DashboardRuntimeControls';
 import { GlueConnectors } from './GlueConnectors';
 import { useFreeCanvasDrag } from '@/features/dashboard/hooks/useFreeCanvasDrag';
 import { useFreeCanvasResize } from '@/features/dashboard/hooks/useFreeCanvasResize';
 import { useFreeCanvasRelations } from '@/features/dashboard/hooks/useFreeCanvasRelations';
 import { useFreeCanvasComputed } from '@/features/dashboard/hooks/useFreeCanvasComputed';
 import { GRID, WIDGET_W, WIDGET_APPROX_H } from './freeCanvasConfig';
-import { autoPos, type Pos, type Size } from './freeCanvasUtils';
+import {
+    autoPos,
+    getWidgetEmoji,
+    getWidgetLabel,
+    type Pos,
+    type Size,
+} from './freeCanvasUtils';
 
 interface FreeCanvasProps extends DashboardGridProps {
     snapRule: SnapRule;
 }
+
+const DENSE_CANVAS_WIDGET_THRESHOLD = 12;
+const DENSE_CANVAS_BODY_BUDGET = 4;
 
 // ─── static overlays ──────────────────────────────────────────────────────────
 
@@ -322,6 +334,7 @@ export default function FreeCanvas({
         computeSnap,
         canvasH,
     } = useFreeCanvasComputed({ layout, snapRule });
+    const denseCanvas = visible.length > DENSE_CANVAS_WIDGET_THRESHOLD;
 
     const renderContent = useCallback(
         (config: WidgetConfig) =>
@@ -336,7 +349,13 @@ export default function FreeCanvas({
             ) : config.type === 'recovery-empty' ? (
                 <RecoveryFolderWidget onOpen={() => onOpenRecovery?.()} />
             ) : (
-                renderWidgetContent(config, onReset)
+                <ViewportWidgetMount
+                    widgetId={config.id}
+                    config={config}
+                    label={getWidgetLabel(config)}
+                    emoji={getWidgetEmoji(config)}
+                    render={() => renderWidgetContent(config, onReset)}
+                />
             ),
         [
             layout,
@@ -345,6 +364,7 @@ export default function FreeCanvas({
             onDeleteFolder,
             onOpenRecovery,
             onReset,
+            denseCanvas,
         ],
     );
 
@@ -419,6 +439,7 @@ export default function FreeCanvas({
 
     return (
         <CopyStyleContext.Provider value={copyStyleMap}>
+            <DashboardRuntimeControls />
             <div
                 className="relative w-full"
                 style={{ height: canvasH }}
@@ -456,13 +477,18 @@ export default function FreeCanvas({
                     pendingGlueId={pendingGlueId}
                     pendingWeaveId={pendingWeaveId}
                 />
-                <WovenLayer {...layerProps} wovenGroups={wovenGroups} />
-                <FreeLayer
-                    {...layerProps}
-                    unwovenVisible={unwovenVisible}
-                    ctx={ctx}
-                    proximityHintId={proximityHintId}
-                />
+                <WidgetBodyBudgetProvider
+                    enabled={denseCanvas}
+                    maxActive={DENSE_CANVAS_BODY_BUDGET}
+                >
+                    <WovenLayer {...layerProps} wovenGroups={wovenGroups} />
+                    <FreeLayer
+                        {...layerProps}
+                        unwovenVisible={unwovenVisible}
+                        ctx={ctx}
+                        proximityHintId={proximityHintId}
+                    />
+                </WidgetBodyBudgetProvider>
             </div>
         </CopyStyleContext.Provider>
     );

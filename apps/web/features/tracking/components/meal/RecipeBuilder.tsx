@@ -3,13 +3,15 @@
 import { useMemo, useState } from 'react';
 import { FoodSearchPanel } from './FoodSearchPanel';
 import { computeRecipeNutrition } from '@/features/tracking/lib/meal/nutrition/providers/recipeProvider';
-import { foodResultToItem } from '@/features/tracking/lib/meal/nutrition/normalize';
+import { foodResultToItem } from '@/features/tracking/lib/meal/nutrition/foodItem';
 import type {
     FoodItem,
     FoodSearchResult,
+} from '@/features/tracking/lib/meal/nutrition/foodTypes';
+import type {
     RecipeDraft,
     RecipeRecord,
-} from '@/features/tracking/lib/meal/nutrition/types';
+} from '@/features/tracking/lib/meal/nutrition/recipeTypes';
 
 interface RecipeBuilderProps {
     initial?: RecipeRecord;

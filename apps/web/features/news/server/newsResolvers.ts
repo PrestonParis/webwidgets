@@ -8,8 +8,8 @@ export const newsResolvers: DataResolver<unknown[]>[] = [
         key: 'events.feed.ranked',
         cachePolicy: { ttlSeconds: 30 },
         schema: rankedFeedSchema,
-        async resolve() {
-            return [];
+        resolve() {
+            return Promise.resolve([]);
         },
     },
 ];

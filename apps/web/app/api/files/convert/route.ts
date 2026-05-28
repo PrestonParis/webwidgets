@@ -13,8 +13,11 @@ export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const file = formData.get('file');
-        const fromFormat = String(formData.get('fromFormat') ?? '');
-        const toFormat = String(formData.get('toFormat') ?? '');
+        const fromFormatRaw = formData.get('fromFormat');
+        const toFormatRaw = formData.get('toFormat');
+        const fromFormat =
+            typeof fromFormatRaw === 'string' ? fromFormatRaw : '';
+        const toFormat = typeof toFormatRaw === 'string' ? toFormatRaw : '';
 
         if (!(file instanceof File)) {
             return NextResponse.json(

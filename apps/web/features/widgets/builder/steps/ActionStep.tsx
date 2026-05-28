@@ -8,7 +8,7 @@ import type {
     SynthesizedWidgetDefinition,
     SynthesizedActionDef,
     SynthesizedAutomationDef,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 interface ActionStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

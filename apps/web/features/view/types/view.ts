@@ -3,8 +3,8 @@ import type {
     ViewAnnotation,
     ViewFileRef,
     ViewLayer,
-    ViewRenderStrategy,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
+import type { ViewRenderStrategy } from '@/features/view/schemas/enumSchemas';
 
 export interface ViewRendererContract {
     id: string;

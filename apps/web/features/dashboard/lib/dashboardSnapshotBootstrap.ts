@@ -1,6 +1,6 @@
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
-export const DASHBOARD_BOOTSTRAP_WIDGET_COUNT = 8;
+export const DASHBOARD_BOOTSTRAP_WIDGET_COUNT = 4;
 
 export function dashboardSnapshotWidgetKey(layout: WidgetConfig[]) {
     return layout

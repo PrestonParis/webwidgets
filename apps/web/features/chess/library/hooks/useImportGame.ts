@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import { ChessGame } from '@/features/chess/types/chess';
 import { gameService } from '@/features/chess/library/api/gameService';

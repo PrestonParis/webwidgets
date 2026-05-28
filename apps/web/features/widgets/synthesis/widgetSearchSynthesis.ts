@@ -1,8 +1,6 @@
 import FlexSearch from 'flexsearch';
-import type {
-    WidgetSynthesisCandidate,
-    SynthesizedWidgetDefinition,
-} from './widgetDefinitionSchema';
+import type { WidgetSynthesisCandidate } from './widgetBuilderInterfaces';
+import type { SynthesizedWidgetDefinition } from './widgetDefinitionInterfaces';
 import { DATA_SOURCE_REGISTRY } from './dataSourceRegistry';
 import {
     createEmptyDefinition,

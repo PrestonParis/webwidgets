@@ -14,7 +14,7 @@ export const DEFAULT_INSIGHT_CONSENT: InsightConsent = {
 
 export interface Insight {
     id: string;
-    category: TrackingCategory | 'cross-category';
+    category: TrackingCategory;
     title: string;
     body: string;
     confidence: 'low' | 'medium' | 'high';

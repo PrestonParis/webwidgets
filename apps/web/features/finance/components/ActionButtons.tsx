@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Edit3, Trash2, MoreVertical } from 'lucide-react';
+import { Edit3, MoreVertical } from 'lucide-react';
 
 export interface Action {
     id: 'edit' | 'delete';

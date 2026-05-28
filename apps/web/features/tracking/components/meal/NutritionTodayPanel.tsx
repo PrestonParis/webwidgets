@@ -7,7 +7,7 @@ import { useSavedMeals } from '@/features/tracking/hooks/useSavedMeals';
 import {
     foodResultToMealMetadata,
     readFoodItems,
-} from '@/features/tracking/lib/meal/nutrition/normalize';
+} from '@/features/tracking/lib/meal/nutrition/foodItem';
 import { draftFromMealRecord } from '@/features/tracking/lib/meal/nutrition/savedMealStore';
 import {
     groupByMealType,
@@ -15,12 +15,11 @@ import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ICONS,
     MEAL_TYPE_ORDER,
-    type MealRecord,
-    type MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
+import type { MealRecord, MealType } from '@/features/tracking/lib/meal/types';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/types';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
 
 interface NutritionTodayPanelProps {
     records: MealRecord[];
@@ -98,7 +97,7 @@ export function NutritionTodayPanel({
         const items = readFoodItems(record.raw);
         const draft = draftFromMealRecord({
             name: record.title ?? MEAL_TYPE_LABELS[record.mealType ?? 'other'],
-            mealType: (record.mealType ?? 'other') as MealType,
+            mealType: record.mealType ?? 'other',
             items:
                 items.length > 0
                     ? items

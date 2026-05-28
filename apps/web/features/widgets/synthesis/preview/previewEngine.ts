@@ -1,9 +1,9 @@
 import { err, ok, type Result } from 'neverthrow';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import type {
-    SynthesizedWidgetDefinition,
     WidgetPreviewState,
     WidgetValidationIssue,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetBuilderInterfaces';
 import { assembleDraftWidget } from '@/features/widgets/synthesis/widgetAssemblyEngine';
 import { getComponent } from '@/features/widgets/synthesis/componentRegistry';
 import { getDataSource } from '@/features/widgets/synthesis/dataSourceRegistry';

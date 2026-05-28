@@ -45,7 +45,7 @@ export async function POST(req: Request) {
             content: string;
         };
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_notes')
             .insert({
                 user_id: user.id,
@@ -54,7 +54,10 @@ export async function POST(req: Request) {
                 content: body.content,
             })
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });
@@ -70,7 +73,7 @@ export async function PATCH(req: Request) {
         const user = await getUserOrThrow(supabase);
         const body = (await req.json()) as { id: string; content: string };
 
-        const { data, error } = await supabase
+        const { data, error } = (await supabase
             .from('reading_notes')
             .update({
                 content: body.content,
@@ -79,7 +82,10 @@ export async function PATCH(req: Request) {
             .eq('id', body.id)
             .eq('user_id', user.id)
             .select()
-            .single();
+            .single()) as {
+            data: Record<string, unknown> | null;
+            error: Error | null;
+        };
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });

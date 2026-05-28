@@ -1,6 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
 import { err, ok, type Result } from 'neverthrow';
-import type { ViewFileRef } from '@/features/view/schemas/viewSchemas';
+import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
 
 const MAX_PAYLOAD_BYTES = 25 * 1024 * 1024;
 const BLOCKED_MIME_TYPES = [

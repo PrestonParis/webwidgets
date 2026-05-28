@@ -7,7 +7,7 @@ import {
     GOAL_PRESETS,
 } from '@/features/tracking/lib/meal/nutrition/goals';
 import type { MealGoalMetricKey } from '@/features/tracking/lib/meal/nutrition/goals';
-import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/types';
+import type { NutritionGoalConfig } from '@/features/tracking/lib/meal/nutrition/goalTypes';
 
 interface NutritionGoalPanelProps {
     onClose?: () => void;
@@ -99,20 +99,23 @@ export function NutritionGoalPanel({ onClose }: NutritionGoalPanelProps) {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        const config = extractNutritionGoalConfig(allGoals);
-        const nextEnabled: Record<string, boolean> = {};
-        const nextValues: Record<string, number> = {};
-        for (const field of GOAL_FIELDS) {
-            const current = config[field.configKey];
-            if (current !== null && current !== undefined) {
-                nextEnabled[field.metricKey] = true;
-                nextValues[field.metricKey] = current;
-            } else {
-                nextValues[field.metricKey] = field.placeholder;
+        const timeoutId = window.setTimeout(() => {
+            const config = extractNutritionGoalConfig(allGoals);
+            const nextEnabled: Record<string, boolean> = {};
+            const nextValues: Record<string, number> = {};
+            for (const field of GOAL_FIELDS) {
+                const current = config[field.configKey];
+                if (current !== null && current !== undefined) {
+                    nextEnabled[field.metricKey] = true;
+                    nextValues[field.metricKey] = current;
+                } else {
+                    nextValues[field.metricKey] = field.placeholder;
+                }
             }
-        }
-        setEnabled(nextEnabled);
-        setValues(nextValues);
+            setEnabled(nextEnabled);
+            setValues(nextValues);
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [allGoals]);
 
     const applyPreset = (presetId: string) => {

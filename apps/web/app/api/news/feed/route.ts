@@ -9,9 +9,12 @@ const emptyFeed = {
     sourceCount: 0,
 };
 
-export async function GET() {
+export function GET() {
     const log = getLogger({ route: '/api/news/feed' });
-    log.info({ itemCount: 0, sourceCount: 0 }, 'news feed served (no sources connected)');
+    log.info(
+        { itemCount: 0, sourceCount: 0 },
+        'news feed served (no sources connected)',
+    );
     const feed = { ...emptyFeed, generatedAt: new Date().toISOString() };
     return NextResponse.json(superjson.serialize(feed));
 }

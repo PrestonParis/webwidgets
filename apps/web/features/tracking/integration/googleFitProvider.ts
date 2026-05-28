@@ -3,7 +3,7 @@ import type {
     ProviderConnection,
 } from '@/features/tracking/types/providers';
 import type { HealthProvider } from '@/features/tracking/types/providers';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 export class GoogleFitProvider implements HealthProviderAdapter {
     readonly provider: HealthProvider = 'google_fit';

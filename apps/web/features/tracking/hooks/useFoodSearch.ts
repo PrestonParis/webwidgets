@@ -6,7 +6,7 @@ import {
     availableSearchProviders,
     type FoodSearchOutcome,
 } from '@/features/tracking/lib/meal/nutrition/providers';
-import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/types';
+import type { FoodSearchResult } from '@/features/tracking/lib/meal/nutrition/foodTypes';
 
 const DEBOUNCE_MS = 300;
 
@@ -40,12 +40,14 @@ export function useFoodSearch(): UseFoodSearchResult {
         if (timerRef.current) clearTimeout(timerRef.current);
         const trimmed = query.trim();
         if (trimmed.length < 2) {
-            setResults([]);
-            setErrors([]);
-            setLoading(false);
+            timerRef.current = setTimeout(() => {
+                setResults([]);
+                setErrors([]);
+                setLoading(false);
+            }, 0);
             return;
         }
-        setLoading(true);
+        window.setTimeout(() => setLoading(true), 0);
         const id = ++reqIdRef.current;
         timerRef.current = setTimeout(() => {
             void searchFoods(trimmed)

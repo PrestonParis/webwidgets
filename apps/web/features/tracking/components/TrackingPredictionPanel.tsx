@@ -2,7 +2,7 @@
 
 import { generateTrackingPredictions } from '@/features/tracking/lib/trackingPredictions';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 interface TrackingPredictionPanelProps {
     entries: TrackingEntry[];

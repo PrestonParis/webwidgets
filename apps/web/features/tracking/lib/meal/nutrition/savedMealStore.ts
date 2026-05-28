@@ -7,10 +7,11 @@
  * serving multiplier).
  */
 
-import { sumFoodItems, foodItemToMetadata, scaleTotals } from './normalize';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
-import type { MealType } from '@/features/tracking/lib/meal/mealDomain';
-import type { SavedMealDraft, SavedMealRecord } from './types';
+import { sumFoodItems, scaleTotals } from './totals';
+import { foodItemToMetadata } from './foodItem';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { MealType } from '@/features/tracking/lib/meal/types';
+import type { SavedMealDraft, SavedMealRecord } from './savedMealTypes';
 
 const STORAGE_KEY = 'nutrition_saved_meals_v1';
 
@@ -27,7 +28,7 @@ function readAll(): SavedMealRecord[] {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return [];
-        const parsed = JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
         return Array.isArray(parsed) ? (parsed as SavedMealRecord[]) : [];
     } catch {
         return [];

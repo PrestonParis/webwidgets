@@ -1,11 +1,22 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { File, Image, Table, Code2, FileText, Upload, Loader2 } from 'lucide-react';
+import {
+    File,
+    Image,
+    Table,
+    Code2,
+    FileText,
+    Upload,
+    Loader2,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { ViewFileRef } from '@/features/view/schemas/viewSchemas';
+import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
 import { useViewFiles } from '@/features/view/hooks/useViewFiles';
-import { requestPresignedUrl, confirmUpload } from '@/features/uploads/api/uploadApi';
+import {
+    requestPresignedUrl,
+    uploadFileContent,
+} from '@/features/uploads/api/uploadApi';
 
 function iconFor(mimeType: string) {
     if (mimeType.startsWith('image/')) return Image;
@@ -35,23 +46,17 @@ export function ViewFileBrowser({
         setUploading(true);
         setUploadError(null);
         try {
-            const { fileId, presignedUrl } = await requestPresignedUrl(
+            const { fileId } = await requestPresignedUrl(
                 file.name,
                 file.type || 'application/octet-stream',
                 file.size,
             );
-            await new Promise<void>((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`)));
-                xhr.addEventListener('error', () => reject(new Error('Network error')));
-                xhr.open('PUT', presignedUrl);
-                xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-                xhr.send(file);
-            });
-            await confirmUpload(fileId);
+            await uploadFileContent(fileId, file);
             await queryClient.invalidateQueries({ queryKey: ['view-files'] });
         } catch (err) {
-            setUploadError(err instanceof Error ? err.message : 'Upload failed');
+            setUploadError(
+                err instanceof Error ? err.message : 'Upload failed',
+            );
         } finally {
             setUploading(false);
             if (inputRef.current) inputRef.current.value = '';
@@ -70,18 +75,26 @@ export function ViewFileBrowser({
                     title="Upload file"
                     className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition disabled:opacity-50"
                 >
-                    {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                    {uploading ? (
+                        <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                        <Upload size={13} />
+                    )}
                     {uploading ? 'Uploading…' : 'Upload'}
                 </button>
                 <input
                     ref={inputRef}
                     type="file"
                     className="hidden"
-                    onChange={(e) => { void handleFileChange(e); }}
+                    onChange={(e) => {
+                        void handleFileChange(e);
+                    }}
                 />
             </div>
             {uploadError && (
-                <p className="px-3 py-1 text-[10px] text-red-400 bg-red-950/20">{uploadError}</p>
+                <p className="px-3 py-1 text-[10px] text-red-400 bg-red-950/20">
+                    {uploadError}
+                </p>
             )}
             <div className="flex-1 overflow-y-auto p-2">
                 {isLoading && (
@@ -111,7 +124,9 @@ export function ViewFileBrowser({
                 })}
                 {!isLoading && files.length === 0 && (
                     <div className="p-3 text-center">
-                        <p className="text-xs text-zinc-500 mb-2">No files yet.</p>
+                        <p className="text-xs text-zinc-500 mb-2">
+                            No files yet.
+                        </p>
                         <button
                             onClick={() => inputRef.current?.click()}
                             className="text-xs text-[#4f6ef7] hover:text-[#7b93f9] transition-colors"

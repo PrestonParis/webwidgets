@@ -109,7 +109,12 @@ export function buildCsvFromRows<T extends Record<string, unknown>>(
             headers
                 .map((h) => {
                     const v = r[h];
-                    const s = v === null || v === undefined ? '' : String(v);
+                    const s =
+                        v === null || v === undefined
+                            ? ''
+                            : typeof v === 'string' || typeof v === 'number'
+                              ? String(v)
+                              : JSON.stringify(v);
                     return s.includes(',') ? `"${s}"` : s;
                 })
                 .join(','),

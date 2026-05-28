@@ -52,18 +52,20 @@ export function useTrackers() {
     const [trackers, setTrackers] = useState<Tracker[] | null>(null);
 
     useEffect(() => {
-        if (status === 'loading' || !user?.id) {
-            setTrackers([]);
-            return;
+        if (!user?.id) {
+            const timeoutId = window.setTimeout(() => setTrackers([]), 0);
+            return () => window.clearTimeout(timeoutId);
         }
 
+        const userId = user.id;
         let mounted = true;
-        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => {
+            void load();
+        }, 0);
 
         async function load() {
             try {
-                if (!user?.id) return;
-                const result = await fetchTrackersFromDB(user.id);
+                const result = await fetchTrackersFromDB(userId);
                 if (mounted) {
                     setTrackers(result);
                 }
@@ -77,11 +79,9 @@ export function useTrackers() {
             }
         }
 
-        load();
-
         return () => {
             mounted = false;
-            controller.abort();
+            window.clearTimeout(timeoutId);
         };
     }, [user?.id, status]);
 

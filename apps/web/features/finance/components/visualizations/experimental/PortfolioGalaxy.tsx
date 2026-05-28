@@ -1,6 +1,6 @@
 'use client';
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Text, Billboard } from '@react-three/drei';
 import { useRef, useState, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
@@ -166,8 +166,7 @@ function OrbitingRing() {
 }
 
 function CameraAutoRotate() {
-    const { camera } = useThree();
-    useFrame(({ clock }) => {
+    useFrame(({ camera, clock }) => {
         const t = clock.getElapsedTime() * 0.04;
         camera.position.x = Math.sin(t) * 11;
         camera.position.z = Math.cos(t) * 11;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/features/ui/components/Header';
 import { useFinanceAccounts } from '@/features/finance/hooks/useFinanceAccounts';
@@ -68,7 +68,11 @@ export function FinancePageContent() {
         deleteSubscription,
     } = useFinanceSubscriptions();
 
-    const { settings: privacySettings, update: updatePrivacy, amountClassName } = useFinancePrivacy();
+    const {
+        settings: privacySettings,
+        update: updatePrivacy,
+        amountClassName,
+    } = useFinancePrivacy();
 
     const loading = accsLoading || txsLoading || subsLoading;
 
@@ -237,7 +241,10 @@ export function FinancePageContent() {
                     </div>
                 </div>
 
-                <FinancePrivacyToggle settings={privacySettings} onChange={updatePrivacy} />
+                <FinancePrivacyToggle
+                    settings={privacySettings}
+                    onChange={updatePrivacy}
+                />
 
                 <AnomalyAlertBanner transactions={transactions} />
 

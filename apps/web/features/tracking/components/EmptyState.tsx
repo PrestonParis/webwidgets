@@ -4,7 +4,7 @@ import {
     getCategoryEmoji,
     getCategoryLabel,
 } from '@/features/tracking/constants';
-import type { TrackingCategory } from '@/features/tracking/types/tracking';
+import type { TrackingCategory } from '@/features/tracking/types/trackingCategoryTypes';
 
 interface EmptyStateProps {
     category: TrackingCategory;

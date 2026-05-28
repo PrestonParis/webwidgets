@@ -15,6 +15,15 @@ export interface EventTypeSummary {
     count: number;
 }
 
+export interface AnalyticsEvent {
+    id: string;
+    user_id: string | null;
+    type: string;
+    source: string | null;
+    metadata: Record<string, unknown> | null;
+    created_at: string;
+}
+
 /** Counts events grouped by day within a date range. */
 export async function countEventsByDay(
     admin: SupabaseClient,
@@ -106,6 +115,9 @@ export async function fetchRecentEvents(
 
     if (opts.type) query = query.eq('type', opts.type);
 
-    const { data, error } = await query;
+    const { data, error } = (await query) as {
+        data: AnalyticsEvent[] | null;
+        error: { message: string } | null;
+    };
     return { events: data ?? [], error };
 }

@@ -27,10 +27,7 @@ async function fetchWithRetry<T>(
             }
             return (await res.json()) as T;
         } catch (err) {
-            lastError =
-                err instanceof Error
-                    ? err
-                    : new Error('Unknown error');
+            lastError = err instanceof Error ? err : new Error('Unknown error');
             if (i < maxRetries) {
                 await new Promise((resolve) =>
                     setTimeout(resolve, Math.pow(2, i) * 1000),
@@ -66,7 +63,10 @@ export function useWatchlist() {
     }, []);
 
     useEffect(() => {
-        void refetch();
+        const timeoutId = window.setTimeout(() => {
+            void refetch();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [refetch]);
 
     const add = useCallback(
@@ -87,7 +87,9 @@ export function useWatchlist() {
                 await refetch();
             } catch (err) {
                 const message =
-                    err instanceof Error ? err.message : 'Failed to add watchlist item';
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to add watchlist item';
                 setError(message);
                 throw err;
             }
@@ -95,23 +97,22 @@ export function useWatchlist() {
         [refetch],
     );
 
-    const remove = useCallback(
-        async (id: string) => {
-            try {
-                setError(null);
-                await fetchWithRetry(`/api/finance/watchlist/${id}`, {
-                    method: 'DELETE',
-                });
-                setItems((cur) => cur.filter((i) => i.id !== id));
-            } catch (err) {
-                const message =
-                    err instanceof Error ? err.message : 'Failed to remove watchlist item';
-                setError(message);
-                throw err;
-            }
-        },
-        [],
-    );
+    const remove = useCallback(async (id: string) => {
+        try {
+            setError(null);
+            await fetchWithRetry(`/api/finance/watchlist/${id}`, {
+                method: 'DELETE',
+            });
+            setItems((cur) => cur.filter((i) => i.id !== id));
+        } catch (err) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : 'Failed to remove watchlist item';
+            setError(message);
+            throw err;
+        }
+    }, []);
 
     const update = useCallback(
         async (
@@ -134,7 +135,9 @@ export function useWatchlist() {
                 await refetch();
             } catch (err) {
                 const message =
-                    err instanceof Error ? err.message : 'Failed to update watchlist item';
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to update watchlist item';
                 setError(message);
                 throw err;
             }
@@ -156,7 +159,9 @@ export function useWatchlist() {
                 return json;
             } catch (err) {
                 const message =
-                    err instanceof Error ? err.message : 'Failed to fetch latest price';
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to fetch latest price';
                 setError(message);
                 throw err;
             }
@@ -168,21 +173,20 @@ export function useWatchlist() {
         async (id: string, value: number) => {
             try {
                 setError(null);
-                await fetchWithRetry(
-                    `/api/finance/watchlist/${id}/readings`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            value,
-                            source: 'manual',
-                        }),
-                    },
-                );
+                await fetchWithRetry(`/api/finance/watchlist/${id}/readings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        value,
+                        source: 'manual',
+                    }),
+                });
                 await refetch();
             } catch (err) {
                 const message =
-                    err instanceof Error ? err.message : 'Failed to log reading';
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to log reading';
                 setError(message);
                 throw err;
             }

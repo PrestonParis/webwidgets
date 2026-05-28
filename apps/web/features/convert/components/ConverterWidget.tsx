@@ -5,7 +5,10 @@ import { CheckCircle2, CircleAlert, FileCog, Loader2 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { ConversionDropzone } from '@/features/convert/components/ConversionDropzone';
-import { useConversionJobs, type JobEntry } from '@/features/convert/hooks/useConversionJobs';
+import {
+    useConversionJobs,
+    type JobEntry,
+} from '@/features/convert/hooks/useConversionJobs';
 import {
     createConversionJob,
     startConversionJob,
@@ -55,15 +58,18 @@ function ConverterWidgetShell() {
 
 function ConverterCore({ fullPage }: ConverterWidgetProps) {
     const [files, setFiles] = useState<File[]>([]);
-    const [targetExtension, setTargetExtension] = useState<ConversionExtension>('pdf');
+    const [targetExtension, setTargetExtension] =
+        useState<ConversionExtension>('pdf');
     const [manualTargets, setManualTargets] = useState(false);
-    const [fileTargets, setFileTargets] = useState<Record<string, ConversionExtension>>({});
+    const [fileTargets, setFileTargets] = useState<
+        Record<string, ConversionExtension>
+    >({});
     const [busy, setBusy] = useState(false);
     const { entries, initEntries, updateEntry } = useConversionJobs();
 
     const firstFile = files[0] ?? null;
     const sourceExtensions = useMemo(
-        () => Array.from(new Set(files.map(file => inferExtension(file)))),
+        () => Array.from(new Set(files.map((file) => inferExtension(file)))),
         [files],
     );
     const hasMixedSourceTypes = sourceExtensions.length > 1;
@@ -73,7 +79,10 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
         : firstFile
           ? inferExtension(firstFile)
           : 'unknown';
-    const targets = useMemo(() => getTargetsForSource(sourceExtension), [sourceExtension]);
+    const targets = useMemo(
+        () => getTargetsForSource(sourceExtension),
+        [sourceExtension],
+    );
     const conversionMetadata = useMemo(
         () => getConversionMetadata(sourceExtension, targetExtension),
         [sourceExtension, targetExtension],
@@ -94,14 +103,17 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
         const nextTargets: Record<string, ConversionExtension> = {};
         nextFiles.forEach((file, index) => {
             const [preferredTarget] = getTargetsForSource(inferExtension(file));
-            if (preferredTarget) nextTargets[fileKey(file, index)] = preferredTarget;
+            if (preferredTarget)
+                nextTargets[fileKey(file, index)] = preferredTarget;
         });
         setFileTargets(nextTargets);
         if (nextFiles.length === 0) {
             setManualTargets(false);
             return;
         }
-        const [preferredTarget] = getTargetsForSource(inferExtension(nextFiles[0]!));
+        const [preferredTarget] = getTargetsForSource(
+            inferExtension(nextFiles[0]!),
+        );
         if (preferredTarget) setTargetExtension(preferredTarget);
     };
 
@@ -109,7 +121,9 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
         if (files.length === 0) return;
         setBusy(true);
         initEntries(files, (file, index) =>
-            usePerFileTargets ? getTargetForFile(file, index, fileTargets) : targetExtension,
+            usePerFileTargets
+                ? getTargetForFile(file, index, fileTargets)
+                : targetExtension,
         );
 
         await Promise.allSettled(
@@ -118,20 +132,28 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                 const selectedTarget = usePerFileTargets
                     ? getTargetForFile(file, index, fileTargets)
                     : targetExtension;
-                const placement = chooseLocalOrRemoteConversion(file, selectedTarget);
+                const placement = chooseLocalOrRemoteConversion(
+                    file,
+                    selectedTarget,
+                );
 
                 if (!isConversionExtension(srcExt)) {
                     updateEntry(index, { error: 'Source type not supported.' });
                     return;
                 }
                 if (placement === 'unsupported') {
-                    updateEntry(index, { error: 'Conversion route not supported.' });
+                    updateEntry(index, {
+                        error: 'Conversion route not supported.',
+                    });
                     return;
                 }
 
                 try {
                     if (placement === 'local') {
-                        const localUrl = await runLocalConversion(file, selectedTarget);
+                        const localUrl = await runLocalConversion(
+                            file,
+                            selectedTarget,
+                        );
                         updateEntry(index, { localUrl });
                         return;
                     }
@@ -143,13 +165,17 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                         targetExtension: selectedTarget,
                         fileSizeBytes: file.size,
                     });
-                    if (!created.uploadUrl) throw new Error('No upload URL returned.');
+                    if (!created.uploadUrl)
+                        throw new Error('No upload URL returned.');
                     await uploadConversionInput(file, created.uploadUrl);
                     const startedJob = await startConversionJob(created.jobId);
                     updateEntry(index, { job: startedJob });
                 } catch (err) {
                     updateEntry(index, {
-                        error: err instanceof Error ? err.message : 'Conversion failed.',
+                        error:
+                            err instanceof Error
+                                ? err.message
+                                : 'Conversion failed.',
                     });
                 }
             }),
@@ -166,7 +192,10 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                     : 'grid gap-3'
             }
         >
-            <ConversionDropzone files={files} onFilesChange={handleFilesChange} />
+            <ConversionDropzone
+                files={files}
+                onFilesChange={handleFilesChange}
+            />
 
             <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1 text-xs font-semibold text-gray-500 dark:text-zinc-400">
@@ -183,7 +212,9 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                         <select
                             value={targetExtension}
                             onChange={(event) =>
-                                setTargetExtension(event.target.value as ConversionExtension)
+                                setTargetExtension(
+                                    event.target.value as ConversionExtension,
+                                )
                             }
                             className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                         >
@@ -202,7 +233,9 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                     <input
                         type="checkbox"
                         checked={manualTargets}
-                        onChange={(event) => setManualTargets(event.target.checked)}
+                        onChange={(event) =>
+                            setManualTargets(event.target.checked)
+                        }
                         className="h-4 w-4 rounded border-gray-300 text-zinc-900"
                     />
                     Select target for each file
@@ -213,7 +246,11 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                 <ul className="grid gap-2">
                     {files.map((file, index) => {
                         const source = inferExtension(file);
-                        const fileTarget = getTargetForFile(file, index, fileTargets);
+                        const fileTarget = getTargetForFile(
+                            file,
+                            index,
+                            fileTargets,
+                        );
                         const fileTargetOptions = getTargetsForSource(source);
                         return (
                             <li
@@ -229,9 +266,10 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                                 <select
                                     value={fileTarget}
                                     onChange={(event) =>
-                                        setFileTargets(prev => ({
+                                        setFileTargets((prev) => ({
                                             ...prev,
-                                            [fileKey(file, index)]: event.target.value as ConversionExtension,
+                                            [fileKey(file, index)]: event.target
+                                                .value as ConversionExtension,
                                         }))
                                     }
                                     className="h-8 rounded-lg border border-gray-200 bg-white px-2 text-sm text-gray-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
@@ -250,19 +288,28 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
 
             <button
                 type="button"
-                onClick={handleConvert}
+                onClick={() => {
+                    void handleConvert();
+                }}
                 disabled={busy || files.length === 0}
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
             >
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileCog className="h-4 w-4" />}
+                {busy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <FileCog className="h-4 w-4" />
+                )}
                 {files.length > 1 ? `Convert ${files.length} files` : 'Convert'}
             </button>
 
-            {!usePerFileTargets && (conversionMetadata?.warnings?.length || conversionMetadata?.notes) && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-                    {conversionMetadata.warnings?.[0] ?? conversionMetadata.notes}
-                </div>
-            )}
+            {!usePerFileTargets &&
+                (conversionMetadata?.warnings?.length ||
+                    conversionMetadata?.notes) && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+                        {conversionMetadata.warnings?.[0] ??
+                            conversionMetadata.notes}
+                    </div>
+                )}
 
             {usePerFileTargets && perFileWarnings.length > 0 && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
@@ -282,7 +329,9 @@ function ConverterCore({ fullPage }: ConverterWidgetProps) {
                             </span>
                             <EntryStatus
                                 entry={entry}
-                                targetExtension={entry.targetExtension ?? targetExtension}
+                                targetExtension={
+                                    entry.targetExtension ?? targetExtension
+                                }
                             />
                         </li>
                     ))}
@@ -329,7 +378,9 @@ function EntryStatus({
             <a
                 href={downloadUrl}
                 download={`${baseName}.${targetExtension}`}
-                {...(entry.downloadUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                {...(entry.downloadUrl
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : {})}
                 className="flex shrink-0 items-center gap-1 font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400"
             >
                 <CheckCircle2 className="h-3.5 w-3.5" />
@@ -347,7 +398,10 @@ function EntryStatus({
     );
 }
 
-async function runLocalConversion(file: File, targetExtension: ConversionExtension) {
+async function runLocalConversion(
+    file: File,
+    targetExtension: ConversionExtension,
+) {
     const source = inferExtension(file);
     const text = await file.text();
     let output = text;

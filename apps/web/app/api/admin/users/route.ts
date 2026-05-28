@@ -10,6 +10,13 @@ import {
     getClientIp,
 } from '@/features/admin/lib/auditAdminAction';
 
+interface Profile {
+    id: string;
+    full_name: string | null;
+    role: string | null;
+    created_at: string;
+}
+
 export async function GET() {
     const { supabase } = await createClients();
     try {
@@ -20,11 +27,14 @@ export async function GET() {
 
     const admin = createAdminClient();
 
-    const { data: profiles, error } = await admin
+    const { data: profiles, error } = (await admin
         .from('profiles')
         .select('id, full_name, role, created_at')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(200)) as {
+        data: Profile[] | null;
+        error: { message: string } | null;
+    };
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -68,11 +78,11 @@ export async function PATCH(req: Request) {
 
     const admin = createAdminClient();
 
-    const { data: before } = await admin
+    const { data: before } = (await admin
         .from('profiles')
         .select('role')
         .eq('id', id)
-        .single();
+        .single()) as { data: Pick<Profile, 'role'> | null; error: unknown };
     const { error } = await admin
         .from('profiles')
         .update({ role })

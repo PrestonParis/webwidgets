@@ -1,9 +1,10 @@
 import superjson from 'superjson';
+import type { SuperJSONResult } from 'superjson';
 import { z } from 'zod';
 import {
     rankedFeedItemSchema,
     timelineEventSchema,
-} from '@/features/news/schemas/eventSchemas';
+} from '@/features/news/schemas/eventCoreSchemas';
 import type { NewsFeedResponse } from '@/features/news/types/news';
 
 const responseSchema = z.object({
@@ -16,6 +17,6 @@ const responseSchema = z.object({
 export async function fetchNewsFeed(): Promise<NewsFeedResponse> {
     const response = await fetch('/api/news/feed');
     if (!response.ok) throw new Error('Failed to load news feed');
-    const wirePayload = await response.json();
+    const wirePayload = (await response.json()) as SuperJSONResult;
     return responseSchema.parse(superjson.deserialize(wirePayload));
 }

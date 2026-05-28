@@ -32,7 +32,10 @@ export function useWidgetEditor(noteType: NoteType) {
 
     useEffect(() => {
         initialized.current = false;
-        setActiveEntryState(null);
+        const timeoutId = window.setTimeout(() => {
+            setActiveEntryState(null);
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [noteType]);
 
     // Restore last-active entry once the list loads

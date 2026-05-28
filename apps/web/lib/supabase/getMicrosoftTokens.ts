@@ -21,8 +21,11 @@ export async function getMicrosoftTokens(
         );
     }
 
-    return {
-        accessToken: data.microsoft_access_token,
-        refreshToken: data.microsoft_refresh_token ?? undefined,
+    const result: MicrosoftTokens = {
+        accessToken: data.microsoft_access_token as string,
     };
+    if (data.microsoft_refresh_token) {
+        result.refreshToken = data.microsoft_refresh_token as string;
+    }
+    return result;
 }

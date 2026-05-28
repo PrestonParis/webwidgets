@@ -2,7 +2,7 @@ import { err, ok, ResultAsync, type Result } from 'neverthrow';
 import { getLogger } from '@/lib/observability/logger';
 import { extractRssContent } from '@/features/actions/providers/contentExtractionProvider';
 import type { ActionDefinition } from '@/features/actions/schemas/definitionSchemas';
-import type { ActionExecutionContext } from '@/features/actions/schemas/actionSchemas';
+import type { ActionExecutionContext } from '@/features/actions/schemas/actionPayloadSchemas';
 
 export type ActionHandlerError = {
     code: 'ExecutionFault';
@@ -20,14 +20,16 @@ export type ActionHandler = (
     input: ActionHandlerInput,
 ) => Promise<Result<unknown, ActionHandlerError>>;
 
-const localEchoHandler: ActionHandler = async ({ definition, input }) =>
-    ok({
-        accepted: true,
-        message: `${definition.label} accepted`,
-        data: input,
-    });
+const localEchoHandler: ActionHandler = ({ definition, input }) =>
+    Promise.resolve(
+        ok({
+            accepted: true,
+            message: `${definition.label} accepted`,
+            data: input,
+        }),
+    );
 
-const providerPlaceholderHandler: ActionHandler = async ({
+const providerPlaceholderHandler: ActionHandler = ({
     definition,
     context,
     input,
@@ -38,11 +40,13 @@ const providerPlaceholderHandler: ActionHandler = async ({
         userId: context.userId,
     }).info('provider placeholder executed');
 
-    return ok({
-        accepted: true,
-        message: `${definition.providerScope} provider action accepted`,
-        data: input,
-    });
+    return Promise.resolve(
+        ok({
+            accepted: true,
+            message: `${definition.providerScope} provider action accepted`,
+            data: input,
+        }),
+    );
 };
 
 const parseRssHandler: ActionHandler = async ({ context, input }) => {

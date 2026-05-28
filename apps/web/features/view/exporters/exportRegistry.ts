@@ -1,7 +1,7 @@
 import type {
     ViewExportRequest,
     NormalizedViewDocument,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
 
 export interface ViewExportPlan {
     request: ViewExportRequest;
@@ -32,7 +32,9 @@ export function planViewExport(
         request,
         label: `${document.file.name} -> ${request.format}`,
         safe,
-        ...(request.destination !== 'download' && { actionId: 'workflow.trigger' }),
+        ...(request.destination !== 'download' && {
+            actionId: 'workflow.trigger',
+        }),
         warnings,
     };
 }

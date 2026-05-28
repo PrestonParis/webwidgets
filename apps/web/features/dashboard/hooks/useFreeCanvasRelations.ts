@@ -197,7 +197,8 @@ function useWeaveRelations({
                         x: w.x ?? 0,
                         y: w.y ?? 0,
                     };
-                    const { weaveGroupId: _r, ...rest } = w;
+                    const { weaveGroupId, ...rest } = w;
+                    void weaveGroupId;
                     return { ...rest, x: p.x, y: p.y } as WidgetConfig;
                 }),
             );

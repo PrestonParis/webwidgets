@@ -1,4 +1,4 @@
-import type { ViewTransform } from '@/features/view/schemas/viewSchemas';
+import type { ViewTransform } from '@/features/view/schemas/objectSchemas';
 
 export const VIEW_TRANSFORMS: ViewTransform[] = [
     {

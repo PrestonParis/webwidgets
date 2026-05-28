@@ -11,8 +11,8 @@ export const weatherResolvers: DataResolver[] = [
     {
         key: 'weather.current',
         cachePolicy: { ttlSeconds: 300 },
-        async resolve() {
-            return { requiresGeolocation: true };
+        resolve() {
+            return Promise.resolve({ requiresGeolocation: true });
         },
     },
 ];

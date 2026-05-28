@@ -90,7 +90,7 @@ export interface WorkstreamRecord {
 export interface CommandFilters {
     query: string;
     status: CommandStatus | 'all';
-    domain: CommandDomain | 'all';
+    domain: string;
     priority: CommandPriority | 'all';
     sort: 'priority' | 'due' | 'confidence' | 'progress';
 }
@@ -168,7 +168,7 @@ function recordToWorkstream(r: WorkstreamRecord): CommandWorkstream {
     return {
         id: r.id,
         title: r.title,
-        domain: r.domain as CommandDomain,
+        domain: r.domain,
         owner: r.owner ?? '',
         status: r.status,
         priority: r.priority,
@@ -250,30 +250,35 @@ export function useAutomationCenter() {
             cachedJson<WorkstreamRecord[]>('/api/command/workstreams', {
                 ttlMs: 10_000,
             }),
-        ]).then(
-            ([
-                nextInstances,
-                nextRuns,
-                nextApprovals,
-                nextDeliverables,
-                nextSuggestions,
-                workstreamData,
-            ]) => {
+        ])
+            .then(
+                ([
+                    nextInstances,
+                    nextRuns,
+                    nextApprovals,
+                    nextDeliverables,
+                    nextSuggestions,
+                    workstreamData,
+                ]) => {
+                    if (!active) return;
+                    setInstances(nextInstances);
+                    setRuns(nextRuns);
+                    setApprovals(nextApprovals);
+                    setDeliverables(nextDeliverables);
+                    setSuggestions(nextSuggestions);
+                    const mappedWorkstreams =
+                        workstreamData.map(recordToWorkstream);
+                    setWorkstreams(mappedWorkstreams);
+                    if (mappedWorkstreams.length > 0 && !selectedWorkstreamId) {
+                        setSelectedWorkstreamId(mappedWorkstreams[0]!.id);
+                    }
+                    setLoading(false);
+                },
+            )
+            .catch(() => {
                 if (!active) return;
-                setInstances(nextInstances);
-                setRuns(nextRuns);
-                setApprovals(nextApprovals);
-                setDeliverables(nextDeliverables);
-                setSuggestions(nextSuggestions);
-                const mappedWorkstreams =
-                    workstreamData.map(recordToWorkstream);
-                setWorkstreams(mappedWorkstreams);
-                if (mappedWorkstreams.length > 0 && !selectedWorkstreamId) {
-                    setSelectedWorkstreamId(mappedWorkstreams[0]!.id);
-                }
                 setLoading(false);
-            },
-        );
+            });
         return () => {
             active = false;
         };

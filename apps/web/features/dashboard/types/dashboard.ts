@@ -15,6 +15,7 @@ export type WidgetType =
     | 'recovery-empty'
     | 'chess'
     | 'timekeeping'
+    | 'employee-clock'
     | 'timer'
     | 'stopwatch'
     | 'pomodoro'
@@ -122,4 +123,11 @@ export interface WidgetWrapperProps {
     onMoveToBucket?: (id: string) => void;
     onUnpresent?: (id: string) => void;
     children: ReactNode;
+}
+
+export interface SimplifiedDashboardProps {
+    layout: WidgetConfig[];
+    onLayoutChange: (next: WidgetConfig[]) => void;
+    onToggleVisible: (id: string) => void;
+    onReset: (id: string, newStart: string) => void;
 }

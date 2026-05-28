@@ -74,6 +74,54 @@ function snapshotData(
     );
 }
 
+/**
+ * Extract compact preview data from snapshot for progressive rendering
+ * This provides lightweight summary information before full hydration
+ */
+function extractCompactPreview(
+    manifest: WidgetManifest,
+    data: unknown,
+): Record<string, unknown> | undefined {
+    if (!data) return undefined;
+
+    // Handle array data (common for lists, tasks, etc.)
+    if (Array.isArray(data)) {
+        const count = data.length;
+        const firstItem = data[0];
+        return {
+            count,
+            preview: firstItem
+                ? JSON.stringify(firstItem).slice(0, 100)
+                : undefined,
+        };
+    }
+
+    // Handle object data
+    if (typeof data === 'object' && data !== null) {
+        const preview: Record<string, unknown> = {};
+
+        // Extract common summary fields
+        if ('count' in data) preview.count = data.count;
+        if ('total' in data) preview.total = data.total;
+        if ('title' in data) preview.title = data.title;
+        if ('name' in data) preview.name = data.name;
+        if ('status' in data) preview.status = data.status;
+        if ('timestamp' in data) preview.timestamp = data.timestamp;
+        if ('updatedAt' in data) preview.updatedAt = data.updatedAt;
+        if ('createdAt' in data) preview.createdAt = data.createdAt;
+
+        // If no standard fields, create a string preview
+        if (Object.keys(preview).length === 0) {
+            const str = JSON.stringify(data);
+            preview.summary = str.slice(0, 150);
+        }
+
+        return preview;
+    }
+
+    return undefined;
+}
+
 export async function buildDashboardSnapshot(
     ctx: DashboardOrchestratorContext,
 ): Promise<ScreenSnapshot> {
@@ -94,12 +142,17 @@ export async function buildDashboardSnapshot(
         const failedNeed = manifest.dataNeeds.find(
             (need) => resolved[need]?.status === 'rejected',
         );
+        const data =
+            status === 'ready' ? snapshotData(manifest, resolved) : undefined;
+        const compactPreview = data
+            ? extractCompactPreview(manifest, data)
+            : undefined;
+
         widgets[widget.id] = {
             widgetId: widget.id,
             status,
-            ...(status === 'ready'
-                ? { data: snapshotData(manifest, resolved) }
-                : {}),
+            ...(data ? { data } : {}),
+            ...(compactPreview ? { compactPreview } : {}),
             ...(status === 'error'
                 ? {
                       error: resolved[failedNeed ?? '']?.error ?? {

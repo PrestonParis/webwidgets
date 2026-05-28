@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     evaluate,
     formatResult,
@@ -25,7 +25,6 @@ import type {
     ProgrammerInputs,
 } from '../types';
 import {
-    DEFAULT_SETTINGS,
     DEFAULT_FINANCIAL_INPUTS,
     DEFAULT_DATETIME_INPUTS,
     DEFAULT_PROGRAMMER_INPUTS,
@@ -108,7 +107,7 @@ export function useCalculator(widgetId?: string) {
 
     const appendToExpression = useCallback((char: string) => {
         setState((prev) => {
-            let base = prev.isResultShown
+            const base = prev.isResultShown
                 ? isOperatorChar(char)
                     ? prev.result
                     : ''

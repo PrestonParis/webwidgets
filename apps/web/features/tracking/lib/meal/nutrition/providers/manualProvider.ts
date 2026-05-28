@@ -6,7 +6,7 @@
  * guaranteeing logging always works even with no network or API keys.
  */
 
-import type { FoodSearchResult } from '../types';
+import type { FoodSearchResult } from '../foodTypes';
 import type { FoodProvider } from './types';
 
 export const MANUAL_PROVIDER_NAME = 'manual';
@@ -36,14 +36,14 @@ export const manualProvider: FoodProvider = {
     label: 'Manual',
     supportsBarcode: false,
     isAvailable: () => true,
-    async search() {
+    search() {
         // Manual provider returns no search results; the UI offers "Add manually".
-        return [];
+        return Promise.resolve([]);
     },
-    async lookupBarcode() {
-        return null;
+    lookupBarcode() {
+        return Promise.resolve(null);
     },
-    async getById() {
-        return null;
+    getById() {
+        return Promise.resolve(null);
     },
 };

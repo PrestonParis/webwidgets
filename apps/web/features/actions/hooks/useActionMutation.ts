@@ -1,11 +1,9 @@
 'use client';
 
-import superjson from 'superjson';
+import superjson, { type SuperJSONResult } from 'superjson';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-    ActionEngineResult,
-    ActionRequestEnvelope,
-} from '@/features/actions/schemas/actionSchemas';
+import type { ActionRequestEnvelope } from '@/features/actions/schemas/actionPayloadSchemas';
+import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
 import type { ActionDefinitionMetadata } from '@/features/actions/schemas/definitionSchemas';
 
 async function invokeAction(
@@ -16,10 +14,14 @@ async function invokeAction(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(superjson.serialize(envelope)),
     });
-    const payload = await response.json();
-    const result = superjson.deserialize(payload) as ActionEngineResult;
+    const payload = (await response.json()) as SuperJSONResult;
+    const result = superjson.deserialize<ActionEngineResult>(payload);
     if (!response.ok || result.status === 'failed') {
-        throw result;
+        const msg =
+            result.status === 'failed'
+                ? result.message
+                : 'Action invocation failed';
+        throw new Error(msg);
     }
     return result;
 }
@@ -31,9 +33,8 @@ async function fetchActionMetadata(
         `/api/actions?query=${encodeURIComponent(query)}`,
     );
     if (!response.ok) throw new Error('Failed to load actions');
-    return superjson.deserialize(
-        await response.json(),
-    ) as ActionDefinitionMetadata[];
+    const raw = (await response.json()) as SuperJSONResult;
+    return superjson.deserialize<ActionDefinitionMetadata[]>(raw);
 }
 
 export function useActionMutation() {

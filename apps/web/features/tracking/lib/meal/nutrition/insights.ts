@@ -5,12 +5,9 @@
  * Always returns at least one string; falls back to a "not enough data" message.
  */
 
-import {
-    MEAL_TYPE_LABELS,
-    type MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
+import { MEAL_TYPE_LABELS } from '@/features/tracking/lib/meal/helpers';
 import type { ExtendedNutritionAnalytics } from './analytics';
-import type { NutritionGoalConfig } from './types';
+import type { NutritionGoalConfig } from './goalTypes';
 
 export function buildExtendedInsights(
     analytics: ExtendedNutritionAnalytics,
@@ -39,7 +36,7 @@ export function buildExtendedInsights(
 
     if (analytics.mostLoggedMealType) {
         const label =
-            MEAL_TYPE_LABELS[analytics.mostLoggedMealType.type as MealType] ??
+            MEAL_TYPE_LABELS[analytics.mostLoggedMealType.type] ??
             analytics.mostLoggedMealType.type;
         out.push(`Your most logged meal type is ${label.toLowerCase()}.`);
     }

@@ -1,15 +1,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
-import type { ChatConversation } from '@/features/chatbot/types/chat';
-
-interface Props {
-    conversations: ChatConversation[];
-    activeId: string | null;
-    onSelect: (id: string) => void;
-    onNew: () => void;
-    onDelete: (id: string) => void;
-}
+import type { ConversationListProps } from '@/features/chatbot/types/chat';
 
 export function ConversationList({
     conversations,
@@ -17,7 +9,7 @@ export function ConversationList({
     onSelect,
     onNew,
     onDelete,
-}: Props) {
+}: ConversationListProps) {
     return (
         <div className="flex flex-col h-full w-56 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shrink-0">
             <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-zinc-800">

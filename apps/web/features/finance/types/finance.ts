@@ -79,3 +79,7 @@ export interface FinanceAutomationRule {
     conditions: Record<string, unknown>;
     action: Record<string, unknown>;
 }
+
+export interface AnomalyAlertBannerProps {
+    transactions: FinanceTransaction[];
+}

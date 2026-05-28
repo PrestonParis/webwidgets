@@ -40,6 +40,7 @@ export default function Emails() {
         outlookEmails,
         nextPageToken,
         loading,
+        syncing,
         isUnauthorized,
         hasGoogleSync,
         hasMicrosoftSync,
@@ -87,7 +88,16 @@ export default function Emails() {
     }
 
     const confirmedActions = actions.filter((a) => a.synced && !a.completed);
-    const canWeave = hasGoogleSync && hasMicrosoftSync;
+
+    // Map views to their connected state and email counts
+    const viewMeta: Record<InboxView, { connected: boolean; count: number }> = {
+        gmail: { connected: hasGoogleSync, count: gmailEmails.length },
+        outlook: { connected: hasMicrosoftSync, count: outlookEmails.length },
+        weave: {
+            connected: hasGoogleSync || hasMicrosoftSync,
+            count: emails.length,
+        },
+    };
 
     return (
         <div className="max-w-2xl mx-auto p-4 space-y-6">
@@ -95,29 +105,28 @@ export default function Emails() {
                 <h2 className="text-2xl font-bold">Inbox</h2>
                 <div className="flex items-center gap-3">
                     <EmailConnectPrompt inline />
+                    {syncing && !loading && (
+                        <span className="text-sm text-zinc-400 animate-pulse">
+                            Fetching emails…
+                        </span>
+                    )}
                     {loading && (
-                        <span className="text-sm text-zinc-400">Syncing…</span>
+                        <span className="text-sm text-zinc-400">Loading…</span>
                     )}
                 </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-gray-100 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900">
                 {(['gmail', 'outlook'] as InboxView[]).map((view) => {
-                    const connected =
-                        view === 'gmail' ? hasGoogleSync : hasMicrosoftSync;
-                    const count =
-                        view === 'gmail'
-                            ? gmailEmails.length
-                            : outlookEmails.length;
+                    const { connected, count } = viewMeta[view];
                     return (
                         <button
                             key={view}
                             type="button"
-                            disabled={!connected}
                             onClick={() => setInboxView(view)}
                             className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
                                 inboxView === view
                                     ? 'bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-950'
-                                    : 'text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                                    : 'text-gray-500 hover:bg-gray-50 dark:text-zinc-400 dark:hover:bg-zinc-800'
                             }`}
                         >
                             {VIEW_LABELS[view]} {connected ? `(${count})` : ''}
@@ -126,22 +135,21 @@ export default function Emails() {
                 })}
                 <button
                     type="button"
-                    disabled={!canWeave}
                     onClick={() => setInboxView('weave')}
                     className={`ml-auto rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
                         inboxView === 'weave'
                             ? 'bg-blue-600 text-white'
-                            : 'border border-blue-100 text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-blue-900/60 dark:text-blue-300 dark:hover:bg-blue-950/30'
+                            : 'border border-blue-100 text-blue-600 hover:bg-blue-50 dark:border-blue-900/60 dark:text-blue-300 dark:hover:bg-blue-950/30'
                     }`}
                 >
-                    Weave inboxes {canWeave ? `(${emails.length})` : ''}
+                    Weave{' '}
+                    {viewMeta.weave.connected
+                        ? `(${viewMeta.weave.count})`
+                        : ''}
                 </button>
             </div>
-            {!canWeave && (
-                <p className="text-xs text-gray-400 dark:text-zinc-500">
-                    Connect both Gmail and Outlook to weave them into one
-                    chronological inbox.
-                </p>
+            {inboxView !== 'weave' && !viewMeta[inboxView].connected && (
+                <EmailConnectPrompt />
             )}
             {confirmedActions.length > 0 && (
                 <EmailActionsPanel

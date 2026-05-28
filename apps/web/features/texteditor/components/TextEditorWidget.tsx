@@ -19,8 +19,7 @@ export default function TextEditorWidget() {
         'texteditor',
     );
 
-    const mode: TextEditorMode =
-        (settings.textEditorMode as TextEditorMode | undefined) ?? 'document';
+    const mode: TextEditorMode = settings.textEditorMode ?? 'document';
 
     const modeSelector = (
         <div>

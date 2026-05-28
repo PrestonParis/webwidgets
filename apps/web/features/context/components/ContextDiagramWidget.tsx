@@ -8,14 +8,6 @@ import { useContextGraph } from '@/features/context/hooks/useContextGraph';
 import { ContextGraphCanvas } from './ContextGraphCanvas';
 import { useContextDiagram } from '@/features/context/hooks/useContextDiagram';
 import { useActivityEvents } from '@/features/activity/hooks/useActivityEvents';
-import type { ActivityEventSeverity } from '@/features/activity/types/activity';
-
-const icons: Record<ActivityEventSeverity, React.ReactNode> = {
-    info: <Network size={14} />,
-    success: <Network size={14} />,
-    warning: <Network size={14} />,
-    critical: <Network size={14} />,
-};
 
 export default function ContextDiagramWidget({
     widgetId = 'context-diagram',

@@ -1,16 +1,18 @@
-import {
-    rawSourceEventSchema,
-    type RawSourceEvent,
-} from '@/features/news/schemas/eventSchemas';
+import { rawSourceEventSchema } from '@/features/news/schemas/eventCoreSchemas';
+import type { RawSourceEvent } from '@/features/news/schemas/eventTypes';
 
 export function createInternalNewsEvent(
     payload: Record<string, unknown>,
 ): RawSourceEvent {
     const fetchedAt = new Date().toISOString();
+    const payloadId = payload.id;
     return rawSourceEventSchema.parse({
         source: 'internal',
         providerId: 'webwidgets-internal',
-        sourceEventId: String(payload.id ?? crypto.randomUUID()),
+        sourceEventId:
+            typeof payloadId === 'string' || typeof payloadId === 'number'
+                ? String(payloadId)
+                : crypto.randomUUID(),
         fetchedAt,
         payload,
         reliability: {

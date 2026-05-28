@@ -1,13 +1,8 @@
 'use client';
 
-import type { ContextGraph } from '@/features/context/types/context';
+import type { ContextEdgeLayerProps } from '@/features/context/types/context';
 
-interface Props {
-    graph: ContextGraph;
-    selectedId: string | null;
-}
-
-export function ContextEdgeLayer({ graph, selectedId }: Props) {
+export function ContextEdgeLayer({ graph, selectedId }: ContextEdgeLayerProps) {
     const nodeMap = new Map(graph.nodes.map((n) => [n.entityId, n]));
 
     return (

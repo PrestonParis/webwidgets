@@ -104,7 +104,7 @@ export function useStopwatch() {
 
     useEffect(() => {
         saveStopwatchState(state);
-    }, [state.running, state.laps]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [state]);
 
     const toggle = useCallback(() => {
         if (!state.running) {

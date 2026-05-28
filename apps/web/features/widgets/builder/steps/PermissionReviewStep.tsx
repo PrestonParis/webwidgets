@@ -1,6 +1,6 @@
 'use client';
 
-import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 interface PermissionReviewStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;

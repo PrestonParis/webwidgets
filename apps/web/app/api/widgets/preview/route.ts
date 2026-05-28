@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import superjson from 'superjson';
 import { z } from 'zod';
 import { generateWidgetPreview } from '@/features/widgets/synthesis/preview/previewEngine';
-import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 const requestSchema = z.object({
     definition: z.record(z.string(), z.unknown()),

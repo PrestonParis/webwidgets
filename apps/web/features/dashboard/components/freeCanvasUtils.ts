@@ -41,12 +41,14 @@ export function closestEdgeMidpoints(pa: Pos, sa: Size, pb: Pos, sb: Size) {
 }
 
 export function removeGlueGroupId(w: WidgetConfig): WidgetConfig {
-    const { glueGroupId: _r, ...rest } = w;
+    const { glueGroupId, ...rest } = w;
+    void glueGroupId;
     return rest as WidgetConfig;
 }
 
 export function removeWeaveGroupId(w: WidgetConfig): WidgetConfig {
-    const { weaveGroupId: _r, ...rest } = w;
+    const { weaveGroupId, ...rest } = w;
+    void weaveGroupId;
     return rest as WidgetConfig;
 }
 

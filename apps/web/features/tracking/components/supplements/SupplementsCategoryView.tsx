@@ -28,18 +28,8 @@ import {
     detectSupplementWarnings,
 } from '@/features/tracking/lib/supplements/safety';
 import { searchSupplementLibrary } from '@/features/tracking/lib/supplements/providers/libraryProvider';
-import type {
-    BaseTrackingEntry,
-    TrackingEntry,
-} from '@/features/tracking/types/tracking';
-import type { SupplementSearchResult } from '@/features/tracking/lib/supplements/types';
-
-interface Props {
-    entries: TrackingEntry[];
-    onAdd: (entry: BaseTrackingEntry) => Promise<void>;
-    onEdit: (entry: TrackingEntry) => void;
-    onDelete: (id: string) => void;
-}
+import type { SupplementsCategoryViewProps } from '@/types/tracking';
+import type { SupplementSearchResult } from '@/features/tracking/lib/supplements/definitionTypes';
 
 const sectionCls =
     'rounded-2xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4';
@@ -49,7 +39,7 @@ export function SupplementsCategoryView({
     onAdd,
     onEdit,
     onDelete,
-}: Props) {
+}: SupplementsCategoryViewProps) {
     const [showLogger, setShowLogger] = useState(false);
     const [showAddSupplement, setShowAddSupplement] = useState(false);
     const [query, setQuery] = useState('');

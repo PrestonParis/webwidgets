@@ -9,22 +9,15 @@ import {
 import type { ModelOption } from '@/features/chatbot/types/chat';
 import type {
     ModelProvider,
-    ModelProviderAvailability,
+    ModelSelectorProps,
 } from '@/features/chatbot/types/chat';
-
-interface Props {
-    selectedModel: string;
-    onSelect: (modelId: string, provider: ModelProvider) => void;
-    savedProviders: ModelProvider[];
-    availability?: ModelProviderAvailability[];
-}
 
 export function ModelSelector({
     selectedModel,
     onSelect,
     savedProviders,
     availability = [],
-}: Props) {
+}: ModelSelectorProps) {
     const [open, setOpen] = useState(false);
     const current =
         MODEL_OPTIONS.find((m) => m.modelId === selectedModel) ??
@@ -57,9 +50,7 @@ export function ModelSelector({
                         const isAvailable =
                             providerAvailability?.available ??
                             (hasUserKey ||
-                                !models.some(
-                                    (model) => model.requiresUserKey,
-                                ));
+                                !models.some((model) => model.requiresUserKey));
                         return (
                             <div key={provider}>
                                 <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400 border-b border-gray-100 dark:border-zinc-800">

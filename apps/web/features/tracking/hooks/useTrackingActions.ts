@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import {
     addEntry,
@@ -9,7 +8,7 @@ import {
     deleteEntry,
 } from '@/features/tracking/api/trackingApi';
 import { migrateMoodLogs } from '@/features/tracking/api/moodMigrationApi';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 const MOOD_MIGRATION_KEY = 'tracking_mood_migrated';
 

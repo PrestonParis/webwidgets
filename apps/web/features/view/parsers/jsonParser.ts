@@ -15,17 +15,21 @@ function schemaOf(value: unknown): unknown {
     return typeof value;
 }
 
-export async function parseJsonFile(input: ViewParseInput) {
+export function parseJsonFile(input: ViewParseInput) {
     const text = input.text ?? '{}';
     const parsed = JSON.parse(text) as unknown;
 
-    return normalizedDocument({
-        file: input.file,
-        strategy: 'json_tree',
-        searchableText: text,
-        renderable: { value: parsed, schema: schemaOf(parsed) },
-        metadata: { rootType: Array.isArray(parsed) ? 'array' : typeof parsed },
-        analysisHints: ['schema-extraction', 'source-inspection'],
-        sanitized: true,
-    });
+    return Promise.resolve(
+        normalizedDocument({
+            file: input.file,
+            strategy: 'json_tree',
+            searchableText: text,
+            renderable: { value: parsed, schema: schemaOf(parsed) },
+            metadata: {
+                rootType: Array.isArray(parsed) ? 'array' : typeof parsed,
+            },
+            analysisHints: ['schema-extraction', 'source-inspection'],
+            sanitized: true,
+        }),
+    );
 }

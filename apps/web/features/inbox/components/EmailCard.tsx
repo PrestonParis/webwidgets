@@ -37,6 +37,7 @@ const CATEGORY_STYLES: Record<string, string> = {
 const PROVIDER_STYLES: Record<string, string> = {
     gmail: 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300',
     outlook: 'bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-300',
+    both: 'bg-purple-50 text-purple-600 dark:bg-purple-950/30 dark:text-purple-300',
 };
 
 function formatDue(iso: string | null): string | null {
@@ -229,10 +230,14 @@ export function EmailCard({
                     <span
                         className={cn(
                             'shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg',
-                            PROVIDER_STYLES[mail.provider ?? 'gmail'],
+                            mail.providers?.length === 2
+                                ? PROVIDER_STYLES['both']
+                                : PROVIDER_STYLES[mail.provider ?? 'gmail'],
                         )}
                     >
-                        {mail.provider ?? 'gmail'}
+                        {mail.providers?.length === 2
+                            ? 'Gmail + Outlook'
+                            : (mail.provider ?? 'gmail')}
                     </span>
                     <span
                         className={cn(

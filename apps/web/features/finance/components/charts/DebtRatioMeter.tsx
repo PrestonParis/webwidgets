@@ -1,7 +1,7 @@
 'use client';
 
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useChartDimensions } from './useChartDimensions';
 
 interface DebtRatioMeterProps {
@@ -30,14 +30,17 @@ export function DebtRatioMeter({
         bottom: 0,
     });
     const svgRef = useRef<SVGSVGElement>(null);
-    const fmt =
-        formatAmount ??
-        ((n: number) =>
-            n.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 0,
-            }));
+    const fmt = useMemo(
+        () =>
+            formatAmount ??
+            ((n: number) =>
+                n.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                })),
+        [formatAmount],
+    );
     const ratio =
         totalAssets > 0 ? Math.min(1, totalLiabilities / totalAssets) : 0;
     const status = getRatioStatus(ratio);

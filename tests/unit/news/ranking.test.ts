@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rankFeedItems } from '@/features/news/ranking/rankFeedItems';
-import type { EnrichedFeedItem } from '@/features/news/schemas/eventSchemas';
+import type { EnrichedFeedItem } from '@/features/news/schemas/eventTypes';
 
 function item(
     id: string,

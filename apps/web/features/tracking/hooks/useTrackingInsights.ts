@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
 import { createDefaultPipeline } from '@/features/tracking/lib/insights/insightPipeline';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 import type {
     InsightConsent,
     Insight,
@@ -57,7 +56,7 @@ export function useTrackingInsights(
         return () => {
             cancelled = true;
         };
-    }, [entries, consent, tick, user]);
+    }, [entries, consent, tick, user, anyGranted]);
 
     const insights = anyGranted && entries.length > 0 ? insightsState : [];
     return { insights, loading, refresh };
