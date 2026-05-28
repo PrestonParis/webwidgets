@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Upload, X } from 'lucide-react';
 
 interface ConversionDropzoneProps {
@@ -8,28 +9,35 @@ interface ConversionDropzoneProps {
     onFilesChange: (files: File[]) => void;
 }
 
-export function ConversionDropzone({ files, onFilesChange }: ConversionDropzoneProps) {
+export function ConversionDropzone({
+    files,
+    onFilesChange,
+}: ConversionDropzoneProps) {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     useEffect(() => {
         const single = files.length === 1 ? (files[0] ?? null) : null;
         if (single?.type.startsWith('image/')) {
             const url = URL.createObjectURL(single);
-            setPreviewUrl(url);
-            return () => URL.revokeObjectURL(url);
+            const rafId = requestAnimationFrame(() => setPreviewUrl(url));
+            return () => {
+                cancelAnimationFrame(rafId);
+                URL.revokeObjectURL(url);
+            };
         }
-        setPreviewUrl(null);
-        return undefined;
+        const rafId = requestAnimationFrame(() => setPreviewUrl(null));
+        return () => cancelAnimationFrame(rafId);
     }, [files]);
 
     return (
         <div className="grid gap-2">
             <label className="grid cursor-pointer gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-5 text-sm text-gray-700 transition-colors hover:border-amber-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
                 {previewUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                         src={previewUrl}
                         alt="Preview"
+                        width={128}
+                        height={128}
                         className="mx-auto max-h-32 max-w-full rounded-lg object-contain"
                     />
                 )}
@@ -41,8 +49,8 @@ export function ConversionDropzone({ files, onFilesChange }: ConversionDropzoneP
                 </span>
                 {files.length === 0 && (
                     <span className="text-xs text-gray-500 dark:text-zinc-400">
-                        Small Markdown, HTML, and text can run locally. Office, PDF, and
-                        image routes use the conversion service.
+                        Small Markdown, HTML, and text can run locally. Office,
+                        PDF, and image routes use the conversion service.
                     </span>
                 )}
                 <input
@@ -63,14 +71,18 @@ export function ConversionDropzone({ files, onFilesChange }: ConversionDropzoneP
                             key={`${file.name}-${file.size}-${index}`}
                             className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-1.5 text-xs text-gray-700 dark:bg-zinc-900 dark:text-zinc-300"
                         >
-                            <span className="min-w-0 flex-1 truncate">{file.name}</span>
+                            <span className="min-w-0 flex-1 truncate">
+                                {file.name}
+                            </span>
                             <span className="shrink-0 text-gray-400 dark:text-zinc-500">
                                 {formatBytes(file.size)}
                             </span>
                             <button
                                 type="button"
                                 onClick={() =>
-                                    onFilesChange(files.filter((_, i) => i !== index))
+                                    onFilesChange(
+                                        files.filter((_, i) => i !== index),
+                                    )
                                 }
                                 className="shrink-0 text-gray-400 hover:text-red-500 dark:text-zinc-500 dark:hover:text-red-400"
                             >

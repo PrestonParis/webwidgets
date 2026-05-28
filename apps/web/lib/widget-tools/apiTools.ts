@@ -87,13 +87,17 @@ export function buildSafeApiConfig(raw: Record<string, unknown>): {
     issues: string[];
 } {
     const issues: string[] = [];
-    const url = String(raw['url'] ?? '').trim();
-    const method = String(raw['method'] ?? 'GET').toUpperCase();
+    const url = typeof raw['url'] === 'string' ? raw['url'].trim() : '';
+    const method =
+        typeof raw['method'] === 'string' ? raw['method'].toUpperCase() : 'GET';
     const headers =
         typeof raw['headers'] === 'object' && raw['headers'] !== null
             ? (raw['headers'] as Record<string, string>)
             : {};
-    const body = raw['body'] !== undefined ? String(raw['body']) : undefined;
+    const body =
+        raw['body'] !== undefined && typeof raw['body'] === 'string'
+            ? raw['body']
+            : undefined;
     const timeoutMs = Math.min(
         Number(raw['timeoutMs'] ?? 10000),
         MAX_TIMEOUT_MS,

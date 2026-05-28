@@ -11,7 +11,7 @@ import { useMetricsFilter } from '../../hooks/useMetricsFilter';
 import { useMetricsFetch } from '../../hooks/useMetricsFetch';
 import { fetchWidgetMetrics } from '../../lib/metricsApi';
 import type { WidgetMetricRow, DailySeries } from '../../types/metrics';
-import { Puzzle, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Puzzle, EyeOff, Trash2 } from 'lucide-react';
 
 interface WidgetsData {
     rows: WidgetMetricRow[];

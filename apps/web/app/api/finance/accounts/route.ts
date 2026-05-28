@@ -5,7 +5,7 @@ import { getRequestUserId } from '@/features/backend/services/requestUser';
 import {
     createFinanceAccountForUser,
     listFinanceAccountsForUser,
-} from '@/features/finance/services/financeService';
+} from '@/features/finance/services/financeAccountService';
 
 const accountSchema = z.object({
     name: z.string().min(1),

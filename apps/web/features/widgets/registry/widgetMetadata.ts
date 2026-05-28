@@ -14,6 +14,7 @@ const widgetLabels: Partial<Record<WidgetType, string>> = {
     'recovery-empty': 'Recovery Setup',
     chess: 'Chess',
     timekeeping: 'Time',
+    'employee-clock': 'Employee Clock',
     pomodoro: 'Pomodoro',
     todo: 'To-Do',
     habit: 'All Logging',

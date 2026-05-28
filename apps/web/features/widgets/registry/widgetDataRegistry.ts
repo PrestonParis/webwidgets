@@ -44,17 +44,21 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
 const resolverCache = new Map<string, DataResolver>();
 
 function resolversFromModule(module: ResolverModule): DataResolver[] {
-    return Object.values(module)
-        .filter(Array.isArray)
-        .flatMap((value) => value)
-        .filter((value): value is DataResolver =>
-            Boolean(
-                value &&
-                typeof value === 'object' &&
-                'key' in value &&
-                'resolve' in value,
-            ),
-        );
+    const resolvers: DataResolver[] = [];
+    for (const value of Object.values(module)) {
+        if (!Array.isArray(value)) continue;
+        resolvers.push(...value.filter(isDataResolver));
+    }
+    return resolvers;
+}
+
+function isDataResolver(value: unknown): value is DataResolver {
+    return Boolean(
+        value &&
+        typeof value === 'object' &&
+        'key' in value &&
+        'resolve' in value,
+    );
 }
 
 export async function getDataResolver(
@@ -66,8 +70,8 @@ export async function getDataResolver(
     const loader = resolverLoaders[key as keyof typeof resolverLoaders];
     if (!loader) return undefined;
 
-    const module = await loader();
-    for (const resolver of resolversFromModule(module)) {
+    const resolverModule = await loader();
+    for (const resolver of resolversFromModule(resolverModule)) {
         resolverCache.set(resolver.key, resolver);
     }
     return resolverCache.get(key);
@@ -76,6 +80,6 @@ export async function getDataResolver(
 export function listDataResolvers(): DataResolver[] {
     return resolverKeys.map((key) => ({
         key,
-        resolve: async () => undefined,
+        resolve: () => Promise.resolve(undefined),
     }));
 }

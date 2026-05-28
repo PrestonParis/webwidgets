@@ -6,7 +6,7 @@
  * and testable.
  */
 
-import type { MealRecord } from '@/features/tracking/lib/meal/mealDomain';
+import type { MealRecord } from '@/features/tracking/lib/meal/types';
 
 function csvCell(value: string | number | null | undefined): string {
     if (value === null || value === undefined) return '';
@@ -73,12 +73,10 @@ export function buildDailySummaryCsv(records: MealRecord[]): string {
         .map(([date, day]) => {
             const sum = (f: keyof MealRecord) =>
                 Math.round(
-                    day.reduce(
-                        (acc, r) =>
-                            acc +
-                            (typeof r[f] === 'number' ? (r[f] as number) : 0),
-                        0,
-                    ),
+                    day.reduce((acc, r) => {
+                        const value = r[f];
+                        return acc + (typeof value === 'number' ? value : 0);
+                    }, 0),
                 );
             return [
                 date,

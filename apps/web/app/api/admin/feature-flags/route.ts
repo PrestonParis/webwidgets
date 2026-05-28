@@ -11,6 +11,20 @@ import {
     getClientIp,
 } from '@/features/admin/lib/auditAdminAction';
 
+interface FeatureFlag {
+    id: string;
+    key: string;
+    description: string;
+    enabled: boolean;
+    rollout_pct: number;
+    created_at: string;
+    updated_at: string;
+    created_by?: string;
+    updated_by?: string;
+}
+
+type QueryResult<T> = { data: T | null; error: { message: string } | null };
+
 const createSchema = z.object({
     key: z
         .string()
@@ -67,11 +81,11 @@ export async function POST(req: Request) {
         );
 
     const admin = createAdminClient();
-    const { data, error } = await admin
+    const { data, error } = (await admin
         .from('feature_flags')
         .insert({ ...parsed.data, created_by: actor.id, updated_by: actor.id })
         .select()
-        .single();
+        .single()) as QueryResult<FeatureFlag>;
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -81,7 +95,7 @@ export async function POST(req: Request) {
         actorId: actor.id,
         action: 'create_feature_flag',
         resourceType: 'feature_flag',
-        resourceId: data.id as string,
+        resourceId: data!.id,
         after: parsed.data as Record<string, unknown>,
         ...(ip1 !== undefined ? { ip: ip1 } : {}),
     });
@@ -108,12 +122,12 @@ export async function PATCH(req: Request) {
     const { id, ...updates } = parsed.data;
     const admin = createAdminClient();
 
-    const { data: before } = await admin
+    const { data: before } = (await admin
         .from('feature_flags')
         .select('enabled, rollout_pct')
         .eq('id', id)
-        .single();
-    const { data, error } = await admin
+        .single()) as QueryResult<Pick<FeatureFlag, 'enabled' | 'rollout_pct'>>;
+    const { data, error } = (await admin
         .from('feature_flags')
         .update({
             ...updates,
@@ -122,7 +136,7 @@ export async function PATCH(req: Request) {
         })
         .eq('id', id)
         .select()
-        .single();
+        .single()) as QueryResult<FeatureFlag>;
 
     if (error)
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -133,7 +147,7 @@ export async function PATCH(req: Request) {
         action: 'update_feature_flag',
         resourceType: 'feature_flag',
         resourceId: id,
-        before: before as Record<string, unknown>,
+        before: before as Record<string, unknown> | null,
         after: updates as Record<string, unknown>,
         ...(ip2 !== undefined ? { ip: ip2 } : {}),
     });

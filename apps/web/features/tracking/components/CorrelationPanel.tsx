@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useInsightConsent } from '@/features/tracking/hooks/useInsightConsent';
 import { findCorrelations } from '@/features/tracking/lib/correlationEngine';
 import { getCategoryLabel } from '@/features/tracking/constants';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 interface CorrelationPanelProps {
     entries: TrackingEntry[];

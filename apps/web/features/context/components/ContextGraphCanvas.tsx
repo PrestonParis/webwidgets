@@ -1,19 +1,8 @@
 'use client';
 
-import type { ContextGraph } from '@/features/context/types/context';
-import type { DiagramViewport } from '@/features/context/types/diagram';
+import type { ContextGraphCanvasProps } from '@/features/context/types/context';
 import { ContextEdgeLayer } from './ContextEdgeLayer';
 import { ContextNodeCard } from './ContextNodeCard';
-
-interface Props {
-    graph: ContextGraph;
-    selectedId: string | null;
-    viewport: DiagramViewport;
-    onSelectNode: (id: string | null) => void;
-    onMouseDown: (e: React.MouseEvent) => void;
-    onMouseMove: (e: React.MouseEvent) => void;
-    onMouseUp: () => void;
-}
 
 export function ContextGraphCanvas({
     graph,
@@ -23,7 +12,7 @@ export function ContextGraphCanvas({
     onMouseDown,
     onMouseMove,
     onMouseUp,
-}: Props) {
+}: ContextGraphCanvasProps) {
     const handleBackgroundClick = (e: React.MouseEvent) => {
         if ((e.target as HTMLElement).closest('button')) return;
         onSelectNode(null);

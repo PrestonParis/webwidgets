@@ -1,17 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import type { ChessGame } from '@/features/chess/types/chess';
-import { z } from 'zod';
 import { useGameVariations } from './useGameVariations';
-
-const chessGameSchema = z.object({
-    id: z.string(),
-    current_move_index: z.number().nullable().optional(),
-});
 
 export function useChessGame(id: string) {
     const [game, setGame] = useState<ChessGame | null>(null);
-    const [_, setMoveIndex] = useState(0);
     const [loading, setLoading] = useState(true);
 
     const {
@@ -36,12 +29,6 @@ export function useChessGame(id: string) {
             ]);
             if (gameRes.data) {
                 setGame(gameRes.data as ChessGame);
-                const parsedGame = chessGameSchema.safeParse(gameRes.data);
-                setMoveIndex(
-                    parsedGame.success
-                        ? (parsedGame.data.current_move_index ?? 0)
-                        : 0,
-                );
             }
             if (varRes.data)
                 setVariations(

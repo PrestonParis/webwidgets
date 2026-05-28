@@ -33,6 +33,8 @@ export type Email = {
     snippet: string;
     date: string;
     provider?: 'gmail' | 'outlook';
+    /** Set by mergeEmails when the same message appears in both providers. */
+    providers?: ('gmail' | 'outlook')[];
     category?: string | undefined;
     is_manual?: boolean | undefined;
 };
@@ -71,4 +73,11 @@ export interface GmailMessage {
             value: string;
         }[];
     };
+}
+
+export interface EmailConnectPromptProps {
+    /** Full empty-state UI when nothing is connected */
+    compact?: boolean;
+    /** Small strip of add-account buttons shown alongside existing content */
+    inline?: boolean;
 }

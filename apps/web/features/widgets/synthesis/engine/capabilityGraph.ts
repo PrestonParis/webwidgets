@@ -5,7 +5,7 @@ import { TRANSFORMATION_REGISTRY } from '@/features/widgets/synthesis/transforma
 import type {
     CapabilityGraphNode,
     WidgetIntent,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+} from '@/features/widgets/synthesis/widgetIntentInterfaces';
 
 const LAYOUTS = [
     'small_card',

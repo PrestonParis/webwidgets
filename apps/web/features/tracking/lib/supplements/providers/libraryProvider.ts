@@ -1,4 +1,7 @@
-import type { SupplementDefinition, SupplementSearchResult } from '../types';
+import type {
+    SupplementDefinition,
+    SupplementSearchResult,
+} from '../definitionTypes';
 import { defaultSchedule } from '../normalize';
 
 const LOCAL_LIBRARY: SupplementDefinition[] = [
@@ -69,7 +72,7 @@ const LOCAL_LIBRARY: SupplementDefinition[] = [
     },
 ];
 
-export async function searchSupplementLibrary(
+export function searchSupplementLibrary(
     query: string,
     existing: SupplementDefinition[] = [],
 ): Promise<SupplementSearchResult[]> {
@@ -92,13 +95,15 @@ export async function searchSupplementLibrary(
         );
         return duplicate ? { ...item, duplicateOf: duplicate.id } : item;
     });
-    return result.slice(0, 10);
+    return Promise.resolve(result.slice(0, 10));
 }
 
-export async function lookupSupplementBarcode(
+export function lookupSupplementBarcode(
     barcode: string,
 ): Promise<SupplementSearchResult | null> {
     const code = barcode.trim();
-    if (!/^\d{6,14}$/.test(code)) return null;
-    return LOCAL_LIBRARY.find((item) => item.barcode === code) ?? null;
+    if (!/^\d{6,14}$/.test(code)) return Promise.resolve(null);
+    return Promise.resolve(
+        LOCAL_LIBRARY.find((item) => item.barcode === code) ?? null,
+    );
 }

@@ -62,40 +62,6 @@ async function buildSystemMessage(userId: string): Promise<string> {
     }
 }
 
-async function streamAnthropic(
-    apiKey: string,
-    model: string,
-    systemMsg: string,
-    history: { role: 'user' | 'assistant'; content: string }[],
-): Promise<ReadableStream<Uint8Array>> {
-    const client = new Anthropic({ apiKey });
-    const stream = await client.messages.stream({
-        model,
-        max_tokens: 4096,
-        system: systemMsg,
-        messages: history,
-    });
-
-    return new ReadableStream({
-        async start(controller) {
-            const enc = new TextEncoder();
-            for await (const event of stream) {
-                if (
-                    event.type === 'content_block_delta' &&
-                    event.delta.type === 'text_delta'
-                ) {
-                    const chunk = JSON.stringify({
-                        delta: { text: event.delta.text },
-                    });
-                    controller.enqueue(enc.encode(`data: ${chunk}\n\n`));
-                }
-            }
-            controller.enqueue(enc.encode('data: [DONE]\n\n'));
-            controller.close();
-        },
-    });
-}
-
 async function* generateAnthropic(
     apiKey: string,
     model: string,
@@ -103,7 +69,7 @@ async function* generateAnthropic(
     history: { role: 'user' | 'assistant'; content: string }[],
 ): AsyncGenerator<string> {
     const client = new Anthropic({ apiKey });
-    const stream = await client.messages.stream({
+    const stream = client.messages.stream({
         model,
         max_tokens: 4096,
         system: systemMsg,
@@ -118,25 +84,6 @@ async function* generateAnthropic(
             yield event.delta.text;
         }
     }
-}
-
-async function streamOpenAI(
-    apiKey: string,
-    model: string,
-    systemMsg: string,
-    history: { role: 'user' | 'assistant'; content: string }[],
-): Promise<ReadableStream<Uint8Array>> {
-    const messages = [{ role: 'system', content: systemMsg }, ...history];
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ model, messages, stream: true }),
-    });
-    if (!res.ok || !res.body) throw new Error('OpenAI API error');
-    return res.body;
 }
 
 async function* generateOpenAI(
@@ -156,7 +103,9 @@ async function* generateOpenAI(
     });
     if (!res.ok || !res.body) {
         const detail = await res.text().catch(() => '');
-        throw new Error(`OpenAI API error${detail ? `: ${detail.slice(0, 240)}` : ''}`);
+        throw new Error(
+            `OpenAI API error${detail ? `: ${detail.slice(0, 240)}` : ''}`,
+        );
     }
 
     const decoder = new TextDecoder();
@@ -176,77 +125,6 @@ async function* generateOpenAI(
             if (text) yield text;
         }
     }
-}
-
-async function streamGoogle(
-    apiKey: string,
-    model: string,
-    systemMsg: string,
-    history: { role: 'user' | 'assistant'; content: string }[],
-): Promise<ReadableStream<Uint8Array>> {
-    const contents = history.map((message) => ({
-        role: message.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: message.content }],
-    }));
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-        model,
-    )}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
-
-    const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemMsg }] },
-            contents,
-            generationConfig: { maxOutputTokens: 4096 },
-        }),
-    });
-    if (!res.ok || !res.body) throw new Error('Gemini API error');
-
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    return res.body.pipeThrough(
-        new TransformStream<Uint8Array, Uint8Array>({
-            transform(chunk, controller) {
-                buffer += decoder.decode(chunk, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() ?? '';
-
-                for (const line of lines) {
-                    if (!line.startsWith('data: ')) continue;
-                    const data = line.slice(6).trim();
-                    if (!data || data === '[DONE]') continue;
-                    try {
-                        const parsed = JSON.parse(data) as {
-                            candidates?: Array<{
-                                content?: {
-                                    parts?: Array<{ text?: string }>;
-                                };
-                            }>;
-                        };
-                        const text =
-                            parsed.candidates?.[0]?.content?.parts
-                                ?.map((part) => part.text ?? '')
-                                .join('') ?? '';
-                        if (text) {
-                            controller.enqueue(
-                                encoder.encode(
-                                    `data: ${JSON.stringify({ delta: { text } })}\n\n`,
-                                ),
-                            );
-                        }
-                    } catch {
-                        /* skip malformed provider chunk */
-                    }
-                }
-            },
-            flush(controller) {
-                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            },
-        }),
-    );
 }
 
 async function* generateGoogle(
@@ -274,7 +152,9 @@ async function* generateGoogle(
     });
     if (!res.ok || !res.body) {
         const detail = await res.text().catch(() => '');
-        throw new Error(`Gemini API error${detail ? `: ${detail.slice(0, 240)}` : ''}`);
+        throw new Error(
+            `Gemini API error${detail ? `: ${detail.slice(0, 240)}` : ''}`,
+        );
     }
 
     const decoder = new TextDecoder();
@@ -312,7 +192,10 @@ async function getProviderApiKey(
     userId: string,
     provider: ModelProvider,
 ): Promise<string> {
-    return (await getModelKey(clientDb, userId, provider)) || getProviderEnvKey(provider);
+    return (
+        (await getModelKey(clientDb, userId, provider)) ||
+        getProviderEnvKey(provider)
+    );
 }
 
 type ChatAttempt = {
@@ -363,7 +246,12 @@ function generateWithProvider(
         );
     }
     if (attempt.provider === 'google') {
-        return generateGoogle(attempt.apiKey, attempt.model, systemMsg, history);
+        return generateGoogle(
+            attempt.apiKey,
+            attempt.model,
+            systemMsg,
+            history,
+        );
     }
     return generateOpenAI(attempt.apiKey, attempt.model, systemMsg, history);
 }
@@ -377,7 +265,11 @@ function createFallbackChatStream({
     attempts: ChatAttempt[];
     systemMsg: string;
     history: { role: 'user' | 'assistant'; content: string }[];
-    onComplete: (result: { text: string; model: string; provider: ModelProvider }) => Promise<void>;
+    onComplete: (result: {
+        text: string;
+        model: string;
+        provider: ModelProvider;
+    }) => Promise<void>;
 }): ReadableStream<Uint8Array> {
     const encoder = new TextEncoder();
     return new ReadableStream({
@@ -422,7 +314,9 @@ function createFallbackChatStream({
                 } catch (error) {
                     failures.push(
                         `${attempt.provider}/${attempt.model}: ${
-                            error instanceof Error ? error.message : 'unknown error'
+                            error instanceof Error
+                                ? error.message
+                                : 'unknown error'
                         }`,
                     );
                     if (full) {

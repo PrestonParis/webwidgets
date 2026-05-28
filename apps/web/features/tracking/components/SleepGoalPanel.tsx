@@ -17,9 +17,12 @@ export function SleepGoalPanel({ onClose }: SleepGoalPanelProps) {
     const [confirmRemove, setConfirmRemove] = useState(false);
 
     useEffect(() => {
-        if (goal?.targetType === 'daily_min') {
-            setTargetHours(goal.targetValue);
-        }
+        const timeoutId = window.setTimeout(() => {
+            if (goal?.targetType === 'daily_min') {
+                setTargetHours(goal.targetValue);
+            }
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [goal]);
 
     const handleSave = async () => {

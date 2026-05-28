@@ -27,7 +27,6 @@ export function useIdleDrift(
     setPositions: Dispatch<SetStateAction<Map<string, Pos>>>,
 ): { stopDrift: () => void } {
     const posRef = useRef(positions);
-    posRef.current = positions;
 
     const savedRef = useRef<Map<string, Pos>>(new Map());
     const driftRef = useRef<Map<string, Pos>>(new Map());
@@ -112,6 +111,10 @@ export function useIdleDrift(
         };
         rafRef.current = requestAnimationFrame(animate);
     }, [setPositions]);
+
+    useEffect(() => {
+        posRef.current = positions;
+    }, [positions]);
 
     useEffect(() => {
         const onActivity = () => {

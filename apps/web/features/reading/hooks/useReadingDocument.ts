@@ -54,72 +54,77 @@ export function useReadingDocument(
 
     useEffect(() => {
         if (!documentId) {
-            setDocument(null);
-            return;
+            const timeoutId = window.setTimeout(() => {
+                setDocument(null);
+            }, 0);
+            return () => window.clearTimeout(timeoutId);
         }
         let cancelled = false;
-        setLoading(true);
-        setError(null);
+        const timeoutId = window.setTimeout(() => {
+            setLoading(true);
+            setError(null);
 
-        void (async () => {
-            try {
-                bootstrapProviders();
-                const providers = getAllProviders();
-                let doc: ReadingDocument | null = null;
-                for (const provider of providers) {
-                    try {
-                        doc = await provider.getDocument(documentId);
-                        break;
-                    } catch {
-                        // Keep probing providers; document ids are provider scoped.
+            void (async () => {
+                try {
+                    bootstrapProviders();
+                    const providers = getAllProviders();
+                    let doc: ReadingDocument | null = null;
+                    for (const provider of providers) {
+                        try {
+                            doc = await provider.getDocument(documentId);
+                            break;
+                        } catch {
+                            // Keep probing providers; document ids are provider scoped.
+                        }
                     }
+                    if (!doc)
+                        throw new Error(
+                            `Reading document not found: ${documentId}`,
+                        );
+                    if (cancelled) return;
+                    setDocument(doc);
+
+                    const provider = getProviderOrThrow(doc.providerId);
+                    const [versionList, struct] = await Promise.all([
+                        provider.getVersions
+                            ? provider.getVersions(documentId)
+                            : Promise.resolve([]),
+                        provider.getStructure(documentId),
+                    ]);
+                    if (cancelled) return;
+                    setVersions(versionList);
+                    setStructure(struct);
+
+                    const defaultVersion =
+                        versionList.find((v) => v.isDefault) ?? versionList[0];
+                    if (defaultVersion) setActiveVersionId(defaultVersion.id);
+
+                    const saved = loadLastPosition(documentId);
+                    const startPos: ReadingPosition =
+                        saved ??
+                        (struct.hasVerses
+                            ? {
+                                  type: 'canonical',
+                                  book: struct.books?.[0]?.name ?? 'Genesis',
+                                  chapter: 1,
+                              }
+                            : { type: 'page', page: 1 });
+                    setPosition(startPos);
+                } catch (err) {
+                    if (!cancelled)
+                        setError(
+                            err instanceof Error
+                                ? err.message
+                                : 'Failed to load document',
+                        );
+                } finally {
+                    if (!cancelled) setLoading(false);
                 }
-                if (!doc)
-                    throw new Error(
-                        `Reading document not found: ${documentId}`,
-                    );
-                if (cancelled) return;
-                setDocument(doc);
-
-                const provider = getProviderOrThrow(doc.providerId);
-                const [versionList, struct] = await Promise.all([
-                    provider.getVersions
-                        ? provider.getVersions(documentId)
-                        : Promise.resolve([]),
-                    provider.getStructure(documentId),
-                ]);
-                if (cancelled) return;
-                setVersions(versionList);
-                setStructure(struct);
-
-                const defaultVersion =
-                    versionList.find((v) => v.isDefault) ?? versionList[0];
-                if (defaultVersion) setActiveVersionId(defaultVersion.id);
-
-                const saved = loadLastPosition(documentId);
-                const startPos: ReadingPosition =
-                    saved ??
-                    (struct.hasVerses
-                        ? {
-                              type: 'canonical',
-                              book: struct.books?.[0]?.name ?? 'Genesis',
-                              chapter: 1,
-                          }
-                        : { type: 'page', page: 1 });
-                setPosition(startPos);
-            } catch (err) {
-                if (!cancelled)
-                    setError(
-                        err instanceof Error
-                            ? err.message
-                            : 'Failed to load document',
-                    );
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        })();
+            })();
+        }, 0);
         return () => {
             cancelled = true;
+            window.clearTimeout(timeoutId);
         };
     }, [documentId]);
 

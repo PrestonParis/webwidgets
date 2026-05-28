@@ -21,8 +21,6 @@ export type SlackMessage = {
     isRead: boolean;
 };
 
-export async function fetchSlackUnread(
-    _userId: string,
-): Promise<SlackMessage[]> {
+export function fetchSlackUnread(_userId: string): Promise<SlackMessage[]> {
     requireSlack();
 }

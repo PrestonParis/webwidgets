@@ -15,13 +15,13 @@ export async function createConversation(
     provider: ModelProvider,
     title = 'New conversation',
 ): Promise<ChatConversation> {
-    const { data, error } = await db
+    const result = await db
         .from('chat_conversations')
         .insert({ user_id: userId, title, model, provider })
         .select()
         .single();
-    if (error) throw new Error(error.message);
-    return rowToConversation(data as unknown as ConversationRow);
+    if (result.error) throw new Error(result.error.message);
+    return rowToConversation(result.data as unknown as ConversationRow);
 }
 
 export async function listConversations(
@@ -83,13 +83,13 @@ export async function addMessage(
         content,
         ...(model !== undefined && { model }),
     };
-    const { data, error } = await db
+    const result = await db
         .from('chat_messages')
         .insert(record)
         .select()
         .single();
-    if (error) throw new Error(error.message);
-    return rowToMessage(data as unknown as MessageRow);
+    if (result.error) throw new Error(result.error.message);
+    return rowToMessage(result.data as unknown as MessageRow);
 }
 
 export async function updateConversationTitle(
@@ -112,17 +112,15 @@ export async function saveModelKey(
     provider: ModelProvider,
     apiKey: string,
 ): Promise<void> {
-    const { error } = await db
-        .from('user_model_keys')
-        .upsert(
-            {
-                user_id: userId,
-                provider,
-                api_key_encrypted: apiKey,
-                updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'user_id,provider' },
-        );
+    const { error } = await db.from('user_model_keys').upsert(
+        {
+            user_id: userId,
+            provider,
+            api_key_encrypted: apiKey,
+            updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,provider' },
+    );
     if (error) throw new Error(error.message);
 }
 

@@ -22,7 +22,10 @@ function bibleIdFromDocId(documentId: string): string {
     return documentId.startsWith('bible:') ? documentId.slice(6) : documentId;
 }
 
-async function apiBible<T>(path: string, params?: Record<string, string>): Promise<T> {
+async function apiBible<T>(
+    path: string,
+    params?: Record<string, string>,
+): Promise<T> {
     const qs = new URLSearchParams({ path, ...params });
     const res = await fetch(`/api/bible?${qs.toString()}`);
     if (!res.ok) throw new Error(`Bible API error ${res.status}: ${path}`);
@@ -50,7 +53,13 @@ interface ApiBible {
     descriptionLocal?: string;
     abbreviation?: string;
     abbreviationLocal?: string;
-    language: { id: string; name: string; nameLocal: string; script: string; scriptDirection: string };
+    language: {
+        id: string;
+        name: string;
+        nameLocal: string;
+        script: string;
+        scriptDirection: string;
+    };
     countries?: { id: string; name: string }[];
     type?: string;
 }
@@ -61,7 +70,12 @@ interface ApiBook {
     name: string;
     nameLong?: string;
     abbreviation?: string;
-    chapters?: { id: string; number: string; bookId: string; bibleId: string }[];
+    chapters?: {
+        id: string;
+        number: string;
+        bookId: string;
+        bibleId: string;
+    }[];
 }
 
 interface ApiChapter {
@@ -117,7 +131,10 @@ function mapBibleToDocument(bible: ApiBible): ReadingDocument {
     };
 }
 
-function mapBooksToStructure(documentId: string, books: ApiBook[]): ReadingStructure {
+function mapBooksToStructure(
+    documentId: string,
+    books: ApiBook[],
+): ReadingStructure {
     const idMap = new Map<string, string>();
     const reverseMap = new Map<string, string>();
     const chapterMap = new Map<string, number>();
@@ -177,7 +194,9 @@ const bibleProvider: ReadingProvider = {
     description: 'Bible translations from scripture.api.bible',
     capabilities: CAPABILITIES,
 
-    async listDocuments(options?: ReadingListOptions): Promise<ReadingDocument[]> {
+    async listDocuments(
+        options?: ReadingListOptions,
+    ): Promise<ReadingDocument[]> {
         const params: Record<string, string> = {};
         if (options?.language) params.language = options.language;
 
@@ -202,8 +221,8 @@ const bibleProvider: ReadingProvider = {
         return mapBibleToDocument(data.data);
     },
 
-    async getVersions(_documentId: string): Promise<ReadingVersion[]> {
-        return [];
+    getVersions(_documentId: string): Promise<ReadingVersion[]> {
+        return Promise.resolve([]);
     },
 
     async getStructure(documentId: string): Promise<ReadingStructure> {
@@ -228,12 +247,14 @@ const bibleProvider: ReadingProvider = {
         }
     },
 
-    async getContent(request: ReadingContentRequest): Promise<ReadingContentResult> {
+    async getContent(
+        request: ReadingContentRequest,
+    ): Promise<ReadingContentResult> {
         const { documentId, position } = request;
         if (position.type !== 'canonical') {
             throw new Error('Bible provider requires canonical position');
         }
-        const pos = position as CanonicalPosition;
+        const pos = position;
         const bibleId = bibleIdFromDocId(documentId);
 
         let bookMap = bookIdCache.get(documentId);
@@ -267,12 +288,17 @@ const bibleProvider: ReadingProvider = {
 
         const prevPos: CanonicalPosition | undefined =
             pos.chapter > 1
-                ? { type: 'canonical', book: pos.book, chapter: pos.chapter - 1 }
+                ? {
+                      type: 'canonical',
+                      book: pos.book,
+                      chapter: pos.chapter - 1,
+                  }
                 : bookIndex > 0
                   ? {
                         type: 'canonical',
                         book: bookNames[bookIndex - 1]!,
-                        chapter: chapterCounts?.get(bookNames[bookIndex - 1]!) ?? 1,
+                        chapter:
+                            chapterCounts?.get(bookNames[bookIndex - 1]!) ?? 1,
                     }
                   : undefined;
 
@@ -309,18 +335,24 @@ const bibleProvider: ReadingProvider = {
             totalCount: data.data.total,
             results: data.data.verses.map((v) => {
                 // chapterId is "{bookId}.{chapterNumber}" e.g. "GEN.1"
-                const chapterNum = parseInt(v.chapterId.split('.')[1] ?? '1', 10);
+                const chapterNum = parseInt(
+                    v.chapterId.split('.')[1] ?? '1',
+                    10,
+                );
                 const bookName = reverseMap?.get(v.bookId);
 
-                const pos: CanonicalPosition | undefined =
-                    bookName
-                        ? { type: 'canonical', book: bookName, chapter: chapterNum }
-                        : undefined;
+                const pos: CanonicalPosition | undefined = bookName
+                    ? { type: 'canonical', book: bookName, chapter: chapterNum }
+                    : undefined;
 
                 return {
                     position: pos ?? {
                         type: 'opaque' as const,
-                        providerData: { verseId: v.id, chapterId: v.chapterId, bookId: v.bookId },
+                        providerData: {
+                            verseId: v.id,
+                            chapterId: v.chapterId,
+                            bookId: v.bookId,
+                        },
                     },
                     preview: v.text,
                     reference: v.reference,

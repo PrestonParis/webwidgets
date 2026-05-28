@@ -92,6 +92,19 @@ export function useTodos() {
         setTodos((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
+    const updateTodo = useCallback(async (id: string, text: string) => {
+        const trimmed = text.trim();
+        if (!trimmed) return;
+        const { error } = await supabase
+            .from('todos')
+            .update({ text: trimmed })
+            .eq('id', id);
+        if (!error)
+            setTodos((prev) =>
+                prev.map((t) => (t.id === id ? { ...t, text: trimmed } : t)),
+            );
+    }, []);
+
     const [aiSorted, setAiSorted] = useState(false);
 
     const sortByAiPriority = useCallback(async () => {
@@ -115,12 +128,18 @@ export function useTodos() {
                 signal: AbortSignal.timeout(5000),
             });
             if (!res.ok) return;
-            const data = await res.json() as { ranked?: { id: string; urgency_score: number }[] };
+            const data = (await res.json()) as {
+                ranked?: { id: string; urgency_score: number }[];
+            };
             if (!data.ranked?.length) return;
-            const scoreMap = new Map(data.ranked.map((r) => [r.id, r.urgency_score]));
+            const scoreMap = new Map(
+                data.ranked.map((r) => [r.id, r.urgency_score]),
+            );
             setTodos((prev) => {
                 const sorted = [...prev.filter((t) => !t.completed)].sort(
-                    (a, b) => (scoreMap.get(b.id) ?? 0.5) - (scoreMap.get(a.id) ?? 0.5),
+                    (a, b) =>
+                        (scoreMap.get(b.id) ?? 0.5) -
+                        (scoreMap.get(a.id) ?? 0.5),
                 );
                 return [...sorted, ...prev.filter((t) => t.completed)];
             });
@@ -130,5 +149,14 @@ export function useTodos() {
         }
     }, [todos]);
 
-    return { todos, loading, addTodo, toggleTodo, deleteTodo, aiSorted, sortByAiPriority };
+    return {
+        todos,
+        loading,
+        addTodo,
+        toggleTodo,
+        deleteTodo,
+        updateTodo,
+        aiSorted,
+        sortByAiPriority,
+    };
 }

@@ -4,8 +4,8 @@ export const workflowResolvers: DataResolver[] = [
     {
         key: 'workflows.recent',
         cachePolicy: { ttlSeconds: 30 },
-        async resolve() {
-            return { workflowsAreAsync: true };
+        resolve() {
+            return Promise.resolve({ workflowsAreAsync: true });
         },
     },
 ];

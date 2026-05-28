@@ -49,8 +49,8 @@ const eslintConfig = defineConfig([
         'warn',
         {
           vars: 'all',
-          varsIgnorePattern: '^_',
           args: 'after-used',
+          argsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-unsafe-return': 'error',

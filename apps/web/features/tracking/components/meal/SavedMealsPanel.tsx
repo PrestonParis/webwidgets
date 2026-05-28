@@ -7,11 +7,10 @@ import {
     MEAL_TYPE_LABELS,
     MEAL_TYPE_ICONS,
     MEAL_TYPE_ORDER,
-    type MealType,
-} from '@/features/tracking/lib/meal/mealDomain';
+} from '@/features/tracking/lib/meal/helpers';
 import { NUTRITION_FLAGS } from '@/features/tracking/lib/meal/featureFlags';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
-import type { SavedMealRecord } from '@/features/tracking/lib/meal/nutrition/types';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { SavedMealRecord } from '@/features/tracking/lib/meal/nutrition/savedMealTypes';
 
 interface SavedMealsPanelProps {
     onLog: (entry: BaseTrackingEntry) => Promise<void>;
@@ -57,8 +56,8 @@ export function SavedMealsPanel({ onLog }: SavedMealsPanelProps) {
             {grouped.map((group) => (
                 <div key={group.type}>
                     <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-zinc-500 mb-2">
-                        {MEAL_TYPE_ICONS[group.type as MealType]}{' '}
-                        {MEAL_TYPE_LABELS[group.type as MealType]}
+                        {MEAL_TYPE_ICONS[group.type]}{' '}
+                        {MEAL_TYPE_LABELS[group.type]}
                     </p>
                     <ul className="space-y-2">
                         {group.meals.map((m) => {

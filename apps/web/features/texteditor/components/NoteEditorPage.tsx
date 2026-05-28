@@ -24,7 +24,10 @@ export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
 
     useEffect(() => {
         initialized.current = false;
-        setActiveEntryState(null);
+        const timeoutId = window.setTimeout(() => {
+            setActiveEntryState(null);
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [noteType]);
 
     // Restore the last-active entry the first time the list loads
@@ -103,7 +106,9 @@ export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
                     onSelect={setActiveEntry}
                     onNew={handleNew}
                     noteType={noteType}
-                    onDelete={handleDelete}
+                    onDelete={(id) => {
+                        void handleDelete(id);
+                    }}
                     view={entryUtils.view}
                     onViewChange={entryUtils.setView}
                 />

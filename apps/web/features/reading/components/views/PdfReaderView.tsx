@@ -13,7 +13,6 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type { ReadingContentResult } from '@/features/reading/types/providers';
-import type { PdfPageContent } from '@/features/reading/types/content';
 import type { ReadingDocument } from '@/features/reading/types/document';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -50,10 +49,7 @@ export function PdfReaderView({
     const [scale, setScale] = useState(1);
     const [rotation, setRotation] = useState(0);
 
-    const content =
-        result?.content.type === 'pdf_page'
-            ? (result.content as PdfPageContent)
-            : null;
+    const content = result?.content.type === 'pdf_page' ? result.content : null;
     const pageNumber = content?.pageNumber ?? 1;
     const pdfUrl = content?.pdfUrl ?? document?.source.url;
     const resolvedTotalPages =

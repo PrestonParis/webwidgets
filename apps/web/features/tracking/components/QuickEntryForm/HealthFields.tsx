@@ -1,7 +1,7 @@
 'use client';
 
 import type { QuickEntryFormState } from '@/features/tracking/hooks/useQuickEntryForm';
-import type { Severity } from '@/features/tracking/lib/health/types';
+import type { Severity } from '@/features/tracking/health/lib/types';
 
 interface HealthFieldsProps {
     form: QuickEntryFormState;

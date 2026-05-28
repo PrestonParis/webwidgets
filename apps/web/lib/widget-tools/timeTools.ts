@@ -17,7 +17,14 @@ export function groupByTime(
     for (const row of rows) {
         const raw = row[dateField];
         if (!raw) continue;
-        const d = new Date(String(raw));
+        if (
+            typeof raw !== 'string' &&
+            typeof raw !== 'number' &&
+            typeof raw !== 'boolean'
+        )
+            continue;
+        const strRaw = String(raw);
+        const d = new Date(strRaw);
         if (isNaN(d.getTime())) continue;
         const key = getBucketKey(d, unit);
         (groups[key] ??= []).push(row);

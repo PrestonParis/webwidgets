@@ -5,7 +5,7 @@ import { getRequestUserId } from '@/features/backend/services/requestUser';
 import {
     listFinanceSubscriptionsForUser,
     createFinanceSubscriptionForUser,
-} from '@/features/finance/services/financeService';
+} from '@/features/finance/services/financeSubscriptionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 const createSchema = z.object({

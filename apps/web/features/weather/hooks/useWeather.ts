@@ -1,9 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { WMO, CACHE_KEY, CACHE_TTL } from '../constants';
-import { WeatherData, WeatherState } from '@/features/weather/types/weather';
 import { z } from 'zod';
+import { WMO, CACHE_KEY, CACHE_TTL } from '../constants';
+import type {
+    WeatherData,
+    WeatherState,
+    ForecastDay,
+} from '@/features/weather/types/weather';
+import {
+    readSavedCoords,
+    saveCoords,
+    requestCurrentCoords,
+    fetchCityName,
+    type WeatherCoords,
+} from '@/features/weather/lib/geocoding';
+
+const CUSTOM_LOCATION_KEY = 'weather_custom_location_v1';
 
 const weatherApiSchema = z.object({
     current: z.object({
@@ -13,12 +26,15 @@ const weatherApiSchema = z.object({
         wind_speed_10m: z.number(),
         relative_humidity_2m: z.number(),
     }),
-});
-
-const reverseGeoSchema = z.object({
-    city: z.string().optional(),
-    locality: z.string().optional(),
-    principalSubdivision: z.string().optional(),
+    daily: z
+        .object({
+            time: z.array(z.string()),
+            temperature_2m_max: z.array(z.number()),
+            temperature_2m_min: z.array(z.number()),
+            precipitation_probability_max: z.array(z.number()),
+            weather_code: z.array(z.number()),
+        })
+        .optional(),
 });
 
 const weatherCacheSchema = z.object({
@@ -35,68 +51,27 @@ const weatherCacheSchema = z.object({
     timestamp: z.number(),
 });
 
-const coordsCacheSchema = z.object({
+const customLocationSchema = z.object({
+    name: z.string(),
     lat: z.number(),
     lon: z.number(),
-    savedAt: z.number().optional(),
 });
 
-const COORDS_KEY = 'weather_coords_v1';
-
-type WeatherCoords = { lat: number; lon: number };
-
-let lastKnownCoords: WeatherCoords | null = null;
-let pendingCoordsRequest: Promise<WeatherCoords> | null = null;
-
-function readSavedCoords(): WeatherCoords | null {
-    if (lastKnownCoords) return lastKnownCoords;
-
+function readCustomLocation(): {
+    name: string;
+    lat: number;
+    lon: number;
+} | null {
     try {
-        const raw = localStorage.getItem(COORDS_KEY);
+        const raw = localStorage.getItem(CUSTOM_LOCATION_KEY);
         if (!raw) return null;
-        const parsed = coordsCacheSchema.safeParse(JSON.parse(raw) as unknown);
-        if (!parsed.success) return null;
-        lastKnownCoords = { lat: parsed.data.lat, lon: parsed.data.lon };
-        return lastKnownCoords;
+        const parsed = customLocationSchema.safeParse(
+            JSON.parse(raw) as unknown,
+        );
+        return parsed.success ? parsed.data : null;
     } catch {
         return null;
     }
-}
-
-function saveCoords(lat: number, lon: number) {
-    lastKnownCoords = { lat, lon };
-
-    try {
-        localStorage.setItem(
-            COORDS_KEY,
-            JSON.stringify({ lat, lon, savedAt: Date.now() }),
-        );
-    } catch {
-        // localStorage unavailable — non-fatal
-    }
-}
-
-function requestCurrentCoords(): Promise<WeatherCoords> {
-    if (pendingCoordsRequest) return pendingCoordsRequest;
-
-    pendingCoordsRequest = new Promise<WeatherCoords>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                const current = {
-                    lat: coords.latitude,
-                    lon: coords.longitude,
-                };
-                saveCoords(current.lat, current.lon);
-                resolve(current);
-            },
-            reject,
-            { timeout: 10_000 },
-        );
-    }).finally(() => {
-        pendingCoordsRequest = null;
-    });
-
-    return pendingCoordsRequest;
 }
 
 function readWeatherCache(): WeatherData | null {
@@ -109,47 +84,44 @@ function readWeatherCache(): WeatherData | null {
         if (!parsed.success) return null;
         const { data, timestamp } = parsed.data;
         if (Date.now() - timestamp >= CACHE_TTL) return null;
-        const weatherData: WeatherData = {
-            temp: data.temp,
-            feelsLike: data.feelsLike,
-            weatherCode: data.weatherCode,
-            description: data.description,
-            emoji: data.emoji,
-            windSpeed: data.windSpeed,
-            humidity: data.humidity,
+        return {
+            ...data,
             ...(data.city !== undefined ? { city: data.city } : {}),
         };
-        return weatherData;
     } catch {
         return null;
     }
 }
 
-async function fetchCityName(
-    lat: number,
-    lon: number,
-): Promise<string | undefined> {
-    try {
-        const res = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
-        );
-        if (!res.ok) return undefined;
-        const parsed = reverseGeoSchema.safeParse(
-            (await res.json()) as unknown,
-        );
-        if (!parsed.success) return undefined;
-        const { city, locality, principalSubdivision } = parsed.data;
-        return city ?? locality ?? principalSubdivision;
-    } catch {
-        return undefined;
-    }
+function parseForecast(
+    daily: z.infer<typeof weatherApiSchema>['daily'],
+): ForecastDay[] {
+    if (!daily) return [];
+    const today = new Date().toISOString().slice(0, 10);
+    return daily.time.map((date, i) => {
+        const code = daily.weather_code[i] ?? 0;
+        const wmo = WMO[code] ?? { description: 'Unknown', emoji: '🌡️' };
+        return {
+            date,
+            weatherCode: code,
+            emoji: wmo.emoji,
+            description: wmo.description,
+            tempMax: Math.round(daily.temperature_2m_max[i] ?? 0),
+            tempMin: Math.round(daily.temperature_2m_min[i] ?? 0),
+            precipProbability: Math.round(
+                daily.precipitation_probability_max[i] ?? 0,
+            ),
+            isToday: date === today,
+            isPast: date < today,
+        };
+    });
 }
 
 async function fetchWeatherData(
     lat: number,
     lon: number,
-): Promise<WeatherData> {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+): Promise<{ weather: WeatherData; forecast: ForecastDay[] }> {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&past_days=2&forecast_days=7`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Weather API HTTP ${res.status}`);
     const parsed = weatherApiSchema.safeParse((await res.json()) as unknown);
@@ -157,7 +129,7 @@ async function fetchWeatherData(
     const c = parsed.data.current;
     const wmo = WMO[c.weather_code] ?? { description: 'Unknown', emoji: '🌡️' };
     const cityName = await fetchCityName(lat, lon);
-    const weatherData: WeatherData = {
+    const weather: WeatherData = {
         temp: Math.round(c.temperature_2m),
         feelsLike: Math.round(c.apparent_temperature),
         weatherCode: c.weather_code,
@@ -167,26 +139,28 @@ async function fetchWeatherData(
         humidity: Math.round(c.relative_humidity_2m),
         ...(cityName !== undefined ? { city: cityName } : {}),
     };
-    return weatherData;
+    return { weather, forecast: parseForecast(parsed.data.daily) };
 }
 
 function loadAndSet(
     lat: number,
     lon: number,
     setWeather: (d: WeatherData) => void,
+    setForecast: (f: ForecastDay[]) => void,
     setState: (s: WeatherState) => void,
 ) {
     void fetchWeatherData(lat, lon)
-        .then((data) => {
+        .then(({ weather, forecast }) => {
             try {
                 localStorage.setItem(
                     CACHE_KEY,
-                    JSON.stringify({ data, timestamp: Date.now() }),
+                    JSON.stringify({ data: weather, timestamp: Date.now() }),
                 );
             } catch {
-                // non-fatal
+                /* non-fatal */
             }
-            setWeather(data);
+            setWeather(weather);
+            setForecast(forecast);
             setState('ready');
         })
         .catch(() => setState('error'));
@@ -194,27 +168,80 @@ function loadAndSet(
 
 export function useWeather() {
     const [weather, setWeather] = useState<WeatherData | null>(null);
+    const [forecast, setForecast] = useState<ForecastDay[]>([]);
     const [state, setState] = useState<WeatherState>('idle');
+    const [customLocation, setCustomLocationState] = useState<{
+        name: string;
+        lat: number;
+        lon: number;
+    } | null>(null);
 
-    const fetchWeather = useCallback(() => {
+    const fetchWeather = useCallback((coords?: WeatherCoords) => {
         setState('loading');
-
-        // Use saved coordinates to skip the geolocation prompt on repeat visits.
-        const saved = readSavedCoords();
-        if (saved) {
-            loadAndSet(saved.lat, saved.lon, setWeather, setState);
+        const custom = readCustomLocation();
+        if (custom) {
+            setCustomLocationState(custom);
+            loadAndSet(
+                custom.lat,
+                custom.lon,
+                setWeather,
+                setForecast,
+                setState,
+            );
             return;
         }
-
+        if (coords) {
+            loadAndSet(
+                coords.lat,
+                coords.lon,
+                setWeather,
+                setForecast,
+                setState,
+            );
+            return;
+        }
+        const saved = readSavedCoords();
+        if (saved) {
+            loadAndSet(saved.lat, saved.lon, setWeather, setForecast, setState);
+            return;
+        }
         if (!navigator.geolocation) {
             setState('unsupported');
             return;
         }
-
         void requestCurrentCoords()
-            .then(({ lat, lon }) => loadAndSet(lat, lon, setWeather, setState))
+            .then((c) =>
+                loadAndSet(c.lat, c.lon, setWeather, setForecast, setState),
+            )
             .catch(() => setState('denied'));
     }, []);
+
+    const setCustomLocation = useCallback(
+        (name: string, lat: number, lon: number) => {
+            try {
+                localStorage.setItem(
+                    CUSTOM_LOCATION_KEY,
+                    JSON.stringify({ name, lat, lon }),
+                );
+                saveCoords(lat, lon);
+            } catch {
+                /* non-fatal */
+            }
+            setCustomLocationState({ name, lat, lon });
+            loadAndSet(lat, lon, setWeather, setForecast, setState);
+        },
+        [],
+    );
+
+    const clearCustomLocation = useCallback(() => {
+        try {
+            localStorage.removeItem(CUSTOM_LOCATION_KEY);
+        } catch {
+            /* non-fatal */
+        }
+        setCustomLocationState(null);
+        fetchWeather();
+    }, [fetchWeather]);
 
     useEffect(() => {
         let isMounted = true;
@@ -223,6 +250,8 @@ export function useWeather() {
             if (cached && isMounted) {
                 setWeather(cached);
                 setState('ready');
+                const custom = readCustomLocation();
+                if (custom) setCustomLocationState(custom);
             } else if (isMounted) {
                 fetchWeather();
             }
@@ -232,5 +261,15 @@ export function useWeather() {
         };
     }, [fetchWeather]);
 
-    return { weather, state, retry: fetchWeather };
+    const locationName = customLocation?.name ?? weather?.city;
+
+    return {
+        weather,
+        forecast,
+        state,
+        retry: fetchWeather,
+        locationName,
+        setCustomLocation,
+        clearCustomLocation,
+    };
 }

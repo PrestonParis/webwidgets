@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import type { ActionEngineResult } from '@/features/actions/schemas/actionSchemas';
+import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
 import { getLogger } from '@/lib/observability/logger';
 import { recordActionResult } from '@/features/actions/runtime/telemetry';
 

@@ -1,12 +1,9 @@
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 import type { Supplement as StoredSupplement } from '@/features/tracking/types/supplement';
-import type {
-    DueDose,
-    SupplementAnalytics,
-    SupplementDefinition,
-    SupplementLog,
-    TimeOfDayGroup,
-} from './types';
+import type { DueDose, SupplementLog } from './logTypes';
+import type { SupplementAnalytics } from './analyticsTypes';
+import type { SupplementDefinition } from './definitionTypes';
+import type { TimeOfDayGroup } from './baseTypes';
 import {
     normalizeSupplementDefinitions,
     normalizeSupplementLogs,

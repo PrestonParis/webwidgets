@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Newspaper, RefreshCw } from 'lucide-react';
+import { Newspaper, RefreshCw } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useNewsFeed } from '@/features/news/hooks/useNewsFeed';
 import { NewsFeedList } from '@/features/news/components/NewsFeedList';

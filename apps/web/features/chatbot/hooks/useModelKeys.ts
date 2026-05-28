@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
     saveModelKey,
@@ -29,7 +29,10 @@ export function useModelKeys(): UseModelKeysReturn {
     const [availability, setAvailability] = useState<
         ModelProviderAvailability[]
     >([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useReducer(
+        (_: boolean, v: boolean) => v,
+        true,
+    );
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {

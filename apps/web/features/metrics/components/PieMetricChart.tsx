@@ -22,6 +22,11 @@ interface PieMetricChartProps {
     height?: number;
 }
 
+interface PieLabelProps {
+    label?: unknown;
+    percent?: unknown;
+}
+
 const DEFAULT_COLORS = [
     '#7c3aed',
     '#2563eb',
@@ -57,9 +62,12 @@ export function PieMetricChart({
                         cx="50%"
                         cy="50%"
                         outerRadius={height / 2 - 30}
-                        label={({ label, percent }: any) =>
-                            `${label} ${(percent * 100).toFixed(0)}%`
-                        }
+                        label={({ label, percent }: PieLabelProps) => {
+                            const name = typeof label === 'string' ? label : '';
+                            const ratio =
+                                typeof percent === 'number' ? percent : 0;
+                            return `${name} ${(ratio * 100).toFixed(0)}%`;
+                        }}
                         labelLine={false}
                     >
                         {data.map((entry, i) => (
@@ -73,7 +81,9 @@ export function PieMetricChart({
                             />
                         ))}
                     </Pie>
-                    <Tooltip formatter={(v) => (v as number).toLocaleString()} />
+                    <Tooltip
+                        formatter={(v) => (v as number).toLocaleString()}
+                    />
                     <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
             </ResponsiveContainer>

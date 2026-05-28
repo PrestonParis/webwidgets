@@ -2,10 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Json } from '@/types/supabase';
 import { recordAuditEvent } from '@/features/audit/services/auditService';
 import { getLogger } from '@/lib/observability/logger';
-import type {
-    ActionEngineResult,
-    ActionExecutionContext,
-} from '@/features/actions/schemas/actionSchemas';
+import type { ActionExecutionContext } from '@/features/actions/schemas/actionPayloadSchemas';
+import type { ActionEngineResult } from '@/features/actions/schemas/actionResultSchemas';
 import { persistActionExecution } from '@/features/actions/timeline/actionPersistence';
 
 export async function emitActionLifecycleEvent(input: {

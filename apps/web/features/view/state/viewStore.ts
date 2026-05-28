@@ -6,7 +6,7 @@ import type {
     ViewAnnotation,
     ViewFileRef,
     ViewLayer,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
 import {
     createBaseLayers,
     toggleLayerVisibility,

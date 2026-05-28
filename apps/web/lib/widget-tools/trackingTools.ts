@@ -51,7 +51,7 @@ export function calculateRollingAverage(
 export function calculateMetricTrend(
     entries: LogEntry[],
     valueField = 'value',
-    windowDays = 30,
+    _windowDays = 30,
 ): 'improving' | 'declining' | 'stable' {
     const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
     const half = Math.floor(sorted.length / 2);

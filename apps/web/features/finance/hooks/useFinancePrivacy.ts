@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const STORAGE_KEY = 'webwidgets.finance.privacy';
 
@@ -31,12 +31,9 @@ function loadSettings() {
 }
 
 export function useFinancePrivacy() {
-    const [settings, setSettings] =
-        useState<FinancePrivacySettings>(DEFAULT_SETTINGS);
-
-    useEffect(() => {
-        setSettings(loadSettings());
-    }, []);
+    const [settings, setSettings] = useState<FinancePrivacySettings>(() =>
+        loadSettings(),
+    );
 
     const update = (patch: Partial<FinancePrivacySettings>) => {
         setSettings((current) => {

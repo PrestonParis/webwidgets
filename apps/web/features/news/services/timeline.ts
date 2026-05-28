@@ -1,7 +1,7 @@
 import type {
     RankedFeedItem,
     TimelineEvent,
-} from '@/features/news/schemas/eventSchemas';
+} from '@/features/news/schemas/eventTypes';
 
 export function groupTimelineEvents(items: RankedFeedItem[]): TimelineEvent[] {
     const buckets = new Map<string, RankedFeedItem[]>();

@@ -1,8 +1,8 @@
+import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
 import type {
-    EventCategory,
     RankedFeedItem,
     TimelineEvent,
-} from '@/features/news/schemas/eventSchemas';
+} from '@/features/news/schemas/eventTypes';
 
 export type NewsTimeFilter = 'latest' | 'today' | 'week';
 

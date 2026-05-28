@@ -1,10 +1,10 @@
 import { match } from 'ts-pattern';
-import {
-    rankedFeedItemSchema,
-    type EnrichedFeedItem,
-    type EventCategory,
-    type RankedFeedItem,
-} from '@/features/news/schemas/eventSchemas';
+import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
+import type {
+    EnrichedFeedItem,
+    RankedFeedItem,
+} from '@/features/news/schemas/eventTypes';
+import { rankedFeedItemSchema } from '@/features/news/schemas/eventCoreSchemas';
 
 const categoryWeights: Record<EventCategory, number> = {
     world: 0.48,

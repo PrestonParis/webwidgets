@@ -1,4 +1,4 @@
-import type { SynthesizedWidgetDefinition } from './widgetDefinitionSchema';
+import type { SynthesizedWidgetDefinition } from './widgetDefinitionInterfaces';
 
 export const SUBSCRIPTION_RISK_WIDGET: SynthesizedWidgetDefinition = {
     id: 'system-subscription-risk',

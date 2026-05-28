@@ -19,6 +19,13 @@ import WidgetWrapper from './WidgetWrapper';
 import FolderWidget from './FolderWidget';
 import HiddenWidgetsTray from './HiddenWidgetsTray';
 import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetContent';
+import { ViewportWidgetMount } from './ViewportWidgetMount';
+import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
+import { getWidgetEmoji, getWidgetLabel } from './freeCanvasUtils';
+import { DashboardRuntimeControls } from './DashboardRuntimeControls';
+
+const DENSE_FOLDER_WIDGET_THRESHOLD = 12;
+const DENSE_FOLDER_BODY_BUDGET = 4;
 
 interface FolderSubScreenProps {
     folder: WidgetConfig;
@@ -88,6 +95,7 @@ function FolderGrid({
             </div>
         );
     }
+    const denseFolder = widgetsInFolder.length > DENSE_FOLDER_WIDGET_THRESHOLD;
     return (
         <DndContext
             sensors={sensors}
@@ -100,40 +108,61 @@ function FolderGrid({
                 items={widgetsInFolder.map((w) => w.id)}
                 strategy={rectSortingStrategy}
             >
-                <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
-                    {widgetsInFolder.map((config) => (
-                        <div key={config.id} className="relative group/fi">
-                            <WidgetWrapper
-                                config={config}
-                                onToggleVisible={onToggleVisible}
-                            >
-                                {config.type === 'folder' ? (
-                                    <FolderWidget
-                                        folder={config}
-                                        layout={layout}
-                                        onOpen={() => onOpenFolder(config.id)}
-                                        onRename={(name) =>
-                                            onRenameFolder(config.id, name)
-                                        }
-                                        onDelete={() =>
-                                            onDeleteFolder(config.id)
-                                        }
-                                    />
-                                ) : (
-                                    renderWidgetContent(config, onReset)
-                                )}
-                            </WidgetWrapper>
-                            <button
-                                onClick={() => onRemoveFromFolder(config.id)}
-                                className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-500 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 opacity-0 group-hover/fi:opacity-100 transition-all"
-                                title="Remove from folder"
-                            >
-                                <LogOut size={11} />
-                                Remove
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                <WidgetBodyBudgetProvider
+                    enabled={denseFolder}
+                    maxActive={DENSE_FOLDER_BODY_BUDGET}
+                >
+                    <DashboardRuntimeControls />
+                    <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+                        {widgetsInFolder.map((config) => (
+                            <div key={config.id} className="relative group/fi">
+                                <WidgetWrapper
+                                    config={config}
+                                    onToggleVisible={onToggleVisible}
+                                >
+                                    {config.type === 'folder' ? (
+                                        <FolderWidget
+                                            folder={config}
+                                            layout={layout}
+                                            onOpen={() =>
+                                                onOpenFolder(config.id)
+                                            }
+                                            onRename={(name) =>
+                                                onRenameFolder(config.id, name)
+                                            }
+                                            onDelete={() =>
+                                                onDeleteFolder(config.id)
+                                            }
+                                        />
+                                    ) : (
+                                        <ViewportWidgetMount
+                                            widgetId={config.id}
+                                            config={config}
+                                            label={getWidgetLabel(config)}
+                                            emoji={getWidgetEmoji(config)}
+                                            render={() =>
+                                                renderWidgetContent(
+                                                    config,
+                                                    onReset,
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </WidgetWrapper>
+                                <button
+                                    onClick={() =>
+                                        onRemoveFromFolder(config.id)
+                                    }
+                                    className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-500 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 opacity-0 group-hover/fi:opacity-100 transition-all"
+                                    title="Remove from folder"
+                                >
+                                    <LogOut size={11} />
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </WidgetBodyBudgetProvider>
             </SortableContext>
         </DndContext>
     );

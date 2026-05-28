@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { listFinanceSubscriptions } from '@/features/finance/services/financeService';
 import {
-    listFinanceSubscriptions,
     createFinanceSubscriptionForUser,
     updateFinanceSubscriptionForUser,
     deleteFinanceSubscriptionForUser,
-} from '@/features/finance/services/financeService';
+} from '@/features/finance/services/financeSubscriptionService';
 import { db } from '@/lib/db/supabase';
 import type { FinanceSubscription } from '@/features/finance/types/finance';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -99,8 +99,9 @@ export function useFinanceSubscriptions() {
     const monthlyTotal = subscriptions.reduce((sum, s) => {
         const cycle = s.cadence || s.billingCycle;
         if (cycle === 'monthly') return sum + s.amount;
-        if (cycle === 'annual' || cycle === 'yearly') return sum + s.amount / 12;
-        if (cycle === 'weekly') return sum + s.amount * 52 / 12;
+        if (cycle === 'annual' || cycle === 'yearly')
+            return sum + s.amount / 12;
+        if (cycle === 'weekly') return sum + (s.amount * 52) / 12;
         return sum;
     }, 0);
 

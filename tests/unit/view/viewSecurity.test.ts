@@ -5,6 +5,8 @@ import {
     sanitizeSvg,
 } from '@/features/view/security/contentSecurity';
 
+const MALICIOUS_SVG = '<svg><script>alert(1)</script><rect /></svg>';
+
 describe('view content security', () => {
     it('rejects oversized files', () => {
         const result = validateViewFile({
@@ -21,8 +23,6 @@ describe('view content security', () => {
         expect(
             sanitizeRichText('<p>Hello</p><script>alert(1)</script>'),
         ).not.toContain('script');
-        expect(
-            sanitizeSvg('<svg><script>alert(1)</script><rect /></svg>'),
-        ).not.toContain('script');
+        expect(sanitizeSvg(MALICIOUS_SVG)).not.toContain('script');
     });
 });

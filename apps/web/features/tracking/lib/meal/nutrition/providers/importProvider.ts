@@ -10,14 +10,14 @@
  */
 
 import Papa from 'papaparse';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
-import type { MealType } from '@/features/tracking/lib/meal/mealDomain';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { MealType } from '@/features/tracking/lib/meal/types';
 import type {
     ExistingMealSignature,
     NutritionImportFormat,
     NutritionImportPreview,
     NutritionImportRow,
-} from '../types';
+} from '../importTypes';
 
 // ─── column synonyms ────────────────────────────────────────────────────────
 
@@ -156,9 +156,11 @@ export function buildImportPreview(
     const dataRows = parsed.data;
 
     for (let i = 0; i < dataRows.length; i++) {
-        const raw = dataRows[i]!;
-        const get = (field: string): string | undefined =>
-            mapping[field] ? raw[mapping[field]!] : undefined;
+        const raw = dataRows[i] ?? {};
+        const get = (field: string): string | undefined => {
+            const column = mapping[field];
+            return column ? raw[column] : undefined;
+        };
 
         const date = parseDate(get('date'));
         const mealType = parseMealType(get('mealType'));

@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react';
+import type { DiagramViewport } from './diagram';
+
 export type ContextEntryType =
     | 'profile'
     | 'goal'
@@ -72,4 +75,37 @@ export interface UpsertEntryPayload {
     label: string;
     data?: Record<string, unknown>;
     linkedTo?: string[];
+}
+
+export interface ContextEdgeLayerProps {
+    graph: ContextGraph;
+    selectedId: string | null;
+}
+
+export interface ContextGraphCanvasProps {
+    graph: ContextGraph;
+    selectedId: string | null;
+    viewport: DiagramViewport;
+    onSelectNode: (id: string | null) => void;
+    onMouseDown: (e: React.MouseEvent) => void;
+    onMouseMove: (e: React.MouseEvent) => void;
+    onMouseUp: () => void;
+}
+
+export interface ContextNodeCardProps {
+    node: ContextNode;
+    selected: boolean;
+    onClick: (entityId: string) => void;
+}
+
+export interface ContextSidebarProps {
+    node: ContextNode | null;
+    onClose: () => void;
+    onDelete: (entityId: string) => void;
+}
+
+export interface ContextCaptureProviderProps {
+    children: ReactNode;
+    permissionsEnabled?: boolean;
+    onCapture?: (payload: UpsertEntryPayload) => void;
 }

@@ -3,9 +3,11 @@ import { ZodError } from 'zod';
 import {
     newsEventSchema,
     rawSourceEventSchema,
-    type NewsEvent,
-    type RawSourceEvent,
-} from '@/features/news/schemas/eventSchemas';
+} from '@/features/news/schemas/eventCoreSchemas';
+import type {
+    NewsEvent,
+    RawSourceEvent,
+} from '@/features/news/schemas/eventTypes';
 
 export type NormalizationError =
     | { type: 'invalid-raw-event'; message: string; issues?: unknown }
@@ -26,6 +28,12 @@ function messageFrom(error: unknown) {
         : 'Unknown normalization error';
 }
 
+function optionalString(value: unknown): string | undefined {
+    return typeof value === 'string' || typeof value === 'number'
+        ? String(value)
+        : undefined;
+}
+
 export function normalizeNewsEvent(
     raw: unknown,
 ): Result<NewsEvent, NormalizationError> {
@@ -41,7 +49,8 @@ export function normalizeNewsEvent(
     const source = parsedRaw.data;
     try {
         const payload = source.payload as Record<string, unknown>;
-        const title = String(payload.title ?? payload.headline ?? '').trim();
+        const title =
+            optionalString(payload.title ?? payload.headline)?.trim() ?? '';
         const link =
             typeof payload.link === 'string'
                 ? payload.link

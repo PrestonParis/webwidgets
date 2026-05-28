@@ -9,7 +9,9 @@ import type {
 function getConversionApiBaseUrl() {
     // Defaults to the Next.js proxy (/api/conversion) so the upstream URL stays server-only.
     // Set NEXT_PUBLIC_CONVERSION_API_URL to bypass the proxy (e.g. http://localhost:4010 for direct local access).
-    return (process.env.NEXT_PUBLIC_CONVERSION_API_URL ?? '/api/conversion').replace(/\/$/, '');
+    return (
+        process.env.NEXT_PUBLIC_CONVERSION_API_URL ?? '/api/conversion'
+    ).replace(/\/$/, '');
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -20,9 +22,12 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
             ...init?.headers,
         },
     });
-    const body = await response.json().catch(() => null);
+    const body: unknown = await response.json().catch(() => null);
     if (!response.ok) {
-        throw new Error(body?.error ?? `Conversion request failed: ${response.status}`);
+        const errorBody = body as { error?: string } | null;
+        throw new Error(
+            errorBody?.error ?? `Conversion request failed: ${response.status}`,
+        );
     }
     return body as T;
 }

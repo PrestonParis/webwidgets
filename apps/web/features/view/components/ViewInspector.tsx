@@ -3,7 +3,7 @@
 import type {
     NormalizedViewDocument,
     ViewLayer,
-} from '@/features/view/schemas/viewSchemas';
+} from '@/features/view/schemas/objectSchemas';
 import { analyzeViewDocument } from '@/features/view/analyzers/viewAnalyzer';
 import { getTransformsForStrategy } from '@/features/view/transforms/viewTransforms';
 

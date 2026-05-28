@@ -20,31 +20,31 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (status === 'loading' || !authUser) {
-            setLoading(false);
-            return;
-        }
-
-        const load = async () => {
-            setUser(authUser);
-
-            if (!authUser) {
+        const timeoutId = window.setTimeout(() => {
+            if (status === 'loading' || !authUser) {
                 setLoading(false);
                 return;
             }
 
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', authUser.id)
-                .single();
+            const load = async () => {
+                setUser(authUser);
 
-            const parsed = profileSchema.safeParse(profile);
-            setFullName(parsed.success ? (parsed.data.full_name ?? '') : '');
-            setLoading(false);
-        };
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', authUser.id)
+                    .single();
 
-        void load();
+                const parsed = profileSchema.safeParse(profile);
+                setFullName(
+                    parsed.success ? (parsed.data.full_name ?? '') : '',
+                );
+                setLoading(false);
+            };
+
+            void load();
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
     }, [authUser, status]);
 
     const save = async () => {

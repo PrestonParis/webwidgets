@@ -1,5 +1,5 @@
 import type { FileUpload } from '@/features/uploads/types/upload';
-import type { ViewFileRef } from '@/features/view/schemas/viewSchemas';
+import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
 
 export function uploadToViewFile(upload: FileUpload): ViewFileRef {
     return {

@@ -7,7 +7,7 @@
  * interface and on the registry in ./index.
  */
 
-import type { FoodSearchResult } from '../types';
+import type { FoodSearchResult } from '../foodTypes';
 
 export interface FoodProvider {
     /** Stable identifier, also used as FoodSearchResult.provider. */

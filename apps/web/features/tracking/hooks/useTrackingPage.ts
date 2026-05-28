@@ -5,7 +5,7 @@ import { useTrackingEntries } from './useTrackingEntries';
 import { useTrackingActions } from './useTrackingActions';
 import { useCustomCategories } from './useCustomCategories';
 import { useDateRange } from './useDateRange';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 
 export type TrackingPageTab =
     | 'log'

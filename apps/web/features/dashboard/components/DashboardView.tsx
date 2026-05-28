@@ -25,6 +25,7 @@ import { useDashboardPage } from '@/features/dashboard/hooks/useDashboardPage';
 import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
 import { useDashboardSnapshot } from '@/features/dashboard/hooks/useDashboardSnapshot';
 import { DashboardSnapshotProvider } from '@/features/dashboard/lib/DashboardSnapshotContext';
+import { DashboardRuntimeProvider } from '@/features/dashboard/runtime/DashboardRuntimeProvider';
 import type { Dispatch, SetStateAction } from 'react';
 
 // ─── sub-views ────────────────────────────────────────────────────────────────
@@ -133,6 +134,7 @@ interface GridViewProps extends DashboardGridProps {
     onToggleFullscreen: () => void;
     simplified?: boolean;
     onAddTracker?: (tracker: Tracker) => void;
+    onAddAllTrackers?: (trackers: Tracker[]) => void;
 }
 
 function GridView({
@@ -163,6 +165,7 @@ function GridView({
     onToggleFullscreen,
     simplified = false,
     onAddTracker,
+    onAddAllTrackers,
     ...gridProps
 }: GridViewProps) {
     // 1D mode forces grid layout — free canvas is not compatible
@@ -195,6 +198,7 @@ function GridView({
                 onToggleFullscreen={onToggleFullscreen}
                 simplified={simplified}
                 onAddTracker={onAddTracker}
+                onAddAllTrackers={onAddAllTrackers}
             />
             {!simplified && effectiveMode === 'free' && ready && (
                 <div className="mb-4">
@@ -340,151 +344,185 @@ export default function Dashboard() {
     return (
         <DashboardSnapshotProvider snapshot={snapshot}>
             <WidgetSettingsProvider widgets={widgetEntries}>
-                {!fullscreen && <Header />}
-                <FloatingBucket
-                    layout={layout}
-                    onRestore={restoreFromBucket}
-                    onRemove={(id) =>
-                        updateLayout(layout.filter((w) => w.id !== id))
-                    }
-                />
-                <div
-                    className={`min-h-screen transition-colors duration-300 ${bgIsDefault ? 'bg-gray-50 dark:bg-zinc-950' : ''}`}
-                    style={bgIsDefault ? undefined : bgStyle}
-                >
-                    <main className={mainCls}>
-                        {isRecoveryOpen ? (
-                            ready && (
-                                <RecoverySubScreen
-                                    onBack={() => setIsRecoveryOpen(false)}
-                                    layout={layout}
-                                    onAddAllToLayout={(newWidgets) => {
+                <DashboardRuntimeProvider>
+                    {!fullscreen && <Header />}
+                    <FloatingBucket
+                        layout={layout}
+                        onRestore={restoreFromBucket}
+                        onRemove={(id) =>
+                            updateLayout(layout.filter((w) => w.id !== id))
+                        }
+                    />
+                    <div
+                        className={`min-h-screen transition-colors duration-300 ${bgIsDefault ? 'bg-gray-50 dark:bg-zinc-950' : ''}`}
+                        style={bgIsDefault ? undefined : bgStyle}
+                    >
+                        <main className={mainCls}>
+                            {isRecoveryOpen ? (
+                                ready && (
+                                    <RecoverySubScreen
+                                        onBack={() => setIsRecoveryOpen(false)}
+                                        layout={layout}
+                                        onAddAllToLayout={(newWidgets) => {
+                                            pushHistory();
+                                            updateLayout([
+                                                ...layout,
+                                                ...newWidgets,
+                                            ]);
+                                        }}
+                                    />
+                                )
+                            ) : activeFolder ? (
+                                ready && (
+                                    <FolderView
+                                        activeFolder={activeFolder}
+                                        folderStack={folderStack}
+                                        setFolderStack={setFolderStack}
+                                        setActiveFolderId={setActiveFolderId}
+                                        layout={layout}
+                                        updateLayout={updateLayout}
+                                        removeFromFolder={removeFromFolder}
+                                        renameFolder={renameFolder}
+                                        deleteFolder={deleteFolder}
+                                        toggleVisibility={toggleVisibility}
+                                        handleReset={handleReset}
+                                        pushHistory={pushHistory}
+                                    />
+                                )
+                            ) : (
+                                <GridView
+                                    {...sharedGridProps}
+                                    greeting={greeting}
+                                    firstName={firstName}
+                                    onAddFolder={addFolder}
+                                    mode={mode}
+                                    onModeChange={setMode}
+                                    simplified={oneDimensionalMode}
+                                    onAddTracker={(tracker) => {
                                         pushHistory();
+                                        const alreadyPresent = layout.some(
+                                            (w) =>
+                                                w.id ===
+                                                `widget-recovery-${tracker.id}`,
+                                        );
+                                        if (alreadyPresent) return;
+                                        const maxOrder = layout.reduce(
+                                            (m, w) => Math.max(m, w.order),
+                                            -1,
+                                        );
                                         updateLayout([
                                             ...layout,
-                                            ...newWidgets,
+                                            {
+                                                id: `widget-recovery-${tracker.id}`,
+                                                type: 'recovery' as WidgetType,
+                                                visible: true,
+                                                columnSpan: 1,
+                                                containerId: 'main',
+                                                order: maxOrder + 1,
+                                                props: { tracker },
+                                            },
                                         ]);
                                     }}
+                                    onAddAllTrackers={(newTrackers) => {
+                                        pushHistory();
+                                        const existingIds = new Set(
+                                            layout.map((w) => w.id),
+                                        );
+                                        let maxOrder = layout.reduce(
+                                            (m, w) => Math.max(m, w.order),
+                                            -1,
+                                        );
+                                        const additions = newTrackers
+                                            .filter(
+                                                (t) =>
+                                                    !existingIds.has(
+                                                        `widget-recovery-${t.id}`,
+                                                    ),
+                                            )
+                                            .map((t) => ({
+                                                id: `widget-recovery-${t.id}`,
+                                                type: 'recovery' as WidgetType,
+                                                visible: true,
+                                                columnSpan: 1,
+                                                containerId: 'main',
+                                                order: ++maxOrder,
+                                                props: { tracker: t },
+                                            }));
+                                        if (additions.length > 0) {
+                                            updateLayout([
+                                                ...layout,
+                                                ...additions,
+                                            ]);
+                                        }
+                                    }}
+                                    onAddWidget={(type) => {
+                                        pushHistory();
+                                        const maxOrder = layout.reduce(
+                                            (m, w) => Math.max(m, w.order),
+                                            -1,
+                                        );
+                                        updateLayout([
+                                            ...layout,
+                                            {
+                                                id: `widget-${type}-${Date.now()}`,
+                                                type: type as WidgetType,
+                                                visible: true,
+                                                columnSpan: 1,
+                                                containerId: 'main',
+                                                order: maxOrder + 1,
+                                            },
+                                        ]);
+                                    }}
+                                    onRestoreUnpresented={(id) => {
+                                        pushHistory();
+                                        restoreUnpresented(id);
+                                    }}
+                                    canUndo={history.length > 0}
+                                    canRedo={future.length > 0}
+                                    onUndo={undo}
+                                    onRedo={redo}
+                                    onArchiveWidgets={(ids) => {
+                                        pushHistory();
+                                        updateLayout(
+                                            layout.map((w) =>
+                                                ids.includes(w.id)
+                                                    ? {
+                                                          ...w,
+                                                          containerId: 'bucket',
+                                                      }
+                                                    : w,
+                                            ),
+                                        );
+                                    }}
+                                    onRemoveWidgets={(ids) => {
+                                        pushHistory();
+                                        updateLayout(
+                                            layout.filter(
+                                                (w) => !ids.includes(w.id),
+                                            ),
+                                        );
+                                    }}
+                                    scenes={scenes}
+                                    onSaveScene={saveScene}
+                                    onLoadScene={loadScene}
+                                    onDeleteScene={deleteScene}
+                                    onRenameScene={renameScene}
+                                    onResetLayout={() =>
+                                        updateLayout(
+                                            buildDefaultLayout(trackers ?? []),
+                                        )
+                                    }
+                                    snapRule={snapRule}
+                                    onSnapRuleChange={setSnapRule}
+                                    ready={ready}
+                                    fullscreen={fullscreen}
+                                    onToggleFullscreen={toggleFullscreen}
                                 />
-                            )
-                        ) : activeFolder ? (
-                            ready && (
-                                <FolderView
-                                    activeFolder={activeFolder}
-                                    folderStack={folderStack}
-                                    setFolderStack={setFolderStack}
-                                    setActiveFolderId={setActiveFolderId}
-                                    layout={layout}
-                                    updateLayout={updateLayout}
-                                    removeFromFolder={removeFromFolder}
-                                    renameFolder={renameFolder}
-                                    deleteFolder={deleteFolder}
-                                    toggleVisibility={toggleVisibility}
-                                    handleReset={handleReset}
-                                    pushHistory={pushHistory}
-                                />
-                            )
-                        ) : (
-                            <GridView
-                                {...sharedGridProps}
-                                greeting={greeting}
-                                firstName={firstName}
-                                onAddFolder={addFolder}
-                                mode={mode}
-                                onModeChange={setMode}
-                                simplified={oneDimensionalMode}
-                                onAddTracker={(tracker) => {
-                                    pushHistory();
-                                    const alreadyPresent = layout.some(
-                                        (w) =>
-                                            w.id ===
-                                            `widget-recovery-${tracker.id}`,
-                                    );
-                                    if (alreadyPresent) return;
-                                    const maxOrder = layout.reduce(
-                                        (m, w) => Math.max(m, w.order),
-                                        -1,
-                                    );
-                                    updateLayout([
-                                        ...layout,
-                                        {
-                                            id: `widget-recovery-${tracker.id}`,
-                                            type: 'recovery' as WidgetType,
-                                            visible: true,
-                                            columnSpan: 1,
-                                            containerId: 'main',
-                                            order: maxOrder + 1,
-                                            props: { tracker },
-                                        },
-                                    ]);
-                                }}
-                                onAddWidget={(type) => {
-                                    pushHistory();
-                                    const maxOrder = layout.reduce(
-                                        (m, w) => Math.max(m, w.order),
-                                        -1,
-                                    );
-                                    updateLayout([
-                                        ...layout,
-                                        {
-                                            id: `widget-${type}-${Date.now()}`,
-                                            type: type as WidgetType,
-                                            visible: true,
-                                            columnSpan: 1,
-                                            containerId: 'main',
-                                            order: maxOrder + 1,
-                                        },
-                                    ]);
-                                }}
-                                onRestoreUnpresented={(id) => {
-                                    pushHistory();
-                                    restoreUnpresented(id);
-                                }}
-                                canUndo={history.length > 0}
-                                canRedo={future.length > 0}
-                                onUndo={undo}
-                                onRedo={redo}
-                                onArchiveWidgets={(ids) => {
-                                    pushHistory();
-                                    updateLayout(
-                                        layout.map((w) =>
-                                            ids.includes(w.id)
-                                                ? {
-                                                      ...w,
-                                                      containerId: 'bucket',
-                                                  }
-                                                : w,
-                                        ),
-                                    );
-                                }}
-                                onRemoveWidgets={(ids) => {
-                                    pushHistory();
-                                    updateLayout(
-                                        layout.filter(
-                                            (w) => !ids.includes(w.id),
-                                        ),
-                                    );
-                                }}
-                                scenes={scenes}
-                                onSaveScene={saveScene}
-                                onLoadScene={loadScene}
-                                onDeleteScene={deleteScene}
-                                onRenameScene={renameScene}
-                                onResetLayout={() =>
-                                    updateLayout(
-                                        buildDefaultLayout(trackers ?? []),
-                                    )
-                                }
-                                snapRule={snapRule}
-                                onSnapRuleChange={setSnapRule}
-                                ready={ready}
-                                fullscreen={fullscreen}
-                                onToggleFullscreen={toggleFullscreen}
-                            />
-                        )}
-                    </main>
-                </div>
-                {!fullscreen && <Footer />}
+                            )}
+                        </main>
+                    </div>
+                    {!fullscreen && <Footer />}
+                </DashboardRuntimeProvider>
             </WidgetSettingsProvider>
         </DashboardSnapshotProvider>
     );

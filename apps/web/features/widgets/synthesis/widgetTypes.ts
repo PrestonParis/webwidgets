@@ -1,0 +1,117 @@
+export type SynthesizedWidgetSource =
+    | 'manual_builder'
+    | 'search_synthesis'
+    | 'system_template';
+export type SynthesizedWidgetStatus =
+    | 'draft'
+    | 'active'
+    | 'disabled'
+    | 'invalid';
+export type WidgetBuilderPurpose =
+    | 'track'
+    | 'display'
+    | 'trigger'
+    | 'monitor'
+    | 'visualize'
+    | 'connect_api'
+    | 'dashboard_card'
+    | 'automation'
+    | 'analyze'
+    | 'plan'
+    | 'custom';
+export type WidgetDataSourceType =
+    | 'local_mock'
+    | 'manual'
+    | 'app_state'
+    | 'feature_data'
+    | 'api'
+    | 'oauth_placeholder'
+    | 'uploaded_file'
+    | 'transformed'
+    | 'combined';
+export type WidgetTransformationType =
+    | 'pick_fields'
+    | 'rename_fields'
+    | 'filter_rows'
+    | 'sort_rows'
+    | 'group_by_time'
+    | 'aggregate'
+    | 'convert_dates'
+    | 'convert_currency'
+    | 'calc_derived'
+    | 'map_to_categories'
+    | 'join_sources'
+    | 'normalize_records'
+    | 'deduplicate'
+    | 'rank'
+    | 'score'
+    | 'bucket'
+    | 'time_window'
+    | 'rolling_average'
+    | 'threshold_detection'
+    | 'anomaly_placeholder'
+    | 'correlation_placeholder'
+    | 'entity_extraction_placeholder'
+    | 'summarization_placeholder'
+    | 'format_percentage'
+    | 'merge_timelines';
+export type WidgetLayoutType =
+    | 'small_card'
+    | 'metric_card'
+    | 'list'
+    | 'timeline'
+    | 'chart'
+    | 'table'
+    | 'panel'
+    | 'split'
+    | 'tabbed'
+    | 'compact'
+    | 'expanded'
+    | 'dense_dashboard_card'
+    | 'full_page_module'
+    | 'chart_table'
+    | 'timeline_detail'
+    | 'feed_inspector'
+    | 'kpi_drilldown'
+    | 'form_preview'
+    | 'comparison';
+export type WidgetComponentCategory =
+    | 'layout'
+    | 'display'
+    | 'input'
+    | 'visualization'
+    | 'action'
+    | 'status';
+export type WidgetBuilderStepId =
+    | 'purpose'
+    | 'data_source'
+    | 'transform'
+    | 'layout'
+    | 'components'
+    | 'actions'
+    | 'automations'
+    | 'permissions'
+    | 'preview'
+    | 'save';
+export type WidgetPreviewMode =
+    | 'compact'
+    | 'expanded'
+    | 'empty'
+    | 'loading'
+    | 'error';
+export type WidgetCreatorTag = 'system' | 'user' | 'ai';
+export type WidgetComplexity = 'simple' | 'moderate' | 'advanced';
+export type WidgetIntentDomain =
+    | 'finance'
+    | 'communication'
+    | 'productivity'
+    | 'health'
+    | 'recovery'
+    | 'research'
+    | 'news'
+    | 'calendar'
+    | 'developer'
+    | 'weather'
+    | 'sports'
+    | 'custom'
+    | 'system';

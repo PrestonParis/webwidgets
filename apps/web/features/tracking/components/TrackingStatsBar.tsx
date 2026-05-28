@@ -9,7 +9,7 @@ import {
     getCategoryLabel,
     getCategoryEmoji,
 } from '@/features/tracking/constants';
-import type { TrackingEntry } from '@/features/tracking/types/tracking';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
 
 interface TrackingStatsBarProps {

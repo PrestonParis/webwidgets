@@ -8,7 +8,7 @@
  *   - caches results in a session-level Map to avoid re-hitting APIs
  */
 
-import type { FoodSearchResult } from '../types';
+import type { FoodSearchResult } from '../foodTypes';
 import { NUTRITION_FLAGS } from '../../featureFlags';
 import { FoodProviderError, type FoodProvider } from './types';
 import { manualProvider } from './manualProvider';
@@ -81,7 +81,7 @@ export async function searchFoods(query: string): Promise<FoodSearchOutcome> {
         if (res.status === 'fulfilled') {
             all.push(...res.value);
         } else {
-            const err = res.reason;
+            const err: unknown = res.reason;
             errors.push({
                 provider: provider.name,
                 code: err instanceof FoodProviderError ? err.code : 'network',

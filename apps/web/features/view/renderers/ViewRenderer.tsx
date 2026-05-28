@@ -2,9 +2,10 @@
 
 import { useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import Image from 'next/image';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import type { NormalizedViewDocument } from '@/features/view/schemas/viewSchemas';
+import type { NormalizedViewDocument } from '@/features/view/schemas/objectSchemas';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -17,6 +18,15 @@ function PreBlock({ text }: { text: string }) {
             {text}
         </pre>
     );
+}
+
+function renderValue(value: unknown): string {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') {
+        return String(value);
+    }
+    return JSON.stringify(value);
 }
 
 export function ViewRenderer({
@@ -82,10 +92,13 @@ export function ViewRenderer({
     if (document.strategy === 'image' && typeof renderable?.url === 'string') {
         return (
             <div className="grid h-full place-items-center overflow-auto bg-zinc-100 p-6 dark:bg-zinc-950">
-                <img
+                <Image
                     src={renderable.url}
                     alt={document.file.name}
                     className="max-h-full max-w-full shadow-xl"
+                    width={0}
+                    height={0}
+                    style={{ width: 'auto', height: 'auto' }}
                 />
             </div>
         );
@@ -131,7 +144,7 @@ export function ViewRenderer({
                                         key={field}
                                         className="border border-zinc-800 px-2 py-1 text-zinc-400"
                                     >
-                                        {String(row[field] ?? '')}
+                                        {renderValue(row[field])}
                                     </td>
                                 ))}
                             </tr>
@@ -150,7 +163,7 @@ export function ViewRenderer({
     ) {
         return (
             <PreBlock
-                text={String(renderable?.text ?? document.searchableText)}
+                text={renderValue(renderable?.text ?? document.searchableText)}
             />
         );
     }

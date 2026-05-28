@@ -27,8 +27,8 @@ export default function WeatherWidget({
             onSettingsChange={updateSettings}
             widgetId={widgetId}
             widgetType="weather"
-            footerHref="/weather"
-            footerLabel="Open weather →"
+            footerHref="/planning"
+            footerLabel="Open planning →"
         >
             {state === 'loading' && <WeatherSkeleton />}
             {state === 'ready' && weather && (

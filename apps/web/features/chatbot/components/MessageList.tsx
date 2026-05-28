@@ -1,13 +1,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { ChatMessage } from '@/features/chatbot/types/chat';
-
-interface Props {
-    messages: ChatMessage[];
-    streamingContent: string;
-    isStreaming: boolean;
-}
+import type {
+    ChatMessage,
+    MessageListProps,
+} from '@/features/chatbot/types/chat';
 
 function MessageBubble({ message }: { message: ChatMessage }) {
     const isUser = message.role === 'user';
@@ -20,7 +17,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
                         : 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 rounded-tl-md'
                 }`}
             >
-                <p className="whitespace-pre-wrap break-words">
+                <p className="whitespace-pre-wrap wrap-break-word">
                     {message.content}
                 </p>
                 {message.model && (
@@ -38,7 +35,9 @@ function StreamingBubble({ content }: { content: string }) {
         <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl rounded-tl-md px-4 py-2.5 text-sm leading-relaxed bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100">
                 {content ? (
-                    <p className="whitespace-pre-wrap break-words">{content}</p>
+                    <p className="whitespace-pre-wrap wrap-break-word">
+                        {content}
+                    </p>
                 ) : (
                     <span className="flex gap-1 py-1">
                         {[0, 1, 2].map((i) => (
@@ -59,7 +58,7 @@ export function MessageList({
     messages,
     streamingContent,
     isStreaming,
-}: Props) {
+}: MessageListProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

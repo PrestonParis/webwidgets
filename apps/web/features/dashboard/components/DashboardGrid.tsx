@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -27,35 +26,13 @@ import { renderWidgetContent } from '@/features/dashboard/lib/renderWidgetConten
 import { useWidgetSettingsContext } from '@/features/widgets/context/WidgetSettingsContext';
 import { CopyStyleContext } from '@/features/dashboard/lib/CopyStyleContext';
 import { getWidgetMetadata } from '@/features/widgets/registry/widgetMetadata';
-import { WidgetSkeleton } from '@/features/widgets/components/WidgetSkeleton';
 import { DASHBOARD_BOOTSTRAP_WIDGET_COUNT } from '@/features/dashboard/lib/dashboardSnapshotBootstrap';
+import { ViewportWidgetMount } from './ViewportWidgetMount';
+import { WidgetBodyBudgetProvider } from './WidgetBodyBudget';
+import { getWidgetEmoji, getWidgetLabel } from './freeCanvasUtils';
 
-function LazyWidgetMount({ children }: { children: ReactNode }) {
-    const [mounted, setMounted] = useState(false);
-    const ref = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (mounted) return;
-        const node = ref.current;
-        if (!node || !('IntersectionObserver' in window)) {
-            setMounted(true);
-            return;
-        }
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry?.isIntersecting) {
-                    setMounted(true);
-                    observer.disconnect();
-                }
-            },
-            { rootMargin: '600px 0px' },
-        );
-        observer.observe(node);
-        return () => observer.disconnect();
-    }, [mounted]);
-
-    return <div ref={ref}>{mounted ? children : <WidgetSkeleton />}</div>;
-}
+const DENSE_WIDGET_THRESHOLD = 12;
+const DENSE_WIDGET_BODY_BUDGET = 4;
 
 function handleGridDragEnd(
     event: DragEndEvent,
@@ -157,6 +134,26 @@ export default function DashboardGrid(props: DashboardGridProps) {
                 w.visible && w.containerId === 'main' && w.unpresented !== true,
         )
         .sort((a, b) => a.order - b.order);
+    const denseLayout = visible.length > DENSE_WIDGET_THRESHOLD;
+    const nonFolderWidgetCount = visible.filter(
+        (w) => w.type !== 'folder',
+    ).length;
+
+    useEffect(() => {
+        if (!denseLayout || process.env.NODE_ENV === 'production') return;
+        console.info('[dashboard] dense widget memory guard', {
+            totalWidgets: visible.length,
+            eagerWidgetBodies: Math.min(
+                DASHBOARD_BOOTSTRAP_WIDGET_COUNT,
+                nonFolderWidgetCount,
+            ),
+            deferredWidgetBodies: Math.max(
+                0,
+                nonFolderWidgetCount - DASHBOARD_BOOTSTRAP_WIDGET_COUNT,
+            ),
+            snapshotDisabled: true,
+        });
+    }, [denseLayout, nonFolderWidgetCount, visible.length]);
 
     return (
         <CopyStyleContext.Provider value={copyStyleMap}>
@@ -177,44 +174,62 @@ export default function DashboardGrid(props: DashboardGridProps) {
                     items={visible.map((w) => w.id)}
                     strategy={rectSortingStrategy}
                 >
-                    <div
-                        className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-4'}`}
+                    <WidgetBodyBudgetProvider
+                        enabled={denseLayout}
+                        maxActive={DENSE_WIDGET_BODY_BUDGET}
                     >
-                        {visible.map((config, index) => (
-                            <WidgetWrapper
-                                key={config.id}
-                                config={config}
-                                onToggleVisible={onToggleVisible}
-                                onRemove={handleRemove}
-                                {...(onMoveToBucket && { onMoveToBucket })}
-                                {...(onUnpresent && { onUnpresent })}
-                            >
-                                {config.type === 'folder' ? (
-                                    <FolderWidget
-                                        folder={config}
-                                        layout={layout}
-                                        onOpen={() => onOpenFolder(config.id)}
-                                        onRename={(n) =>
-                                            onRenameFolder(config.id, n)
-                                        }
-                                        onDelete={() =>
-                                            onDeleteFolder(config.id)
-                                        }
-                                    />
-                                ) : config.type === 'recovery-empty' ? (
-                                    <RecoveryFolderWidget
-                                        onOpen={() => onOpenRecovery?.()}
-                                    />
-                                ) : index < DASHBOARD_BOOTSTRAP_WIDGET_COUNT ? (
-                                    renderWidgetContent(config, onReset)
-                                ) : (
-                                    <LazyWidgetMount>
-                                        {renderWidgetContent(config, onReset)}
-                                    </LazyWidgetMount>
-                                )}
-                            </WidgetWrapper>
-                        ))}
-                    </div>
+                        <div
+                            className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-4'}`}
+                        >
+                            {visible.map((config, index) => (
+                                <WidgetWrapper
+                                    key={config.id}
+                                    config={config}
+                                    onToggleVisible={onToggleVisible}
+                                    onRemove={handleRemove}
+                                    {...(onMoveToBucket && { onMoveToBucket })}
+                                    {...(onUnpresent && { onUnpresent })}
+                                >
+                                    {config.type === 'folder' ? (
+                                        <FolderWidget
+                                            folder={config}
+                                            layout={layout}
+                                            onOpen={() =>
+                                                onOpenFolder(config.id)
+                                            }
+                                            onRename={(n) =>
+                                                onRenameFolder(config.id, n)
+                                            }
+                                            onDelete={() =>
+                                                onDeleteFolder(config.id)
+                                            }
+                                        />
+                                    ) : config.type === 'recovery-empty' ? (
+                                        <RecoveryFolderWidget
+                                            onOpen={() => onOpenRecovery?.()}
+                                        />
+                                    ) : (
+                                        <ViewportWidgetMount
+                                            widgetId={config.id}
+                                            config={config}
+                                            eager={
+                                                index <
+                                                DASHBOARD_BOOTSTRAP_WIDGET_COUNT
+                                            }
+                                            label={getWidgetLabel(config)}
+                                            emoji={getWidgetEmoji(config)}
+                                            render={() =>
+                                                renderWidgetContent(
+                                                    config,
+                                                    onReset,
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </WidgetWrapper>
+                            ))}
+                        </div>
+                    </WidgetBodyBudgetProvider>
                 </SortableContext>
             </DndContext>
         </CopyStyleContext.Provider>

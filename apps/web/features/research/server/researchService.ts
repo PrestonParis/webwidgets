@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type {
     ResearchArtifactSummary,
     ResearchPipelineRequest,
@@ -20,7 +21,8 @@ async function exists(filePath: string) {
 }
 
 function getResearchRoot(rootPath?: string): string | null {
-    const configuredRoot = rootPath?.trim() || process.env.RESEARCH_ROOT?.trim();
+    const configuredRoot =
+        rootPath?.trim() || process.env.RESEARCH_ROOT?.trim();
     if (!configuredRoot) return null;
     if (!path.isAbsolute(configuredRoot)) return null;
     return path.resolve(configuredRoot);
@@ -287,7 +289,8 @@ export async function runResearchPipeline(
         return {
             ok: false,
             command: ['dotnet', ...command],
-            output: status.unavailableReason ?? 'Research repository unavailable.',
+            output:
+                status.unavailableReason ?? 'Research repository unavailable.',
             exitCode: 1,
         };
     }
@@ -302,7 +305,7 @@ export async function runResearchPipeline(
     }
 
     const result = await new Promise<ResearchPipelineResult>((resolve) => {
-        const child = spawn('dotnet', command, {
+        const child: ChildProcessWithoutNullStreams = spawn('dotnet', command, {
             cwd: paths.root,
             env: process.env,
         });
@@ -312,7 +315,7 @@ export async function runResearchPipeline(
         };
         child.stdout.on('data', append);
         child.stderr.on('data', append);
-        child.on('error', (error) => {
+        child.on('error', (error: Error) => {
             resolve({
                 ok: false,
                 command: ['dotnet', ...command],
@@ -320,7 +323,7 @@ export async function runResearchPipeline(
                 exitCode: 1,
             });
         });
-        child.on('close', (code) => {
+        child.on('close', (code: number | null) => {
             resolve({
                 ok: code === 0,
                 command: ['dotnet', ...command],
@@ -371,9 +374,13 @@ async function prepareArtifactZip(
         .filter(Boolean);
 
     return new Promise((resolve) => {
-        const child = spawn('zip', ['-j', zipPath, ...files], {
-            cwd: paths.root,
-        });
+        const child: ChildProcessWithoutNullStreams = spawn(
+            'zip',
+            ['-j', zipPath, ...files],
+            {
+                cwd: paths.root,
+            },
+        );
         let output = '';
         child.stdout.on('data', (chunk: Buffer) => {
             output += chunk.toString('utf8');
@@ -381,10 +388,10 @@ async function prepareArtifactZip(
         child.stderr.on('data', (chunk: Buffer) => {
             output += chunk.toString('utf8');
         });
-        child.on('error', (error) => {
+        child.on('error', (error: Error) => {
             resolve(`[zip:error] ${error.message}`);
         });
-        child.on('close', (code) => {
+        child.on('close', (code: number | null) => {
             resolve(
                 code === 0
                     ? `[zip] ready: ${zipPath}`

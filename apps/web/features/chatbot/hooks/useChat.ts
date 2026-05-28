@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
     listConversations,
@@ -79,7 +79,10 @@ export function useChat(): UseChatReturn {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [streamingContent, setStreamingContent] = useState('');
     const [isStreaming, setIsStreaming] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useReducer(
+        (_: boolean, v: boolean) => v,
+        true,
+    );
     const [error, setError] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL_ID);
     const [selectedProvider, setSelectedProvider] =

@@ -1,7 +1,7 @@
 'use client';
 
 import * as d3 from 'd3';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useChartDimensions } from './useChartDimensions';
 import { FinanceChartTooltip } from './FinanceChartTooltip';
 
@@ -50,14 +50,17 @@ export function CategoryBreakdownRing({
         slice: CategorySlice | null;
     }>({ x: 0, y: 0, visible: false, slice: null });
 
-    const fmt =
-        formatAmount ??
-        ((n: number) =>
-            n.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 0,
-            }));
+    const fmt = useMemo(
+        () =>
+            formatAmount ??
+            ((n: number) =>
+                n.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                })),
+        [formatAmount],
+    );
     const total = breakdown.reduce((s, d) => s + d.amount, 0);
 
     useEffect(() => {

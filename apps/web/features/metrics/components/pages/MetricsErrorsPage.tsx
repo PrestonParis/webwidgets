@@ -5,11 +5,6 @@ import { MetricCard } from '../MetricCard';
 import { MetricsEmptyState } from '../MetricsEmptyState';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 
-interface PrometheusLine {
-    name: string;
-    value: number;
-}
-
 function parseMetricLine(text: string, name: string): number {
     const re = new RegExp(
         `^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+([\\d.]+)`,

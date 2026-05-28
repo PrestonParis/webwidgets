@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { z } from 'zod';
 import type { Json } from '@/types/supabase';
 import {
     createJob,
@@ -68,7 +69,7 @@ export async function triggerWorkflow<TPayload extends Json>(
             payload,
             idempotencyKey: input.idempotencyKey ?? job.id,
         },
-        schema as any,
+        schema as unknown as z.ZodType<TPayload>,
     );
 
     if (!result.ok) {

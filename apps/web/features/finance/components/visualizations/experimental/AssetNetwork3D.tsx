@@ -174,7 +174,6 @@ export function AssetNetwork3D({
     accounts,
     height = 400,
 }: AssetNetwork3DProps) {
-    const [, setSelected] = useState<string | null>(null);
     const network = useMemo(() => buildNetwork(accounts), [accounts]);
 
     if (accounts.length === 0) {

@@ -34,7 +34,9 @@ export function ConfirmDialog({
                     <div className="flex gap-3 items-start">
                         <AlertCircle
                             size={24}
-                            className={isDangerous ? 'text-red-500' : 'text-blue-500'}
+                            className={
+                                isDangerous ? 'text-red-500' : 'text-blue-500'
+                            }
                         />
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -55,7 +57,9 @@ export function ConfirmDialog({
                         {cancelLabel}
                     </button>
                     <button
-                        onClick={onConfirm}
+                        onClick={() => {
+                            void onConfirm();
+                        }}
                         disabled={isLoading}
                         className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 ${
                             isDangerous

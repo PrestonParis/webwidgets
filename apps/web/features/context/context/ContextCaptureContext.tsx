@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useCallback, useContext, useState } from 'react';
-import type { ReactNode } from 'react';
 import type {
     ContextEntryType,
+    ContextCaptureProviderProps,
     UpsertEntryPayload,
 } from '@/features/context/types/context';
 
@@ -31,17 +31,11 @@ const ContextCaptureContext = createContext<ContextCaptureContextValue>({
     permissionsEnabled: false,
 });
 
-interface Props {
-    children: ReactNode;
-    permissionsEnabled?: boolean;
-    onCapture?: (payload: UpsertEntryPayload) => void;
-}
-
 export function ContextCaptureProvider({
     children,
     permissionsEnabled = true,
     onCapture,
-}: Props) {
+}: ContextCaptureProviderProps) {
     const [pendingCaptures, setPendingCaptures] = useState<CaptureEvent[]>([]);
 
     const capture = useCallback(

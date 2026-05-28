@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils/utils';
 import { CalcButton, BasicMode } from './BasicMode';
 import type { CalcControls } from '../../hooks/useCalculator';
 

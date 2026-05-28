@@ -90,12 +90,10 @@ function matchesText(exercise: ExerciseDefinition, query: string): boolean {
 export const localExerciseLibraryProvider: ExerciseLibraryProvider = {
     id: 'local-exercise-library',
     label: 'Local exercise library',
-    async search(
-        filters: ExerciseSearchFilters,
-    ): Promise<ExerciseDefinition[]> {
+    search(filters: ExerciseSearchFilters): Promise<ExerciseDefinition[]> {
         const key = JSON.stringify(filters);
         const cached = cache.get(key);
-        if (cached) return cached;
+        if (cached) return Promise.resolve(cached);
         const query = filters.query?.trim() ?? '';
         const limit = filters.limit ?? 20;
         const result = LOCAL_EXERCISES.filter((exercise) => {
@@ -129,9 +127,11 @@ export const localExerciseLibraryProvider: ExerciseLibraryProvider = {
             return true;
         }).slice(0, limit);
         cache.set(key, result);
-        return result;
+        return Promise.resolve(result);
     },
-    async getById(id: string): Promise<ExerciseDefinition | null> {
-        return LOCAL_EXERCISES.find((exercise) => exercise.id === id) ?? null;
+    getById(id: string): Promise<ExerciseDefinition | null> {
+        return Promise.resolve(
+            LOCAL_EXERCISES.find((exercise) => exercise.id === id) ?? null,
+        );
     },
 };

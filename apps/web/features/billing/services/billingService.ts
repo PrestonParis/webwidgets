@@ -12,7 +12,7 @@ export async function fetchSubscription(
     supabase: SupabaseClient,
     userId: string,
 ): Promise<BillingSubscription | null> {
-    const { data, error } = await supabase
+    const result = await supabase
         .from(SUBS_TABLE)
         .select('*')
         .eq('user_id', userId)
@@ -20,8 +20,9 @@ export async function fetchSubscription(
         .order('created_at', { ascending: false })
         .maybeSingle();
 
-    if (error) throw error;
-    return data ? rowToSubscription(data as BillingSubscriptionRow) : null;
+    if (result.error) throw result.error;
+    const data = result.data as BillingSubscriptionRow | null;
+    return data ? rowToSubscription(data) : null;
 }
 
 export async function fetchCustomerId(

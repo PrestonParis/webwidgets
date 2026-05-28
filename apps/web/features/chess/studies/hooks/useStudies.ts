@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/context/AuthContext';
@@ -21,7 +21,10 @@ export function useStudies() {
     const { user } = useAuthContext();
     const router = useRouter();
     const [studies, setStudies] = useState<ChessStudy[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useReducer(
+        (_: boolean, v: boolean) => v,
+        true,
+    );
 
     useEffect(() => {
         if (!user?.id) {

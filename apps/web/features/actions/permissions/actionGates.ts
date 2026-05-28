@@ -1,6 +1,6 @@
 import { err, ok, type Result } from 'neverthrow';
 import type { ActionDefinition } from '@/features/actions/schemas/definitionSchemas';
-import type { ActionExecutionContext } from '@/features/actions/schemas/actionSchemas';
+import type { ActionExecutionContext } from '@/features/actions/schemas/actionPayloadSchemas';
 
 export type PermissionError = {
     code: 'PermissionDenied';

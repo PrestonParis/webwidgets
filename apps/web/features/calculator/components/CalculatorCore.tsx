@@ -35,6 +35,7 @@ export function CalculatorCore({
     expanded = false,
 }: CalculatorCoreProps) {
     const calc = useCalculator(widgetId);
+    const { handleKeyDown } = calc;
     const [showHistory, setShowHistory] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [modeOpen, setModeOpen] = useState(false);
@@ -48,11 +49,11 @@ export function CalculatorCore({
             const inInput =
                 active?.tagName === 'INPUT' || active?.tagName === 'TEXTAREA';
             if (inInput && !containerRef.current?.contains(active)) return;
-            calc.handleKeyDown(e);
+            handleKeyDown(e);
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [calc.handleKeyDown]);
+    }, [handleKeyDown]);
 
     function handleExport() {
         const text = exportHistory(calc.history);
@@ -240,13 +241,11 @@ export function CalculatorCore({
 function ModeSelector({
     mode,
     onSelect,
-    open,
-    setOpen,
 }: {
     mode: CalcMode;
     onSelect: (m: CalcMode) => void;
-    open: boolean;
-    setOpen: (v: boolean) => void;
+    open?: boolean;
+    setOpen?: (v: boolean) => void;
 }) {
     return (
         <div className="flex gap-1 rounded-2xl bg-zinc-100 dark:bg-zinc-800 p-1">

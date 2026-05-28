@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { BaseTrackingEntry } from '@/features/tracking/types/tracking';
+import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
 import type { MealType } from '@/features/tracking/types/metadata';
 import type { ExerciseEntry } from '@/features/tracking/lib/fitness/types';
 import { calculateWorkoutTotals } from '@/features/tracking/lib/fitness/normalize';

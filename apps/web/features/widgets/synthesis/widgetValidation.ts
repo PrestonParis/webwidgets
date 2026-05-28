@@ -1,10 +1,10 @@
 import type {
     SynthesizedWidgetDefinition,
-    WidgetValidationIssue,
     SynthesizedDataSourceDef,
     SynthesizedComponentDef,
     SynthesizedPermissionDef,
-} from './widgetDefinitionSchema';
+} from './widgetDefinitionInterfaces';
+import type { WidgetValidationIssue } from './widgetBuilderInterfaces';
 import { getDataSource } from './dataSourceRegistry';
 import { getComponent } from './componentRegistry';
 import { getAction } from './actionRegistry';

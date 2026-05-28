@@ -20,7 +20,7 @@ const batchSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    const payload = await req.json();
+    const payload: unknown = await req.json();
     const parsedBatch = batchSchema.safeParse(payload);
     const events = parsedBatch.success
         ? parsedBatch.data.events

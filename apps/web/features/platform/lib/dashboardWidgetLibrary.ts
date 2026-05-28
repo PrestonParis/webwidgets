@@ -28,6 +28,7 @@ const RENDERABLE_WIDGET_TYPES: readonly WidgetType[] = [
     'currency',
     'chess',
     'timekeeping',
+    'employee-clock',
     'timer',
     'stopwatch',
     'pomodoro',
@@ -78,6 +79,7 @@ const EMOJI_BY_FEATURE: Record<string, string> = {
 
 const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'timekeeping',
+    'employee-clock',
     'timer',
     'stopwatch',
     'worldclock',

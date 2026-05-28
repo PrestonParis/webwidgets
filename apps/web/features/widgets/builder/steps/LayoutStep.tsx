@@ -1,9 +1,7 @@
 'use client';
 
-import type {
-    SynthesizedWidgetDefinition,
-    WidgetLayoutType,
-} from '@/features/widgets/synthesis/widgetDefinitionSchema';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
+import type { WidgetLayoutType } from '@/features/widgets/synthesis/widgetTypes';
 
 interface LayoutStepProps {
     definition: Partial<SynthesizedWidgetDefinition>;
@@ -107,7 +105,7 @@ export function LayoutStep({ definition, onUpdate }: LayoutStepProps) {
     return (
         <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                Choose the widget's overall structure
+                Choose the widget&apos;s overall structure
             </p>
             <div className="grid grid-cols-2 gap-2">
                 {LAYOUTS.map(({ id, label, emoji, description, preview }) => (

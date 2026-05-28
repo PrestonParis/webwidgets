@@ -49,7 +49,7 @@ function NetWorthRibbon({ snapshots, minVal, maxVal, onHover }: RibbonProps) {
             });
         }
         return { tubes: segments, points: pts };
-    }, [snapshots, minVal, maxVal, range, spanX]);
+    }, [snapshots, minVal, range, spanX]);
 
     useFrame((_, delta) => {
         if (groupRef.current) groupRef.current.rotation.y += delta * 0.012;
