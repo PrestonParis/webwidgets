@@ -95,6 +95,7 @@ export function PlanningPage() {
                     onAddEvent={openCreate}
                     onEditEvent={openEdit}
                     onDeleteEvent={handleDelete}
+                    onSelectDate={setSelectedDate}
                 />
             </div>
 

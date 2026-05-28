@@ -41,6 +41,7 @@ export function useRecoveryReviewNotifications() {
                     title: `Review days — ${tracker.addiction}`,
                     body: 'You have unreviewed days. Open your recovery tracker to log them.',
                     category: 'info',
+                    href: '/recovery',
                 });
             }
         };

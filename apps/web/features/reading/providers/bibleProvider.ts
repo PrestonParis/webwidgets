@@ -15,6 +15,10 @@ import type {
 } from '@/features/reading/types/document';
 import type { StructuredTextContent } from '@/features/reading/types/content';
 import type { CanonicalPosition } from '@/features/reading/types/positions';
+import {
+    loadBibleLibrary,
+    type SavedBibleTranslation,
+} from '@/features/reading/lib/readingStorage';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -167,6 +171,27 @@ function mapBooksToStructure(
     };
 }
 
+function savedToDocument(t: SavedBibleTranslation): ReadingDocument {
+    return {
+        id: `bible:${t.id}`,
+        providerId: 'api-bible',
+        externalId: t.id,
+        title: t.title,
+        type: 'religious_text',
+        language: t.language,
+        source: {
+            id: t.id,
+            type: 'api',
+            requiresAuth: false,
+            cacheable: true,
+        },
+        metadata: { tradition: 'christian', tags: [t.abbreviation] },
+        permissions: ['read', 'search', 'highlight', 'annotate'],
+        defaultRenderMode: 'structured_text',
+        supportedRenderModes: ['structured_text'],
+    };
+}
+
 // ─── capabilities ─────────────────────────────────────────────────────────────
 
 const CAPABILITIES: ReadingProviderCapabilities = {
@@ -194,25 +219,21 @@ const bibleProvider: ReadingProvider = {
     description: 'Bible translations from scripture.api.bible',
     capabilities: CAPABILITIES,
 
-    async listDocuments(
-        options?: ReadingListOptions,
-    ): Promise<ReadingDocument[]> {
-        const params: Record<string, string> = {};
-        if (options?.language) params.language = options.language;
-
-        const data = await apiBible<{ data: ApiBible[] }>('/bibles', params);
-        let docs = data.data.map(mapBibleToDocument);
+    listDocuments(options?: ReadingListOptions): Promise<ReadingDocument[]> {
+        // Only return translations the user has explicitly added to their library.
+        const saved = loadBibleLibrary();
+        let docs = saved.map(savedToDocument);
 
         if (options?.search) {
             const q = options.search.toLowerCase();
             docs = docs.filter(
                 (d) =>
                     d.title.toLowerCase().includes(q) ||
-                    (d.description ?? '').toLowerCase().includes(q),
+                    d.language.toLowerCase().includes(q),
             );
         }
         if (options?.limit) docs = docs.slice(0, options.limit);
-        return docs;
+        return Promise.resolve(docs);
     },
 
     async getDocument(documentId: string): Promise<ReadingDocument> {

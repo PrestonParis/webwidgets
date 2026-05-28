@@ -81,7 +81,7 @@ export function DeveloperPage() {
         <>
             <Header />
             <main className="min-h-screen bg-zinc-50 px-4 py-6 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50 md:px-6">
-                <div className="mx-auto flex max-w-[1500px] gap-4">
+                <div className="mx-auto flex max-w-375 gap-4">
                     <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-72 shrink-0 overflow-auto rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900 lg:block">
                         <div className="mb-3 flex items-center gap-2 px-2 text-sm font-semibold">
                             <Wrench size={16} /> Developer Workspace

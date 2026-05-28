@@ -5,9 +5,10 @@ export type MemoryDomain =
     | 'Knowledge'
     | 'Language'
     | 'Fitness'
-    | 'Workflows';
+    | 'Workflows'
+    | 'General';
 
-export type MemoryDifficulty = 'easy' | 'medium' | 'hard' | 'again';
+export type MemoryDifficulty = 'again' | 'hard' | 'good' | 'easy';
 export type MemoryStatus = 'new' | 'learning' | 'review' | 'mastered';
 
 export interface MemoryMetric {
@@ -39,15 +40,6 @@ export interface MemoryReviewCard {
     status: MemoryStatus;
     due: string;
     intervalDays: number;
-}
-
-export interface MemoryRoutine {
-    id: string;
-    title: string;
-    description: string;
-    domain: MemoryDomain;
-    minutes: number;
-    enabled: boolean;
 }
 
 export interface MemoryFilters {

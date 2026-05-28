@@ -17,37 +17,66 @@ interface CardRecord {
     status: string;
 }
 
-export default function MemorizationWidget({ widgetId = 'memorization' }: { widgetId?: string }) {
+export default function MemorizationWidget({
+    widgetId = 'memorization',
+}: {
+    widgetId?: string;
+}) {
     const [dueCount, setDueCount] = useState<number | null>(null);
     const [deckCount, setDeckCount] = useState<number | null>(null);
 
     useEffect(() => {
+        let mounted = true;
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 5000);
+
         void (async () => {
             try {
-                const [decksRes, cardsRes] = await Promise.all([
-                    fetch('/api/memory/decks'),
-                    fetch('/api/memory/cards'),
+                const [decksResult, cardsResult] = await Promise.allSettled([
+                    fetch('/api/memory/decks', { signal: controller.signal }),
+                    fetch('/api/memory/cards?due=true', {
+                        signal: controller.signal,
+                    }),
                 ]);
-                if (decksRes.ok) {
-                    const decks = await decksRes.json() as DeckRecord[];
-                    setDeckCount(decks.length);
-                }
-                if (cardsRes.ok) {
-                    const cards = await cardsRes.json() as CardRecord[];
-                    const now = new Date();
-                    setDueCount(cards.filter((c) => new Date(c.due_date) <= now).length);
-                }
+
+                const decks =
+                    decksResult.status === 'fulfilled' && decksResult.value.ok
+                        ? ((await decksResult.value.json()) as DeckRecord[])
+                        : [];
+                const cards =
+                    cardsResult.status === 'fulfilled' && cardsResult.value.ok
+                        ? ((await cardsResult.value.json()) as CardRecord[])
+                        : [];
+
+                if (!mounted) return;
+                setDeckCount(decks.length);
+                setDueCount(cards.length);
             } catch {
-                // silent
+                if (!mounted) return;
+                setDeckCount(0);
+                setDueCount(0);
+            } finally {
+                window.clearTimeout(timeout);
             }
         })();
+
+        return () => {
+            mounted = false;
+            window.clearTimeout(timeout);
+            controller.abort();
+        };
     }, []);
 
-    const badge = dueCount !== null && dueCount > 0
-        ? <span className="text-[10px] font-bold text-amber-500">{dueCount} DUE</span>
-        : dueCount === 0
-        ? <span className="text-[10px] font-bold text-emerald-500">CLEAR</span>
-        : undefined;
+    const badge =
+        dueCount !== null && dueCount > 0 ? (
+            <span className="text-[10px] font-bold text-amber-500">
+                {dueCount} DUE
+            </span>
+        ) : dueCount === 0 ? (
+            <span className="text-[10px] font-bold text-emerald-500">
+                CLEAR
+            </span>
+        ) : undefined;
 
     return (
         <WidgetShell
@@ -60,24 +89,36 @@ export default function MemorizationWidget({ widgetId = 'memorization' }: { widg
             footerLabel="Start review session ->"
         >
             <div className="space-y-2.5">
-                {dueCount === null ? (
+                {dueCount === null || deckCount === null ? (
                     <p className="text-xs text-zinc-400">Loading…</p>
                 ) : dueCount === 0 && deckCount === 0 ? (
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        No memory decks yet. Create your first deck to start building durable memory.
+                        Create a deck or import flashcards to start reviewing.
                     </p>
                 ) : (
                     <>
                         <div className="flex items-center gap-3">
-                            <Repeat2 size={14} className="shrink-0 text-amber-500" />
+                            <Repeat2
+                                size={14}
+                                className="shrink-0 text-amber-500"
+                            />
                             <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                                {dueCount} <span className="font-normal text-zinc-500 dark:text-zinc-400">cards due</span>
+                                {dueCount}{' '}
+                                <span className="font-normal text-zinc-500 dark:text-zinc-400">
+                                    cards due
+                                </span>
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Brain size={14} className="shrink-0 text-blue-500" />
+                            <Brain
+                                size={14}
+                                className="shrink-0 text-blue-500"
+                            />
                             <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                                {deckCount} <span className="font-normal text-zinc-500 dark:text-zinc-400">active decks</span>
+                                {deckCount}{' '}
+                                <span className="font-normal text-zinc-500 dark:text-zinc-400">
+                                    active decks
+                                </span>
                             </p>
                         </div>
                     </>

@@ -27,19 +27,18 @@ export interface MemoryCardRecord {
     back: string;
     status: MemoryStatus;
     interval_days: number;
+    ease: number;
+    repetitions: number;
     due_date: string;
     created_at: string;
 }
 
-export interface MemoryRoutineRecord {
-    id: string;
-    user_id: string;
-    title: string;
-    description: string | null;
-    domain: string;
-    minutes: number;
-    enabled: boolean;
-    created_at: string;
+export interface DeckStats {
+    deckId: string;
+    totalCards: number;
+    dueCards: number;
+    masteredCards: number;
+    retention: number;
 }
 
 const defaultFilters: MemoryFilters = {
@@ -47,11 +46,11 @@ const defaultFilters: MemoryFilters = {
     domain: 'all',
     status: 'all',
 };
+const now = () => new Date();
 
 export function useMemorization() {
     const [decks, setDecks] = useState<MemoryDeckRecord[]>([]);
     const [cards, setCards] = useState<MemoryCardRecord[]>([]);
-    const [routines, setRoutines] = useState<MemoryRoutineRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<MemoryFilters>(defaultFilters);
@@ -61,35 +60,26 @@ export function useMemorization() {
         setLoading(true);
         setError(null);
         try {
-            const [decksData, cardsData, routinesData] = await Promise.all([
+            const [decksData, cardsData] = await Promise.all([
                 cachedJson<MemoryDeckRecord[]>('/api/memory/decks', {
                     ttlMs: 10_000,
                 }),
                 cachedJson<MemoryCardRecord[]>('/api/memory/cards', {
                     ttlMs: 10_000,
                 }),
-                cachedJson<MemoryRoutineRecord[]>('/api/memory/routines', {
-                    ttlMs: 10_000,
-                }),
             ]);
             setDecks(decksData);
-            if (decksData.length > 0 && !selectedDeckId) {
-                setSelectedDeckId(decksData[0]!.id);
-            }
             setCards(cardsData);
-            setRoutines(routinesData);
         } catch {
             setError('Failed to load memorization data');
         } finally {
             setLoading(false);
         }
-    }, [selectedDeckId]);
+    }, []);
 
     useEffect(() => {
-        const timeoutId = window.setTimeout(() => {
-            void fetchAll();
-        }, 0);
-        return () => window.clearTimeout(timeoutId);
+        const id = window.setTimeout(() => void fetchAll(), 0);
+        return () => window.clearTimeout(id);
     }, [fetchAll]);
 
     const createDeck = useCallback(
@@ -120,6 +110,7 @@ export function useMemorization() {
         clearCachedJson('/api/memory/cards');
         setDecks((prev) => prev.filter((d) => d.id !== id));
         setCards((prev) => prev.filter((c) => c.deck_id !== id));
+        setSelectedDeckId((prev) => (prev === id ? '' : prev));
     }, []);
 
     const createCard = useCallback(
@@ -159,60 +150,88 @@ export function useMemorization() {
         setCards((prev) => prev.filter((c) => c.id !== id));
     }, []);
 
-    const createRoutine = useCallback(
-        async (data: {
-            title: string;
-            description?: string;
-            domain?: string;
-            minutes?: number;
-        }) => {
-            const res = await fetch('/api/memory/routines', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            if (!res.ok) throw new Error('Failed to create routine');
-            clearCachedJson('/api/memory/routines');
-            const routine = (await res.json()) as MemoryRoutineRecord;
-            setRoutines((prev) => [...prev, routine]);
-            return routine;
+    const importCards = useCallback(
+        async (deckId: string, rows: { front: string; back: string }[]) => {
+            const created: MemoryCardRecord[] = [];
+            for (const row of rows) {
+                if (!row.front.trim() || !row.back.trim()) continue;
+                const res = await fetch('/api/memory/cards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deck_id: deckId,
+                        front: row.front.trim(),
+                        back: row.back.trim(),
+                    }),
+                });
+                if (res.ok)
+                    created.push((await res.json()) as MemoryCardRecord);
+            }
+            clearCachedJson('/api/memory/cards');
+            setCards((prev) => [...created, ...prev]);
+            return created.length;
         },
         [],
     );
 
-    const toggleRoutine = useCallback(
-        async (id: string) => {
-            const routine = routines.find((r) => r.id === id);
-            if (!routine) return;
-            const res = await fetch('/api/memory/routines', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, enabled: !routine.enabled }),
-            });
-            if (!res.ok) return;
-            clearCachedJson('/api/memory/routines');
-            const updated = (await res.json()) as MemoryRoutineRecord;
-            setRoutines((prev) => prev.map((r) => (r.id === id ? updated : r)));
-        },
-        [routines],
-    );
-
-    const selectedDeck = useMemo(
-        () => decks.find((d) => d.id === selectedDeckId) ?? decks[0] ?? null,
-        [decks, selectedDeckId],
-    );
-
+    // Derived data
     const dueCards = useMemo(
-        () => cards.filter((c) => new Date(c.due_date) <= new Date()),
+        () => cards.filter((c) => new Date(c.due_date) <= now()),
         [cards],
     );
 
-    const activeCard = dueCards[0] ?? null;
+    const deckStats = useMemo((): DeckStats[] => {
+        const n = now();
+        const stats = new Map<
+            string,
+            { totalCards: number; dueCards: number; masteredCards: number }
+        >();
+        for (const card of cards) {
+            const current = stats.get(card.deck_id) ?? {
+                totalCards: 0,
+                dueCards: 0,
+                masteredCards: 0,
+            };
+            current.totalCards += 1;
+            if (new Date(card.due_date) <= n) current.dueCards += 1;
+            if (card.status === 'mastered') current.masteredCards += 1;
+            stats.set(card.deck_id, current);
+        }
+
+        return decks.map((deck) => {
+            const deckStats = stats.get(deck.id) ?? {
+                totalCards: 0,
+                dueCards: 0,
+                masteredCards: 0,
+            };
+            return {
+                deckId: deck.id,
+                ...deckStats,
+                retention:
+                    deckStats.totalCards > 0
+                        ? Math.round(
+                              (deckStats.masteredCards / deckStats.totalCards) *
+                                  100,
+                          )
+                        : 0,
+            };
+        });
+    }, [decks, cards]);
+
+    const weakCards = useMemo(
+        () =>
+            cards.filter(
+                (c) =>
+                    c.status === 'learning' ||
+                    (c.repetitions > 0 && c.interval_days <= 2),
+            ),
+        [cards],
+    );
 
     const visibleDecks = useMemo(
         () =>
             decks.filter((deck) => {
-                const query = filters.query.trim().toLowerCase();
+                const q = filters.query.trim().toLowerCase();
                 const haystack = [
                     deck.title,
                     deck.description ?? '',
@@ -223,7 +242,7 @@ export function useMemorization() {
                     .join(' ')
                     .toLowerCase();
                 return (
-                    (!query || haystack.includes(query)) &&
+                    (!q || haystack.includes(q)) &&
                     (filters.domain === 'all' ||
                         deck.domain === filters.domain) &&
                     (filters.status === 'all' || deck.status === filters.status)
@@ -232,22 +251,25 @@ export function useMemorization() {
         [decks, filters],
     );
 
-    const updateFilter = <Key extends keyof MemoryFilters>(
-        key: Key,
-        value: MemoryFilters[Key],
-    ) => setFilters((current) => ({ ...current, [key]: value }));
-
-    const resetFilters = () => setFilters(defaultFilters);
+    const selectedDeck = useMemo(
+        () => decks.find((d) => d.id === selectedDeckId) ?? null,
+        [decks, selectedDeckId],
+    );
 
     const totalCards = cards.length;
     const masteredCards = cards.filter((c) => c.status === 'mastered').length;
     const retentionPct =
         totalCards > 0 ? Math.round((masteredCards / totalCards) * 100) : 0;
 
+    const updateFilter = <K extends keyof MemoryFilters>(
+        key: K,
+        value: MemoryFilters[K],
+    ) => setFilters((f) => ({ ...f, [key]: value }));
+    const resetFilters = () => setFilters(defaultFilters);
+
     return {
         decks,
         cards,
-        routines,
         loading,
         error,
         createDeck,
@@ -255,20 +277,20 @@ export function useMemorization() {
         createCard,
         gradeCard,
         deleteCard,
-        createRoutine,
-        toggleRoutine,
+        importCards,
         selectedDeckId,
         setSelectedDeckId,
         selectedDeck,
         dueCards,
-        activeCard,
+        weakCards,
+        deckStats,
         filters,
         updateFilter,
         resetFilters,
         visibleDecks,
-        // computed metrics
         totalDueCount: dueCards.length,
         retentionPct,
         deckCount: decks.length,
+        refetch: fetchAll,
     };
 }

@@ -1,8 +1,19 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { StructuredTextReaderView } from './views/StructuredTextReaderView';
-import { PdfReaderView } from './views/PdfReaderView';
 import { ProviderEmbedReaderView } from './views/ProviderEmbedReaderView';
+
+// pdfjs-dist crashes during Turbopack's CJS→ESM transform when bundled eagerly.
+// Dynamic import defers it to a separate chunk that only loads at render time,
+// after the browser has a proper module environment.
+const PdfReaderView = dynamic(
+    () =>
+        import('./views/PdfReaderView').then((m) => ({
+            default: m.PdfReaderView,
+        })),
+    { ssr: false },
+);
 import { useReadingContent } from '@/features/reading/hooks/useReadingContent';
 import type { ReadingDocument } from '@/features/reading/types/document';
 import type { ReadingPosition } from '@/features/reading/types/positions';

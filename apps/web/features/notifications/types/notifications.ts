@@ -8,4 +8,5 @@ export interface Notification {
     category: NotificationCategory;
     read: boolean;
     timestamp: number;
+    href?: string; // navigate here when clicked
 }

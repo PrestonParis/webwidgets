@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BASE = 'https://api.scripture.api.bible/v1';
+const BASE = 'https://rest.api.bible/v1';
 
 // Allow only the endpoints the provider actually uses
 const ALLOWED_PATH =
