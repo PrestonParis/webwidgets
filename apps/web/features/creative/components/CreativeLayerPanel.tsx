@@ -14,7 +14,10 @@ interface CreativeLayerPanelProps {
     selectedProjectId: string;
     toggleLayerVisible: (id: string) => Promise<void>;
     toggleLayerLocked: (id: string) => Promise<void>;
-    createLayer: (data: { name: string; layer_type: string }) => Promise<void>;
+    createLayer: (data: {
+        name: string;
+        layer_type?: string;
+    }) => Promise<unknown>;
     showLayerForm: boolean;
     setShowLayerForm: Dispatch<SetStateAction<boolean>>;
 }

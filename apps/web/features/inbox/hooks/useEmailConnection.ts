@@ -31,13 +31,23 @@ export function useEmailConnection() {
                 setLoading(false);
                 return;
             }
-            void supabase
+            const db = supabase as unknown as {
+                from: (table: string) => {
+                    select: (cols: string) => {
+                        eq: (
+                            col: string,
+                            val: string,
+                        ) => Promise<{ data: ConnectedAccount[] | null }>;
+                    };
+                };
+            };
+            void db
                 .from('user_email_accounts')
                 .select('id, provider, email, display_name')
                 .eq('user_id', user.id)
                 .then(({ data }) => {
                     if (!cancelled) {
-                        setAccounts((data as ConnectedAccount[]) ?? []);
+                        setAccounts(data ?? []);
                         setLoading(false);
                     }
                 });

@@ -2,7 +2,6 @@ import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes
 import type { Supplement as StoredSupplement } from '@/features/tracking/types/supplement';
 import type { DoseStatus, OutcomeTarget, SupplementForm } from './baseTypes';
 import type { SupplementDefinition } from './definitionTypes';
-import type { SupplementSchedule } from './scheduleTypes';
 import type {
     EffectivenessCheckIn,
     SupplementLog,
@@ -10,17 +9,9 @@ import type {
 } from './logTypes';
 import { str, num, list, ingredients, dietaryFlags } from './readers';
 import { normalizeInventory, decrementInventory } from './inventory';
+import { defaultSchedule } from './schedule';
 
-export { decrementInventory };
-
-function defaultSchedule(time = '08:00'): SupplementSchedule {
-    return {
-        frequency: 'daily',
-        times: [time],
-        daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    };
-}
+export { decrementInventory, defaultSchedule };
 
 export function supplementDefinitionFromStored(
     supplement: StoredSupplement,

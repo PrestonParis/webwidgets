@@ -98,7 +98,7 @@ export function autoClose(expression: string): string {
 export function backspaceExpression(expression: string): string {
     if (!expression) return '';
     const fnMatch = expression.match(/([a-zA-Z]+\()$/);
-    if (fnMatch) return expression.slice(0, -fnMatch[1].length);
+    if (fnMatch?.[1]) return expression.slice(0, -fnMatch[1].length);
     return expression.slice(0, -1);
 }
 

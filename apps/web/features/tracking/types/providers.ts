@@ -1,4 +1,5 @@
-import type { TrackingCategory, TrackingEntry } from './tracking';
+import type { TrackingCategory } from './trackingCategoryTypes';
+import type { TrackingEntry } from './trackingEntryTypes';
 
 export type HealthProvider =
     | 'apple_health'

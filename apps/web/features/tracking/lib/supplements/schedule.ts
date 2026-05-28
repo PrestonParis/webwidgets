@@ -1,6 +1,16 @@
 import type { DueDose, SupplementLog } from './logTypes';
 import type { DoseStatus, TimeOfDayGroup } from './baseTypes';
 import type { SupplementDefinition } from './definitionTypes';
+import type { SupplementSchedule } from './scheduleTypes';
+
+export function defaultSchedule(time = '08:00'): SupplementSchedule {
+    return {
+        frequency: 'daily',
+        times: [time],
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+}
 
 function dateKey(date: Date): string {
     const y = date.getFullYear();
