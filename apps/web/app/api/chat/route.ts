@@ -3,7 +3,6 @@ import { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
-import { db } from '@/lib/db/supabase';
 import {
     getModelKey,
     addMessage,
@@ -49,12 +48,12 @@ async function* readStreamChunks(
     }
 }
 
-async function buildSystemMessage(userId: string): Promise<string> {
+async function buildSystemMessage(
+    userId: string,
+    clientDb: SupabaseClient,
+): Promise<string> {
     try {
-        const entries = await listEntries(
-            db as unknown as SupabaseClient,
-            userId,
-        );
+        const entries = await listEntries(clientDb, userId);
         const graph = buildContextGraph(entries);
         return buildSystemPrompt(graph, DEFAULT_PERMISSIONS);
     } catch {
@@ -353,7 +352,7 @@ export async function POST(req: Request) {
             );
 
         const { conversationId, content, model, provider } = parsed.data;
-        const clientDb = db as unknown as SupabaseClient;
+        const clientDb = supabase;
 
         // Persist user message
         await addMessage(clientDb, userId, conversationId, 'user', content);
@@ -370,7 +369,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const systemMsg = await buildSystemMessage(userId);
+        const systemMsg = await buildSystemMessage(userId, clientDb);
 
         const attempts = await buildFallbackAttempts(
             clientDb,

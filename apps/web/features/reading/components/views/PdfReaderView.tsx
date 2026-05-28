@@ -15,10 +15,8 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import type { ReadingContentResult } from '@/features/reading/types/providers';
 import type { ReadingDocument } from '@/features/reading/types/document';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-).toString();
+// Set worker lazily inside the component via useEffect — module-level assignment
+// with import.meta.url breaks Turbopack's bundling of pdfjs-dist.
 
 interface PdfReaderViewProps {
     result: ReadingContentResult | null;
@@ -48,6 +46,12 @@ export function PdfReaderView({
     const [pageWidth, setPageWidth] = useState(720);
     const [scale, setScale] = useState(1);
     const [rotation, setRotation] = useState(0);
+
+    useEffect(() => {
+        if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+            pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+        }
+    }, []);
 
     const content = result?.content.type === 'pdf_page' ? result.content : null;
     const pageNumber = content?.pageNumber ?? 1;

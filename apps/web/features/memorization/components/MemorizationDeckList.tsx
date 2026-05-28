@@ -134,7 +134,7 @@ export function MemorizationDeckList({
             <section className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
                     <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                        Memory decks
+                        Decks
                     </h2>
                     <Button
                         size="sm"
@@ -207,11 +207,11 @@ export function MemorizationDeckList({
                 {!loading && visibleDecks.length === 0 && (
                     <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-6 text-center dark:border-zinc-700 dark:bg-zinc-900">
                         <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            No memory decks yet
+                            No decks yet
                         </p>
                         <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                            Create your first deck to start building durable
-                            memory.
+                            Create a deck or import flashcards to start
+                            reviewing.
                         </p>
                         <Button
                             className="mt-3"

@@ -9,6 +9,7 @@ interface AddNotificationInput {
     title: string;
     body: string;
     category: NotificationCategory;
+    href?: string;
 }
 
 interface NotificationStore {
@@ -22,7 +23,7 @@ interface NotificationStore {
 export const useNotificationStore = create<NotificationStore>((set) => ({
     notifications: [],
 
-    addNotification: ({ widgetId, title, body, category }) =>
+    addNotification: ({ widgetId, title, body, category, href }) =>
         set((state) => ({
             notifications: [
                 {
@@ -33,6 +34,7 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
                     category,
                     read: false,
                     timestamp: Date.now(),
+                    href,
                 },
                 ...state.notifications,
             ],

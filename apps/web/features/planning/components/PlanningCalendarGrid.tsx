@@ -1,7 +1,10 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Settings2 } from 'lucide-react';
 import { DayCell } from '@/features/calendar/components/CalendarDayCell';
+import { CalendarSettingsModal } from '@/features/calendar/components/CalendarSettingsModal';
+import { useCalendarSettings } from '@/features/calendar/hooks/useCalendarSettings';
 import { isSameDay } from '@/features/calendar/hooks/useCalendarPage';
 import type { CalendarEvent } from '@/features/calendar/types/calendar';
 
@@ -54,6 +57,8 @@ export function PlanningCalendarGrid({
 }: PlanningCalendarGridProps) {
     const isCurrentView =
         viewMonth === today.getMonth() && viewYear === today.getFullYear();
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const { settings, updateSettings } = useCalendarSettings();
 
     return (
         <div className="flex flex-col h-full border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
@@ -97,6 +102,13 @@ export function PlanningCalendarGrid({
                         </span>
                     )}
                     <button
+                        onClick={() => setSettingsOpen(true)}
+                        className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                        aria-label="Calendar settings"
+                    >
+                        <Settings2 size={14} className="text-zinc-400" />
+                    </button>
+                    <button
                         onClick={onNewEvent}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium transition-colors"
                     >
@@ -105,6 +117,13 @@ export function PlanningCalendarGrid({
                     </button>
                 </div>
             </div>
+            {settingsOpen && (
+                <CalendarSettingsModal
+                    settings={settings}
+                    onSave={updateSettings}
+                    onClose={() => setSettingsOpen(false)}
+                />
+            )}
 
             {/* Weekday headers */}
             <div className="grid grid-cols-7 border-b border-zinc-100 dark:border-zinc-800 shrink-0">

@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { LogoIsometric } from '@/icons/LogoIsometric';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { useRecoveryReviewNotifications } from '@/features/recovery/hooks/useRecoveryReviewNotifications';
+import { useCalendarEventNotifications } from '@/features/calendar/hooks/useCalendarEventNotifications';
 import { useAccountDropdown } from '@/features/ui/hooks/useAccountDropdown';
 import { useCommandPalette } from '@/features/search/store/useCommandPalette';
 import AccountDropdown from './AccountDropdown';
@@ -13,6 +14,7 @@ import SearchBar from '@/features/search/components/SearchBar';
 
 export default function Header() {
     useRecoveryReviewNotifications();
+    useCalendarEventNotifications();
     const { openPalette } = useCommandPalette();
     const {
         firstName,
