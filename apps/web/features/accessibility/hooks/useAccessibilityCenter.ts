@@ -5,7 +5,7 @@ import {
     accessibilityAudits,
     accessibilityModes,
     accessibilityPreferences,
-} from '../data';
+} from '../constants';
 import type {
     AccessibilityFilters,
     AccessibilityMode,
@@ -14,7 +14,7 @@ import type {
 import {
     useAccessibility,
     type Density,
-} from '../context/AccessibilityContext';
+} from '../components/AccessibilityContext';
 
 const defaultFilters: AccessibilityFilters = {
     query: '',

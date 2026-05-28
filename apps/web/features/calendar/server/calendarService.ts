@@ -6,7 +6,7 @@ import { isNotConfigured } from '@/lib/connectors/providerError';
 import type {
     CalendarSnapshot,
     NormalizedEvent,
-} from '@/features/calendar/schemas/calendarSchemas';
+} from '@/features/calendar/lib/calendarSchemas';
 
 async function getGoogleEvents(
     supabaseAdmin: SupabaseClient,

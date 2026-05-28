@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { ChessGame } from '@/features/chess/types/chess';
 import { gameService } from '@/features/chess/library/api/gameService';
 import { validatePgn, parsePgnHeaders } from '@/features/chess/lib/chessUtils';

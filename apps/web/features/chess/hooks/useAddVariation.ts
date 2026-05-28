@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import {
     AddVariationModalProps,
     GameVariation,

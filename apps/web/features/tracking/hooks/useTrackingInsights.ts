@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { createDefaultPipeline } from '@/features/tracking/lib/insights/insightPipeline';
 import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type {

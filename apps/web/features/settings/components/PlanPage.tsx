@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useBilling } from '@/features/billing/hooks/useBilling';
 import { PricingCard } from '@/features/billing/components/PricingCard';
-import { BILLING_PLANS } from '@/features/billing/constants/plans';
+import { BILLING_PLANS } from '@/features/billing/constants';
 import {
     createCheckoutSession,
     createPortalSession,

@@ -2,7 +2,7 @@
 
 import { buildFinanceAutomationRules } from '@/features/finance/lib/financeAutomations';
 import { useFinanceAutomations } from '@/features/finance/hooks/useFinanceAutomations';
-import { FINANCE_ACTIONS } from '@/features/finance/actions/financeActions';
+import { FINANCE_ACTIONS } from '@/features/finance/lib/financeActions';
 import type {
     FinanceAccount,
     FinanceSubscription,
@@ -28,8 +28,8 @@ export function FinanceAutomationPanel({
                         Automation
                     </p>
                     <p className="mt-1 text-sm text-gray-600 dark:text-zinc-400">
-                        Rule templates for reminders, alerts, and widget-triggered
-                        finance actions.
+                        Rule templates for reminders, alerts, and
+                        widget-triggered finance actions.
                     </p>
                 </div>
                 <span className="text-[10px] rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 px-2 py-1">

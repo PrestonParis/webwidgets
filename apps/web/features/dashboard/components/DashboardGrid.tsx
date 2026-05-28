@@ -8,7 +8,7 @@ import {
     useSensors,
     type DragEndEvent,
 } from '@dnd-kit/core';
-import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
+import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
 import {
     SortableContext,
     arrayMove,

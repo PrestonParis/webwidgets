@@ -1,4 +1,4 @@
-import { AutomationPage } from '@/features/automation/AutomationPage';
+import { AutomationPage } from '@/features/automation/components/AutomationPage';
 
 export default function Page() {
     return <AutomationPage />;

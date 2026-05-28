@@ -2,7 +2,7 @@
 import { useEffect, useReducer, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/db/supabase';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 import type { ChessStudy } from '@/features/chess/types/chess';
 import { studyService } from '@/features/chess/studies/api/studyService';
 import { z } from 'zod';

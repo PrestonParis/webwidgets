@@ -11,8 +11,8 @@ import {
 } from '@/features/onboarding/lib/profileStorage';
 import { saveOnboardingProfile } from '@/features/onboarding/services/onboardingService';
 import { makeSealedKey } from '@/features/dashboard/lib/dashboardLayout';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
-import { trackEvent } from '@/features/analytics/trackEventClient';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
+import { trackEvent } from '@/features/analytics/hooks/trackEventClient';
 import { SettingsIntegrationsCard } from './SettingsIntegrationsCard';
 import { SettingsProfileCard } from './SettingsProfileCard';
 import { EmailIntelligenceCard } from './EmailIntelligenceCard';

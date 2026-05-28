@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/services/requestUser';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 
 export async function GET() {
@@ -9,7 +9,9 @@ export async function GET() {
         const userId = await getRequestUserId(supabase);
         const { data, error } = await supabase
             .from('memory_decks')
-            .select('id,user_id,title,domain,description,source,status,created_at')
+            .select(
+                'id,user_id,title,domain,description,source,status,created_at',
+            )
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(50);
@@ -20,9 +22,15 @@ export async function GET() {
         return NextResponse.json(data ?? []);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }
 
@@ -30,7 +38,12 @@ export async function POST(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = await req.json() as { title: string; domain?: string; description?: string; source?: string };
+        const body = (await req.json()) as {
+            title: string;
+            domain?: string;
+            description?: string;
+            source?: string;
+        };
         const { data, error } = await supabase
             .from('memory_decks')
             .insert({
@@ -40,14 +53,22 @@ export async function POST(req: Request) {
                 description: body.description ?? null,
                 source: body.source ?? null,
             })
-            .select('id,user_id,title,domain,description,source,status,created_at')
+            .select(
+                'id,user_id,title,domain,description,source,status,created_at',
+            )
             .single();
         if (error) throw error;
         return NextResponse.json(data, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
         }
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+        );
     }
 }

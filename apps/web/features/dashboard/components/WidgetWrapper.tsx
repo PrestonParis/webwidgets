@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useAccessibility } from '@/features/accessibility/context/AccessibilityContext';
+import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
 import { WidgetWrapperProps } from '@/features/dashboard/types/dashboard';
 import { WidgetSize } from '@/features/widgets/types/widgets';
 import { SIZE_LABELS } from '@/features/widgets/constants';
@@ -196,10 +196,14 @@ export default function WidgetWrapper({
             layout={skipMotion ? false : !isDragging && !isResizing}
             initial={{ opacity: 0 }}
             animate={{ opacity: isDragging ? 0.4 : 1 }}
-            transition={skipMotion ? { duration: 0 } : {
-                layout: { duration: 0.2, ease: 'easeInOut' },
-                opacity: { duration: 0.25 },
-            }}
+            transition={
+                skipMotion
+                    ? { duration: 0 }
+                    : {
+                          layout: { duration: 0.2, ease: 'easeInOut' },
+                          opacity: { duration: 0.25 },
+                      }
+            }
         >
             {config.type !== 'folder' && (
                 <StatusDot

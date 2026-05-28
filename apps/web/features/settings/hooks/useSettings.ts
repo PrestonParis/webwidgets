@@ -3,7 +3,7 @@ import { db, supabase } from '@/lib/db/supabase';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { useAuthContext } from '@/features/auth/context/AuthContext';
+import { useAuthContext } from '@/features/auth/components/AuthContext';
 
 const profileSchema = z.object({
     full_name: z.string().nullable().optional(),

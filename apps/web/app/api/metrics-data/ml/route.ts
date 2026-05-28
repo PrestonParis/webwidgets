@@ -9,8 +9,8 @@ import {
 import {
     countEventsByDay,
     countEventsByType,
-} from '@/features/analytics/analyticsQueries';
-import { ANALYTICS_EVENTS } from '@/features/analytics/eventNames';
+} from '@/features/analytics/lib/analyticsQueries';
+import { ANALYTICS_EVENTS } from '@/features/analytics/lib/eventNames';
 import { registry } from '@/lib/observability/metrics';
 
 const querySchema = z.object({
