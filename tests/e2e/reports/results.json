@@ -1,0 +1,198 @@
+{
+  "config": {
+    "configFile": "playwright.config.ts",
+    "rootDir": "tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "tests/e2e/helpers/global-setup.ts",
+    "globalTeardown": "tests/e2e/helpers/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "**/*.e2e.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "**/*.e2e.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "**/*.e2e.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "**/*.spec.ts",
+          "**/*.e2e.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "critical",
+        "name": "critical",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "/.*\\.critical\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "performance",
+        "name": "performance",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "/.*\\.perf\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "tests/e2e/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "slow",
+        "name": "slow",
+        "testDir": "tests/e2e",
+        "testIgnore": [
+          "**/*.unit.spec.ts",
+          "**/node_modules/**"
+        ],
+        "testMatch": [
+          "/.*\\.slow\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "tests/e2e/reports/html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/e2e/reports/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "tests/e2e/reports/junit.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: Runtime diagnostics failed. See errors above.",
+      "stack": "Error: Runtime diagnostics failed. See errors above.\n    at globalSetup (tests/e2e/helpers/global-setup.ts:72:11)",
+      "location": {
+        "file": "tests/e2e/helpers/global-setup.ts",
+        "column": 11,
+        "line": 72
+      },
+      "snippet": "\u001b[90m   at \u001b[39mhelpers/global-setup.ts:72\n\n\u001b[0m \u001b[90m 70 |\u001b[39m     console\u001b[33m.\u001b[39merror(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 72 |\u001b[39m     \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'Runtime diagnostics failed. See errors above.'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 73 |\u001b[39m   }\n \u001b[90m 74 |\u001b[39m\n \u001b[90m 75 |\u001b[39m   console\u001b[33m.\u001b[39mlog(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-05-20T23:25:07.707Z",
+    "duration": 32990.278999999995,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

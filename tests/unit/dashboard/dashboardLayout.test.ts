@@ -46,7 +46,7 @@ describe('hydrateTrackers', () => {
     it('leaves non-recovery widgets untouched', () => {
         const journalWidget: WidgetConfig = {
             id: 'widget-journal',
-            type: 'journal',
+            type: 'texteditor',
             visible: true,
             columnSpan: 1,
             containerId: 'main',

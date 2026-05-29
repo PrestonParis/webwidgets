@@ -1,0 +1,22 @@
+Model: memory_card_quality v1
+Trained at: 2026-05-20T14:58:49.878016+00:00
+Dataset size: 600
+Dataset hash: df5eb485dde61b71
+Test accuracy: 0.7833
+Macro F1: 0.7029
+
+Class distribution:
+  discard: 88
+  keep: 344
+  revise: 168
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     discard       0.70      0.39      0.50        18
+        keep       0.77      0.93      0.84        69
+      revise       0.85      0.70      0.77        33
+
+    accuracy                           0.78       120
+   macro avg       0.77      0.67      0.70       120
+weighted avg       0.78      0.78      0.77       120

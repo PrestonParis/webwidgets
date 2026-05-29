@@ -8,7 +8,7 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text', 'html'],
-            include: ['features/**/*.ts', 'lib/**/*.ts'],
+            include: ['apps/web/features/**/*.ts', 'apps/web/lib/**/*.ts'],
             exclude: [
                 'features/**/*.tsx',
                 'features/**/components/**',
@@ -19,7 +19,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, '.'),
+            '@': path.resolve(__dirname, 'apps/web'),
         },
     },
 });

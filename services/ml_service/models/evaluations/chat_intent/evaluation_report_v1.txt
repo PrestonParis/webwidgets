@@ -1,0 +1,32 @@
+Model: chat_intent v1
+Trained at: 2026-05-20T14:58:44.623291+00:00
+Dataset size: 800
+Dataset hash: 691edb1fa25985aa
+Test accuracy: 1.0000
+Macro F1: 1.0000
+
+Class distribution:
+  analyze: 110
+  compare: 106
+  create: 102
+  explain: 89
+  help: 85
+  navigate: 110
+  search: 108
+  summarize: 90
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     analyze       1.00      1.00      1.00        22
+     compare       1.00      1.00      1.00        21
+      create       1.00      1.00      1.00        20
+     explain       1.00      1.00      1.00        18
+        help       1.00      1.00      1.00        17
+    navigate       1.00      1.00      1.00        22
+      search       1.00      1.00      1.00        22
+   summarize       1.00      1.00      1.00        18
+
+    accuracy                           1.00       160
+   macro avg       1.00      1.00      1.00       160
+weighted avg       1.00      1.00      1.00       160

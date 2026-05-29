@@ -1,0 +1,79 @@
+{
+  "mode": "attached",
+  "startTime": 1779319507876,
+  "endTime": 1779319540172,
+  "duration": 32296,
+  "serverStarted": true,
+  "serverPort": 3000,
+  "serverUrl": "http://localhost:3000",
+  "services": [
+    {
+      "name": "Supabase",
+      "required": false,
+      "reachable": false,
+      "port": 54321,
+      "host": "localhost",
+      "responseTime": 9
+    },
+    {
+      "name": "Redis",
+      "required": false,
+      "reachable": false,
+      "port": 6379,
+      "host": "localhost",
+      "responseTime": 5
+    },
+    {
+      "name": "Go Worker",
+      "required": false,
+      "reachable": false,
+      "port": 8000,
+      "host": "localhost",
+      "responseTime": 4
+    },
+    {
+      "name": "ML Service",
+      "required": false,
+      "reachable": false,
+      "port": 8000,
+      "host": "localhost",
+      "responseTime": 14
+    }
+  ],
+  "readinessChecks": [
+    {
+      "name": "Dashboard",
+      "url": "http://localhost:3000/dashboard",
+      "required": true,
+      "status": "fail",
+      "responseTime": 1448
+    },
+    {
+      "name": "Health",
+      "url": "http://localhost:3000/api/health",
+      "required": false,
+      "status": "fail",
+      "responseTime": 560
+    },
+    {
+      "name": "Ready",
+      "url": "http://localhost:3000/api/ready",
+      "required": false,
+      "status": "fail",
+      "error": "The operation was aborted."
+    }
+  ],
+  "errors": [
+    "❌ Dashboard check failed: Unknown error"
+  ],
+  "warnings": [
+    "Port 3000 already in use - assuming server is running",
+    "⚠️  Supabase not reachable on localhost:54321 (optional)",
+    "⚠️  Redis not reachable on localhost:6379 (optional)",
+    "⚠️  Go Worker not reachable on localhost:8000 (optional)",
+    "⚠️  ML Service not reachable on localhost:8000 (optional)",
+    "⚠️  Health check failed: Unknown error (optional)",
+    "⚠️  Ready check failed: The operation was aborted. (optional)"
+  ],
+  "success": false
+}
