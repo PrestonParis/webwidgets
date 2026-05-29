@@ -27,12 +27,9 @@ export function ViewportWidgetMount({
     emoji,
     eager = false,
 }: ViewportWidgetMountProps) {
-    const metadata = useMemo(
-        () => getWidgetRuntimeMetadata(config),
-        [config.id, config.type],
-    );
+    const metadata = useMemo(() => getWidgetRuntimeMetadata(config), [config]);
     const { markWidgetFailed } = useDashboardRuntime();
-    const { ref, loaded, visible, canHydrate, status, retry, loadMore } =
+    const { ref, loaded, visible, canHydrate, status, retry } =
         useDashboardRuntimeWidget({ metadata, eager });
 
     const unavailable =

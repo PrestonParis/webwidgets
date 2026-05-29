@@ -85,7 +85,13 @@ function readWeatherCache(): WeatherData | null {
         const { data, timestamp } = parsed.data;
         if (Date.now() - timestamp >= CACHE_TTL) return null;
         return {
-            ...data,
+            temp: data.temp,
+            feelsLike: data.feelsLike,
+            weatherCode: data.weatherCode,
+            description: data.description,
+            emoji: data.emoji,
+            windSpeed: data.windSpeed,
+            humidity: data.humidity,
             ...(data.city !== undefined ? { city: data.city } : {}),
         };
     } catch {
