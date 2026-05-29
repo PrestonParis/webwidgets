@@ -86,8 +86,9 @@ function extractCompactPreview(
 
     // Handle array data (common for lists, tasks, etc.)
     if (Array.isArray(data)) {
-        const count = data.length;
-        const firstItem = data[0];
+        const items = data as unknown[];
+        const count = items.length;
+        const firstItem = items[0];
         return {
             count,
             preview: firstItem

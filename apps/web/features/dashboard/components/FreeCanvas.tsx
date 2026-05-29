@@ -368,7 +368,6 @@ export default function FreeCanvas({
             onDeleteFolder,
             onOpenRecovery,
             onReset,
-            denseCanvas,
         ],
     );
 
