@@ -11,6 +11,7 @@ import { MOODS, DOT_COLORS } from '@/features/mood/constants';
 import LoadingState from '@/features/ui/components/LoadingState';
 import type { MoodEntry } from '@/features/mood/types/mood';
 import { useQueryClient } from '@tanstack/react-query';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 // ── Optimistic local override: tracks entries logged this session ─────────────
 // When the user logs a mood, we update local state immediately rather than waiting
@@ -144,6 +145,12 @@ export default function MoodWidget({
             widgetType="mood"
             footerHref="/mood"
             footerLabel="Mood log →"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="mood_logs"
+                    displayName="Mood"
+                />
+            }
         >
             <div className="flex flex-col h-full">
                 {editingDate && editingDate !== today && (
