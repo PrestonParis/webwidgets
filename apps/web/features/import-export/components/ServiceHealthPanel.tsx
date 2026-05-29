@@ -2,13 +2,7 @@
 
 import { CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
-import type { ServiceHealth } from '@/features/import-export/types/importExport';
-
-interface Props {
-    health: ServiceHealth | null;
-    loading: boolean;
-    onRefresh: () => void;
-}
+import type { ServiceHealthPanelProps } from '@/features/import-export/types/importExport';
 
 const statusIcon = {
     ok: <CheckCircle2 size={14} className="text-emerald-500" />,
@@ -16,7 +10,11 @@ const statusIcon = {
     unconfigured: <AlertTriangle size={14} className="text-amber-500" />,
 };
 
-export function ServiceHealthPanel({ health, loading, onRefresh }: Props) {
+export function ServiceHealthPanel({
+    health,
+    loading,
+    onRefresh,
+}: ServiceHealthPanelProps) {
     return (
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5">
             <div className="flex items-center justify-between mb-4">
