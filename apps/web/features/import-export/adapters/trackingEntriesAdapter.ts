@@ -10,6 +10,11 @@ import type {
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
 
+const coerceStr = (v: unknown): string =>
+    typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
+        ? String(v)
+        : '';
+
 export const trackingEntriesAdapter: ImportExportAdapter = {
     id: 'tracking_entries',
     displayName: 'Tracking Entries',
@@ -77,19 +82,29 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
             throw error;
         }
 
-        const rows: MappedRow[] = (data ?? []).map((row, i) => ({
-            rowIndex: i,
-            data: {
-                id: row.id,
-                category: row.category,
-                entry_date: row.entry_date,
-                logged_at: row.logged_at,
-                notes: row.notes ?? '',
-                tags: Array.isArray(row.tags) ? row.tags.join(',') : '',
-                source: row.source ?? '',
-                ...((row.metadata as Record<string, unknown>) ?? {}),
-            },
-        }));
+        const rows: MappedRow[] = (data ?? []).map((row, i) => {
+            const r = row as Record<string, unknown>;
+            return {
+                rowIndex: i,
+                data: {
+                    id: r['id'],
+                    category: r['category'],
+                    entry_date: r['entry_date'],
+                    logged_at: r['logged_at'],
+                    notes: r['notes'] ?? '',
+                    tags: Array.isArray(r['tags'])
+                        ? r['tags']
+                              .filter((t): t is string => typeof t === 'string')
+                              .join(',')
+                        : '',
+                    source: r['source'] ?? '',
+                    ...(typeof r['metadata'] === 'object' &&
+                    r['metadata'] !== null
+                        ? (r['metadata'] as Record<string, unknown>)
+                        : {}),
+                },
+            };
+        });
 
         return { rows, totalCount: rows.length, warnings };
     },
@@ -114,7 +129,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
 
         for (const row of rows) {
             try {
-                const d = row.data as Record<string, unknown>;
+                const d = row.data;
                 if (!d['category'] || !d['entry_date']) {
                     errors.push({
                         rowIndex: row.rowIndex,
@@ -127,19 +142,19 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
 
                 const record = {
                     user_id: userId,
-                    category: String(d['category']),
-                    entry_date: String(d['entry_date']),
+                    category: coerceStr(d['category']),
+                    entry_date: coerceStr(d['entry_date']),
                     logged_at: d['logged_at']
-                        ? String(d['logged_at'])
+                        ? coerceStr(d['logged_at'])
                         : new Date().toISOString(),
-                    notes: d['notes'] ? String(d['notes']) : null,
+                    notes: d['notes'] ? coerceStr(d['notes']) : null,
                     tags: d['tags']
-                        ? String(d['tags'])
+                        ? coerceStr(d['tags'])
                               .split(',')
                               .map((t) => t.trim())
                               .filter(Boolean)
                         : [],
-                    source: d['source'] ? String(d['source']) : 'import',
+                    source: d['source'] ? coerceStr(d['source']) : 'import',
                     metadata:
                         typeof d['metadata'] === 'object' &&
                         d['metadata'] !== null
