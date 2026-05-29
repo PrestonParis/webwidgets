@@ -13,6 +13,7 @@ import {
     ModalFooter,
 } from '@/features/ui/components/Modal';
 import { cn } from '@/lib/utils/utils';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 const MAX_INCOMPLETE = 5;
 const MAX_COMPLETED = 2;
@@ -86,6 +87,12 @@ export default function TodoWidget() {
             widgetId="todo"
             footerHref="/planning"
             footerLabel="Open Planning →"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="todos"
+                    displayName="Todos"
+                />
+            }
         >
             {loading ? (
                 <div className="space-y-2">
