@@ -193,7 +193,6 @@ function AnatomicalBodyMapBase({
     const sharedProps = {
         activeView,
         visuals,
-        ...(issues !== undefined ? { issues } : {}),
         surfaceMode,
         selectedRegionId,
         readonly,
@@ -201,9 +200,10 @@ function AnatomicalBodyMapBase({
         showSkeleton: activeView === 'bone',
         showMuscles: activeView === 'muscle',
         onActivate: onRegionClick,
-        onSurfaceClick,
-        onSurfaceDrawing,
         onHover: setHovered,
+        ...(issues !== undefined ? { issues } : {}),
+        ...(onSurfaceClick !== undefined ? { onSurfaceClick } : {}),
+        ...(onSurfaceDrawing !== undefined ? { onSurfaceDrawing } : {}),
     };
 
     const mapContent = (
