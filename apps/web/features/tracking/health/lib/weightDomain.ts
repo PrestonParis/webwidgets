@@ -111,17 +111,19 @@ export function normalizeWeightEntries(
                     : typeof m['bmi'] === 'number'
                       ? m['bmi']
                       : undefined;
+            const bodyFatPercent =
+                typeof m['bodyFatPercent'] === 'number'
+                    ? m['bodyFatPercent']
+                    : undefined;
+            const notes = typeof e.notes === 'string' ? e.notes : undefined;
             return {
                 id: e.id,
                 date: e.entryDate,
                 weightKg: rawKg,
-                heightCm,
-                bmi,
-                bodyFatPercent:
-                    typeof m['bodyFatPercent'] === 'number'
-                        ? m['bodyFatPercent']
-                        : undefined,
-                notes: typeof e.notes === 'string' ? e.notes : undefined,
+                ...(heightCm !== undefined ? { heightCm } : {}),
+                ...(bmi !== undefined ? { bmi } : {}),
+                ...(bodyFatPercent !== undefined ? { bodyFatPercent } : {}),
+                ...(notes !== undefined ? { notes } : {}),
             };
         })
         .filter((e): e is WeightEntry => e !== null)

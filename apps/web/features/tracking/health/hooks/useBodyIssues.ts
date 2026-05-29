@@ -51,12 +51,12 @@ export function useBodyIssues(): UseBodyIssuesResult {
         try {
             const [{ data: issueRows }, { data: histRows }] = await Promise.all(
                 [
-                    supabase
+                    db
                         .from('body_issues')
                         .select('*')
                         .eq('user_id', userId)
                         .order('created_at', { ascending: false }),
-                    supabase
+                    db
                         .from('body_issue_history')
                         .select('*')
                         .order('recorded_at', { ascending: true }),
@@ -87,7 +87,7 @@ export function useBodyIssues(): UseBodyIssuesResult {
     const createIssue = useCallback(
         async (draft: BodyIssueDraft): Promise<BodyIssue> => {
             if (!userId) throw new Error('Not authenticated');
-            const { data, error } = await supabase
+            const { data, error } = await db
                 .from('body_issues')
                 .insert({
                     user_id: userId,
@@ -128,7 +128,7 @@ export function useBodyIssues(): UseBodyIssuesResult {
                 status: prev.status,
                 notes: prev.notes ?? null,
             });
-            await supabase
+            await db
                 .from('body_issues')
                 .update({
                     ...(updates.issueType !== undefined && {
