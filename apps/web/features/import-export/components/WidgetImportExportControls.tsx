@@ -5,17 +5,15 @@ import { Download, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { useWidgetImportExport } from '@/features/import-export/hooks/useWidgetImportExport';
 import { WidgetImportModal } from '@/features/import-export/components/WidgetImportModal';
-import type { SourceDestinationType } from '@/features/import-export/types/importExport';
-
-interface Props {
-    sourceType: SourceDestinationType;
-    displayName: string;
-}
+import type { WidgetImportExportControlsProps } from '@/features/import-export/types/importExport';
 
 const BTN =
     'opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 dark:text-zinc-500 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300';
 
-export function WidgetImportExportControls({ sourceType, displayName }: Props) {
+export function WidgetImportExportControls({
+    sourceType,
+    displayName,
+}: WidgetImportExportControlsProps) {
     const { exporting, exportData } = useWidgetImportExport(sourceType);
     const [exportOpen, setExportOpen] = useState(false);
     const [importOpen, setImportOpen] = useState(false);

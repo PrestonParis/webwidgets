@@ -235,6 +235,25 @@ export interface AdapterAvailability {
     message?: string;
 }
 
+// ── Component props ───────────────────────────────────────────────────────────
+export interface ServiceHealthPanelProps {
+    health: ServiceHealth | null;
+    loading: boolean;
+    onRefresh: () => void;
+}
+
+export interface WidgetImportExportControlsProps {
+    sourceType: SourceDestinationType;
+    displayName: string;
+}
+
+export interface WidgetImportModalProps {
+    open: boolean;
+    onClose: () => void;
+    sourceType: SourceDestinationType;
+    displayName: string;
+}
+
 // ── Audit event ───────────────────────────────────────────────────────────────
 export interface AuditEvent {
     id: string;
