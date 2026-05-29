@@ -7,7 +7,6 @@ import {
     TISSUE_TYPE_CONFIGS,
     TISSUE_TYPE_CONFIG_MAP,
     type InjuryOnset,
-    type InjuryStatus,
     type PainQuality,
     type TissueTypeConfig,
 } from '@/features/tracking/health/types/health';

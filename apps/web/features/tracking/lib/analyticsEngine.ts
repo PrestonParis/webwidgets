@@ -5,10 +5,6 @@ import type {
     DataPoint,
     Trend,
 } from '@/features/tracking/types/analytics';
-import type {
-    TrackingGoal,
-    GoalProgress,
-} from '@/features/tracking/types/goals';
 
 function toDateKey(date: Date): string {
     return date.toISOString().slice(0, 10);
@@ -139,17 +135,6 @@ export function extractMetricSeries(
             value: e.metadata[metric] as number,
         }))
         .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function isoWeekKey(dateStr: string): string {
-    const d = new Date(dateStr + 'T00:00:00Z');
-    const day = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - day);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    const week = Math.ceil(
-        ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
-    );
-    return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
 }
 
 export {
