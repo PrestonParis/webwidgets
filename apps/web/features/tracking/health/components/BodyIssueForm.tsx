@@ -84,8 +84,8 @@ export function BodyIssueForm({
                 onsetDate,
                 durationType,
                 status,
-                notes: notes.trim() || undefined,
                 triggers,
+                ...(notes.trim() ? { notes: notes.trim() } : {}),
                 ...(initialDraft?.skinX !== undefined && {
                     skinX: initialDraft.skinX,
                 }),
@@ -130,7 +130,9 @@ export function BodyIssueForm({
             <IssueTypePicker
                 value={issueType}
                 onChange={setIssueType}
-                error={errors['issueType']}
+                {...(errors['issueType'] !== undefined
+                    ? { error: errors['issueType'] }
+                    : {})}
             />
 
             <div>

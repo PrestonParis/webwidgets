@@ -186,14 +186,16 @@ export function rowToIssue(row: BodyIssueRow): BodyIssue {
         onsetDate: row.onset_date,
         durationType: row.duration_type,
         status: row.status,
-        notes: parsedNotes.notes,
         triggers: row.triggers ?? [],
-        skinX: row.skin_x ?? undefined,
-        skinY: row.skin_y ?? undefined,
-        skinDrawing: parsedNotes.skinDrawing,
-        toothNumber: row.tooth_number ?? undefined,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+        ...(parsedNotes.notes !== undefined && { notes: parsedNotes.notes }),
+        ...(row.skin_x != null && { skinX: row.skin_x }),
+        ...(row.skin_y != null && { skinY: row.skin_y }),
+        ...(parsedNotes.skinDrawing !== undefined && {
+            skinDrawing: parsedNotes.skinDrawing,
+        }),
+        ...(row.tooth_number != null && { toothNumber: row.tooth_number }),
     };
 }
 
@@ -203,7 +205,7 @@ export function rowToHistory(row: BodyIssueHistoryRow): BodyIssueHistory {
         issueId: row.issue_id,
         severity: row.severity,
         status: row.status,
-        notes: row.notes ?? undefined,
         recordedAt: row.recorded_at,
+        ...(row.notes != null && { notes: row.notes }),
     };
 }

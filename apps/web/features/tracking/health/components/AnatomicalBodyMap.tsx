@@ -193,7 +193,7 @@ function AnatomicalBodyMapBase({
     const sharedProps = {
         activeView,
         visuals,
-        issues,
+        ...(issues !== undefined ? { issues } : {}),
         surfaceMode,
         selectedRegionId,
         readonly,

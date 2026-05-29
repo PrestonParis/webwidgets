@@ -6,7 +6,7 @@
  */
 
 import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
-import type { MealType } from '@/features/tracking/types/nutritionProviders';
+import type { MealType } from '@/features/tracking/types/meal';
 import { foodItemToMetadata } from '../foodItem';
 import { sumFoodItems, divideTotals } from '../totals';
 import type { FoodItem } from '@/features/tracking/types/nutritionFood';

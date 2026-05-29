@@ -1,13 +1,11 @@
 'use client';
 
 import { Upload, Download, Brain } from 'lucide-react';
-import type { AdapterCapability } from '@/features/import-export/types/importExport';
+import type { AdapterRegistryPanelProps } from '@/features/import-export/types/importExport';
 
-interface Props {
-    capabilities: AdapterCapability[];
-}
-
-export function AdapterRegistryPanel({ capabilities }: Props) {
+export function AdapterRegistryPanel({
+    capabilities,
+}: AdapterRegistryPanelProps) {
     return (
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5">
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">

@@ -42,7 +42,7 @@ export function WidgetImportExportControls({
                     <Download className="w-3.5 h-3.5" />
                 </button>
                 {exportOpen && (
-                    <div className="absolute right-0 top-full mt-1 z-50 min-w-[100px] rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 z-50 min-w-25 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg overflow-hidden">
                         <button
                             className="w-full text-left px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
                             onClick={() => handleFormat('json')}

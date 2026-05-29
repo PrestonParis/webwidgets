@@ -3,12 +3,7 @@
 import { useState } from 'react';
 import { Brain, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
-import type { ContextExportRecord } from '@/features/import-export/types/importExport';
-
-interface Props {
-    contextExports: ContextExportRecord[];
-    onGenerate: () => Promise<unknown>;
-}
+import type { ContextExportPanelProps } from '@/features/import-export/types/importExport';
 
 const STATUS_ICON = {
     ready: <CheckCircle2 size={14} className="text-emerald-500" />,
@@ -20,7 +15,10 @@ const STATUS_ICON = {
     permission_denied: <XCircle size={14} className="text-red-400" />,
 };
 
-export function ContextExportPanel({ contextExports, onGenerate }: Props) {
+export function ContextExportPanel({
+    contextExports,
+    onGenerate,
+}: ContextExportPanelProps) {
     const [running, setRunning] = useState(false);
     const [latest, setLatest] = useState<{
         payload?: {

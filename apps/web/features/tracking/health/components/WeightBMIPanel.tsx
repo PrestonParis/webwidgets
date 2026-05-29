@@ -188,8 +188,10 @@ export function WeightBMIPanel({
                     )}
                     <WeightLogForm
                         onSubmit={handleAdd}
-                        lastHeightCm={lastHeightCm}
                         defaultUnit={unit}
+                        {...(lastHeightCm !== undefined
+                            ? { lastHeightCm }
+                            : {})}
                     />
                 </TrackingSection>
             )}

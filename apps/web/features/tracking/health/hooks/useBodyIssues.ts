@@ -31,6 +31,9 @@ export interface UseBodyIssuesResult {
 export function useBodyIssues(): UseBodyIssuesResult {
     const { user } = useAuthContext();
     const userId = user?.id ?? null;
+    // body_issues / body_issue_history are not yet in the generated Supabase types
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
     const [issues, setIssues] = useState<BodyIssue[]>([]);
     const [history, setHistory] = useState<Map<string, BodyIssueHistory[]>>(
         new Map(),
@@ -119,7 +122,7 @@ export function useBodyIssues(): UseBodyIssuesResult {
             const prev = issues.find((i) => i.id === id);
             if (!prev) return;
             // Snapshot to history before update
-            await supabase.from('body_issue_history').insert({
+            await db.from('body_issue_history').insert({
                 issue_id: id,
                 severity: prev.severity,
                 status: prev.status,
@@ -175,7 +178,7 @@ export function useBodyIssues(): UseBodyIssuesResult {
     );
 
     const deleteIssue = useCallback(async (id: string) => {
-        await supabase.from('body_issues').delete().eq('id', id);
+        await db.from('body_issues').delete().eq('id', id);
         setIssues((prev) => prev.filter((i) => i.id !== id));
     }, []);
 
