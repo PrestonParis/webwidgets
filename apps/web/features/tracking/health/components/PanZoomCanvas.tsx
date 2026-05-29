@@ -89,20 +89,20 @@ export function PanZoomCanvas({
 
     function onTouchStart(e: React.TouchEvent) {
         if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dx = e.touches[0]!.clientX - e.touches[1]!.clientX;
+            const dy = e.touches[0]!.clientY - e.touches[1]!.clientY;
             lastDist.current = Math.hypot(dx, dy);
         } else if (e.touches.length === 1) {
             lastPos.current = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY,
+                x: e.touches[0]!.clientX,
+                y: e.touches[0]!.clientY,
             };
         }
     }
     function onTouchMove(e: React.TouchEvent) {
         if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dx = e.touches[0]!.clientX - e.touches[1]!.clientX;
+            const dy = e.touches[0]!.clientY - e.touches[1]!.clientY;
             const dist = Math.hypot(dx, dy);
             if (lastDist.current !== null) {
                 const ratio = dist / lastDist.current;
@@ -113,11 +113,11 @@ export function PanZoomCanvas({
             }
             lastDist.current = dist;
         } else if (e.touches.length === 1) {
-            const dx = e.touches[0].clientX - lastPos.current.x;
-            const dy = e.touches[0].clientY - lastPos.current.y;
+            const dx = e.touches[0]!.clientX - lastPos.current.x;
+            const dy = e.touches[0]!.clientY - lastPos.current.y;
             lastPos.current = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY,
+                x: e.touches[0]!.clientX,
+                y: e.touches[0]!.clientY,
             };
             setPz((prev) => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
         }

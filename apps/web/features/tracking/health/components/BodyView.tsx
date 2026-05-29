@@ -139,6 +139,7 @@ export function BodyView({
             )
             .join(' ');
         const center = points[Math.floor(points.length / 2)] ?? points[0];
+        if (!center) return;
         onSurfaceDrawing?.(view, path, center.x, center.y);
         setStrokePoints([]);
     }

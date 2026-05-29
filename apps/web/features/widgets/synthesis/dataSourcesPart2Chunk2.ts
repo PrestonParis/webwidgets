@@ -2,19 +2,6 @@ import type { WidgetPermission } from '@/features/platform/types/widget';
 import type { WidgetTransformationType } from '../types/synthesisWidgets';
 import type { DataSourceRegistryEntry } from '../types/synthesisDataSources';
 
-const ALL_TRANSFORMS: WidgetTransformationType[] = [
-    'pick_fields',
-    'rename_fields',
-    'filter_rows',
-    'sort_rows',
-    'group_by_time',
-    'aggregate',
-    'convert_dates',
-    'convert_currency',
-    'calc_derived',
-    'map_to_categories',
-];
-
 function src(
     id: string,
     label: string,
