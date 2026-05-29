@@ -8,6 +8,15 @@ import type {
 } from '../types/memorization';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
+export interface MemoryRoutineRecord {
+    id: string;
+    title: string;
+    domain: string;
+    minutes: number;
+    enabled: boolean;
+    description?: string;
+}
+
 export interface MemoryDeckRecord {
     id: string;
     user_id: string;
