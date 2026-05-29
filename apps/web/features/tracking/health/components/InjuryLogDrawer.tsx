@@ -37,8 +37,7 @@ export interface InjuryLogDrawerProps {
 
 function emptyForm(regionId: string | null): InjuryFormState {
     const region = regionId ? BODY_REGION_MAP[regionId] : undefined;
-    const tissueType: TissueType =
-        (region?.supportedTissueTypes[0] as TissueType | undefined) ?? 'muscle';
+    const tissueType: TissueType = region?.supportedTissueTypes[0] ?? 'muscle';
     return {
         tissueType,
         injuryType: '',

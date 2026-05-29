@@ -1,4 +1,4 @@
-import { type BodyRegion } from '@/features/tracking/health/types/health';
+import type { BodyRegion } from '@/features/tracking/health/types/regions';
 import { makeRegion } from './boneRegions';
 
 export const TENDON_REGIONS: BodyRegion[] = [
