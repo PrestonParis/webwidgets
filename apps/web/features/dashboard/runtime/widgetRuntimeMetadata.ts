@@ -7,6 +7,10 @@ import type {
     WidgetLoadStrategy,
 } from '../types/widgetRuntime';
 import { PRIORITY_SCORES, WEIGHT_SCORES } from './dashboardRuntimeConfig';
+import {
+    getWidgetManifest,
+    getDataKeysFromManifest,
+} from './widgetManifestRegistry';
 
 const CRITICAL_WIDGET_TYPES = new Set([
     'clock',
@@ -109,12 +113,21 @@ export function getWidgetRuntimeMetadata(
     const defaultLoad = determineLoadStrategy(weight, priority);
     const estimatedCost = estimateCost(weight, priority);
 
+    // Prefer manifest registry (typed, import/export-aware) over legacy DATA_KEYS.
+    // Fall back to DATA_KEYS for widget types not yet in the manifest registry.
+    const manifestDataKeys = getDataKeysFromManifest(config.type);
+    const legacyDataKeys = DATA_KEYS[config.type] ?? [];
+    const manifest = getWidgetManifest(config.type);
+    // Override priority from manifest if specified
+    const effectivePriority = manifest?.priority ?? priority;
+
     const metadata: WidgetRuntimeMetadata = {
         id: config.id,
-        priority,
+        priority: effectivePriority,
         weight,
         defaultLoad,
-        dataKeys: DATA_KEYS[config.type] ?? [],
+        dataKeys:
+            manifestDataKeys.length > 0 ? manifestDataKeys : legacyDataKeys,
         estimatedCost,
     };
 

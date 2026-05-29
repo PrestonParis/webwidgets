@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { Tracker } from '@/features/recovery/types/recovery';
@@ -7,6 +8,12 @@ export function useRecoveryActions(
     setTrackers: Dispatch<SetStateAction<Tracker[]>>,
 ) {
     const { user } = useAuthContext();
+    const queryClient = useQueryClient();
+
+    const invalidate = () =>
+        void queryClient.invalidateQueries({
+            queryKey: ['widget-adapter', 'recovery_records', 'current_user'],
+        });
     const handleReset = async (id: string) => {
         const now = new Date().toISOString();
         setTrackers((prev) =>
@@ -19,6 +26,7 @@ export function useRecoveryActions(
             .from('recovery_profiles')
             .update({ start_time: now })
             .eq('id', id);
+        invalidate();
     };
 
     const handleTrackerCardReset = (
@@ -43,11 +51,13 @@ export function useRecoveryActions(
             .eq('id', id);
         onReset(id, now);
         resetSeconds();
+        invalidate();
     };
 
     const handleDelete = async (id: string) => {
         setTrackers((prev) => prev.filter((t) => t.id !== id));
         await supabase.from('recovery_profiles').delete().eq('id', id);
+        invalidate();
     };
 
     const handleAddTracker = async (selectedAddiction: string) => {
@@ -66,6 +76,7 @@ export function useRecoveryActions(
         if (insertResult.error) throw insertResult.error;
         const newTracker = insertResult.data as unknown as Tracker;
         setTrackers((prev) => [...prev, newTracker]);
+        invalidate();
     };
 
     const handleUpdateStart = (id: string, newStart: string) => {

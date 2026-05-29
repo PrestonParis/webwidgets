@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 
+const ALLOWED_UPDATE_FIELDS = [
+    'name',
+    'scope',
+    'description',
+    'status',
+] as const;
+
 export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ id: string }> },
@@ -10,17 +17,33 @@ export async function PATCH(
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { id } = await params;
-        const body = (await req.json()) as Record<string, unknown>;
-        const { data, error } = (await supabase
+
+        // Only workspace owner can edit settings
+        const { data: ws } = await supabase
             .from('collaboration_workspaces')
-            .update(body)
+            .select('user_id')
             .eq('id', id)
-            .eq('user_id', userId)
-            .select()
-            .single()) as {
-            data: Record<string, unknown> | null;
-            error: Error | null;
+            .single();
+        if (!ws || ws.user_id !== userId) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const body = (await req.json()) as Record<string, unknown>;
+        const patch: Record<string, unknown> = {
+            updated_at: new Date().toISOString(),
         };
+        for (const field of ALLOWED_UPDATE_FIELDS) {
+            if (field in body) patch[field] = body[field];
+        }
+
+        const { data, error } = await supabase
+            .from('collaboration_workspaces')
+            .update(patch)
+            .eq('id', id)
+            .select(
+                'id,user_id,name,scope,description,status,created_at,updated_at',
+            )
+            .single();
         if (error) throw error;
         return NextResponse.json(data);
     } catch (err) {

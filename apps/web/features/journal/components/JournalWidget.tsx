@@ -1,91 +1,41 @@
 'use client';
 
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/db/supabase';
-import { JournalEntry } from '@/features/journal/types/journal';
-import { tiptapToPreviewText } from '@/lib/utils/tiptap';
-import { isAbortError } from '@/lib/utils/errorHelpers';
 import { BookText } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
-import { z } from 'zod';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
+import { tiptapToPreviewText } from '@/lib/utils/tiptap';
 
-const journalEntrySchema: z.ZodType<JournalEntry> = z.object({
-    id: z.number(),
-    title: z.string(),
-    content: z.string(),
-    image_url: z.string().nullable(),
-    deleted_at: z.string().nullable(),
-    created_at: z.string(),
-    type: z.enum(['journal', 'document', 'note']).default('journal'),
-});
-
-const journalEntryArraySchema = z.array(journalEntrySchema);
+interface JournalRow {
+    id: string;
+    title: string;
+    content: string;
+    type: string;
+    created_at: string;
+}
 
 export default function JournalWidget() {
-    const { user } = useAuth();
-    const [latestEntry, setLatestEntry] = useState<JournalEntry | null>(null);
-    const [count, setCount] = useState(0);
-
     const { settings, updateSettings } = useWidgetSettings(
         'journal',
         'journal',
     );
+    const { payload, loading } = useWidgetData('journal', 'journal');
 
-    useEffect(() => {
-        let isMounted = true;
-        const controller = new AbortController();
+    // Extract journal records from the adapter payload
+    const records = (
+        (payload?.sources['journals']?.data as JournalRow[] | null) ?? []
+    ).filter((r): r is JournalRow => r != null && r.type === 'journal');
 
-        const fetch = async () => {
-            if (!user?.id) return;
-
-            try {
-                const {
-                    data,
-                    error,
-                    count: totalCount,
-                } = await supabase
-                    .from('journals')
-                    .select('*', { count: 'exact' })
-                    .eq('user_id', user.id)
-                    .eq('type', 'journal')
-                    .is('deleted_at', null)
-                    .order('created_at', { ascending: false })
-                    .abortSignal(controller.signal);
-
-                if (error) {
-                    if (!isAbortError(error)) {
-                        console.error('Journal Widget fetch failed:', error);
-                    }
-                    return;
-                }
-
-                const parsed = journalEntryArraySchema.safeParse(data);
-                if (parsed.success && isMounted) {
-                    setLatestEntry(parsed.data[0] || null);
-                    setCount(totalCount || parsed.data.length);
-                }
-            } catch (error) {
-                if (!isAbortError(error)) {
-                    console.error('Journal Widget fetch failed:', error);
-                }
-            }
-        };
-
-        void fetch();
-
-        return () => {
-            isMounted = false;
-            controller.abort();
-        };
-    }, [user]);
+    const latestEntry = records[0] ?? null;
+    const count = records.length;
 
     return (
         <WidgetShell
             icon={<BookText />}
             title="Journal"
-            badge={`${count} ${count === 1 ? 'Entry' : 'Entries'}`}
+            badge={
+                loading ? '…' : `${count} ${count === 1 ? 'Entry' : 'Entries'}`
+            }
             settings={settings}
             onSettingsChange={updateSettings}
             widgetId="journal"
@@ -93,10 +43,19 @@ export default function JournalWidget() {
             footerHref="/journal"
             footerLabel="+ New Entry"
         >
-            {latestEntry ? (
+            {loading ? (
+                <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                        <div
+                            key={i}
+                            className="h-4 bg-gray-100 dark:bg-zinc-800 rounded animate-pulse"
+                        />
+                    ))}
+                </div>
+            ) : latestEntry ? (
                 <div className="space-y-3">
                     <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest">
-                        Latest •{' '}
+                        Latest &bull;{' '}
                         {new Date(latestEntry.created_at).toLocaleDateString()}
                     </p>
                     <div>

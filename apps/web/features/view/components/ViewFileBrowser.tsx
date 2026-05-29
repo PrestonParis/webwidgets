@@ -1,30 +1,31 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import {
-    File,
-    Image,
-    Table,
-    Code2,
-    FileText,
-    Upload,
-    Loader2,
-} from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
 import { useViewFiles } from '@/features/view/hooks/useViewFiles';
+import { getFileIcon } from '@/features/view/lib/fileIcons';
 import {
     requestPresignedUrl,
     uploadFileContent,
 } from '@/features/uploads/api/uploadApi';
 
-function iconFor(mimeType: string) {
-    if (mimeType.startsWith('image/')) return Image;
-    if (mimeType === 'text/csv') return Table;
-    if (mimeType.includes('javascript') || mimeType.startsWith('text/'))
-        return Code2;
-    if (mimeType === 'application/pdf') return FileText;
-    return File;
+function viewFileToRef(file: {
+    id: string;
+    name: string;
+    mimeType: string;
+    sizeBytes: number;
+    uploadedAt: string;
+}): ViewFileRef {
+    return {
+        id: file.id,
+        name: file.name,
+        mimeType: file.mimeType,
+        sizeBytes: file.sizeBytes,
+        source: 'upload',
+        createdAt: file.uploadedAt,
+    };
 }
 
 export function ViewFileBrowser({
@@ -108,11 +109,11 @@ export function ViewFileBrowser({
                     </p>
                 )}
                 {files.map((file) => {
-                    const Icon = iconFor(file.mimeType);
+                    const Icon = getFileIcon(file.mimeType);
                     return (
                         <button
                             key={file.id}
-                            onClick={() => onSelect(file)}
+                            onClick={() => onSelect(viewFileToRef(file))}
                             className={`mb-1 flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs transition ${activeFileId === file.id ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
                         >
                             <Icon size={15} className="shrink-0" />

@@ -27,6 +27,11 @@ export const S3_BUCKET =
     process.env.AWS_BUCKET_NAME?.trim() ||
     '';
 
+// CONVERSION_S3_BUCKET may differ from the upload bucket.
+// Falls back to AWS_S3_BUCKET if not separately configured.
+export const CONVERSION_S3_BUCKET =
+    process.env.CONVERSION_S3_BUCKET?.trim() || S3_BUCKET;
+
 export function hasS3Config() {
     return Boolean(accessKeyId && secretAccessKey && S3_BUCKET);
 }

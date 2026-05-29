@@ -1,6 +1,6 @@
 import type {
     ImportJob,
-    ImportMapping,
+    FieldMapping as ImportMapping,
     ValidationResult,
 } from '@/features/import-export/types/importExport';
 

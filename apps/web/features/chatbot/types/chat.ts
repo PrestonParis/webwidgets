@@ -91,6 +91,10 @@ export interface SendMessagePayload {
     content: string;
     model: string;
     provider: ModelProvider;
+    // contextId and generatedAt from a ContextPayload collected before sending.
+    // The API route uses these to verify context was collected before the request.
+    contextId?: string;
+    contextGeneratedAt?: string;
 }
 
 export interface ConversationListProps {

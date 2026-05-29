@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { BookMarked, ClipboardList, Import, Plus, Repeat2 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
-import { useHabits } from '@/features/habit/hooks/useHabits';
+import { useHabitWidgetData } from '@/features/habit/hooks/useHabitWidgetData';
 import { useHabitForm } from '@/features/habit/hooks/useHabitForm';
 import HabitListItem from '@/features/habit/components/HabitListItem';
 import HabitAddForm from '@/features/habit/components/HabitAddForm';
@@ -68,7 +68,7 @@ export default function HabitWidget() {
         getCalendarMonth,
         getCompletionToday,
         updateCompletionTime,
-    } = useHabits();
+    } = useHabitWidgetData();
     const {
         newName,
         newEmoji,
