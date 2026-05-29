@@ -12,7 +12,6 @@ import type {
     BiometricDataPoint,
     BodyMap,
     BodyZoneEntry,
-    BodyZoneId,
     HealthLogEntry,
     InjuryLog,
     InjuryOnset,
@@ -74,7 +73,7 @@ export function normalizeBodyMap(
         };
         const notes = str(record['notes']);
         if (notes !== undefined) entry.notes = notes;
-        result[zoneId as BodyZoneId] = entry;
+        result[zoneId] = entry;
     }
     return Object.keys(result).length > 0 ? result : undefined;
 }

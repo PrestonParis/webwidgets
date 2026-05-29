@@ -13,7 +13,6 @@ import {
     fmtTrend,
     fmtWeight,
     normalizeWeightEntries,
-    type BMICategory,
     type WeightUnit,
 } from '@/features/tracking/health/lib/weightDomain';
 import { TrackingSection } from '@/features/tracking/components/TrackingSurface';
@@ -94,15 +93,15 @@ export function WeightBMIPanel({
                         BMI
                     </p>
                     <p
-                        className={`mt-1 text-lg font-bold ${bmiCategory ? BMI_CATEGORY_COLOR[bmiCategory as BMICategory] : 'text-gray-900 dark:text-zinc-100'}`}
+                        className={`mt-1 text-lg font-bold ${bmiCategory ? BMI_CATEGORY_COLOR[bmiCategory] : 'text-gray-900 dark:text-zinc-100'}`}
                     >
                         {currentBMI !== null ? currentBMI.toFixed(1) : '—'}
                     </p>
                     {bmiCategory && (
                         <span
-                            className={`text-[10px] font-semibold ${BMI_CATEGORY_COLOR[bmiCategory as BMICategory]}`}
+                            className={`text-[10px] font-semibold ${BMI_CATEGORY_COLOR[bmiCategory]}`}
                         >
-                            {BMI_CATEGORY_LABELS[bmiCategory as BMICategory]}
+                            {BMI_CATEGORY_LABELS[bmiCategory]}
                         </span>
                     )}
                 </div>
