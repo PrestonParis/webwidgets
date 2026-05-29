@@ -39,6 +39,8 @@ services/ml_service/.venv/
 **/*.pyc
 **/*.pyo
 services/ml_service/data/
+# Turbopack/Next.js file-watcher sometimes probes this path at project root
+/ml_service/
 
 # =========================
 # Go service (services/go_services)

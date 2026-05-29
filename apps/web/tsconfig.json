@@ -20,5 +20,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "venv", ".venv", "__pycache__"]
+  "exclude": ["node_modules", "venv", ".venv", "__pycache__", "ml_service"]
 }

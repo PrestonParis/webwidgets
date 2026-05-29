@@ -296,9 +296,23 @@ export function useEmails() {
     ]);
 
     // Poll every 8s while the sync worker is populating email_snapshots.
+    // Cap at 5 attempts (~40s total) so the page never loops indefinitely
+    // when the sync-worker is unavailable or Redis is down.
+    const syncPollCount = useRef(0);
     useEffect(() => {
-        if (!syncing || !user || !hasAny) return;
-        const id = window.setInterval(() => void loadEmails(), 8_000);
+        if (!syncing || !user || !hasAny) {
+            syncPollCount.current = 0;
+            return;
+        }
+        if (syncPollCount.current >= 5) {
+            // Give up — stop showing syncing state so the page isn't stuck.
+            setSyncing(false);
+            return;
+        }
+        const id = window.setInterval(() => {
+            syncPollCount.current += 1;
+            void loadEmails();
+        }, 8_000);
         return () => window.clearInterval(id);
     }, [syncing, user, hasAny, loadEmails]);
 

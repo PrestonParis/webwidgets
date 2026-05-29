@@ -190,7 +190,7 @@ export function DeckLibraryPanel({
                     </form>
                 )}
             </div>
-            <div ref={parentRef} className="h-[380px] overflow-auto">
+            <div ref={parentRef} className="h-95 overflow-auto">
                 {visibleDecks.length === 0 ? (
                     <div className="p-8 text-center text-sm text-zinc-500">
                         No decks match your search.
@@ -202,6 +202,7 @@ export function DeckLibraryPanel({
                     >
                         {virtualizer.getVirtualItems().map((item) => {
                             const deck = visibleDecks[item.index];
+                            if (!deck) return null;
                             const stats = statsByDeck.get(deck.id);
                             const nestedDepth = Math.min(
                                 deck.title.split('::').length - 1,
