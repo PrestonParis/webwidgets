@@ -69,9 +69,10 @@ export function MessageList({
         return (
             <div className="flex-1 flex flex-col items-center justify-center gap-2 text-gray-400">
                 <span className="text-4xl">💬</span>
-                <p className="text-sm">Start a conversation</p>
-                <p className="text-xs text-center max-w-48">
-                    Your context graph is used to personalize every response.
+                <p className="text-sm font-medium">No messages yet</p>
+                <p className="text-xs text-center max-w-52 leading-relaxed">
+                    Type a message below. Available context sources will be
+                    included automatically.
                 </p>
             </div>
         );

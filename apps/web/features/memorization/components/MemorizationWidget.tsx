@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Brain, Repeat2 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
 
-interface DeckRecord {
+// Row shape returned by memoryDecksAdapter (flat MappedRow.data per deck)
+interface DeckRow {
     id: string;
     title: string;
     domain: string;
-    status: string;
-}
-
-interface CardRecord {
-    id: string;
-    due_date: string;
-    status: string;
+    card_count: number;
+    due_count: number;
+    mastered_count: number;
 }
 
 export default function MemorizationWidget({
@@ -22,57 +19,23 @@ export default function MemorizationWidget({
 }: {
     widgetId?: string;
 }) {
-    const [dueCount, setDueCount] = useState<number | null>(null);
-    const [deckCount, setDeckCount] = useState<number | null>(null);
+    // Reads from memoryDecksAdapter via the manifest memory_decks source.
+    // The adapter returns one row per deck with aggregated card and due counts.
+    const { payload, loading } = useWidgetData(widgetId, 'memorization');
 
-    useEffect(() => {
-        let mounted = true;
-        const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 5000);
+    const decks: DeckRow[] = (
+        (payload?.sources['memory_decks']?.data as DeckRow[] | null) ?? []
+    ).filter((d): d is DeckRow => d != null && typeof d.id === 'string');
 
-        void (async () => {
-            try {
-                const [decksResult, cardsResult] = await Promise.allSettled([
-                    fetch('/api/memory/decks', { signal: controller.signal }),
-                    fetch('/api/memory/cards?due=true', {
-                        signal: controller.signal,
-                    }),
-                ]);
-
-                const decks =
-                    decksResult.status === 'fulfilled' && decksResult.value.ok
-                        ? ((await decksResult.value.json()) as DeckRecord[])
-                        : [];
-                const cards =
-                    cardsResult.status === 'fulfilled' && cardsResult.value.ok
-                        ? ((await cardsResult.value.json()) as CardRecord[])
-                        : [];
-
-                if (!mounted) return;
-                setDeckCount(decks.length);
-                setDueCount(cards.length);
-            } catch {
-                if (!mounted) return;
-                setDeckCount(0);
-                setDueCount(0);
-            } finally {
-                window.clearTimeout(timeout);
-            }
-        })();
-
-        return () => {
-            mounted = false;
-            window.clearTimeout(timeout);
-            controller.abort();
-        };
-    }, []);
+    const deckCount = decks.length;
+    const dueCount = decks.reduce((sum, d) => sum + (d.due_count ?? 0), 0);
 
     const badge =
-        dueCount !== null && dueCount > 0 ? (
+        dueCount > 0 ? (
             <span className="text-[10px] font-bold text-amber-500">
                 {dueCount} DUE
             </span>
-        ) : dueCount === 0 ? (
+        ) : deckCount > 0 ? (
             <span className="text-[10px] font-bold text-emerald-500">
                 CLEAR
             </span>
@@ -89,7 +52,7 @@ export default function MemorizationWidget({
             footerLabel="Start review session ->"
         >
             <div className="space-y-2.5">
-                {dueCount === null || deckCount === null ? (
+                {loading ? (
                     <p className="text-xs text-zinc-400">Loading…</p>
                 ) : dueCount === 0 && deckCount === 0 ? (
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">

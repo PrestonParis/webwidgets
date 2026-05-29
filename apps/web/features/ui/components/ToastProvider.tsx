@@ -1,7 +1,13 @@
 'use client';
 
 import { createContext, useContext, type ReactNode } from 'react';
-import { CheckCircle2Icon, XCircleIcon, InfoIcon, AlertTriangleIcon, XIcon } from 'lucide-react';
+import {
+    CheckCircle2Icon,
+    XCircleIcon,
+    InfoIcon,
+    AlertTriangleIcon,
+    XIcon,
+} from 'lucide-react';
 import { useToast, type ToastType } from '@/features/ui/hooks/useToast';
 import { cn } from '@/lib/utils/utils';
 
@@ -24,10 +30,12 @@ const iconMap: Record<ToastType, typeof CheckCircle2Icon> = {
 };
 
 const styleMap: Record<ToastType, string> = {
-    success: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200',
+    success:
+        'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200',
     error: 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200',
     info: 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
-    warning: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200',
+    warning:
+        'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200',
 };
 
 const iconStyleMap: Record<ToastType, string> = {
@@ -41,10 +49,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const { toasts, show, dismiss, success, error, info, warning } = useToast();
 
     return (
-        <ToastContext.Provider value={{ show, dismiss, success, error, info, warning }}>
+        <ToastContext.Provider
+            value={{ show, dismiss, success, error, info, warning }}
+        >
             {children}
             <div
-                className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+                className="fixed bottom-4 right-4 z-9999 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
                 aria-live="polite"
                 aria-label="Notifications"
             >
@@ -60,8 +70,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                                 styleMap[t.type],
                             )}
                         >
-                            <Icon size={16} className={cn('mt-0.5 shrink-0', iconStyleMap[t.type])} />
-                            <p className="flex-1 text-sm font-medium leading-snug">{t.message}</p>
+                            <Icon
+                                size={16}
+                                className={cn(
+                                    'mt-0.5 shrink-0',
+                                    iconStyleMap[t.type],
+                                )}
+                            />
+                            <p className="flex-1 text-sm font-medium leading-snug">
+                                {t.message}
+                            </p>
                             <button
                                 type="button"
                                 onClick={() => dismiss(t.id)}
@@ -80,6 +98,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 export function useToastContext(): ToastContextValue {
     const ctx = useContext(ToastContext);
-    if (!ctx) throw new Error('useToastContext must be used within ToastProvider');
+    if (!ctx)
+        throw new Error('useToastContext must be used within ToastProvider');
     return ctx;
 }

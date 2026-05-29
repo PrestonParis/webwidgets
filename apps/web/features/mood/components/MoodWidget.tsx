@@ -1,14 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Smile } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
-import { useMoodLog } from '@/features/mood/hooks/useMoodLog';
-import { MOODS, DOT_COLORS } from '@/features/mood/constants';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
+import { useMoodMutation } from '@/features/mood/hooks/useMoodMutation';
 import { useMoodHistory } from '@/features/mood/hooks/useMoodHistory';
+import { MOODS, DOT_COLORS } from '@/features/mood/constants';
 import LoadingState from '@/features/ui/components/LoadingState';
-import { MoodEntry } from '@/features/mood/types/mood';
+import type { MoodEntry } from '@/features/mood/types/mood';
+import { useQueryClient } from '@tanstack/react-query';
+
+// ── Optimistic local override: tracks entries logged this session ─────────────
+// When the user logs a mood, we update local state immediately rather than waiting
+// for TanStack Query to refetch. On next query refresh the adapter data wins.
 
 function MoodPicker({
     currentEntry,
@@ -61,137 +67,72 @@ function dayLabel(dateStr: string, today: string): string {
     });
 }
 
-function EditingHeader({
-    label,
-    onBack,
+export default function MoodWidget({
+    widgetId = 'mood',
 }: {
-    label: string;
-    onBack: () => void;
+    widgetId?: string;
 }) {
-    return (
-        <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-stone-500 dark:text-zinc-400">
-                {label}
-            </span>
-            <button
-                onClick={onBack}
-                className="text-[10px] text-stone-400 hover:text-stone-600 dark:hover:text-zinc-300 transition-colors"
-            >
-                ✕ Back to today
-            </button>
-        </div>
-    );
-}
-
-function MoodHistory({
-    editingDate,
-    last7,
-    today,
-    onSelect,
-}: {
-    editingDate: string | null;
-    last7: ReturnType<typeof useMoodHistory>['last7'];
-    today: string;
-    onSelect: (date: string | null) => void;
-}) {
-    return (
-        <div className="mt-auto pt-3">
-            <p className="text-[10px] uppercase tracking-wider font-semibold text-stone-400 dark:text-zinc-600 mb-2">
-                Last 7 Days
-            </p>
-            <div className="flex gap-1.5 items-end">
-                {last7.map(({ date, entry }) => (
-                    <MoodHistoryDay
-                        key={date}
-                        date={date}
-                        editingDate={editingDate}
-                        entry={entry}
-                        today={today}
-                        onSelect={onSelect}
-                    />
-                ))}
-            </div>
-            {!editingDate && (
-                <p className="text-[9px] text-stone-300 dark:text-zinc-700 mt-1.5 text-center">
-                    Tap a day to log past mood
-                </p>
-            )}
-        </div>
-    );
-}
-
-function MoodHistoryDay({
-    date,
-    editingDate,
-    entry,
-    today,
-    onSelect,
-}: {
-    date: string;
-    editingDate: string | null;
-    entry: MoodEntry | undefined;
-    today: string;
-    onSelect: (date: string | null) => void;
-}) {
-    const isSelected = editingDate === date;
-    const isToday = date === today;
-    return (
-        <button
-            onClick={() => onSelect(isSelected ? null : date)}
-            title={
-                entry
-                    ? `${dayLabel(date, today)}: ${MOODS.find((m) => m.value === entry.score)?.label ?? ''}`
-                    : `Log mood for ${dayLabel(date, today)}`
-            }
-            className={`flex-1 flex flex-col items-center gap-1 rounded transition-all ${
-                isSelected
-                    ? 'ring-1 ring-offset-1 ring-stone-400 dark:ring-zinc-500 rounded'
-                    : ''
-            }`}
-        >
-            <div
-                className={`w-full rounded-full transition-all ${
-                    entry
-                        ? `${DOT_COLORS[entry.score]} ${isSelected ? 'h-4' : 'h-3'}`
-                        : `${isSelected ? 'bg-stone-300 dark:bg-zinc-600' : 'bg-stone-100 dark:bg-zinc-800'} h-3 hover:bg-stone-200 dark:hover:bg-zinc-700`
-                }`}
-            />
-            <span
-                className={`text-[8px] font-bold transition-colors ${dayTextClass(isSelected, isToday)}`}
-            >
-                {new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
-                    weekday: 'narrow',
-                })}
-            </span>
-        </button>
-    );
-}
-
-function dayTextClass(isSelected: boolean, isToday: boolean): string {
-    if (isSelected) return 'text-stone-500 dark:text-zinc-400';
-    return isToday
-        ? 'text-stone-400 dark:text-zinc-500'
-        : 'text-stone-300 dark:text-zinc-700';
-}
-
-export default function MoodWidget({ widgetId = 'mood' }: { widgetId?: string }) {
     const { settings, updateSettings } = useWidgetSettings(widgetId, 'mood');
-    const { entries, loading, logMood } = useMoodLog();
-    const { last7, today } = useMoodHistory(entries);
-    const todayEntry = entries.find((e) => e.logged_date === today);
+    const { payload, loading } = useWidgetData(widgetId, 'mood');
+    const queryClient = useQueryClient();
+
+    // Local optimistic overrides: entries logged this session before re-fetch
+    const [optimisticEntries, setOptimisticEntries] = useState<MoodEntry[]>([]);
+
+    const handleMoodLogged = useCallback(
+        (entry: MoodEntry) => {
+            setOptimisticEntries((prev) => [
+                entry,
+                ...prev.filter((e) => e.logged_date !== entry.logged_date),
+            ]);
+            // Invalidate the query so next focus/interval picks up fresh data
+            void queryClient.invalidateQueries({
+                queryKey: ['widget-adapter', 'mood_logs', 'current_user'],
+            });
+        },
+        [queryClient],
+    );
+
+    const { logMood } = useMoodMutation(handleMoodLogged);
+
+    // Merge adapter entries with optimistic overrides (optimistic wins for same date)
+    const adapterRows =
+        (payload?.sources['mood_logs']?.data as Array<{
+            id: string;
+            mood: number;
+            note: string;
+            logged_date: string;
+            logged_at: string;
+        }> | null) ?? [];
+
+    const adapterEntries: MoodEntry[] = adapterRows.map((r) => ({
+        id: r.id,
+        user_id: '',
+        mood: r.mood,
+        score: r.mood,
+        note: r.note ?? null,
+        logged_date: r.logged_date,
+        logged_at: r.logged_at,
+    }));
+
+    // Optimistic entries override adapter entries for the same date
+    const optimisticDates = new Set(
+        optimisticEntries.map((e) => e.logged_date),
+    );
+    const mergedEntries: MoodEntry[] = [
+        ...optimisticEntries,
+        ...adapterEntries.filter((e) => !optimisticDates.has(e.logged_date)),
+    ].sort((a, b) => b.logged_date.localeCompare(a.logged_date));
+
+    const { last7, today } = useMoodHistory(mergedEntries);
+    const todayEntry = mergedEntries.find((e) => e.logged_date === today);
     const [editingDate, setEditingDate] = useState<string | null>(null);
 
     if (loading) return <LoadingState />;
 
     const editingEntry = editingDate
-        ? entries.find((e) => e.logged_date === editingDate)
+        ? mergedEntries.find((e) => e.logged_date === editingDate)
         : undefined;
-
-    const activeDateLabel = editingDate
-        ? dayLabel(editingDate, today)
-        : todayEntry
-          ? 'Today you felt:'
-          : 'How are you feeling today?';
 
     return (
         <WidgetShell
@@ -206,10 +147,17 @@ export default function MoodWidget({ widgetId = 'mood' }: { widgetId?: string })
         >
             <div className="flex flex-col h-full">
                 {editingDate && editingDate !== today && (
-                    <EditingHeader
-                        label={activeDateLabel}
-                        onBack={() => setEditingDate(null)}
-                    />
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-stone-500 dark:text-zinc-400">
+                            {dayLabel(editingDate, today)}
+                        </span>
+                        <button
+                            onClick={() => setEditingDate(null)}
+                            className="text-[10px] text-stone-400 hover:text-stone-600 dark:hover:text-zinc-300 transition-colors"
+                        >
+                            ✕ Back to today
+                        </button>
+                    </div>
                 )}
 
                 <MoodPicker
@@ -230,12 +178,65 @@ export default function MoodWidget({ widgetId = 'mood' }: { widgetId?: string })
                         );
                     }}
                 />
-                <MoodHistory
-                    editingDate={editingDate}
-                    last7={last7}
-                    today={today}
-                    onSelect={setEditingDate}
-                />
+
+                {/* History bar */}
+                <div className="mt-auto pt-3">
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-stone-400 dark:text-zinc-600 mb-2">
+                        Last 7 Days
+                    </p>
+                    <div className="flex gap-1.5 items-end">
+                        {last7.map(({ date, entry }) => {
+                            const isSelected = editingDate === date;
+                            const isToday = date === today;
+                            return (
+                                <button
+                                    key={date}
+                                    onClick={() =>
+                                        setEditingDate(isSelected ? null : date)
+                                    }
+                                    title={
+                                        entry
+                                            ? `${dayLabel(date, today)}: ${MOODS.find((m) => m.value === entry.score)?.label ?? ''}`
+                                            : `Log mood for ${dayLabel(date, today)}`
+                                    }
+                                    className={`flex-1 flex flex-col items-center gap-1 rounded transition-all ${
+                                        isSelected
+                                            ? 'ring-1 ring-offset-1 ring-stone-400 dark:ring-zinc-500 rounded'
+                                            : ''
+                                    }`}
+                                >
+                                    <div
+                                        className={`w-full rounded-full transition-all ${
+                                            entry
+                                                ? `${DOT_COLORS[entry.score]} ${isSelected ? 'h-4' : 'h-3'}`
+                                                : `${isSelected ? 'bg-stone-300 dark:bg-zinc-600' : 'bg-stone-100 dark:bg-zinc-800'} h-3 hover:bg-stone-200 dark:hover:bg-zinc-700`
+                                        }`}
+                                    />
+                                    <span
+                                        className={`text-[8px] font-bold transition-colors ${
+                                            isSelected
+                                                ? 'text-stone-500 dark:text-zinc-400'
+                                                : isToday
+                                                  ? 'text-stone-400 dark:text-zinc-500'
+                                                  : 'text-stone-300 dark:text-zinc-700'
+                                        }`}
+                                    >
+                                        {new Date(
+                                            date + 'T12:00:00',
+                                        ).toLocaleDateString('en-US', {
+                                            weekday: 'narrow',
+                                        })}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {!editingDate && (
+                        <p className="text-[9px] text-stone-300 dark:text-zinc-700 mt-1.5 text-center">
+                            Tap a day to log past mood
+                        </p>
+                    )}
+                </div>
             </div>
         </WidgetShell>
     );
