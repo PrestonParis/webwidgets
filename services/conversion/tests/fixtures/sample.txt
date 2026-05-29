@@ -1,0 +1,4 @@
+Sample plain text document.
+
+Used for conversion smoke tests.
+Line three of the document.

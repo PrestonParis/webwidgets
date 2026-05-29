@@ -1,0 +1,9 @@
+export const GRID = 24;
+export const WIDGET_W = 320;
+export const WIDGET_APPROX_H = 400;
+export const ROW_STRIDE = WIDGET_APPROX_H + GRID;
+export const SNAP_DIST = 14;
+export const MIN_W = 180;
+export const MAX_W = 900;
+export const MIN_H = 120;
+export const PROX_DIST = 100;

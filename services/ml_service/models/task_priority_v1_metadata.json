@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "model_name": "task_priority",
+  "rmse": 0.053,
+  "mae": 0.0405,
+  "r2": 0.9105,
+  "cv_rmse_mean": 0.0541,
+  "cv_rmse_std": 0.0024,
+  "dataset_size": 800,
+  "trained_at": "2026-05-20T14:29:36.643908+00:00",
+  "model_path": "ml_service/models/task_priority_v1.pkl",
+  "best_params": {
+    "model__subsample": 0.9,
+    "model__n_estimators": 200,
+    "model__max_depth": 3,
+    "model__learning_rate": 0.05
+  }
+}

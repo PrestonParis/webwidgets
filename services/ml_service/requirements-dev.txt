@@ -1,0 +1,8 @@
+-r requirements.txt
+
+ruff>=0.14.0
+basedpyright>=1.34.0
+bandit[toml]>=1.8.0
+deptry>=0.24.0
+vulture>=2.14
+
