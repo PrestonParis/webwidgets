@@ -102,7 +102,7 @@ export function WeightLogForm({
                 entryDate: date,
                 source: 'manual',
                 tags: ['weight'],
-                notes: notes || undefined,
+                ...(notes ? { notes } : {}),
                 metadata: {
                     weightEntryType: 'weight',
                     weightKg,

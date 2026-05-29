@@ -135,10 +135,12 @@ export default function BiometricChart({
                             labelFormatter={(label) =>
                                 formatDate(String(label))
                             }
-                            formatter={(
-                                value: number | string,
-                                name: string,
-                            ) => [value, name]}
+                            formatter={
+                                ((value: number | string, name: string) => [
+                                    value,
+                                    name,
+                                ]) as never
+                            }
                         />
                         <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
                         <Line

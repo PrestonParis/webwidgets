@@ -52,14 +52,12 @@ export function ServiceHealthPanel({
                             key={svc.name}
                             className="flex items-center gap-2 rounded-lg px-3 py-2 bg-zinc-50 dark:bg-zinc-800"
                         >
-                            {statusIcon[
-                                svc.status as keyof typeof statusIcon
-                            ] ?? statusIcon.unconfigured}
+                            {statusIcon[svc.status] ?? statusIcon.unconfigured}
                             <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300 capitalize">
                                 {svc.name}
                             </span>
                             {svc.message && (
-                                <span className="text-xs text-zinc-400 dark:text-zinc-500 ml-auto truncate max-w-[200px]">
+                                <span className="text-xs text-zinc-400 dark:text-zinc-500 ml-auto truncate max-w-50">
                                     {svc.message}
                                 </span>
                             )}
