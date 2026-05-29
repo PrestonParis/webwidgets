@@ -1,9 +1,9 @@
-import {
-    type BodyRegion,
-    type TissueType,
-    type RegionView,
-    type RegionSide,
-} from '@/features/tracking/health/types/health';
+import type {
+    BodyRegion,
+    TissueType,
+    RegionView,
+    RegionSide,
+} from '@/features/tracking/health/types/regions';
 
 export function makeRegion(
     id: string,
@@ -19,7 +19,7 @@ export function makeRegion(
         displayName,
         side,
         view,
-        ...(parentRegion && { parentRegion }),
+        ...(parentRegion !== undefined ? { parentRegion } : {}),
         supportedTissueTypes: [regionType, 'general'],
         svgPathId: `rg-${id}`,
         aliases: [displayName.toLowerCase(), ...aliases],

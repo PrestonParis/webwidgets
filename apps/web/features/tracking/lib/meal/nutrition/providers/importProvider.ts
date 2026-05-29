@@ -11,7 +11,7 @@
 
 import Papa from 'papaparse';
 import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
-import type { MealType } from '@/features/tracking/types/nutritionProviders';
+import type { MealType } from '@/features/tracking/types/meal';
 import type {
     ExistingMealSignature,
     NutritionImportFormat,

@@ -34,7 +34,7 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
                     category,
                     read: false,
                     timestamp: Date.now(),
-                    href,
+                    ...(href !== undefined ? { href } : {}),
                 },
                 ...state.notifications,
             ],
