@@ -10,7 +10,10 @@ import {
 } from '@/features/ui/components/Modal';
 import { Button } from '@/features/ui/components/Button';
 import { useWidgetImportExport } from '@/features/import-export/hooks/useWidgetImportExport';
-import type { SourceDestinationType } from '@/features/import-export/types/importExport';
+import type {
+    WidgetImportModalProps,
+    SourceDestinationType,
+} from '@/features/import-export/types/importExport';
 import type { WidgetParseResult } from '@/features/import-export/hooks/useWidgetImportExport';
 
 // Target fields per source type for the mapping step
@@ -22,13 +25,6 @@ const TARGET_FIELDS: Partial<Record<SourceDestinationType, string[]>> = {
     habits: ['name', 'description', 'frequency', 'color'],
     recovery_records: ['addiction', 'start_time', 'notes'],
 };
-
-interface Props {
-    open: boolean;
-    onClose: () => void;
-    sourceType: SourceDestinationType;
-    displayName: string;
-}
 
 type Step = 'upload' | 'map' | 'done';
 
@@ -44,7 +40,7 @@ export function WidgetImportModal({
     onClose,
     sourceType,
     displayName,
-}: Props) {
+}: WidgetImportModalProps) {
     const { importing, executing, parseFile, executeImport } =
         useWidgetImportExport(sourceType);
 

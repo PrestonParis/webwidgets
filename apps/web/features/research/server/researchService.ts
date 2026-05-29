@@ -142,8 +142,8 @@ export async function getResearchStatus(
     const vaults = await Promise.all(
         parseVaults(config).map(async (vault) => ({
             name: vault.name,
-            path: path.resolve(paths.root, vault.path),
-            exists: await exists(path.resolve(paths.root, vault.path)),
+            path: path.resolve(paths.root!, vault.path),
+            exists: await exists(path.resolve(paths.root!, vault.path)),
         })),
     );
     const artifactCount = (await exists(paths.artifactDir))
@@ -306,7 +306,7 @@ export async function runResearchPipeline(
 
     const result = await new Promise<ResearchPipelineResult>((resolve) => {
         const child: ChildProcessWithoutNullStreams = spawn('dotnet', command, {
-            cwd: paths.root,
+            cwd: paths.root!,
             env: process.env,
         });
         let output = '';
@@ -334,7 +334,7 @@ export async function runResearchPipeline(
     });
     if (input.destination !== 'zip' || !result.ok) return result;
 
-    const zipResult = await prepareArtifactZip(paths.root, input.topic);
+    const zipResult = await prepareArtifactZip(paths.root!, input.topic);
     return {
         ...result,
         output: `${result.output}\n${zipResult}`,
@@ -370,7 +370,7 @@ async function prepareArtifactZip(
             .replace(/^-|-$/g, '') || 'research';
     const zipPath = path.join(exportRoot, `${safeTopic}-${Date.now()}.zip`);
     const files = artifacts
-        .map((artifact) => path.join(paths.artifactDir, `${artifact.id}.json`))
+        .map((artifact) => path.join(paths.artifactDir!, `${artifact.id}.json`))
         .filter(Boolean);
 
     return new Promise((resolve) => {
@@ -378,7 +378,7 @@ async function prepareArtifactZip(
             'zip',
             ['-j', zipPath, ...files],
             {
-                cwd: paths.root,
+                cwd: paths.root!,
             },
         );
         let output = '';
