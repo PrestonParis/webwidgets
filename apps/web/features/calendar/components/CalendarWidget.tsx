@@ -113,7 +113,7 @@ export default function CalendarWidget() {
                                     className="text-zinc-400"
                                 />
                             </button>
-                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200 min-w-[68px] text-center">
+                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200 min-w-17 text-center">
                                 {MONTHS[viewMonth]} {viewYear}
                             </span>
                             <button

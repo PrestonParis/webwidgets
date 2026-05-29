@@ -13,6 +13,7 @@ import {
     RefreshCcw,
     Search,
     ShieldCheck,
+    Trash2,
     Users,
 } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
@@ -24,6 +25,10 @@ import type {
     HandoffRecord,
     WorkspaceRecord,
 } from '../hooks/useCollaborationWorkspace';
+import { MembersPanel } from './MembersPanel';
+import { ActivityFeed } from './ActivityFeed';
+import { ApprovalsPanel } from './ApprovalsPanel';
+import { CommentsPanel } from './CommentsPanel';
 
 const statusStyles: Record<string, string> = {
     live: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300',
@@ -47,6 +52,8 @@ const priorityStyles: Record<string, string> = {
     medium: 'bg-blue-600 text-white',
     low: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200',
 };
+
+type RightTab = 'members' | 'activity' | 'approvals';
 
 function ProgressBar({ value }: { value: number }) {
     return (
@@ -136,28 +143,44 @@ function WorkspaceCard({
 
 function HandoffRow({
     item,
+    selected,
     onToggle,
+    onDelete,
+    onSelect,
 }: {
     item: HandoffRecord;
+    selected: boolean;
     onToggle: (id: string) => void;
+    onDelete: (id: string) => void;
+    onSelect: (id: string) => void;
 }) {
     return (
-        <button
-            type="button"
-            onClick={() => onToggle(item.id)}
-            className="flex w-full items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 text-left transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+        <div
+            className={cn(
+                'flex w-full items-start gap-3 rounded-lg border p-3 transition',
+                selected
+                    ? 'border-blue-400 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20'
+                    : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700',
+            )}
         >
-            <span
+            <button
+                type="button"
+                onClick={() => onToggle(item.id)}
                 className={cn(
                     'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border',
                     item.complete
                         ? 'border-emerald-500 bg-emerald-500 text-white'
                         : 'border-zinc-300 text-transparent dark:border-zinc-700',
                 )}
+                aria-label={item.complete ? 'Mark incomplete' : 'Mark complete'}
             >
                 <Check size={13} />
-            </span>
-            <span className="min-w-0 flex-1">
+            </button>
+            <button
+                type="button"
+                onClick={() => onSelect(item.id)}
+                className="min-w-0 flex-1 text-left"
+            >
                 <span
                     className={cn(
                         'block text-sm font-medium text-zinc-900 dark:text-zinc-100',
@@ -179,13 +202,26 @@ function HandoffRow({
                     {item.owner && <span>{item.owner}</span>}
                     {item.due && <span>{item.due}</span>}
                 </span>
-            </span>
-        </button>
+            </button>
+            <button
+                type="button"
+                onClick={() => onDelete(item.id)}
+                aria-label="Delete handoff"
+                className="mt-0.5 shrink-0 rounded p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-rose-600 dark:hover:bg-zinc-800 dark:hover:text-rose-400"
+            >
+                <Trash2 size={14} />
+            </button>
+        </div>
     );
 }
 
+// Placeholder user ID — in a real app this would come from a session/auth context.
+// We pass it through to child panels which need it for ownership checks.
+const PLACEHOLDER_USER_ID = '';
+
 export function CollaborationWorkspacePage() {
     const {
+        workspaces,
         visibleWorkspaces,
         selectedWorkspaceId,
         setSelectedWorkspaceId,
@@ -195,6 +231,7 @@ export function CollaborationWorkspacePage() {
         scopes,
         handoffs,
         toggleHandoff,
+        deleteHandoff,
         handoffCompletion,
         loading,
         createWorkspace,
@@ -214,6 +251,25 @@ export function CollaborationWorkspacePage() {
     const [hoPriority, setHoPriority] = useState('medium');
     const [hoDue, setHoDue] = useState('');
     const [hoSubmitting, setHoSubmitting] = useState(false);
+
+    const [rightTab, setRightTab] = useState<RightTab>('members');
+    const [selectedHandoffId, setSelectedHandoffId] = useState<string | null>(
+        null,
+    );
+
+    const selectedWorkspace =
+        workspaces.find((w) => w.id === selectedWorkspaceId) ?? null;
+
+    // Determine ownership/role from workspace owner_id.
+    // The workspace user_id field is the owner; we use PLACEHOLDER_USER_ID which
+    // should be replaced with real auth session user ID in production.
+    const isOwner = selectedWorkspace?.user_id === PLACEHOLDER_USER_ID;
+    const isEditor = false; // Would be derived from MemberRecord in a full auth implementation.
+    const canApprove = isOwner || isEditor;
+
+    const workspaceHandoffs = selectedWorkspaceId
+        ? handoffs.filter((h) => h.workspace_id === selectedWorkspaceId)
+        : handoffs;
 
     async function handleCreateWorkspace(e: React.FormEvent) {
         e.preventDefault();
@@ -264,12 +320,35 @@ export function CollaborationWorkspacePage() {
         }
     }
 
+    async function handleDeleteHandoff(id: string) {
+        try {
+            await deleteHandoff(id);
+            if (selectedHandoffId === id) setSelectedHandoffId(null);
+            toast.success('Handoff deleted.');
+        } catch {
+            toast.error('Failed to delete handoff.');
+        }
+    }
+
+    function handleSelectHandoff(id: string) {
+        setSelectedHandoffId((prev) => (prev === id ? null : id));
+    }
+
+    const tabClasses = (active: boolean) =>
+        cn(
+            'px-3 py-1.5 text-sm font-medium rounded-lg transition',
+            active
+                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800',
+        );
+
     return (
         <main
             id="main-content"
             className="min-h-screen bg-zinc-50 px-6 py-8 dark:bg-zinc-950 lg:px-12"
         >
             <section className="mx-auto flex max-w-7xl flex-col gap-6">
+                {/* Header */}
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-3xl">
                         <div className="flex flex-wrap items-center gap-2">
@@ -305,8 +384,11 @@ export function CollaborationWorkspacePage() {
                     </div>
                 </div>
 
-                <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+                {/* 2-column layout */}
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+                    {/* LEFT: workspace list + handoffs */}
                     <div className="space-y-6">
+                        {/* Filters */}
                         <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
                                 <label className="min-w-0 flex-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -383,6 +465,7 @@ export function CollaborationWorkspacePage() {
                             </div>
                         </div>
 
+                        {/* Workspace list */}
                         <section>
                             <div className="mb-3 flex items-center justify-between gap-3">
                                 <div>
@@ -390,7 +473,10 @@ export function CollaborationWorkspacePage() {
                                         Shared workspaces
                                     </h2>
                                     <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                                        {visibleWorkspaces.length} rooms visible
+                                        {visibleWorkspaces.length}{' '}
+                                        {visibleWorkspaces.length === 1
+                                            ? 'workspace'
+                                            : 'workspaces'}
                                     </p>
                                 </div>
                                 <Button
@@ -479,11 +565,9 @@ export function CollaborationWorkspacePage() {
                                     <div className="flex gap-2">
                                         <Button
                                             type="submit"
-                                            disabled={wsSubmitting}
+                                            loading={wsSubmitting}
                                         >
-                                            {wsSubmitting
-                                                ? 'Creating…'
-                                                : 'Create'}
+                                            Create
                                         </Button>
                                         <Button
                                             type="button"
@@ -528,140 +612,247 @@ export function CollaborationWorkspacePage() {
                                                 workspace.id ===
                                                 selectedWorkspaceId
                                             }
-                                            onSelect={setSelectedWorkspaceId}
+                                            onSelect={(id) => {
+                                                setSelectedWorkspaceId(id);
+                                                setSelectedHandoffId(null);
+                                            }}
                                         />
                                     ))}
                                 </div>
                             )}
                         </section>
-                    </div>
 
-                    <aside className="space-y-4">
-                        <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-                            <div className="mb-4 flex items-center justify-between gap-3">
-                                <div>
-                                    <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                                        Handoff queue
-                                    </h2>
-                                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                                        {handoffCompletion}% cleared
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <GitBranch
-                                        size={18}
-                                        className="text-zinc-400"
-                                    />
-                                    <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        icon={Plus}
-                                        onClick={() => setShowHandoffForm(true)}
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {handoffs.length > 0 && (
-                                <div className="mb-4">
-                                    <ProgressBar value={handoffCompletion} />
-                                </div>
-                            )}
-
-                            {showHandoffForm && (
-                                <form
-                                    onSubmit={(e) => {
-                                        void handleCreateHandoff(e);
-                                    }}
-                                    className="mb-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950 space-y-2"
-                                >
-                                    <input
-                                        value={hoTitle}
-                                        onChange={(e) =>
-                                            setHoTitle(e.target.value)
-                                        }
-                                        placeholder="Handoff title *"
-                                        required
-                                        className="w-full rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
-                                    />
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <input
-                                            value={hoOwner}
-                                            onChange={(e) =>
-                                                setHoOwner(e.target.value)
-                                            }
-                                            placeholder="Owner (optional)"
-                                            className="rounded border border-zinc-200 bg-white px-2 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
-                                        />
-                                        <select
-                                            value={hoPriority}
-                                            onChange={(e) =>
-                                                setHoPriority(e.target.value)
-                                            }
-                                            className="rounded border border-zinc-200 bg-white px-2 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
-                                        >
-                                            <option value="low">Low</option>
-                                            <option value="medium">
-                                                Medium
-                                            </option>
-                                            <option value="high">High</option>
-                                            <option value="critical">
-                                                Critical
-                                            </option>
-                                        </select>
+                        {/* Handoff queue */}
+                        {selectedWorkspace && (
+                            <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                                <div className="mb-4 flex items-center justify-between gap-3">
+                                    <div>
+                                        <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+                                            Handoff queue
+                                        </h2>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                            {selectedWorkspace.name}
+                                            {selectedWorkspace.user_id ===
+                                                PLACEHOLDER_USER_ID && (
+                                                <span className="ml-2 inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 dark:border-purple-800 dark:bg-purple-950/30 dark:text-purple-300">
+                                                    Owner
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
-                                    <input
-                                        value={hoDue}
-                                        onChange={(e) =>
-                                            setHoDue(e.target.value)
-                                        }
-                                        placeholder="Due (optional)"
-                                        className="w-full rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
-                                    />
-                                    <div className="flex gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <GitBranch
+                                            size={18}
+                                            className="text-zinc-400"
+                                        />
                                         <Button
-                                            type="submit"
-                                            size="sm"
-                                            disabled={hoSubmitting}
-                                        >
-                                            {hoSubmitting
-                                                ? 'Adding…'
-                                                : 'Add handoff'}
-                                        </Button>
-                                        <Button
-                                            type="button"
                                             size="sm"
                                             variant="secondary"
+                                            icon={Plus}
                                             onClick={() =>
-                                                setShowHandoffForm(false)
+                                                setShowHandoffForm(true)
                                             }
                                         >
-                                            Cancel
+                                            Add
                                         </Button>
                                     </div>
-                                </form>
-                            )}
+                                </div>
 
-                            {!loading && handoffs.length === 0 ? (
-                                <div className="rounded-lg bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-950">
-                                    No handoffs yet. Add one to track work that
-                                    needs attention.
-                                </div>
-                            ) : (
-                                <div className="grid gap-2">
-                                    {handoffs.map((item) => (
-                                        <HandoffRow
-                                            key={item.id}
-                                            item={item}
-                                            onToggle={() =>
-                                                void toggleHandoff(item.id)
-                                            }
+                                {workspaceHandoffs.length > 0 && (
+                                    <div className="mb-4">
+                                        <ProgressBar
+                                            value={handoffCompletion}
                                         />
-                                    ))}
+                                    </div>
+                                )}
+
+                                {showHandoffForm && (
+                                    <form
+                                        onSubmit={(e) => {
+                                            void handleCreateHandoff(e);
+                                        }}
+                                        className="mb-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950 space-y-2"
+                                    >
+                                        <input
+                                            value={hoTitle}
+                                            onChange={(e) =>
+                                                setHoTitle(e.target.value)
+                                            }
+                                            placeholder="Handoff title *"
+                                            required
+                                            className="w-full rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                                        />
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <input
+                                                value={hoOwner}
+                                                onChange={(e) =>
+                                                    setHoOwner(e.target.value)
+                                                }
+                                                placeholder="Owner (optional)"
+                                                className="rounded border border-zinc-200 bg-white px-2 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                                            />
+                                            <select
+                                                value={hoPriority}
+                                                onChange={(e) =>
+                                                    setHoPriority(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="rounded border border-zinc-200 bg-white px-2 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                                            >
+                                                <option value="low">Low</option>
+                                                <option value="medium">
+                                                    Medium
+                                                </option>
+                                                <option value="high">
+                                                    High
+                                                </option>
+                                                <option value="critical">
+                                                    Critical
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <input
+                                            value={hoDue}
+                                            onChange={(e) =>
+                                                setHoDue(e.target.value)
+                                            }
+                                            placeholder="Due (optional)"
+                                            className="w-full rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                                        />
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                loading={hoSubmitting}
+                                            >
+                                                Add handoff
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() =>
+                                                    setShowHandoffForm(false)
+                                                }
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {workspaceHandoffs.length === 0 ? (
+                                    <div className="rounded-lg bg-zinc-50 p-4 text-center text-sm text-zinc-500 dark:bg-zinc-950">
+                                        No handoffs yet. Add one to track work
+                                        that needs attention.
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        {workspaceHandoffs.map((item) => (
+                                            <HandoffRow
+                                                key={item.id}
+                                                item={item}
+                                                selected={
+                                                    selectedHandoffId ===
+                                                    item.id
+                                                }
+                                                onToggle={() =>
+                                                    void toggleHandoff(item.id)
+                                                }
+                                                onDelete={() =>
+                                                    void handleDeleteHandoff(
+                                                        item.id,
+                                                    )
+                                                }
+                                                onSelect={handleSelectHandoff}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+                        )}
+
+                        {/* Comments for selected handoff */}
+                        {selectedWorkspaceId && (
+                            <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                                <CommentsPanel
+                                    workspaceId={selectedWorkspaceId}
+                                    handoffId={selectedHandoffId}
+                                    currentUserId={PLACEHOLDER_USER_ID}
+                                />
+                            </section>
+                        )}
+                    </div>
+
+                    {/* RIGHT: tabbed panel */}
+                    <aside className="space-y-4">
+                        {selectedWorkspaceId ? (
+                            <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                                {/* Tab bar */}
+                                <div className="mb-4 flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
+                                    <button
+                                        type="button"
+                                        onClick={() => setRightTab('members')}
+                                        className={tabClasses(
+                                            rightTab === 'members',
+                                        )}
+                                    >
+                                        Members
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRightTab('activity')}
+                                        className={tabClasses(
+                                            rightTab === 'activity',
+                                        )}
+                                    >
+                                        Activity
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRightTab('approvals')}
+                                        className={tabClasses(
+                                            rightTab === 'approvals',
+                                        )}
+                                    >
+                                        Approvals
+                                    </button>
                                 </div>
-                            )}
-                        </section>
+
+                                {rightTab === 'members' && (
+                                    <MembersPanel
+                                        workspaceId={selectedWorkspaceId}
+                                        currentUserId={PLACEHOLDER_USER_ID}
+                                        isOwner={isOwner}
+                                        isEditor={isEditor}
+                                    />
+                                )}
+                                {rightTab === 'activity' && (
+                                    <ActivityFeed
+                                        workspaceId={selectedWorkspaceId}
+                                    />
+                                )}
+                                {rightTab === 'approvals' && (
+                                    <ApprovalsPanel
+                                        workspaceId={selectedWorkspaceId}
+                                        currentUserId={PLACEHOLDER_USER_ID}
+                                        canApprove={canApprove}
+                                    />
+                                )}
+                            </section>
+                        ) : (
+                            <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                                <Users
+                                    size={24}
+                                    className="mx-auto mb-2 text-zinc-400"
+                                />
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    Select a workspace to see members, activity,
+                                    and approvals.
+                                </p>
+                            </div>
+                        )}
                     </aside>
                 </section>
             </section>

@@ -22,6 +22,7 @@ import type {
     ChatMessage,
     ModelProvider,
 } from '@/features/chatbot/types/chat';
+import type { ContextPayload } from '@/features/chatbot/types/contextPayload';
 
 async function collectStream(
     res: Response,
@@ -68,7 +69,10 @@ interface UseChatReturn {
     setModel: (modelId: string, provider: ModelProvider) => void;
     selectConversation: (id: string) => Promise<void>;
     startNewConversation: () => Promise<void>;
-    sendMessage: (content: string) => Promise<void>;
+    sendMessage: (
+        content: string,
+        context?: ContextPayload | null,
+    ) => Promise<void>;
     removeConversation: (id: string) => Promise<void>;
 }
 
@@ -120,33 +124,16 @@ export function useChat(): UseChatReturn {
         setSelectedProvider(provider);
     }, []);
 
-    const classifyIntent = useCallback(
-        async (text: string): Promise<string> => {
-            try {
-                const res = await fetch('/api/ml/classify-intent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text }),
-                    signal: AbortSignal.timeout(3000),
-                });
-                if (!res.ok) return 'help';
-                const data = (await res.json()) as { intent?: string };
-                return data.intent ?? 'help';
-            } catch {
-                return 'help';
-            }
-        },
-        [],
-    );
-
+    // sendMessage accepts an optional context payload collected by useChatContext.
+    // The context's contextId/generatedAt are forwarded to the API for verification.
     const sendMessage = useCallback(
-        async (content: string) => {
+        async (content: string, context?: ContextPayload | null) => {
             if (isStreaming) return;
             if (!userId) {
                 setError('Sign in to chat with an AI model.');
                 return;
             }
-            void classifyIntent(content);
+
             let convId = activeId;
             if (!convId) {
                 const conv = await createConversation(
@@ -176,6 +163,10 @@ export function useChat(): UseChatReturn {
                     content,
                     model: selectedModel,
                     provider: selectedProvider,
+                    ...(context && {
+                        contextId: context.contextId,
+                        contextGeneratedAt: context.generatedAt,
+                    }),
                 });
                 const full = await collectStream(
                     res,
@@ -202,14 +193,7 @@ export function useChat(): UseChatReturn {
                 setStreamingContent('');
             }
         },
-        [
-            userId,
-            isStreaming,
-            activeId,
-            selectedModel,
-            selectedProvider,
-            classifyIntent,
-        ],
+        [userId, isStreaming, activeId, selectedModel, selectedProvider],
     );
 
     const removeConversation = useCallback(

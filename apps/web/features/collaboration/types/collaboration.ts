@@ -75,3 +75,66 @@ export interface CollaborationFilters {
     scope: WorkspaceScope | 'all';
     status: CollaborationStatus | 'all';
 }
+
+// DB-backed record types
+export interface MemberRecord {
+    id: string;
+    workspace_id: string;
+    user_id: string | null;
+    email: string | null;
+    role: CollaborationRole;
+    status: 'active' | 'invited' | 'removed';
+    joined_at: string | null;
+    created_at: string;
+}
+
+export interface InviteRecord {
+    id: string;
+    workspace_id: string;
+    inviter_id: string;
+    email: string;
+    role: CollaborationRole;
+    token: string;
+    status: 'pending' | 'accepted' | 'revoked' | 'expired';
+    expires_at: string;
+    created_at: string;
+}
+
+export interface ActivityRecord {
+    id: string;
+    workspace_id: string;
+    actor_id: string | null;
+    actor_email: string | null;
+    action: string;
+    target_type: string | null;
+    target_id: string | null;
+    metadata: Record<string, unknown>;
+    created_at: string;
+}
+
+export interface ApprovalRecord {
+    id: string;
+    workspace_id: string;
+    handoff_id: string | null;
+    requester_id: string;
+    title: string;
+    description: string | null;
+    status: 'pending' | 'approved' | 'rejected' | 'withdrawn';
+    approvals_required: number;
+    approvals_received: number;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CommentRecord {
+    id: string;
+    workspace_id: string;
+    handoff_id: string | null;
+    author_id: string;
+    body: string;
+    parent_id: string | null;
+    edited: boolean;
+    created_at: string;
+    updated_at: string;
+}

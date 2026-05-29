@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { CalendarClock, Plus } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
-import { useCountdowns } from '@/features/countdown/hooks/useCountdowns';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
+import { useCountdownMutations } from '@/features/countdown/hooks/useCountdownMutations';
 import { useCountdownTimer } from '@/features/countdown/hooks/useCountdownTimer';
 import CountdownHero from '@/features/countdown/components/CountdownHero';
 import CountdownList from '@/features/countdown/components/CountdownList';
@@ -20,14 +21,25 @@ export default function CountdownWidget() {
         'countdown',
         'countdown',
     );
-    const { countdowns, loading, addCountdown, updateCountdown, deleteCountdown } =
-        useCountdowns();
+    const { payload, loading } = useWidgetData('countdown', 'countdown');
+    const { addCountdown, updateCountdown, deleteCountdown } =
+        useCountdownMutations();
     const now = useCountdownTimer();
     const [adding, setAdding] = useState(false);
     const [editingCountdown, setEditingCountdown] = useState<Countdown | null>(
         null,
     );
     const [mode, setMode] = useState<CountdownWidgetMode>('standard');
+
+    // Extract countdowns from the adapter payload
+    const countdowns: Countdown[] = (
+        (payload?.sources['countdowns']?.data as Array<{
+            id: string;
+            name: string;
+            emoji: string;
+            target_date: string;
+        }> | null) ?? []
+    ).filter((r): r is Countdown => r != null);
 
     const upcoming = countdowns.filter(
         (c) => new Date(c.target_date).getTime() > now,

@@ -8,6 +8,7 @@ export type JobStatus =
     | 'completed'
     | 'failed'
     | 'cancelled';
+
 export type JobType =
     | 'email_action_extraction'
     | 'cheatsheet_generation'
@@ -30,6 +31,7 @@ export interface JobRecord {
     userVisibleResult: Json | null;
     metadata: Json;
     createdAt: string;
+    updatedAt: string;
 }
 
 export interface JobStepRecord {

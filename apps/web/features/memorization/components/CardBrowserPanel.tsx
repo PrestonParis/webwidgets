@@ -181,6 +181,7 @@ export function CardBrowserPanel({
                     >
                         {virtualizer.getVirtualItems().map((item) => {
                             const card = filteredCards[item.index];
+                            if (!card) return null;
                             const due = new Date(card.due_date) <= new Date();
                             return (
                                 <div
