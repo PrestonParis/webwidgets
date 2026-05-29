@@ -4,7 +4,8 @@ import { useRef, useState } from 'react';
 import { Check, Plus, X } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
-import { useTodos } from '@/features/todo/hooks/useTodos';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
+import { useTodoMutations } from '@/features/todo/hooks/useTodoMutations';
 import {
     Modal,
     ModalHeader,
@@ -16,16 +17,31 @@ import { cn } from '@/lib/utils/utils';
 const MAX_INCOMPLETE = 5;
 const MAX_COMPLETED = 2;
 
+// Adapter payload row shape (from todosAdapter)
+interface TodoRow {
+    id: string;
+    text: string;
+    completed: boolean;
+    created_at: string;
+    completed_at: string;
+}
+
 export default function TodoWidget() {
     const { settings, updateSettings } = useWidgetSettings('todo', 'todo');
-    const { todos, loading, addTodo, toggleTodo, deleteTodo, updateTodo } =
-        useTodos();
+    const { payload, loading } = useWidgetData('todo', 'todo');
+    const { addTodo, toggleTodo, deleteTodo, updateTodo } = useTodoMutations();
+
     const [input, setInput] = useState('');
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editText, setEditText] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const editRef = useRef<HTMLInputElement>(null);
+
+    // Extract todos from the adapter payload
+    const todos: TodoRow[] = (
+        (payload?.sources['todos']?.data as TodoRow[] | null) ?? []
+    ).filter((r): r is TodoRow => r != null);
 
     const incomplete = todos.filter((t) => !t.completed);
     const completed = todos.filter((t) => t.completed);
@@ -139,7 +155,12 @@ export default function TodoWidget() {
                                     className="group flex items-center gap-2 px-1 py-1 rounded-md hover:bg-stone-50 dark:hover:bg-zinc-800/50 transition-colors"
                                 >
                                     <button
-                                        onClick={() => void toggleTodo(todo.id)}
+                                        onClick={() =>
+                                            void toggleTodo(
+                                                todo.id,
+                                                todo.completed,
+                                            )
+                                        }
                                         className="w-3.5 h-3.5 shrink-0 rounded border-2 border-stone-300 dark:border-zinc-600 hover:border-indigo-400 transition-colors"
                                     />
                                     {editingId === todo.id ? (
@@ -193,7 +214,10 @@ export default function TodoWidget() {
                                     >
                                         <button
                                             onClick={() =>
-                                                void toggleTodo(todo.id)
+                                                void toggleTodo(
+                                                    todo.id,
+                                                    todo.completed,
+                                                )
                                             }
                                             className="w-3.5 h-3.5 shrink-0 rounded bg-indigo-500 border-2 border-indigo-500 flex items-center justify-center transition-colors"
                                         >

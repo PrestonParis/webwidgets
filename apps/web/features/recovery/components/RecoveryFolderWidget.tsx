@@ -1,10 +1,18 @@
 'use client';
 
 import { ChevronRight, Heart } from 'lucide-react';
-import { useTrackers } from '@/features/recovery/hooks/useTrackers';
+import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
 import type { Tracker } from '@/features/recovery/types/recovery';
 
-function trackerDays(t: Tracker): number {
+// Row shape returned by recoveryAdapter (flat MappedRow.data)
+interface TrackerRow {
+    id: string;
+    addiction: string;
+    start_time: string;
+    created_at: string;
+}
+
+function trackerDays(t: TrackerRow): number {
     return Math.floor(
         (Date.now() - new Date(t.start_time).getTime()) / 86400000,
     );
@@ -17,7 +25,19 @@ interface RecoveryFolderWidgetProps {
 export default function RecoveryFolderWidget({
     onOpen,
 }: RecoveryFolderWidgetProps) {
-    const { trackers, loading } = useTrackers();
+    // Read from the recovery_records adapter via the runtime manifest.
+    // The adapter now joins the relapses table so start_time is authoritative.
+    const { payload, loading } = useWidgetData('recovery-folder', 'recovery');
+
+    const trackers: TrackerRow[] = (
+        (payload?.sources['recovery_records']?.data as TrackerRow[] | null) ??
+        []
+    ).filter(
+        (t): t is TrackerRow =>
+            t != null &&
+            typeof t.id === 'string' &&
+            typeof t.start_time === 'string',
+    );
 
     return (
         <div className="group relative rounded-3xl border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-800 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex flex-col min-h-40 p-6 bg-white/75 dark:bg-zinc-950/75 backdrop-blur-md hover:bg-white/85 dark:hover:bg-zinc-950/85">

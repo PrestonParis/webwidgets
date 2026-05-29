@@ -11,13 +11,14 @@ export type AuditSource =
     | 'knowledge'
     | 'jobs'
     | 'system'
-    | 'security';
+    | 'security'
+    | 'platform';
 
 export interface AuditEventInput {
     userId: string;
     type: string;
     source: AuditSource;
-    severity: 'info' | 'warning' | 'critical';
+    severity: 'info' | 'warning' | 'critical' | 'error';
     title: string;
     description?: string;
     metadata?: Json;

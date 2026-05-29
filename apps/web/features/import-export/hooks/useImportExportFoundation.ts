@@ -1,6 +1,9 @@
-export function useImportExportFoundation() {
+// Backward-compatibility re-export — the real implementation is in useImportExport
+export { useImportExport as useImportExportFoundation } from './useImportExport';
+
+export function useImportExportLegacy() {
     return {
-        formats: ['CSV', 'Excel', 'Google Sheets', 'JSON export'],
-        duplicateStrategies: ['skip', 'replace', 'merge', 'create_new'],
+        formats: ['CSV', 'JSON'],
+        duplicateStrategies: ['skip', 'overwrite', 'keep_both', 'merge'],
     };
 }
