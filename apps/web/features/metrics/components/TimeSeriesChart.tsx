@@ -64,7 +64,6 @@ export function TimeSeriesChart({
     height = 220,
 }: TimeSeriesChartProps) {
     const isMulti = !Array.isArray(data);
-    const multiData = isMulti ? data : null;
     const chartData = isMulti ? normaliseMulti(data) : normaliseSingle(data);
 
     if (chartData.length === 0)
@@ -73,7 +72,7 @@ export function TimeSeriesChart({
     const lines: Series[] =
         series ??
         (isMulti
-            ? Object.keys(multiData).map((k, i) => ({
+            ? Object.keys(data).map((k, i) => ({
                   key: k,
                   label: k,
                   color:

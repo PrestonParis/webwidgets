@@ -17,6 +17,7 @@ import { HabitHistoryView } from '@/features/habit/components/HabitHistoryView';
 import { frequencyLabel } from '@/features/habit/lib/habitUtils';
 import type { HabitFrequency } from '@/features/habit/types/habit';
 import { cn } from '@/lib/utils/utils';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 type View = 'summary' | 'today' | 'streaks' | 'calendar' | 'history';
 type Panel = null | 'add' | 'repeat' | 'archive' | 'import';
@@ -196,6 +197,12 @@ export default function HabitWidget() {
             footerLabel="Open logging dashboard"
             widgetId="habit-widget"
             widgetType="habit"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="habits"
+                    displayName="Habits"
+                />
+            }
         >
             <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">

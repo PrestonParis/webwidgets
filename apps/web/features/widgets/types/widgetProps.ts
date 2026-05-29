@@ -5,6 +5,7 @@ export interface WidgetShellProps {
     icon: ReactNode;
     title: string;
     badge?: ReactNode;
+    headerActionsSlot?: ReactNode;
     children: ReactNode;
     footerHref?: string;
     footerLabel?: string;
@@ -20,6 +21,7 @@ export interface WidgetHeaderProps {
     icon: React.ReactNode;
     title: string;
     badge: React.ReactNode;
+    headerActionsSlot?: React.ReactNode;
     settings: WidgetSettings;
     settingsOpen: boolean;
     onToggleSettings?: () => void;

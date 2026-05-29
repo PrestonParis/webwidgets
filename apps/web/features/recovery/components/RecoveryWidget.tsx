@@ -15,6 +15,7 @@ import SoberWidgetFooter from '@/features/recovery/components/SoberWidgetFooter'
 import ViewToggle from '@/features/recovery/components/ViewToggle';
 import { useSecondsClean } from '@/features/recovery/hooks/useSecondsClean';
 import ConfirmModal from '@/features/recovery/components/ConfirmModal';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 function EmptyRecoveryWidget({
     settings,
@@ -156,6 +157,12 @@ export default function SoberWidget({ tracker, onReset }: SoberWidgetProps) {
                 footerSlot={footerSlot}
                 widgetId={tracker.id}
                 widgetType="recovery"
+                headerActionsSlot={
+                    <WidgetImportExportControls
+                        sourceType="recovery_records"
+                        displayName="Recovery"
+                    />
+                }
             >
                 <RecoveryContent
                     secondsClean={secondsClean}

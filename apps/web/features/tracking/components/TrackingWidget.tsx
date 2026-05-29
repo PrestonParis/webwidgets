@@ -26,6 +26,7 @@ import {
 } from '@/features/tracking/constants';
 import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 import type { Tracker } from '@/features/recovery/types/recovery';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 type ViewMode = 'log' | 'graph' | 'heatmap' | 'stats' | 'timeline' | 'recovery';
 
@@ -152,6 +153,12 @@ export default function TrackingWidget() {
             footerLabel="Open lab →"
             widgetId="tracking-widget"
             widgetType="tracking"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Tracking"
+                />
+            }
         >
             <div className="space-y-3">
                 {/* Category picker (always visible) */}
