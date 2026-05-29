@@ -409,19 +409,23 @@ export function HealthCategoryView({
                 <BodyIssuePanel
                     key={panelRegionId}
                     regionId={panelRegionId}
-                    regionName={panelRegionName}
                     issues={issues.filter((i) => i.regionId === panelRegionId)}
                     history={issueHistory}
                     onUpdateIssue={(id, updates) => updateIssue(id, updates)}
                     onDeleteIssue={deleteIssue}
                     onResolveAll={() => resolveAllForRegion(panelRegionId)}
-                    onAddIssue={(draft) => void createIssue(draft)}
-                    initialDraft={panelInitialDraft}
+                    onAddIssue={createIssue}
                     onClose={() => {
                         setPanelRegionId(null);
                         setPanelRegionName(undefined);
                         setPanelInitialDraft(undefined);
                     }}
+                    {...(panelRegionName !== undefined
+                        ? { regionName: panelRegionName }
+                        : {})}
+                    {...(panelInitialDraft !== undefined
+                        ? { initialDraft: panelInitialDraft }
+                        : {})}
                 />
             )}
         </div>

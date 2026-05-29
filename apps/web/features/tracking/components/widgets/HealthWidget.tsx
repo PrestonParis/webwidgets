@@ -386,7 +386,6 @@ export default function HealthWidget() {
                             <BodyIssuePanel
                                 key={selectedRegion}
                                 regionId={selectedRegion}
-                                regionName={panelRegionName}
                                 issues={panelIssues}
                                 history={issueHistory}
                                 onUpdateIssue={(id, updates) =>
@@ -396,13 +395,18 @@ export default function HealthWidget() {
                                 onResolveAll={() =>
                                     resolveAllForRegion(selectedRegion)
                                 }
-                                onAddIssue={(draft) => void createIssue(draft)}
-                                initialDraft={panelInitialDraft}
+                                onAddIssue={createIssue}
                                 onClose={() => {
                                     setSelectedRegion(null);
                                     setPanelRegionName(undefined);
                                     setPanelInitialDraft(undefined);
                                 }}
+                                {...(panelRegionName !== undefined
+                                    ? { regionName: panelRegionName }
+                                    : {})}
+                                {...(panelInitialDraft !== undefined
+                                    ? { initialDraft: panelInitialDraft }
+                                    : {})}
                             />
                         )}
                     </div>

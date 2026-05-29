@@ -174,8 +174,10 @@ export default function InjuryLogDrawer({
                     region={region}
                     adjacent={adjacent}
                     liveFlags={liveFlags}
-                    onSwitchRegion={onSwitchRegion}
                     error={error}
+                    {...(onSwitchRegion !== undefined
+                        ? { onSwitchRegion }
+                        : {})}
                 />
                 <InjuryLogHistory
                     regionLogs={regionLogs}
