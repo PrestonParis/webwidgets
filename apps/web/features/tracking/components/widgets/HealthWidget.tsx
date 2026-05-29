@@ -353,7 +353,7 @@ export default function HealthWidget() {
                                     selectedRegionId={null}
                                     onRegionClick={() => setMode('body')}
                                     readonly
-                                    className="mx-auto max-w-[110px]"
+                                    className="mx-auto max-w-27.5"
                                 />
                             </div>
                             <p className="rounded-lg bg-gray-50 dark:bg-zinc-800/70 p-2 text-xs text-gray-600 dark:text-zinc-300">
@@ -396,7 +396,7 @@ export default function HealthWidget() {
                                 onResolveAll={() =>
                                     resolveAllForRegion(selectedRegion)
                                 }
-                                onAddIssue={createIssue}
+                                onAddIssue={(draft) => void createIssue(draft)}
                                 initialDraft={panelInitialDraft}
                                 onClose={() => {
                                     setSelectedRegion(null);
@@ -454,10 +454,14 @@ export default function HealthWidget() {
                             onSubmit={async (entry) => {
                                 await handleAdd(entry);
                             }}
-                            lastHeightCm={
-                                weightEntries.find((e) => e.heightCm != null)
-                                    ?.heightCm
-                            }
+                            {...(() => {
+                                const h = weightEntries.find(
+                                    (e) => e.heightCm != null,
+                                )?.heightCm;
+                                return h !== undefined
+                                    ? { lastHeightCm: h }
+                                    : {};
+                            })()}
                         />
                     </div>
                 )}

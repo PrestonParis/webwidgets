@@ -19,7 +19,7 @@ interface BodyIssuePanelProps {
     onUpdateIssue: (id: string, updates: Partial<BodyIssue>) => Promise<void>;
     onDeleteIssue: (id: string) => Promise<void>;
     onResolveAll: () => Promise<void>;
-    onAddIssue: (draft: BodyIssueDraft) => Promise<void>;
+    onAddIssue: (draft: BodyIssueDraft) => Promise<BodyIssue>;
     initialDraft?: Partial<BodyIssueDraft>;
     onClose: () => void;
 }
@@ -67,11 +67,13 @@ export function BodyIssuePanel({
             <ModalHeader
                 id="body-issue-panel-title"
                 title={regionName}
-                description={
-                    region
-                        ? region.supportedTissueTypes.slice(0, 3).join(' · ')
-                        : undefined
-                }
+                {...(region
+                    ? {
+                          description: region.supportedTissueTypes
+                              .slice(0, 3)
+                              .join(' · '),
+                      }
+                    : {})}
                 onClose={onClose}
             />
             <ModalBody>
@@ -150,7 +152,9 @@ export function BodyIssuePanel({
                                 regionId={regionId}
                                 regionName={regionName}
                                 onSave={handleAddIssue}
-                                initialDraft={initialDraft}
+                                {...(initialDraft !== undefined
+                                    ? { initialDraft }
+                                    : {})}
                                 onCancel={() => {
                                     if (issues.length === 0) {
                                         onClose();

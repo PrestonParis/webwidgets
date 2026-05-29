@@ -116,7 +116,7 @@ export default function TodoWidget() {
                                     {progressPct}%
                                 </span>
                             </div>
-                            <div className="h-[3px] rounded-full bg-stone-100 dark:bg-zinc-800 overflow-hidden">
+                            <div className="h-0.75 rounded-full bg-stone-100 dark:bg-zinc-800 overflow-hidden">
                                 <div
                                     className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                                     style={{ width: `${progressPct}%` }}

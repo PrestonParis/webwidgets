@@ -3,24 +3,7 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
-import type {
-    AdapterCapability,
-    ExportJob,
-} from '@/features/import-export/types/importExport';
-
-interface Props {
-    capabilities: AdapterCapability[];
-    exportJobs: ExportJob[];
-    onExport: (data: {
-        source_type: string;
-        format: string;
-        title?: string;
-    }) => Promise<{
-        job: ExportJob;
-        download: { content: string; contentType: string; filename: string };
-        warnings: string[];
-    } | null>;
-}
+import type { ExportPanelProps } from '@/features/import-export/types/importExport';
 
 function downloadFile(content: string, filename: string, contentType: string) {
     const blob = new Blob([content], { type: contentType });
@@ -39,7 +22,11 @@ const STATUS_COLORS: Record<string, string> = {
     collecting: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30',
 };
 
-export function ExportPanel({ capabilities, exportJobs, onExport }: Props) {
+export function ExportPanel({
+    capabilities,
+    exportJobs,
+    onExport,
+}: ExportPanelProps) {
     const [sourceType, setSourceType] = useState('tracking_entries');
     const [format, setFormat] = useState('json');
     const [running, setRunning] = useState(false);

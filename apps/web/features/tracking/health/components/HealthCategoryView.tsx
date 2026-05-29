@@ -415,7 +415,7 @@ export function HealthCategoryView({
                     onUpdateIssue={(id, updates) => updateIssue(id, updates)}
                     onDeleteIssue={deleteIssue}
                     onResolveAll={() => resolveAllForRegion(panelRegionId)}
-                    onAddIssue={createIssue}
+                    onAddIssue={(draft) => void createIssue(draft)}
                     initialDraft={panelInitialDraft}
                     onClose={() => {
                         setPanelRegionId(null);

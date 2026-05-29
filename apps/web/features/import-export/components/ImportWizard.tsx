@@ -4,49 +4,11 @@ import { useState } from 'react';
 import { Upload, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
 import type {
-    AdapterCapability,
+    ImportWizardProps,
+    ImportWizardParseResult,
+    ImportWizardExecuteResult,
     ImportJob,
 } from '@/features/import-export/types/importExport';
-
-interface ParseResult {
-    headers: string[];
-    totalRows: number;
-    sampleRows: Array<{ rowIndex: number; raw: Record<string, string> }>;
-    fieldTypes: Array<{ column: string; inferredType: string }>;
-}
-
-interface ExecuteResult {
-    status: string;
-    successCount: number;
-    errorCount: number;
-    warningCount: number;
-    errors: Array<{ rowIndex: number; message: string }>;
-    warnings: string[];
-}
-
-interface Props {
-    capabilities: AdapterCapability[];
-    importJobs: ImportJob[];
-    onCreateJob: (data: {
-        format: string;
-        destination_type: string;
-        duplicate_strategy: string;
-        title?: string;
-    }) => Promise<ImportJob | null>;
-    onParseJob: (
-        jobId: string,
-        content: string,
-        filename?: string,
-    ) => Promise<ParseResult | null>;
-    onExecuteJob: (
-        jobId: string,
-        data: {
-            mappings: Array<{ sourceColumn: string; targetField: string }>;
-            duplicate_strategy: string;
-            rows: Array<{ rowIndex: number; raw: Record<string, string> }>;
-        },
-    ) => Promise<ExecuteResult | null>;
-}
 
 const DESTINATION_FIELDS: Record<string, string[]> = {
     tracking_entries: ['category', 'entry_date', 'notes', 'tags', 'source'],
@@ -61,7 +23,7 @@ export function ImportWizard({
     onCreateJob,
     onParseJob,
     onExecuteJob,
-}: Props) {
+}: ImportWizardProps) {
     const [step, setStep] = useState<Step>(1);
     const [format, setFormat] = useState('csv');
     const [destinationType, setDestinationType] = useState('tracking_entries');
@@ -69,11 +31,11 @@ export function ImportWizard({
     const [content, setContent] = useState('');
     const [filename, setFilename] = useState('');
     const [currentJob, setCurrentJob] = useState<ImportJob | null>(null);
-    const [parseResult, setParseResult] = useState<ParseResult | null>(null);
+    const [parseResult, setParseResult] =
+        useState<ImportWizardParseResult | null>(null);
     const [mappings, setMappings] = useState<Record<string, string>>({});
-    const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(
-        null,
-    );
+    const [executeResult, setExecuteResult] =
+        useState<ImportWizardExecuteResult | null>(null);
     const [running, setRunning] = useState(false);
 
     const importableAdapters = capabilities.filter((c) => c.canImport);
@@ -326,7 +288,7 @@ export function ImportWizard({
                                                     (h) => (
                                                         <td
                                                             key={h}
-                                                            className="px-3 py-2 text-zinc-700 dark:text-zinc-300 truncate max-w-[120px]"
+                                                            className="px-3 py-2 text-zinc-700 dark:text-zinc-300 truncate max-w-30"
                                                         >
                                                             {row.raw[h] ?? ''}
                                                         </td>
