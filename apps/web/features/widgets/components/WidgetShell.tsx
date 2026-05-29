@@ -191,6 +191,7 @@ export default function WidgetShell({
     icon,
     title,
     badge,
+    headerActionsSlot,
     children,
     footerHref,
     footerLabel,
@@ -293,6 +294,7 @@ export default function WidgetShell({
                     icon={icon}
                     title={settings.customTitle ?? title}
                     badge={badge}
+                    headerActionsSlot={headerActionsSlot}
                     settings={settings}
                     settingsOpen={settingsOpen}
                     showSettings={showSettings}

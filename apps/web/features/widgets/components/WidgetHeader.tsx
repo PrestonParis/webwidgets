@@ -23,6 +23,7 @@ export function WidgetHeader({
     icon,
     title,
     badge,
+    headerActionsSlot,
     settings,
     settingsOpen,
     onToggleSettings,
@@ -143,6 +144,7 @@ export function WidgetHeader({
 
             {/* Action buttons — power-user chrome is hidden in 1D mode */}
             <div className="flex items-center gap-1">
+                {headerActionsSlot}
                 {badge && (
                     <div className="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider">
                         {badge}

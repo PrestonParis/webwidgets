@@ -5,6 +5,7 @@ import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
 import { tiptapToPreviewText } from '@/lib/utils/tiptap';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 
 interface JournalRow {
     id: string;
@@ -42,6 +43,12 @@ export default function JournalWidget() {
             widgetType="journal"
             footerHref="/journal"
             footerLabel="+ New Entry"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="journals"
+                    displayName="Journal"
+                />
+            }
         >
             {loading ? (
                 <div className="space-y-2">
