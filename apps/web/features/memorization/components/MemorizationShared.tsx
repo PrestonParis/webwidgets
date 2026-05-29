@@ -17,7 +17,7 @@ export const statusStyles: Record<MemoryStatus, string> = {
 export const gradeStyles: Record<MemoryDifficulty, string> = {
     again: 'bg-rose-600 text-white hover:bg-rose-700',
     hard: 'bg-amber-500 text-white hover:bg-amber-600',
-    medium: 'bg-blue-600 text-white hover:bg-blue-700',
+    good: 'bg-blue-600 text-white hover:bg-blue-700',
     easy: 'bg-emerald-600 text-white hover:bg-emerald-700',
 };
 
