@@ -65,9 +65,7 @@ export function TimeSeriesChart({
 }: TimeSeriesChartProps) {
     const isMulti = !Array.isArray(data);
     const multiData = isMulti ? data : null;
-    const chartData = isMulti
-        ? normaliseMulti(multiData)
-        : normaliseSingle(data);
+    const chartData = isMulti ? normaliseMulti(data) : normaliseSingle(data);
 
     if (chartData.length === 0)
         return <MetricsEmptyState message="No data for selected range" />;
