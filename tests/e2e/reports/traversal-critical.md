@@ -4,26 +4,26 @@
 
 ## Summary
 
-| Metric | Value |
-|--------|-------|
-| Total Routes | 2 |
-| Successful | 0 ✓ |
-| Failed | 2 ✗ |
-| Skipped | 0 ⊘ |
-| Average Load Time | 85ms |
+| Metric            | Value |
+| ----------------- | ----- |
+| Total Routes      | 2     |
+| Successful        | 0 ✓   |
+| Failed            | 2 ✗   |
+| Skipped           | 0 ⊘   |
+| Average Load Time | 85ms  |
 
 ## Failures by Category
 
 | Category | Count |
-|----------|-------|
-| critical | 2 |
+| -------- | ----- |
+| critical | 2     |
 
 ## Slowest Routes
 
-| Route | Duration |
-|-------|----------|
-| /dashboard | 116ms |
-| / | 53ms |
+| Route      | Duration |
+| ---------- | -------- |
+| /dashboard | 116ms    |
+| /          | 53ms     |
 
 ## Route Details
 
@@ -36,9 +36,9 @@
 **Failures:**
 
 - 🔴 [critical] page.goto: NS_ERROR_CONNECTION_REFUSED
-Call log:
-[2m  - navigating to "http://localhost:3000/", waiting until "load"[22m
- (error)
+  Call log:
+  [2m - navigating to "http://localhost:3000/", waiting until "load"[22m
+  (error)
 
 ---
 
@@ -51,8 +51,8 @@ Call log:
 **Failures:**
 
 - 🔴 [critical] page.goto: NS_ERROR_CONNECTION_REFUSED
-Call log:
-[2m  - navigating to "http://localhost:3000/dashboard", waiting until "load"[22m
- (error)
+  Call log:
+  [2m - navigating to "http://localhost:3000/dashboard", waiting until "load"[22m
+  (error)
 
 ---

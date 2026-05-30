@@ -4,7 +4,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { requireAdminUser } from '@/features/admin/lib/adminPermissions';
 import MetricsShell from '@/features/metrics/components/MetricsShell';
 
-export const metadata = { title: 'Metrics — Dashboard' };
+export const metadata = { title: 'Metrics | Dashboard' };
 
 export default async function MetricsLayout({
     children,

@@ -9,6 +9,7 @@ import type { EmailInput } from '@/features/inbox/lib/extractActions';
 import { extractText } from '@/features/inbox/lib/gmailBody';
 import type { GmailPart } from '@/features/inbox/lib/gmailBody';
 import { z } from 'zod';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const emailInputSchema = z.object({
     id: z.string().min(1),
@@ -189,18 +190,42 @@ async function buildEmailsWithBody(
     userId: string,
     emails: EmailRequest[],
 ): Promise<EmailInput[]> {
-    const fetchBody = await createBodyFetcher(supabaseAdmin, userId);
-    const bodiesMap = new Map<string, string>();
-    if (fetchBody) {
+    // First check cached body_text from email_snapshots (populated by pipeline)
+    const emailIds = emails.map((e) => e.id);
+    const snapshotIds = emailIds.map((id) => `gmail:${id}`);
+    const { data: snapshots } = await supabaseAdmin
+        .from('email_snapshots')
+        .select('id, body_text')
+        .eq('user_id', userId)
+        .in('id', snapshotIds);
+
+    const cachedBodies = new Map<string, string>();
+    for (const s of (snapshots ?? []) as {
+        id: string;
+        body_text: string | null;
+    }[]) {
+        const msgId = s.id.replace(/^gmail:/, '');
+        if (s.body_text) cachedBodies.set(msgId, s.body_text);
+    }
+
+    // Only live-fetch bodies that aren't cached yet
+    const needsLiveFetch = emails.filter((e) => !cachedBodies.has(e.id));
+    const fetchBody =
+        needsLiveFetch.length > 0
+            ? await createBodyFetcher(supabaseAdmin, userId)
+            : null;
+
+    if (fetchBody && needsLiveFetch.length > 0) {
         await Promise.allSettled(
-            emails.map(async (e) => {
+            needsLiveFetch.map(async (e) => {
                 const text = await fetchBody(e.id);
-                if (text) bodiesMap.set(e.id, text);
+                if (text) cachedBodies.set(e.id, text);
             }),
         );
     }
+
     return emails.map((e) => {
-        const emailBody = bodiesMap.get(e.id);
+        const emailBody = cachedBodies.get(e.id);
         return {
             id: e.id,
             subject: e.subject,
@@ -248,12 +273,14 @@ async function processEmails(
     );
     const extractedMap = new Map<string, ExtractedAction[]>();
     await addMlExtractions(extractedMap, emailsWithBody);
-    if (force || (profile?.use_ai_email ?? false)) {
-        await addClaudeExtractions(
-            extractedMap,
-            emailsWithBody,
-            profile?.anthropic_api_key,
-        );
+    // Run Claude if user opted in, if force-refresh, OR if a server key is available
+    // (so extraction works for all users without manual profile setup).
+    const apiKey =
+        profile?.anthropic_api_key ||
+        process.env.ANTHROPIC_API_KEY ||
+        undefined;
+    if (force || profile?.use_ai_email || apiKey) {
+        await addClaudeExtractions(extractedMap, emailsWithBody, apiKey);
     }
 
     await supabaseAdmin.from('email_processing_log').upsert(
@@ -307,9 +334,29 @@ export async function POST(req: Request) {
     if (selectError) {
         console.error('[extract-actions] select failed:', selectError.message);
     }
-    console.log(
-        `[extract-actions] returning ${allActions?.length ?? 0} actions`,
-    );
+
+    const actionCount = allActions?.length ?? 0;
+    console.log(`[extract-actions] returning ${actionCount} actions`);
+
+    // Publish a single batch event when AI finds actionable emails — not per email
+    if (toProcess.length > 0 && actionCount > 0) {
+        await publishActivityEventSafe(supabase, {
+            userId: user.id,
+            source: 'email',
+            eventType: 'email.action_extracted',
+            category: 'data',
+            severity: 'info',
+            priority: 'normal',
+            title: `${actionCount} action${actionCount !== 1 ? 's' : ''} extracted from Gmail`,
+            body: `${toProcess.length} email${toProcess.length !== 1 ? 's' : ''} analysed`,
+            actionUrl: '/inbox',
+            metadata: {
+                provider: 'gmail',
+                emailCount: toProcess.length,
+                actionCount,
+            },
+        });
+    }
 
     return NextResponse.json({ actions: allActions ?? [] });
 }

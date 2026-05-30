@@ -7,10 +7,13 @@ import {
     updateDocument,
     archiveDocument,
 } from '@/features/documents/services/documentService';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+
+type RouteParams = { params: Promise<{ id: string }> };
 
 export async function GET(
     _req: Request,
-    { params }: { params: Promise<{ id: string }> },
+    { params }: RouteParams,
 ): Promise<Response> {
     try {
         const { supabase } = await createClients();
@@ -36,7 +39,7 @@ export async function GET(
 
 export async function PATCH(
     req: Request,
-    { params }: { params: Promise<{ id: string }> },
+    { params }: RouteParams,
 ): Promise<Response> {
     try {
         const { supabase } = await createClients();
@@ -52,6 +55,22 @@ export async function PATCH(
         };
 
         const doc = await updateDocument(supabase, userId, id, body);
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'document',
+            eventType: 'document.updated',
+            sourceId: id,
+            sourceTable: 'documents',
+            category: 'content',
+            severity: 'info',
+            priority: 'low',
+            title: `Document updated: ${doc.title}`,
+            actionUrl: `/documents/${id}`,
+            relatedEntities: [{ type: 'document', id, label: doc.title }],
+            metadata: { changedFields: Object.keys(body) },
+        });
+
         return NextResponse.json({ data: doc });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized')
@@ -67,14 +86,30 @@ export async function PATCH(
 
 export async function DELETE(
     _req: Request,
-    { params }: { params: Promise<{ id: string }> },
+    { params }: RouteParams,
 ): Promise<Response> {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { id } = await params;
 
+        // Fetch title before archiving for the activity event
+        const existing = await getDocument(supabase, userId, id);
         await archiveDocument(supabase, userId, id);
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'document',
+            eventType: 'document.archived',
+            sourceId: id,
+            sourceTable: 'documents',
+            category: 'content',
+            severity: 'info',
+            priority: 'low',
+            title: `Document archived: ${existing?.title ?? 'Untitled'}`,
+            metadata: { documentId: id },
+        });
+
         return new Response(null, { status: 204 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized')

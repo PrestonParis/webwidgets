@@ -5,21 +5,21 @@ import type {
 
 function getContextHint(w: WeatherData): string {
     const { temp, feelsLike, weatherCode, windSpeed } = w;
-    if (weatherCode >= 95) return 'Thunderstorm — stay indoors if possible';
-    if (weatherCode >= 80) return 'Showers expected — umbrella recommended';
-    if (weatherCode >= 71) return 'Snow — layer up and drive carefully';
-    if (weatherCode >= 61) return 'Rain today — bring an umbrella';
-    if (weatherCode >= 51) return 'Light drizzle — jacket recommended';
-    if (temp >= 95) return 'Extreme heat — stay hydrated and cool';
-    if (temp >= 85) return 'Hot out — light clothing and water';
-    if (temp < 32) return 'Below freezing — heavy coat and gloves';
-    if (temp < 45) return 'Cold — dress in layers';
+    if (weatherCode >= 95) return 'Thunderstorm. Stay indoors if possible.';
+    if (weatherCode >= 80) return 'Showers expected. Bring an umbrella.';
+    if (weatherCode >= 71) return 'Snow. Layer up and drive carefully.';
+    if (weatherCode >= 61) return 'Rain today. Bring an umbrella.';
+    if (weatherCode >= 51) return 'Light drizzle. Bring a jacket.';
+    if (temp >= 95) return 'Extreme heat. Stay hydrated and cool.';
+    if (temp >= 85) return 'Hot out. Wear light clothing and stay hydrated.';
+    if (temp < 32) return 'Below freezing. Wear a heavy coat and gloves.';
+    if (temp < 45) return 'Cold. Dress in layers.';
     if (feelsLike <= temp - 8)
-        return `Feels ${temp - feelsLike}° colder — wind chill`;
-    if (windSpeed > 25) return 'Windy — hold on to your hat';
+        return `Feels ${temp - feelsLike}° colder due to wind chill`;
+    if (windSpeed > 25) return 'Windy. Hold on to your hat.';
     if (temp >= 65 && temp <= 80 && weatherCode <= 3)
         return 'Great day for outdoor activity';
-    if (weatherCode <= 1) return 'Clear skies — enjoy the sunshine';
+    if (weatherCode <= 1) return 'Clear skies. Enjoy the sunshine.';
     return 'Comfortable conditions outside';
 }
 

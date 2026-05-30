@@ -141,7 +141,7 @@ export function BarcodeModal({ open, onClose, onResult }: BarcodeModalProps) {
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
                                     {alternatives.length > 0
-                                        ? 'Multiple matches found — choose one:'
+                                        ? 'Multiple matches found. Choose one:'
                                         : 'Found:'}
                                 </p>
                                 {[result, ...alternatives].map((r) => (

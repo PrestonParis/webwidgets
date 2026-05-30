@@ -107,7 +107,7 @@ export function InsightPanel({ entries }: InsightPanelProps) {
 
             {!loading && insights.length === 0 && (
                 <p className="text-xs text-center text-gray-400 dark:text-zinc-500 py-6">
-                    No insights yet — keep logging to build up your data.
+                    No insights yet. Keep logging to build up your data.
                 </p>
             )}
 

@@ -5,9 +5,15 @@ import { cn } from '@/lib/utils/utils';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { tutorialTracks, tutorialLessons } from '../data';
 
-export default function TutorialsWidget({ widgetId = 'tutorials' }: { widgetId?: string }) {
+export default function TutorialsWidget({
+    widgetId = 'tutorials',
+}: {
+    widgetId?: string;
+}) {
     const tracks = tutorialTracks.slice(0, 3);
-    const inProgress = tutorialLessons.filter((l) => l.status === 'in-progress').length;
+    const inProgress = tutorialLessons.filter(
+        (l) => l.status === 'in-progress',
+    ).length;
 
     return (
         <WidgetShell
@@ -15,7 +21,9 @@ export default function TutorialsWidget({ widgetId = 'tutorials' }: { widgetId?:
             title="Tutorials"
             badge={
                 inProgress > 0 ? (
-                    <span className="text-[10px] font-bold text-blue-500">{inProgress} ACTIVE</span>
+                    <span className="text-[10px] font-bold text-blue-500">
+                        {inProgress} ACTIVE
+                    </span>
                 ) : undefined
             }
             widgetId={widgetId}
@@ -30,11 +38,16 @@ export default function TutorialsWidget({ widgetId = 'tutorials' }: { widgetId?:
                     return (
                         <div key={t.id} className="space-y-1">
                             <div className="flex items-center gap-2">
-                                <Icon size={13} className="text-zinc-400 shrink-0" />
+                                <Icon
+                                    size={13}
+                                    className="text-zinc-400 shrink-0"
+                                />
                                 <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate flex-1">
                                     {t.title}
                                 </p>
-                                <span className="text-[10px] text-zinc-400 shrink-0">{pct}%</span>
+                                <span className="text-[10px] text-zinc-400 shrink-0">
+                                    {pct}%
+                                </span>
                             </div>
                             <div className="h-1 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                                 <div

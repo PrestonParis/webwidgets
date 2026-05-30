@@ -36,7 +36,7 @@ export function HealthFields({ form, updateField }: HealthFieldsProps) {
                 <label htmlFor="health-quick-energy" className={labelCls}>
                     <span>Energy level</span>
                     <span className="font-semibold text-gray-900 dark:text-zinc-100">
-                        {energyLevel ?? '—'}
+                        {energyLevel ?? 'N/A'}
                         {energyLevel !== undefined ? '/10' : ''}
                     </span>
                 </label>
@@ -60,7 +60,7 @@ export function HealthFields({ form, updateField }: HealthFieldsProps) {
                 <label htmlFor="health-quick-sleep" className={labelCls}>
                     <span>Sleep quality</span>
                     <span className="font-semibold text-gray-900 dark:text-zinc-100">
-                        {sleepQuality ?? '—'}
+                        {sleepQuality ?? 'N/A'}
                         {sleepQuality !== undefined ? '/10' : ''}
                     </span>
                 </label>

@@ -12,7 +12,8 @@ export const TISSUE_TYPE_CONFIGS: TissueTypeConfig[] = [
     {
         id: 'surface',
         label: 'Surface',
-        description: 'Skin and surface tissue — cuts, bruises, burns, rashes.',
+        description:
+            'Skin and surface tissue: cuts, bruises, burns, and rashes.',
         commonInjuryTypes: [
             'cut',
             'bruise',
@@ -27,7 +28,7 @@ export const TISSUE_TYPE_CONFIGS: TissueTypeConfig[] = [
     {
         id: 'muscle',
         label: 'Muscle',
-        description: 'Muscle tissue — soreness, strains, cramps, tightness.',
+        description: 'Muscle tissue: soreness, strains, cramps, and tightness.',
         commonInjuryTypes: [
             'soreness',
             'strain',
@@ -42,7 +43,7 @@ export const TISSUE_TYPE_CONFIGS: TissueTypeConfig[] = [
         id: 'tendon',
         label: 'Tendon & Joint',
         description:
-            'Tendons, ligaments and joints — sprains, tendinitis, instability.',
+            'Tendons, ligaments, and joints: sprains, tendinitis, and instability.',
         commonInjuryTypes: [
             'tendinitis',
             'sprain',
@@ -55,7 +56,7 @@ export const TISSUE_TYPE_CONFIGS: TissueTypeConfig[] = [
     {
         id: 'bone',
         label: 'Bone',
-        description: 'Bone — impact pain, shin splints, fracture concerns.',
+        description: 'Bone: impact pain, shin splints, and fracture concerns.',
         commonInjuryTypes: [
             'impact pain',
             'shin splint',
@@ -68,7 +69,7 @@ export const TISSUE_TYPE_CONFIGS: TissueTypeConfig[] = [
         id: 'nerve',
         label: 'Nerve',
         description:
-            'Nerve tissue — numbness, tingling, radiating or shooting pain.',
+            'Nerve tissue: numbness, tingling, and radiating or shooting pain.',
         commonInjuryTypes: [
             'numbness',
             'tingling',

@@ -50,7 +50,7 @@ export function AnomalyAlertBanner({ transactions }: AnomalyAlertBannerProps) {
                     {anomalies.length > 1 ? 's' : ''} detected
                 </span>
                 <span className="ml-1 text-amber-300/70">
-                    — review your recent activity
+                    Review your recent activity.
                 </span>
             </div>
             <button

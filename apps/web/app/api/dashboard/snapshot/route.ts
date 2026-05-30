@@ -10,7 +10,9 @@ const routeInflight = new Map<string, Promise<unknown>>();
 
 async function requestUserId() {
     const { supabase } = await createClients();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
     return user?.id;
 }
 

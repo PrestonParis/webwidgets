@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Json } from '@/types/supabase';
-import { recordAuditEvent } from '@/features/audit/lib/auditService';
+import { recordAuditEvent } from '@/features/import-export/lib/auditService';
 import { getLogger } from '@/lib/observability/logger';
 import type { ActionExecutionContext } from '@/features/actions/lib/schemas/actionPayloadSchemas';
 import type { ActionEngineResult } from '@/features/actions/lib/schemas/actionResultSchemas';

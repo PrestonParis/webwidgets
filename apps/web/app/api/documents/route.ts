@@ -6,6 +6,7 @@ import {
     listDocuments,
     createDocument,
 } from '@/features/documents/services/documentService';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function GET(req: Request): Promise<Response> {
     try {
@@ -49,6 +50,23 @@ export async function POST(req: Request): Promise<Response> {
                 ? { sourceFileId: body.sourceFileId }
                 : {}),
             tags: body.tags ?? [],
+        });
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'document',
+            eventType: 'document.created',
+            sourceId: doc.id,
+            sourceTable: 'documents',
+            category: 'content',
+            severity: 'info',
+            priority: 'normal',
+            title: `Document created: ${doc.title}`,
+            actionUrl: `/documents/${doc.id}`,
+            relatedEntities: [
+                { type: 'document', id: doc.id, label: doc.title },
+            ],
+            metadata: { format: doc.format, tagCount: doc.tags.length },
         });
 
         return NextResponse.json({ data: doc }, { status: 201 });

@@ -11,7 +11,7 @@ import type {
 export const filesAdapter: ImportExportAdapter = {
     id: 'files',
     displayName: 'Files',
-    description: 'Uploaded files — list and export file metadata from View',
+    description: 'Uploaded files: list and export file metadata from View',
     sourceType: 'files',
     canImport: false,
     canExport: true,

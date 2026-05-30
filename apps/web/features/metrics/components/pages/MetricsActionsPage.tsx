@@ -3,8 +3,8 @@
 import { useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { MetricCard } from '../MetricCard';
-import { TimeSeriesChart } from '../TimeSeriesChart';
-import { BarMetricChart } from '../BarMetricChart';
+import { TimeSeriesChart } from '@/features/ui/visualizations/components/TimeSeriesChart';
+import { BarMetricChart } from '@/features/ui/visualizations/components/BarMetricChart';
 import { MetricsDataTable } from '../MetricsDataTable';
 import { ExportCsvButton } from '../ExportCsvButton';
 import { MetricsErrorState } from '../MetricsErrorState';

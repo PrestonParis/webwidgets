@@ -198,7 +198,7 @@ export function sleepRecordSummary(record: SleepRecord): string {
     else if (record.bedtime) parts.push(`bed ${record.bedtime}`);
     else if (record.wakeTime) parts.push(`up ${record.wakeTime}`);
     if (record.quality !== null) parts.push(`Q${record.quality}/10`);
-    return parts.length > 0 ? parts.join(' · ') : '—';
+    return parts.length > 0 ? parts.join(' · ') : 'N/A';
 }
 
 export function goalMetToday(

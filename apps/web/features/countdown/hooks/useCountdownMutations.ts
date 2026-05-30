@@ -23,14 +23,12 @@ export function useCountdownMutations() {
     const addCountdown = useCallback(
         async (name: string, target_date: string, emoji: string) => {
             if (!user?.id || !name.trim() || !target_date) return;
-            const { error } = await supabase
-                .from('countdowns')
-                .insert({
-                    user_id: user.id,
-                    name: name.trim(),
-                    target_date,
-                    emoji,
-                });
+            const { error } = await supabase.from('countdowns').insert({
+                user_id: user.id,
+                name: name.trim(),
+                target_date,
+                emoji,
+            });
             if (!error) invalidate();
         },
         [user, invalidate],

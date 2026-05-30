@@ -72,7 +72,7 @@ export function PlanningCalendarGrid({
                     >
                         <ChevronLeft size={14} className="text-zinc-500" />
                     </button>
-                    <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100 min-w-[136px] text-center">
+                    <span className="text-sm font-bold text-zinc-800 dark:text-zinc-100 min-w-34 text-center">
                         {MONTHS[viewMonth]} {viewYear}
                     </span>
                     <button

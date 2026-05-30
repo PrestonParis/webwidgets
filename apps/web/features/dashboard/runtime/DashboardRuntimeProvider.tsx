@@ -335,6 +335,53 @@ export function DashboardRuntimeProvider({
         });
     }, []);
 
+    // After a Next.js error overlay is dismissed (or the tab regains focus),
+    // IO observers may not re-fire. Force-re-add all registered visible widgets
+    // to visibleIds and re-schedule a batch so stuck "Preparing widget..." states
+    // recover without a full page reload.
+    useEffect(() => {
+        const recover = () => {
+            setState((current) => {
+                const next = cloneState(current);
+                for (const [id, record] of current.records.entries()) {
+                    // Restore loadedIds for any widget that was loaded before
+                    // the error/remount cycle cleared it.
+                    if (record.status === 'shell' && !next.loadedIds.has(id)) {
+                        next.loadedIds.add(id);
+                    }
+                    // Re-populate visibleIds for all loaded widgets. Widgets that
+                    // aren't actually in the viewport will be corrected by their
+                    // IntersectionObserver within one frame. This unblocks
+                    // requestHydration for widgets stuck in "Preparing widget..."
+                    // after a Next.js error overlay is dismissed.
+                    if (next.loadedIds.has(id) && !next.failedIds.has(id)) {
+                        next.visibleIds.add(id);
+                    }
+                }
+                return next;
+            });
+            // Re-trigger batch loading so any unloaded visible widgets get queued.
+            if (batchTimerRef.current === null) {
+                batchTimerRef.current = window.setTimeout(() => {
+                    batchTimerRef.current = null;
+                    loadBatch();
+                }, 0);
+            }
+        };
+
+        const onFocus = () => recover();
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') recover();
+        };
+
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', onVisible);
+        return () => {
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
+    }, [loadBatch]);
+
     const scheduleBatch = useCallback(
         (preferredId?: string) => {
             if (batchTimerRef.current !== null) return;
@@ -820,6 +867,14 @@ export function useDashboardRuntimeWidget({
             return () => releaseHydration(metadata.id);
         }
 
+        // Re-sync the runtime visibility state with the local visible flag.
+        // stateRef is updated in a useEffect (runs after render), so there is a
+        // window where local `visible` is true but stateRef.current.visibleIds
+        // doesn't include this widget yet. Calling setWidgetVisibilityLevel here
+        // ensures requestHydration's stateRef check sees the widget as visible
+        // before the first poll fires.
+        setWidgetVisibilityLevel(metadata.id, 'visible');
+
         // Try immediately; if the concurrency limit is hit, poll until a slot
         // opens. Only this widget polls — avoids cascading re-renders from
         // subscribing all widgets to activeHydrationIds.size.
@@ -827,7 +882,7 @@ export function useDashboardRuntimeWidget({
             if (!requestHydration(metadata.id)) return false;
             hasHydratedRef.current = true;
             // Release the slot after a short mounting window so the next waiting
-            // widget can start hydrating. canHydrate stays true via hasHydratedRef.
+            // widget can start hydrating. canHydrate stays true via hydratedIds.
             window.setTimeout(() => releaseHydration(metadata.id), 800);
             return true;
         };
@@ -849,6 +904,7 @@ export function useDashboardRuntimeWidget({
         metadata.id,
         releaseHydration,
         requestHydration,
+        setWidgetVisibilityLevel,
         visible,
     ]);
 

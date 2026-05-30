@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Heatmap } from '@/features/tracking/viz/Heatmap';
+import { Heatmap } from '@/features/ui/visualizations/components/Heatmap';
 import { getCategoryColor } from '@/features/tracking/constants';
 import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';

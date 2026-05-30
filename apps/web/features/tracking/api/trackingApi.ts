@@ -1,5 +1,10 @@
 'use client';
 
+// Write operations route through /api/tracking/entries so activity events are
+// published server-side. Read operations (fetchEntries) retain direct Supabase
+// access for widget performance. migrateFromLocalStorage remains direct since
+// it's a one-time migration that writes many rows without needing activity events.
+
 import { db } from '@/lib/db/supabase';
 import type {
     TrackingEntry,
@@ -25,6 +30,7 @@ function rowToEntry(row: DbTrackingRow): TrackingEntry {
     };
 }
 
+// Read path: stays direct for widget performance (no activity event on reads)
 export async function fetchEntries(
     userId: string,
     opts: FetchOptions = {},
@@ -45,64 +51,78 @@ export async function fetchEntries(
     return (data as unknown as DbTrackingRow[]).map(rowToEntry);
 }
 
+// Write path: route through server API for activity event publishing
 export async function addEntry(
-    userId: string,
+    _userId: string,
     entry: BaseTrackingEntry,
 ): Promise<TrackingEntry> {
-    const row = {
-        user_id: userId,
-        category: entry.category,
-        entry_date: entry.entryDate,
-        metadata: entry.metadata,
-        tags: entry.tags,
-        source: entry.source,
-        ...(entry.notes !== undefined && { notes: entry.notes }),
-    };
-
-    const result = await db
-        .from('tracking_entries')
-        .insert(row)
-        .select()
-        .single();
-
-    if (result.error) throw result.error;
-    return rowToEntry(result.data as unknown as DbTrackingRow);
+    const res = await fetch('/api/tracking/entries', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            category: entry.category,
+            entryDate: entry.entryDate,
+            metadata: entry.metadata,
+            tags: entry.tags,
+            source: entry.source ?? 'manual',
+            ...(entry.notes !== undefined ? { notes: entry.notes } : {}),
+        }),
+    });
+    if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+            err.error ?? `tracking entry create failed: ${res.status}`,
+        );
+    }
+    const row = (await res.json()) as DbTrackingRow;
+    return rowToEntry(row);
 }
 
 export async function updateEntry(
-    userId: string,
+    _userId: string,
     id: string,
     updates: Partial<BaseTrackingEntry>,
 ): Promise<TrackingEntry> {
-    const patch: Record<string, unknown> = {};
-    if (updates.category !== undefined) patch['category'] = updates.category;
-    if (updates.entryDate !== undefined)
-        patch['entry_date'] = updates.entryDate;
-    if (updates.metadata !== undefined) patch['metadata'] = updates.metadata;
-    if (updates.tags !== undefined) patch['tags'] = updates.tags;
-    if (updates.source !== undefined) patch['source'] = updates.source;
-    if (updates.notes !== undefined) patch['notes'] = updates.notes;
-
-    const result = await db
-        .from('tracking_entries')
-        .update(patch)
-        .eq('id', id)
-        .eq('user_id', userId)
-        .select()
-        .single();
-
-    if (result.error) throw result.error;
-    return rowToEntry(result.data as DbTrackingRow);
+    const res = await fetch(`/api/tracking/entries/${id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ...(updates.category !== undefined
+                ? { category: updates.category }
+                : {}),
+            ...(updates.entryDate !== undefined
+                ? { entryDate: updates.entryDate }
+                : {}),
+            ...(updates.metadata !== undefined
+                ? { metadata: updates.metadata }
+                : {}),
+            ...(updates.tags !== undefined ? { tags: updates.tags } : {}),
+            ...(updates.notes !== undefined ? { notes: updates.notes } : {}),
+        }),
+    });
+    if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+            err.error ?? `tracking entry update failed: ${res.status}`,
+        );
+    }
+    const row = (await res.json()) as DbTrackingRow;
+    return rowToEntry(row);
 }
 
-export async function deleteEntry(userId: string, id: string): Promise<void> {
-    const { error } = await db
-        .from('tracking_entries')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', userId);
-
-    if (error) throw error;
+export async function deleteEntry(_userId: string, id: string): Promise<void> {
+    const res = await fetch(`/api/tracking/entries/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+    if (!res.ok && res.status !== 204) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+            err.error ?? `tracking entry delete failed: ${res.status}`,
+        );
+    }
 }
 
 type OldEntry = Record<string, unknown> & {
@@ -118,6 +138,8 @@ function buildMetadataFromOld(entry: OldEntry): Record<string, unknown> {
     );
 }
 
+// One-time migration from localStorage — remains direct since it's bulk import
+// without meaningful activity signal (historical data, not new user actions)
 export async function migrateFromLocalStorage(userId: string): Promise<number> {
     const raw = localStorage.getItem(OLD_STORAGE_KEY);
     if (!raw) return 0;

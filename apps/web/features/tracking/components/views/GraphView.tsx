@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { LineChart } from '@/features/tracking/viz/LineChart';
+import { LineChart } from '@/features/ui/visualizations/components/LineChart';
 import {
     extractMetricSeries,
     calcRollingAverage,
@@ -75,7 +75,7 @@ export function GraphView({ entries, category, customDef }: GraphViewProps) {
     if (!anyData) {
         return (
             <p className="text-sm text-center text-gray-400 dark:text-zinc-500 py-8">
-                Not enough data yet — log at least 2 entries to see a graph.
+                Not enough data yet. Log at least 2 entries to see a graph.
             </p>
         );
     }

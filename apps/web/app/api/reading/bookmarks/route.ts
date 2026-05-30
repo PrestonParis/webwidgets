@@ -4,6 +4,7 @@ import { getUserOrThrow } from '@/lib/supabase/getUser';
 import type { ReadingPosition } from '@/features/reading/types/positions';
 import { rowToBookmark } from '@/features/reading/types/annotations';
 import type { BookmarkRow } from '@/features/reading/types/annotations';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function GET(req: Request) {
     try {
@@ -61,7 +62,25 @@ export async function POST(req: Request) {
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });
-        return NextResponse.json(rowToBookmark(data as unknown as BookmarkRow));
+
+        const bookmark = rowToBookmark(data as unknown as BookmarkRow);
+        await publishActivityEventSafe(supabase, {
+            userId: user.id,
+            source: 'reading',
+            eventType: 'reading.bookmark_added',
+            sourceId: bookmark.id,
+            sourceTable: 'reading_bookmarks',
+            category: 'content',
+            severity: 'info',
+            priority: 'low',
+            title: bookmark.label
+                ? `Bookmark added: ${bookmark.label}`
+                : 'Bookmark added',
+            actionUrl: `/documents/${body.documentId}`,
+            metadata: { documentId: body.documentId, label: bookmark.label },
+        });
+
+        return NextResponse.json(bookmark);
     } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

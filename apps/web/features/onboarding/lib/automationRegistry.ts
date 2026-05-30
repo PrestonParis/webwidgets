@@ -6,7 +6,7 @@ export const AUTOMATION_DEFINITIONS: AutomationDefinition[] = [
         name: 'Daily workspace summary',
         summary:
             'Prepare a morning digest from calendar, tasks, notes, and recent activity.',
-        goalHints: ['productivity', 'research', 'development', 'learning'],
+        goalHints: ['work', 'research', 'software-development', 'school'],
         requiresIntegration: 'google-calendar',
     },
     {
@@ -14,14 +14,14 @@ export const AUTOMATION_DEFINITIONS: AutomationDefinition[] = [
         name: 'Streak warning',
         summary:
             'Warn before recovery, habit, or tracking streaks are likely to go stale.',
-        goalHints: ['recovery', 'health-tracking'],
+        goalHints: ['health-fitness', 'personal-productivity'],
     },
     {
         id: 'email-actions',
         name: 'AI email actions',
         summary:
             'Extract reply, follow-up, and scheduling actions from new messages.',
-        goalHints: ['productivity', 'automation', 'research'],
+        goalHints: ['work', 'research'],
         requiresIntegration: 'gmail',
     },
     {
@@ -29,17 +29,18 @@ export const AUTOMATION_DEFINITIONS: AutomationDefinition[] = [
         name: 'Tracking insights',
         summary:
             'Look for patterns in sleep, mood, recovery, workouts, and routines.',
-        goalHints: ['health-tracking', 'recovery'],
+        goalHints: ['health-fitness'],
     },
     {
         id: 'focus-block-reminder',
         name: 'Focus block reminder',
         summary: 'Suggest timer sessions around open tasks and calendar gaps.',
         goalHints: [
-            'productivity',
-            'development',
-            'writing-knowledge',
-            'learning',
+            'work',
+            'software-development',
+            'research',
+            'school',
+            'personal-productivity',
         ],
         requiresIntegration: 'google-calendar',
     },
@@ -48,6 +49,6 @@ export const AUTOMATION_DEFINITIONS: AutomationDefinition[] = [
         name: 'Workflow trigger review',
         summary:
             'Keep a queue of candidate automations to approve as integrations mature.',
-        goalHints: ['automation', 'development'],
+        goalHints: ['software-development', 'work'],
     },
 ];

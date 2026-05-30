@@ -7,6 +7,7 @@ import {
     createArtifact,
 } from '@/features/artifacts/services/artifactService';
 import type { ArtifactType } from '@/features/artifacts/types/artifact';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function GET(req: Request): Promise<Response> {
     try {
@@ -68,6 +69,33 @@ export async function POST(req: Request): Promise<Response> {
             tags: body.tags ?? [],
         });
 
+        // Publish activity event — fire and forget, never fails the request
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'artifact',
+            eventType: 'artifact.generated',
+            sourceId: artifact.id,
+            sourceTable: 'artifacts',
+            category: 'ai',
+            severity: 'success',
+            priority: 'normal',
+            title: `${capitalize(artifact.type)} generated: ${artifact.title}`,
+            body: artifact.content.slice(0, 200) || undefined,
+            actionUrl: `/artifacts/${artifact.id}`,
+            relatedEntities: [
+                { type: 'artifact', id: artifact.id, label: artifact.title },
+                ...(artifact.sourceFileId
+                    ? [{ type: 'file', id: artifact.sourceFileId }]
+                    : []),
+            ],
+            metadata: {
+                artifactType: artifact.type,
+                contentFormat: artifact.contentFormat,
+                tagCount: artifact.tags.length,
+                contentLength: artifact.content.length,
+            },
+        });
+
         return NextResponse.json({ data: artifact }, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized')
@@ -82,4 +110,8 @@ export async function POST(req: Request): Promise<Response> {
             );
         return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
     }
+}
+
+function capitalize(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ');
 }

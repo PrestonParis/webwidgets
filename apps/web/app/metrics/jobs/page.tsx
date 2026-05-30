@@ -1,4 +1,4 @@
-import { MetricsJobsPage } from '@/features/metrics/components/pages/MetricsJobsPage';
+import { redirect } from 'next/navigation';
 export default function Page() {
-    return <MetricsJobsPage />;
+    redirect('/metrics/overview');
 }

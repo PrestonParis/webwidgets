@@ -34,8 +34,8 @@ import {
     buildMealHistoryCsv,
     buildDailySummaryCsv,
 } from '@/features/tracking/lib/meal/nutrition/export';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { FoodItem } from '@/features/tracking/lib/meal/nutrition/foodTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { FoodItem } from '@/features/tracking/types/nutritionFood';
 
 const entry = (overrides: Partial<TrackingEntry>): TrackingEntry => ({
     id: 'm1',

@@ -8,8 +8,10 @@ import { AddFormProps } from '@/features/countdown/types/countdown';
 
 export default function AddForm({ countdown, onSave, onCancel }: AddFormProps) {
     const [name, setName] = useState(countdown?.name ?? '');
-    const [date, setDate] = useState(() =>
-        countdown?.target_date ?? new Date(Date.now() + 7 * 86400000).toISOString(),
+    const [date, setDate] = useState(
+        () =>
+            countdown?.target_date ??
+            new Date(Date.now() + 7 * 86400000).toISOString(),
     );
     const [emoji, setEmoji] = useState(countdown?.emoji ?? '');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);

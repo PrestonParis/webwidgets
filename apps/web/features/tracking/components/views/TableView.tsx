@@ -43,7 +43,7 @@ function EntryRow({
                 {formatMetadataDisplay(entry.category, entry.metadata)}
             </td>
             <td className="py-2 px-3 text-xs text-gray-500 dark:text-zinc-400 max-w-[120px] truncate">
-                {entry.notes ?? '—'}
+                {entry.notes ?? 'N/A'}
             </td>
             <td className="py-2 px-3 text-right whitespace-nowrap space-x-2">
                 {onEdit && (

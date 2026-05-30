@@ -9,158 +9,164 @@ import type {
 } from '@/features/onboarding/types/recommendations';
 
 const GOAL_WIDGETS: Record<OnboardingGoalId, WidgetRecommendation[]> = {
-    productivity: [
+    work: [
         {
-            widgetType: 'todo',
-            reason: 'Tasks and habit loops become your daily operating list.',
+            widgetType: 'email',
+            reason: 'Stay on top of inbox and surface action items.',
             priority: 96,
         },
         {
-            widgetType: 'timekeeping',
-            reason: 'Timers and countdowns support focus blocks and deadlines.',
-            priority: 84,
+            widgetType: 'calendar',
+            reason: "Keep today's schedule visible alongside your tasks.",
+            priority: 90,
+        },
+        {
+            widgetType: 'todo',
+            reason: 'Capture tasks, deadlines, and follow-ups in one place.',
+            priority: 88,
+        },
+        {
+            widgetType: 'texteditor',
+            reason: 'Quick notes and meeting summaries.',
+            priority: 72,
+        },
+    ],
+    school: [
+        {
+            widgetType: 'todo',
+            reason: 'Track assignments, deadlines, and study sessions.',
+            priority: 96,
         },
         {
             widgetType: 'calendar',
-            reason: 'Calendar context makes the dashboard schedule-aware.',
-            priority: 82,
+            reason: 'Class schedules and exam dates in one view.',
+            priority: 88,
+        },
+        {
+            widgetType: 'texteditor',
+            reason: 'Notes and study summaries stay close to your tasks.',
+            priority: 84,
+        },
+        {
+            widgetType: 'timekeeping',
+            reason: 'Pomodoro sessions for focused study blocks.',
+            priority: 76,
         },
     ],
-    'health-tracking': [
+    'software-development': [
         {
-            widgetType: 'tracking',
-            reason: 'Health systems need a flexible logging surface.',
-            priority: 94,
+            widgetType: 'todo',
+            reason: 'Issue triage and build tasks stay visible.',
+            priority: 90,
         },
         {
-            widgetType: 'tracking-mood',
-            reason: 'Mood adds qualitative context to health patterns.',
+            widgetType: 'timekeeping',
+            reason: 'Deep work sessions separate from maintenance.',
+            priority: 84,
+        },
+        {
+            widgetType: 'texteditor',
+            reason: 'Scratch notes, architecture decisions, and command references.',
+            priority: 76,
+        },
+        {
+            widgetType: 'datahealth',
+            reason: 'System health and observability at a glance.',
+            priority: 68,
+        },
+    ],
+    'personal-productivity': [
+        {
+            widgetType: 'todo',
+            reason: 'Daily habits and recurring tasks form your routine.',
+            priority: 96,
+        },
+        {
+            widgetType: 'calendar',
+            reason: 'Your schedule gives tasks the right context.',
+            priority: 84,
+        },
+        {
+            widgetType: 'timekeeping',
+            reason: 'Focus timers help you do the work, not just plan it.',
             priority: 78,
         },
         {
             widgetType: 'weather',
-            reason: 'Weather can influence outdoor workouts and energy planning.',
-            priority: 58,
+            reason: 'Ambient context for planning your day.',
+            priority: 60,
         },
     ],
-    recovery: [
+    'health-fitness': [
         {
-            widgetType: 'recovery-empty',
-            reason: 'Recovery tracking is the anchor for streaks and milestones.',
-            priority: 98,
+            widgetType: 'tracking',
+            reason: 'Log sleep, workouts, and nutrition in one place.',
+            priority: 96,
         },
         {
             widgetType: 'tracking-mood',
-            reason: 'Mood check-ins help identify risk patterns.',
-            priority: 90,
-        },
-        {
-            widgetType: 'tracking',
-            reason: 'Sleep and routine logs strengthen recovery context.',
-            priority: 86,
-        },
-    ],
-    development: [
-        {
-            widgetType: 'timekeeping',
-            reason: 'Focused sessions help separate deep work from maintenance.',
-            priority: 88,
-        },
-        {
-            widgetType: 'datahealth',
-            reason: 'System health is useful for admin and observability workflows.',
-            priority: 70,
+            reason: 'Mood check-ins reveal patterns over time.',
+            priority: 84,
         },
         {
             widgetType: 'todo',
-            reason: 'Task lists keep issue triage and build work visible.',
-            priority: 82,
+            reason: 'Habit streaks and routine tasks.',
+            priority: 74,
+        },
+        {
+            widgetType: 'weather',
+            reason: 'Weather affects outdoor workouts and energy.',
+            priority: 58,
         },
     ],
-    finance: [
+    finances: [
         {
             widgetType: 'converter',
-            reason: 'Currency and unit conversion support finance workflows today.',
-            priority: 92,
+            reason: 'Currency and unit conversion for financial work.',
+            priority: 88,
         },
         {
             widgetType: 'texteditor',
-            reason: 'Notes capture assumptions, decisions, and research.',
-            priority: 62,
+            reason: 'Notes capture decisions, assumptions, and research.',
+            priority: 72,
+        },
+        {
+            widgetType: 'todo',
+            reason: 'Action items from financial reviews.',
+            priority: 66,
         },
     ],
     research: [
         {
             widgetType: 'texteditor',
-            reason: 'Research needs capture, synthesis, and source notes.',
-            priority: 94,
-        },
-        {
-            widgetType: 'email',
-            reason: 'Inbox context helps collect threads and external updates.',
-            priority: 68,
-        },
-    ],
-    'writing-knowledge': [
-        {
-            widgetType: 'texteditor',
-            reason: 'Drafting and editing should be a first-class workspace surface.',
-            priority: 98,
-        },
-        {
-            widgetType: 'timekeeping',
-            reason: 'Writing sprints benefit from timer support.',
-            priority: 70,
-        },
-    ],
-    learning: [
-        {
-            widgetType: 'todo',
-            reason: 'Study habits need repeatable tasks and streaks.',
-            priority: 84,
-        },
-        {
-            widgetType: 'texteditor',
-            reason: 'Notes and reflections make learning durable.',
-            priority: 82,
-        },
-        {
-            widgetType: 'chess',
-            reason: 'Practice widgets fit learning-oriented workspaces.',
-            priority: 46,
-        },
-    ],
-    automation: [
-        {
-            widgetType: 'form-filler',
-            reason: 'Form filling is the first concrete automation surface.',
-            priority: 92,
-        },
-        {
-            widgetType: 'email',
-            reason: 'Email is a high-value source for action extraction.',
-            priority: 86,
-        },
-        {
-            widgetType: 'calendar',
-            reason: 'Calendar data enables schedule-aware triggers.',
-            priority: 76,
-        },
-    ],
-    'personal-dashboard': [
-        {
-            widgetType: 'todo',
-            reason: 'Habit streaks and recurring tasks belong at the center.',
+            reason: 'Capture, synthesis, and source notes in one surface.',
             priority: 96,
         },
         {
-            widgetType: 'calendar',
-            reason: 'Calendar context makes the dashboard feel operational.',
-            priority: 86,
+            widgetType: 'todo',
+            reason: 'Research queue and next steps.',
+            priority: 80,
         },
         {
-            widgetType: 'weather',
-            reason: 'Ambient context belongs in a daily command center.',
+            widgetType: 'email',
+            reason: 'Collect threads and external updates from your inbox.',
+            priority: 66,
+        },
+    ],
+    custom: [
+        {
+            widgetType: 'todo',
+            reason: 'A task list is useful in any workspace.',
+            priority: 80,
+        },
+        {
+            widgetType: 'texteditor',
+            reason: 'Quick capture for ideas and notes.',
+            priority: 74,
+        },
+        {
+            widgetType: 'calendar',
+            reason: 'Your schedule, always in context.',
             priority: 66,
         },
     ],
@@ -183,7 +189,7 @@ export function buildWorkspaceRecommendation(
     goals: OnboardingGoalId[],
 ): WorkspaceRecommendation {
     const selectedGoals: OnboardingGoalId[] =
-        goals.length > 0 ? goals : ['productivity'];
+        goals.length > 0 ? goals : ['personal-productivity'];
     const widgets = rankWidgets(selectedGoals);
     const integrationIds = INTEGRATION_PROVIDERS.filter((provider) =>
         provider.goalHints.some((goal) => selectedGoals.includes(goal)),
@@ -206,18 +212,19 @@ function rankWidgets(goals: OnboardingGoalId[]): WidgetRecommendation[] {
 
     [
         ...DEFAULT_WIDGETS,
-        ...goals.flatMap((goal) => GOAL_WIDGETS[goal]),
+        ...goals.flatMap((goal) => GOAL_WIDGETS[goal] ?? []),
     ].forEach((item) => {
         const existing = merged.get(item.widgetType);
         if (!existing || item.priority > existing.priority)
             merged.set(item.widgetType, item);
     });
-    getDashboardWidgetTypesForGoals(goals).forEach((widgetType, index) => {
+
+    getDashboardWidgetTypesForGoals([]).forEach((widgetType, index) => {
         if (!merged.has(widgetType)) {
             merged.set(widgetType, {
                 widgetType,
-                reason: 'Suggested by the reusable WebWidgets registry for your goals.',
-                priority: 60 - index,
+                reason: 'A useful addition based on common workspace patterns.',
+                priority: 40 - index,
             });
         }
     });
@@ -229,16 +236,16 @@ function rankWidgets(goals: OnboardingGoalId[]): WidgetRecommendation[] {
 
 function buildTrackingSystems(goals: OnboardingGoalId[]) {
     const systems: string[] = [];
-    if (goals.includes('recovery'))
-        systems.push('Streak and recovery check-ins');
-    if (goals.some((goal) => ['health-tracking', 'recovery'].includes(goal)))
+    if (goals.includes('health-fitness'))
         systems.push('Sleep, mood, workout, and routine logs');
-    if (goals.includes('productivity'))
+    if (goals.includes('personal-productivity'))
         systems.push('Task completion and focus sessions');
-    if (goals.includes('development'))
+    if (goals.includes('software-development'))
         systems.push('Build, issue, and observability review queue');
-    if (goals.includes('finance'))
-        systems.push('Currency, rate, and financial note tracking');
+    if (goals.includes('finances'))
+        systems.push('Budget, rate, and financial note tracking');
+    if (goals.includes('school'))
+        systems.push('Assignment tracking and study session logs');
     return systems.length > 0
         ? systems
         : ['Task, note, and habit starter tracking'];
@@ -246,17 +253,13 @@ function buildTrackingSystems(goals: OnboardingGoalId[]) {
 
 function buildLayoutNotes(goals: OnboardingGoalId[]) {
     const notes = [
-        'Primary widgets stay in the main workspace; future scenes can fork by role or mode.',
+        'Primary widgets land on the main dashboard. You can rearrange or add more at any time.',
     ];
-    if (goals.includes('recovery'))
+    if (goals.includes('software-development'))
         notes.push(
-            'Recovery, mood, and tracking should sit near each other for quick check-ins.',
+            'Developer workspaces benefit from a focused scene with tasks, timers, and system health.',
         );
-    if (goals.includes('development'))
-        notes.push(
-            'Development work benefits from a focused scene with tasks, timers, and system health.',
-        );
-    if (goals.some((goal) => ['writing-knowledge', 'research'].includes(goal)))
+    if (goals.includes('research'))
         notes.push('Writing surfaces should stay wide and visually quiet.');
     return notes;
 }

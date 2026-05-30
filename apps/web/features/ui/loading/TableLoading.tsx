@@ -30,7 +30,10 @@ export function TableLoading({
         <div className={cn('space-y-0', className)}>
             {showHeader && (
                 <div
-                    className={cn('grid gap-3 border-b border-zinc-200 dark:border-zinc-800', pad)}
+                    className={cn(
+                        'grid gap-3 border-b border-zinc-200 dark:border-zinc-800',
+                        pad,
+                    )}
                     style={colTemplate}
                 >
                     {Array.from({ length: columns }).map((_, idx) => (
@@ -44,7 +47,10 @@ export function TableLoading({
             {Array.from({ length: rows }).map((_, rowIdx) => (
                 <div
                     key={`row-${rowIdx}`}
-                    className={cn('grid gap-3 border-b border-zinc-100 dark:border-zinc-900', pad)}
+                    className={cn(
+                        'grid gap-3 border-b border-zinc-100 dark:border-zinc-900',
+                        pad,
+                    )}
                     style={colTemplate}
                 >
                     {Array.from({ length: columns }).map((_, colIdx) => (

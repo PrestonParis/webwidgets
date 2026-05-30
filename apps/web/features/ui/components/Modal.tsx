@@ -76,7 +76,12 @@ interface ModalHeaderProps {
     onClose: () => void;
 }
 
-export function ModalHeader({ id, title, description, onClose }: ModalHeaderProps) {
+export function ModalHeader({
+    id,
+    title,
+    description,
+    onClose,
+}: ModalHeaderProps) {
     return (
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-zinc-800 shrink-0">
             <div>

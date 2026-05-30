@@ -1,4 +1,4 @@
-import { MetricsRetentionPage } from '@/features/metrics/components/pages/MetricsRetentionPage';
+import { redirect } from 'next/navigation';
 export default function Page() {
-    return <MetricsRetentionPage />;
+    redirect('/metrics/overview');
 }

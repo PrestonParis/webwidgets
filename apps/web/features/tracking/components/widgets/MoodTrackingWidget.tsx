@@ -11,6 +11,7 @@ import {
     Target,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { QuickEntryForm } from '@/features/tracking/components/QuickEntryForm';
@@ -68,6 +69,12 @@ export default function MoodTrackingWidget() {
             footerLabel="Open mood dashboard"
             widgetId="mood-tracking-widget"
             widgetType="tracking-mood"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Mood"
+                />
+            }
         >
             <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">
@@ -165,7 +172,7 @@ export default function MoodTrackingWidget() {
                                 value={
                                     avgMood !== null
                                         ? `${avgMood.toFixed(1)}/5`
-                                        : '—'
+                                        : 'N/A'
                                 }
                             />
                             <WidgetStat
@@ -173,7 +180,7 @@ export default function MoodTrackingWidget() {
                                 value={
                                     trend
                                         ? `${Math.round(trend.magnitude * 100)}%`
-                                        : '—'
+                                        : 'N/A'
                                 }
                             />
                         </div>

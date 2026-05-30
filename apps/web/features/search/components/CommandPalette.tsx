@@ -241,7 +241,7 @@ export function CommandPalette() {
     const hasQuery = query.trim() || taskQuery.trim();
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[12vh] px-4">
+        <div className="fixed inset-0 z-60 flex items-start justify-center pt-[12vh] px-4">
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                 aria-hidden
@@ -523,7 +523,7 @@ export function CommandPalette() {
                                         Chat with AI
                                     </p>
                                     <p className="text-xs text-zinc-400">
-                                        No matches — let AI help
+                                        No matches. Let AI help
                                     </p>
                                 </div>
                             </ResultRow>

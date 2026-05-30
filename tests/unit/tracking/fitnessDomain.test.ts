@@ -9,8 +9,8 @@ import { calculateFitnessGoalProgress } from '@/features/tracking/lib/fitness/go
 import { localExerciseLibraryProvider } from '@/features/tracking/lib/fitness/providers/exerciseLibraryProvider';
 import { mapFitnessCsv } from '@/features/tracking/lib/fitness/providers/importProvider';
 import { workoutFromTemplate } from '@/features/tracking/lib/fitness/providers/manualProvider';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
-import type { WorkoutTemplate } from '@/features/tracking/lib/fitness/templateTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
+import type { WorkoutTemplate } from '@/features/tracking/types/fitnessTemplates';
 
 const entry = (overrides: Partial<TrackingEntry>): TrackingEntry => ({
     id: 'w1',

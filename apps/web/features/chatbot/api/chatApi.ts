@@ -85,10 +85,7 @@ export async function listModelProviderAvailability(): Promise<{
     return cachedJson<{
         providers: ModelProvider[];
         availability?: ModelProviderAvailability[];
-    }>(
-        '/api/chat/model-keys',
-        { ttlMs: 15_000 },
-    ).then((json) => ({
+    }>('/api/chat/model-keys', { ttlMs: 15_000 }).then((json) => ({
         providers: json.providers,
         availability:
             json.availability ??

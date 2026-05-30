@@ -24,7 +24,7 @@ export function MoodFields({ form, updateField }: MoodFieldsProps) {
         <div className="space-y-4">
             <div>
                 <label className={labelCls}>
-                    Mood —{' '}
+                    Mood:{' '}
                     <span className="text-indigo-500">
                         {MOOD_LABELS[score]}
                     </span>
@@ -51,7 +51,7 @@ export function MoodFields({ form, updateField }: MoodFieldsProps) {
             </div>
             <div>
                 <label className={labelCls}>
-                    Energy —{' '}
+                    Energy:{' '}
                     <span className="text-indigo-500">
                         {ENERGY_LABELS[energy]}
                     </span>

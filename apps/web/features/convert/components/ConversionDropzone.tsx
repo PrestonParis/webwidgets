@@ -45,7 +45,7 @@ export function ConversionDropzone({
                     <Upload className="h-4 w-4 text-amber-500" />
                     {files.length === 0
                         ? 'Choose files'
-                        : `${files.length} file${files.length > 1 ? 's' : ''} selected — click to change`}
+                        : `${files.length} file${files.length > 1 ? 's' : ''} selected. Click to change.`}
                 </span>
                 {files.length === 0 && (
                     <span className="text-xs text-gray-500 dark:text-zinc-400">

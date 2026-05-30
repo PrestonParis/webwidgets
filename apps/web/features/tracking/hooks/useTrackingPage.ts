@@ -9,6 +9,7 @@ import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 export type TrackingPageTab =
     | 'log'
+    | 'logging'
     | 'recovery'
     | 'goals'
     | 'predictions'

@@ -181,7 +181,7 @@ export function buildNutritionInsights(
             );
         } else if (rate >= 80) {
             insights.push(
-                `Great job — you hit your protein goal ${rate}% of days this week.`,
+                `You hit your protein goal ${rate}% of days this week. Great work.`,
             );
         }
     }

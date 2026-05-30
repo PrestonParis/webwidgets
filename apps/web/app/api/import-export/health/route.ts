@@ -67,7 +67,7 @@ export async function GET() {
             name: 'storage',
             status: 'unconfigured',
             message:
-                'S3 not configured — file attachments disabled, use text paste instead',
+                'S3 not configured. File attachments are disabled; use text paste instead.',
         });
     }
 

@@ -1,73 +1,68 @@
-import type { GoalDefinition } from '@/features/onboarding/types/goals';
+import type {
+    FocusAreaDefinition,
+    GoalDefinition,
+} from '@/features/onboarding/types/goals';
 
 export const GOAL_DEFINITIONS: GoalDefinition[] = [
     {
-        id: 'productivity',
-        label: 'Productivity',
-        summary: 'Tasks, focus, deadlines',
-        details:
-            'Coordinate to-dos, timers, calendar context, and quick capture.',
+        id: 'work',
+        label: 'Work',
+        emoji: '💼',
+        summary: 'Email, tasks, planning, meetings',
     },
     {
-        id: 'health-tracking',
-        label: 'Health and tracking',
-        summary: 'Sleep, workouts, meals',
-        details:
-            'Prepare tracking systems for body metrics, routines, and insights.',
+        id: 'school',
+        label: 'School',
+        emoji: '🎓',
+        summary: 'Study, assignments, schedules, research',
     },
     {
-        id: 'recovery',
-        label: 'Recovery',
-        summary: 'Streaks and check-ins',
-        details:
-            'Surface recovery, mood, sleep, reminders, and streak protection.',
+        id: 'software-development',
+        label: 'Software Development',
+        emoji: '💻',
+        summary: 'Code, GitHub, builds, issues',
     },
     {
-        id: 'finance',
-        label: 'Finance tracking',
-        summary: 'Money and rates',
-        details:
-            'Start with conversion tools and future budget or portfolio systems.',
+        id: 'personal-productivity',
+        label: 'Personal Productivity',
+        emoji: '✅',
+        summary: 'Habits, todos, reminders, focus',
     },
     {
-        id: 'development',
-        label: 'Development',
-        summary: 'Code workflows',
-        details:
-            'Prepare GitHub, terminal-adjacent tools, observability, and focus blocks.',
+        id: 'health-fitness',
+        label: 'Health & Fitness',
+        emoji: '🏃',
+        summary: 'Tracking, sleep, workouts, nutrition',
     },
     {
-        id: 'writing-knowledge',
-        label: 'Writing and knowledge',
-        summary: 'Notes, journal, archive',
-        details:
-            'Prioritize writing surfaces, source capture, research queues, and daily reflection.',
+        id: 'finances',
+        label: 'Finances',
+        emoji: '💰',
+        summary: 'Budget, investments, expense tracking',
     },
     {
         id: 'research',
         label: 'Research',
-        summary: 'Reading and synthesis',
-        details: 'Organize notes, sources, summaries, and knowledge workflows.',
+        emoji: '🔬',
+        summary: 'Reading, notes, synthesis, sources',
     },
     {
-        id: 'automation',
-        label: 'Automation',
-        summary: 'Rules and triggers',
-        details:
-            'Expose integrations, form filling, summaries, and workflow triggers.',
+        id: 'custom',
+        label: 'Something else',
+        emoji: '✨',
+        summary: "I'll configure my own workspace",
     },
-    {
-        id: 'learning',
-        label: 'Learning',
-        summary: 'Study and practice',
-        details:
-            'Combine study widgets, habit loops, notes, and spaced review hooks.',
-    },
-    {
-        id: 'personal-dashboard',
-        label: 'Personal dashboard',
-        summary: 'All-purpose command center',
-        details:
-            'Start broad with calendar, notes, tasks, weather, and activity context.',
-    },
+];
+
+export const FOCUS_AREA_DEFINITIONS: FocusAreaDefinition[] = [
+    { id: 'email', label: 'Email', emoji: '📬' },
+    { id: 'calendar', label: 'Calendar', emoji: '📅' },
+    { id: 'tasks', label: 'Tasks & Todos', emoji: '✅' },
+    { id: 'notes', label: 'Notes & Writing', emoji: '📝' },
+    { id: 'documents', label: 'Documents', emoji: '📄' },
+    { id: 'research-queue', label: 'Research Queue', emoji: '🔍' },
+    { id: 'habits', label: 'Habits & Tracking', emoji: '🔄' },
+    { id: 'health', label: 'Health & Recovery', emoji: '❤️' },
+    { id: 'finance', label: 'Finance', emoji: '💳' },
+    { id: 'collaboration', label: 'Team Collaboration', emoji: '🤝' },
 ];

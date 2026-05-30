@@ -71,7 +71,7 @@ export function AdminActionsPage() {
             />
             {data === null && !loading ? (
                 <div className="text-sm text-gray-400 p-4">
-                    Actions data unavailable — wire up /api/actions to expose
+                    Actions data unavailable. Wire up /api/actions to expose
                     this data.
                 </div>
             ) : (

@@ -1,9 +1,10 @@
 'use client';
 
-import { GenerateStep } from '@/features/onboarding/components/GenerateStep';
-import { GoalTextStep } from '@/features/onboarding/components/GoalTextStep';
+import { WelcomeStep } from '@/features/onboarding/components/WelcomeStep';
+import { FocusStep } from '@/features/onboarding/components/FocusStep';
 import { IntegrationStep } from '@/features/onboarding/components/IntegrationStep';
-import { WidgetSelectionStep } from '@/features/onboarding/components/WidgetSelectionStep';
+import { RecommendationStep } from '@/features/onboarding/components/RecommendationStep';
+import { LaunchStep } from '@/features/onboarding/components/LaunchStep';
 import type { IntegrationRuntimeState } from '@/features/onboarding/lib/integrationRegistry';
 import type { useOnboardingStore } from '@/features/onboarding/hooks/useOnboardingStore';
 import type { WorkspaceRecommendation } from '@/features/onboarding/types/recommendations';
@@ -13,7 +14,6 @@ interface OnboardingStepRendererProps {
     onboarding: ReturnType<typeof useOnboardingStore>;
     recommendation: WorkspaceRecommendation;
     selectedWidgetTypes: WidgetType[];
-    suggestedBucketCount: number;
     integrations: {
         providers: IntegrationRuntimeState[];
         connectedIds: string[];
@@ -25,27 +25,28 @@ export function OnboardingStepRenderer({
     onboarding,
     recommendation,
     selectedWidgetTypes,
-    suggestedBucketCount,
     integrations,
 }: OnboardingStepRendererProps) {
     const step = onboarding.profile.currentStep;
 
-    if (step === 'goals') {
+    if (step === 'welcome') {
         return (
-            <GoalTextStep
-                intent={onboarding.profile.intent}
-                onIntentChange={onboarding.updateIntent}
+            <WelcomeStep
+                selectedGoals={onboarding.profile.goals}
+                onToggleGoal={onboarding.toggleGoal}
             />
         );
     }
-    if (step === 'workspace') {
+
+    if (step === 'focus') {
         return (
-            <WidgetSelectionStep
-                selectedWidgetTypes={selectedWidgetTypes}
-                onToggleWidget={onboarding.toggleWidget}
+            <FocusStep
+                selectedAreas={onboarding.profile.focusAreas}
+                onToggleArea={onboarding.toggleFocusArea}
             />
         );
     }
+
     if (step === 'integrations') {
         return (
             <IntegrationStep
@@ -62,13 +63,22 @@ export function OnboardingStepRenderer({
         );
     }
 
+    if (step === 'recommendation') {
+        return (
+            <RecommendationStep
+                recommendation={recommendation}
+                selectedWidgetTypes={selectedWidgetTypes}
+                onToggleWidget={onboarding.toggleWidget}
+            />
+        );
+    }
+
     return (
-        <GenerateStep
-            selectedCount={selectedWidgetTypes.length}
-            bucketCount={suggestedBucketCount}
+        <LaunchStep
+            connectedIntegrationIds={integrations.connectedIds}
+            selectedWidgetTypes={selectedWidgetTypes}
+            enabledAutomationIds={onboarding.profile.enabledAutomationIds}
             recommendation={recommendation}
-            preferences={onboarding.profile.preferences}
-            generatedWorkspace={onboarding.profile.generatedWorkspace}
         />
     );
 }

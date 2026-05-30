@@ -149,7 +149,7 @@ export default function TodoWidget() {
                     {visibleIncomplete.length === 0 &&
                         visibleCompleted.length === 0 && (
                             <p className="text-center text-xs text-zinc-400 dark:text-zinc-600 py-3">
-                                All clear — nothing to do!
+                                All clear, nothing to do!
                             </p>
                         )}
 

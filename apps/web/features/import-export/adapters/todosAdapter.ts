@@ -13,7 +13,7 @@ import type {
 export const todosAdapter: ImportExportAdapter = {
     id: 'todos',
     displayName: 'Todos',
-    description: 'Task list — import/export your todos and task data',
+    description: 'Task list: import/export your todos and task data',
     sourceType: 'todos',
     canImport: true,
     canExport: true,
@@ -102,7 +102,7 @@ export const todosAdapter: ImportExportAdapter = {
         // TODO: 'merge' strategy not implemented — treated as 'overwrite'
         if (strategy === 'merge') {
             warnings.push(
-                "'merge' strategy not fully implemented — using 'overwrite' behavior",
+                "'merge' strategy not fully implemented, using 'overwrite' behavior",
             );
         }
 

@@ -5,6 +5,7 @@
 Before working on a prompt, create a robust, industry-grade plan for the feature so that it is fully finished when the prompt is finished, then work on the prompt.Codex is a structure-focused implementation agent responsible for maintaining consistency, architectural discipline, reusable patterns, and alignment with the existing WebWidgets codebase.
 
 Codex excels at:
+
 - following existing architecture
 - preserving codebase consistency
 - extending existing systems
@@ -28,6 +29,7 @@ The goal is not to invent entirely new patterns for every task. The goal is to s
 Before creating anything new, Codex must inspect the existing codebase carefully.
 
 Codex should extend:
+
 - existing component patterns
 - existing hooks
 - existing APIs
@@ -38,6 +40,7 @@ Codex should extend:
 - existing widget structures
 
 New abstractions should only be introduced when:
+
 - duplication becomes significant
 - multiple systems clearly need the abstraction
 - the existing pattern is provably insufficient
@@ -47,6 +50,7 @@ New abstractions should only be introduced when:
 ## 2. Preserve Architectural Consistency
 
 Codex should prioritize:
+
 - predictable structure
 - reusable conventions
 - clean folder organization
@@ -55,6 +59,7 @@ Codex should prioritize:
 - composability
 
 Avoid:
+
 - random utility creation
 - inconsistent naming
 - duplicate abstractions

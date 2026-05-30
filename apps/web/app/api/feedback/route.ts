@@ -24,10 +24,11 @@ export async function POST(req: Request): Promise<Response> {
         feature_area: body.featureArea?.trim() || null,
         satisfaction_rating: body.satisfactionRating ?? null,
         what_i_did: body.whatIDid?.trim() || null,
-        what_i_wanted: [body.whatIWanted, body.whatHappened]
-            .filter(Boolean)
-            .join('\n\n')
-            .trim() || null,
+        what_i_wanted:
+            [body.whatIWanted, body.whatHappened]
+                .filter(Boolean)
+                .join('\n\n')
+                .trim() || null,
         want_to_see: body.wantToSee?.trim() || null,
         what_confused: body.whatConfused?.trim() || null,
         bugs_found: body.bugsFound?.trim() || null,

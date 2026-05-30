@@ -1,4 +1,4 @@
-import { MetricsEmailPage } from '@/features/metrics/components/pages/MetricsEmailPage';
+import { redirect } from 'next/navigation';
 export default function Page() {
-    return <MetricsEmailPage />;
+    redirect('/metrics/overview');
 }

@@ -5,11 +5,44 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import { FilePlus, PanelTopClose, PanelTop } from 'lucide-react';
+import {
+    FilePlus,
+    PanelTopClose,
+    PanelTop,
+    LayoutTemplate,
+} from 'lucide-react';
 import { Toolbar } from './Toolbar';
 import { useWidgetEditor } from '@/features/texteditor/hooks/useWidgetEditor';
 import { TE_STYLES } from '@/features/texteditor/constants';
 import type { NoteType } from '@/features/texteditor/types/texteditor';
+
+const TEMPLATES: Array<{ label: string; title: string; content: string }> = [
+    {
+        label: 'Grocery List',
+        title: 'Grocery List',
+        content: `<h2>Grocery List</h2><ul><li>Produce</li><li>Dairy</li><li>Bread</li><li>Meat</li><li>Pantry</li></ul>`,
+    },
+    {
+        label: 'Resume',
+        title: 'Resume',
+        content: `<h1>Full Name</h1><p>email@example.com · City, State · (555) 000-0000</p><h2>Summary</h2><p>Brief professional summary highlighting key skills and experience.</p><h2>Experience</h2><h3>Job Title at Company Name</h3><p><em>Month Year – Month Year</em></p><ul><li>Key accomplishment or responsibility</li><li>Key accomplishment or responsibility</li></ul><h2>Education</h2><h3>Degree from Institution</h3><p><em>Year</em></p><h2>Skills</h2><p>Skill A · Skill B · Skill C</p>`,
+    },
+    {
+        label: 'Meeting Notes',
+        title: 'Meeting Notes',
+        content: `<h2>Meeting Notes</h2><p><strong>Date:</strong> </p><p><strong>Attendees:</strong> </p><h3>Agenda</h3><ul><li></li></ul><h3>Discussion</h3><p></p><h3>Action Items</h3><ul><li>: Owner: </li></ul>`,
+    },
+    {
+        label: 'Weekly Plan',
+        title: 'Weekly Plan',
+        content: `<h2>Weekly Plan</h2><h3>Monday</h3><ul><li></li></ul><h3>Tuesday</h3><ul><li></li></ul><h3>Wednesday</h3><ul><li></li></ul><h3>Thursday</h3><ul><li></li></ul><h3>Friday</h3><ul><li></li></ul>`,
+    },
+    {
+        label: 'Project Brief',
+        title: 'Project Brief',
+        content: `<h2>Project Brief</h2><h3>Overview</h3><p></p><h3>Goals</h3><ul><li></li></ul><h3>Timeline</h3><p><strong>Start:</strong> &nbsp; <strong>End:</strong> </p><h3>Stakeholders</h3><p></p><h3>Notes</h3><p></p>`,
+    },
+];
 
 const AUTOSAVE_MS = 1500;
 
@@ -108,47 +141,85 @@ export function WidgetNoteEditor({ noteType }: { noteType: NoteType }) {
         editor?.commands.clearContent();
     }, [editor, handleNew]);
 
+    const [templateOpen, setTemplateOpen] = useState(false);
+    const templateRef = useRef<HTMLDivElement>(null);
+
+    const applyTemplate = useCallback(
+        (tpl: (typeof TEMPLATES)[number]) => {
+            setTemplateOpen(false);
+            clearTimeout(timerRef.current);
+            handleNew();
+            const newTitle = tpl.title;
+            setTitle(newTitle);
+            titleRef.current = newTitle;
+            prevEntryContentRef.current = tpl.content;
+            editor?.commands.setContent(tpl.content);
+        },
+        [editor, handleNew],
+    );
+
     const wordCount = editor?.storage.characterCount.words() ?? 0;
 
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: TE_STYLES }} />
             <div
-                className="flex flex-col -mx-4 -mt-2 min-h-[220px]"
+                className="flex flex-col -mx-4 -mt-2 min-h-55 overflow-hidden"
                 style={{ height: '100%' }}
             >
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-stone-100 dark:border-zinc-800/60 shrink-0">
-                    <button
-                        type="button"
-                        onClick={startNewNote}
-                        title="New note"
-                        className="inline-flex items-center gap-1.5 text-[11px] font-medium text-stone-500 dark:text-zinc-400 hover:text-stone-800 dark:hover:text-zinc-200 transition-colors"
-                    >
-                        <FilePlus size={13} />
-                        New Note
-                    </button>
-                    <span
-                        className={`text-[10px] transition-opacity text-emerald-500 ${autosaved ? 'opacity-100' : 'opacity-0'}`}
-                    >
-                        Saved
-                    </span>
-                </div>
-
-                {/* Title */}
-                <div className="px-3 pt-2.5 pb-1 shrink-0">
+                {/* Title bar — title input left, actions right */}
+                <div className="flex items-center gap-1.5 px-3 pt-2.5 pb-1 border-b border-stone-100 dark:border-zinc-800/60 shrink-0 min-w-0">
                     <input
                         type="text"
                         placeholder="Note title…"
                         value={title}
                         onChange={handleTitleChange}
-                        className="w-full text-sm font-semibold bg-transparent outline-none text-stone-900 dark:text-zinc-50 placeholder:text-stone-300 dark:placeholder:text-zinc-700"
+                        className="flex-1 min-w-0 text-sm font-semibold bg-transparent outline-none text-stone-900 dark:text-zinc-50 placeholder:text-stone-300 dark:placeholder:text-zinc-700"
                     />
+                    <span
+                        className={`text-[10px] transition-opacity text-emerald-500 shrink-0 ${autosaved ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                        Saved
+                    </span>
+                    {/* Template picker */}
+                    <div ref={templateRef} className="relative shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setTemplateOpen((v) => !v)}
+                            title="Insert template"
+                            className="w-6 h-6 flex items-center justify-center rounded-md text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-200 hover:bg-stone-100 dark:hover:bg-zinc-800 transition-all"
+                        >
+                            <LayoutTemplate size={13} />
+                        </button>
+                        {templateOpen && (
+                            <div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg overflow-hidden">
+                                {TEMPLATES.map((tpl) => (
+                                    <button
+                                        key={tpl.label}
+                                        type="button"
+                                        className="w-full text-left px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                        onClick={() => applyTemplate(tpl)}
+                                    >
+                                        {tpl.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* New note */}
+                    <button
+                        type="button"
+                        onClick={startNewNote}
+                        title="New note"
+                        className="w-6 h-6 flex items-center justify-center rounded-md text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-200 hover:bg-stone-100 dark:hover:bg-zinc-800 transition-all shrink-0"
+                    >
+                        <FilePlus size={13} />
+                    </button>
                 </div>
 
                 {/* Toolbar */}
                 {showToolbar && (
-                    <div className="px-3 pb-1.5 shrink-0">
+                    <div className="px-3 pb-1.5 pt-1 shrink-0">
                         <Toolbar
                             editor={editor}
                             compact
@@ -166,7 +237,7 @@ export function WidgetNoteEditor({ noteType }: { noteType: NoteType }) {
                     </div>
                 )}
                 {!showToolbar && (
-                    <div className="px-3 pb-1.5 shrink-0">
+                    <div className="px-3 pb-1.5 pt-1 shrink-0">
                         <button
                             type="button"
                             onClick={() => setShowToolbar(true)}

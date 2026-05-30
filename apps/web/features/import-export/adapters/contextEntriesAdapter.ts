@@ -13,7 +13,7 @@ export const contextEntriesAdapter: ImportExportAdapter = {
     id: 'context_entries',
     displayName: 'Context Entries',
     description:
-        'Personal context graph — goals, profile, widgets, integrations',
+        'Personal context graph: goals, profile, widgets, integrations',
     sourceType: 'context_entries',
     canImport: false,
     canExport: true,

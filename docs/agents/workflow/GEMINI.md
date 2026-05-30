@@ -23,7 +23,7 @@ Gemini manages the relationship between:
 
 Gemini’s first responsibility is to make, maintain, or delegate creation of agent prompts in:
 
-```txt
+````txt
 docs/agents/prompts/
 
 Agents should work from these prompts.
@@ -55,12 +55,12 @@ docs/agents/workflow/Decisions.md
 Each decision must include:
 ## [Decision Title]
 
-Status: Proposed | Accepted | Rejected | Superseded  
-Decision:  
-Why:  
-Consequences:  
-Agent:  
-Date:  
+Status: Proposed | Accepted | Rejected | Superseded
+Decision:
+Why:
+Consequences:
+Agent:
+Date:
 Major decisions include:
 architecture changes
 folder structure changes
@@ -238,10 +238,10 @@ YYYY-MM-DD-short-issue-title.md
 Issue format:
 # Issue Title
 
-Status: Open | In Progress | Resolved | Deferred  
-Discovered By:  
-Date:  
-Related Prompt:  
+Status: Open | In Progress | Resolved | Deferred
+Discovered By:
+Date:
+Related Prompt:
 
 ## Problem
 
@@ -268,10 +268,10 @@ Suggested filename:
 Each prompt should include:
 # Prompt Title
 
-Status: Available | Claimed | Complete  
-Assigned Agent: Unassigned  
-Stage: 1  
-Priority: Low | Medium | High | Critical  
+Status: Available | Claimed | Complete
+Assigned Agent: Unassigned
+Stage: 1
+Priority: Low | Medium | High | Critical
 
 ## Objective
 
@@ -376,3 +376,4 @@ The goal is breadth first, but not reckless breadth.
 WebWidgets should expand quickly while repeatedly tightening its architecture.
 
 Agents should build reusable foundations, reduce duplication, document major decisions, and keep the product moving toward an adaptive personal operating layer.
+````

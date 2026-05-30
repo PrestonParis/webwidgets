@@ -258,7 +258,7 @@ export function WidgetImportModal({
                                                 </span>
                                                 <span className="text-zinc-700 dark:text-zinc-300 truncate">
                                                     {parseResult.sampleRows[0]
-                                                        ?.raw[h] ?? '—'}
+                                                        ?.raw[h] ?? 'N/A'}
                                                 </span>
                                             </div>
                                         ))}

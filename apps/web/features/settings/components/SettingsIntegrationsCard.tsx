@@ -83,7 +83,7 @@ export function SettingsIntegrationsCard({
                     isCalendarConnected
                         ? 'Events and deadlines synced'
                         : isGmailConnected
-                          ? 'Not connected — connect to surface events from emails'
+                          ? 'Not connected. Connect to surface events from emails.'
                           : 'Connect Gmail first'
                 }
                 isConnected={isCalendarConnected}

@@ -74,7 +74,7 @@ export function ReadingNavigation({
     onNavigate,
     onJump,
 }: ReadingNavigationProps) {
-    const label = position ? formatPosition(position) : '—';
+    const label = position ? formatPosition(position) : 'N/A';
 
     return (
         <div className="flex items-center gap-2">

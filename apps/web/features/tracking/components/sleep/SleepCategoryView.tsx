@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { LineChart } from '@/features/tracking/viz/LineChart';
-import { BarChart } from '@/features/tracking/viz/BarChart';
-import { Heatmap } from '@/features/tracking/viz/Heatmap';
+import { LineChart } from '@/features/ui/visualizations/components/LineChart';
+import { BarChart } from '@/features/ui/visualizations/components/BarChart';
+import { Heatmap } from '@/features/ui/visualizations/components/Heatmap';
 import { SleepGoalPanel } from '@/features/tracking/components/SleepGoalPanel';
 import {
     SurfaceTabs,
@@ -75,7 +75,7 @@ function SleepHistoryTab({
                             <span className="text-sm font-semibold text-gray-800 dark:text-zinc-200">
                                 {r.durationHours !== null
                                     ? formatDuration(r.durationHours)
-                                    : '—'}
+                                    : 'N/A'}
                             </span>
                             {r.quality !== null && (
                                 <span className="text-xs text-gray-400 dark:text-zinc-500">
@@ -154,7 +154,7 @@ function SleepChartsTab({ records }: { records: SleepRecord[] }) {
         <div className="space-y-6">
             <div>
                 <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
-                    Sleep duration — recent 30 nights
+                    Sleep duration (last 30 nights)
                 </p>
                 <BarChart
                     data={barData}
@@ -278,7 +278,7 @@ export function SleepCategoryView({
                             value={
                                 lastRecord?.durationHours !== null && lastRecord
                                     ? formatDuration(lastRecord.durationHours)
-                                    : '—'
+                                    : 'N/A'
                             }
                             sub={
                                 lastRecord
@@ -291,7 +291,7 @@ export function SleepCategoryView({
                             value={
                                 sevenDayAvg !== null
                                     ? formatDuration(sevenDayAvg)
-                                    : '—'
+                                    : 'N/A'
                             }
                             sub={trendLabel ?? undefined}
                         />
@@ -300,7 +300,7 @@ export function SleepCategoryView({
                             value={
                                 thirtyDayAvg !== null
                                     ? formatDuration(thirtyDayAvg)
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi
@@ -309,7 +309,7 @@ export function SleepCategoryView({
                                 goalHitRate7d !== null
                                     ? `${Math.round(goalHitRate7d * 100)}%`
                                     : goal
-                                      ? '—'
+                                      ? 'N/A'
                                       : 'No goal'
                             }
                             sub={

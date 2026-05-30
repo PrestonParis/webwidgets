@@ -73,7 +73,7 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
             <ModalHeader
                 id="feedback-title"
                 title="Share Feedback"
-                description="All fields are optional — answer any that apply."
+                description="All fields are optional. Answer any that apply."
                 onClose={onClose}
             />
 

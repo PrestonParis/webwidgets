@@ -10,8 +10,13 @@ import AddForm from '@/features/countdown/components/AddForm';
 import type { Countdown } from '@/features/countdown/types/countdown';
 
 export function CountdownPage() {
-    const { countdowns, loading, addCountdown, updateCountdown, deleteCountdown } =
-        useCountdowns();
+    const {
+        countdowns,
+        loading,
+        addCountdown,
+        updateCountdown,
+        deleteCountdown,
+    } = useCountdowns();
     const now = useCountdownTimer();
     const [adding, setAdding] = useState(false);
     const [editingCountdown, setEditingCountdown] = useState<Countdown | null>(
@@ -78,7 +83,9 @@ export function CountdownPage() {
                             <AddForm
                                 key={editingCountdown?.id ?? 'new-countdown'}
                                 countdown={editingCountdown ?? undefined}
-                                onSave={editingCountdown ? handleUpdate : handleAdd}
+                                onSave={
+                                    editingCountdown ? handleUpdate : handleAdd
+                                }
                                 onCancel={() => {
                                     setAdding(false);
                                     setEditingCountdown(null);

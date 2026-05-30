@@ -234,7 +234,7 @@ function OneDModeHero({
             </div>
             <ul className="mt-5 space-y-2.5">
                 {[
-                    'Single-column layout — no drag-and-drop complexity',
+                    'Single-column layout, no drag-and-drop complexity',
                     'Advanced controls are hidden by default',
                     'Text and spacing are enlarged throughout',
                 ].map((benefit) => (

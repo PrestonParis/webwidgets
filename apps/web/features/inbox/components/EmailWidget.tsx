@@ -56,6 +56,9 @@ export default function EmailWidget() {
         (view === 'gmail' && !hasGoogleSync) ||
         (view === 'outlook' && !hasMicrosoftSync);
 
+    const viewProvider: 'gmail' | 'outlook' | undefined =
+        view === 'gmail' ? 'gmail' : view === 'outlook' ? 'outlook' : undefined;
+
     const TABS: { id: InboxWidgetView; label: string; active: boolean }[] = [
         { id: 'gmail', label: 'Gmail', active: hasGoogleSync },
         { id: 'outlook', label: 'Outlook', active: hasMicrosoftSync },
@@ -110,7 +113,12 @@ export default function EmailWidget() {
                     </div>
 
                     {viewNeedsConnect ? (
-                        <EmailConnectPrompt compact />
+                        <EmailConnectPrompt
+                            compact
+                            {...(viewProvider !== undefined
+                                ? { provider: viewProvider }
+                                : {})}
+                        />
                     ) : visibleEmails.length > 0 ? (
                         visibleEmails.slice(0, 3).map((mail) => (
                             <div
@@ -150,7 +158,12 @@ export default function EmailWidget() {
                             </p>
                         </div>
                     )}
-                    <EmailConnectPrompt inline />
+                    <EmailConnectPrompt
+                        inline
+                        {...(viewProvider !== undefined
+                            ? { provider: viewProvider }
+                            : {})}
+                    />
                 </div>
             )}
         </WidgetShell>
