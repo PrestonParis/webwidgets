@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, TrendingUp } from 'lucide-react';
 import { LoadingState } from '@/features/ui/loading';
 import { useWatchlist } from '@/features/finance/hooks/useWatchlist';
 import { WatchlistItemRow } from './WatchlistItemRow';
@@ -46,7 +46,10 @@ export function WatchlistTab() {
 
             {items.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-2xl mb-2">📈</p>
+                    <TrendingUp
+                        size={28}
+                        className="mx-auto mb-2 text-gray-300 dark:text-zinc-600"
+                    />
                     <p className="text-sm font-medium text-gray-600 dark:text-zinc-400">
                         No watchlist items yet
                     </p>

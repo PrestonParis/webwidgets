@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
     getActionDefinition,
     searchActionMetadata,
-} from '@/features/actions/registry/actionRegistry';
+} from '@/features/actions/lib/actionRegistry';
+import type { ActionDefinitionMetadata } from '@/features/actions/lib/schemas/definitionSchemas';
 
 describe('action registry', () => {
     it('discovers actions through flexsearch metadata', () => {
         const results = searchActionMetadata('rss');
         expect(
-            results.some((action) => action.id === 'news.parse_rss_feed'),
+            results.some(
+                (action: ActionDefinitionMetadata) =>
+                    action.id === 'news.parse_rss_feed',
+            ),
         ).toBe(true);
     });
 

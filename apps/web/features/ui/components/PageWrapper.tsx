@@ -46,10 +46,21 @@ export function PageWrapper({
             {hasHeader && (
                 <div className="mb-7">
                     {breadcrumbs && breadcrumbs.length > 0 && (
-                        <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
+                        <nav
+                            aria-label="Breadcrumb"
+                            className="mb-3 flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500"
+                        >
                             {breadcrumbs.map((crumb, idx) => (
-                                <span key={idx} className="flex items-center gap-1">
-                                    {idx > 0 && <ChevronRight size={12} className="shrink-0" />}
+                                <span
+                                    key={idx}
+                                    className="flex items-center gap-1"
+                                >
+                                    {idx > 0 && (
+                                        <ChevronRight
+                                            size={12}
+                                            className="shrink-0"
+                                        />
+                                    )}
                                     {crumb.href ? (
                                         <Link
                                             href={crumb.href}
@@ -58,7 +69,9 @@ export function PageWrapper({
                                             {crumb.label}
                                         </Link>
                                     ) : (
-                                        <span className="text-zinc-600 dark:text-zinc-300">{crumb.label}</span>
+                                        <span className="text-zinc-600 dark:text-zinc-300">
+                                            {crumb.label}
+                                        </span>
                                     )}
                                 </span>
                             ))}
@@ -73,10 +86,12 @@ export function PageWrapper({
                                 </p>
                             )}
                             {title && (
-                                <h1 className={cn(
-                                    'font-semibold text-zinc-950 dark:text-zinc-50',
-                                    eyebrow ? 'mt-2 text-3xl' : 'text-2xl',
-                                )}>
+                                <h1
+                                    className={cn(
+                                        'font-semibold text-zinc-950 dark:text-zinc-50',
+                                        eyebrow ? 'mt-2 text-3xl' : 'text-2xl',
+                                    )}
+                                >
                                     {title}
                                 </h1>
                             )}
@@ -102,16 +117,25 @@ interface PageSectionProps {
     className?: string;
 }
 
-export function PageSection({ title, description, children, className }: PageSectionProps) {
+export function PageSection({
+    title,
+    description,
+    children,
+    className,
+}: PageSectionProps) {
     return (
         <section className={cn('space-y-4', className)}>
             {(title ?? description) && (
                 <div className="border-b border-zinc-100 dark:border-zinc-800 pb-3">
                     {title && (
-                        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
+                        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                            {title}
+                        </h2>
                     )}
                     {description && (
-                        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{description}</p>
+                        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                            {description}
+                        </p>
                     )}
                 </div>
             )}

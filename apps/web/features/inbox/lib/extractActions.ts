@@ -69,9 +69,9 @@ Types:
 - event: a specific meeting, appointment, or scheduled event with a date/time
 - deadline: something that expires, renews, or is due by a specific date
 
-For action_url: extract any URL from the body that would directly complete the action. Only include real URLs visible in the text — never invent URLs.
+For action_url: extract any URL from the body that would directly complete the action. Only include real URLs visible in the text. Do not invent URLs.
 
-Date calculation: when an email mentions a relative time period (e.g. "14-day trial", "expires in 30 days", "renews next month"), calculate the absolute date using the email's "Received" date as the reference — NOT today. Example: "14-day trial" email received 2026-05-01 → deadline 2026-05-15.
+Date calculation: when an email mentions a relative time period (e.g. "14-day trial", "expires in 30 days", "renews next month"), calculate the absolute date using the email's "Received" date as the reference, not today's date. Example: "14-day trial" email received 2026-05-01 → deadline 2026-05-15.
 
 Always extract from these patterns even if the email looks automated:
 - Free trials / trial periods → deadline item for when trial ends + action item to evaluate or cancel before it does

@@ -80,7 +80,7 @@ function ContinueReadingBanner({
             if (pos.type === 'canonical') {
                 label = `${pos.book} ${pos.chapter}`;
             } else if (pos.type === 'page') {
-                label = `${doc.title} — page ${pos.page}`;
+                label = `${doc.title}, page ${pos.page}`;
             }
             setLastDoc({ document: doc, label });
             return;

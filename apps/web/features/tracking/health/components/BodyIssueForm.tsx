@@ -147,7 +147,7 @@ export function BodyIssueForm({
                         className="text-xs font-bold"
                         style={{ color: severityColor(severity) }}
                     >
-                        {severity}/10 — {SEVERITY_LABELS[severity]}
+                        /10 ()
                     </span>
                 </div>
                 <input
@@ -162,8 +162,8 @@ export function BodyIssueForm({
                     style={{ accentColor: severityColor(severity) }}
                 />
                 <div className="mt-1 flex justify-between text-[9px] text-gray-400 dark:text-zinc-500">
-                    <span>1 — minimal</span>
-                    <span>10 — debilitating</span>
+                    <span>1: minimal</span>
+                    <span>10: debilitating</span>
                 </div>
                 {errors['severity'] && (
                     <p className="mt-0.5 text-xs text-red-500">

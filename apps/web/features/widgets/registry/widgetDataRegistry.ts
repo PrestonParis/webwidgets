@@ -16,6 +16,7 @@ const resolverKeys = [
     'tasks.open',
     'weather.current',
     'events.feed.ranked',
+    'activity.recent',
 ] as const;
 
 const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
@@ -39,6 +40,8 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
     'weather.current': () =>
         import('@/features/weather/server/weatherResolvers'),
     'events.feed.ranked': () => import('@/features/news/server/newsResolvers'),
+    'activity.recent': () =>
+        import('@/features/activity/server/activityResolvers'),
 };
 
 const resolverCache = new Map<string, DataResolver>();

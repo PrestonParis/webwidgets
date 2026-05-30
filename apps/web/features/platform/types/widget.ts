@@ -1,5 +1,3 @@
-import type { OnboardingGoalId } from '@/features/onboarding/types/goals';
-
 export type WidgetSurface =
     | 'dashboard'
     | 'page'
@@ -76,6 +74,6 @@ export interface WidgetDefinition {
     visualizations: WidgetVisualization[];
     sizePresets: WidgetSizePreset[];
     betaState: WidgetBetaState;
-    goals: OnboardingGoalId[];
+    goals: string[];
     actions: WidgetAction[];
 }

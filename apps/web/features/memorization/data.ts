@@ -1,10 +1,4 @@
-import {
-    BookMarked,
-    Brain,
-    Dumbbell,
-    Languages,
-    Route,
-} from 'lucide-react';
+import { BookMarked, Brain, Dumbbell, Languages, Route } from 'lucide-react';
 
 export const domainIcons: Record<string, typeof BookMarked> = {
     Reading: BookMarked,

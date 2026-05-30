@@ -5,7 +5,7 @@ import {
     predictRecoveryNeed,
     predictTrackingConsistency,
 } from '@/features/tracking/lib/trackingPredictions';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 const entry = (overrides: Partial<TrackingEntry>): TrackingEntry => ({
     id: 'e1',

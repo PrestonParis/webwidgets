@@ -173,3 +173,52 @@ function getTopSpendingCategory(transactions: FinanceTransaction[]) {
     const top = [...spending.entries()].sort(([, a], [, b]) => b - a)[0];
     return top ? { category: top[0], amount: top[1] } : null;
 }
+
+export function calculateCashRunwayDays(
+    accounts: FinanceAccount[],
+    transactions: FinanceTransaction[],
+    subscriptions: FinanceSubscription[],
+): number {
+    const cash = accounts
+        .filter((a) => CASH_TYPES.has(a.type))
+        .reduce((s, a) => s + a.balance, 0);
+    const overview = calculateFinanceOverview(
+        accounts,
+        transactions,
+        subscriptions,
+    );
+    const monthlyBurn =
+        overview.monthlyExpenses + overview.monthlySubscriptionCost;
+    if (monthlyBurn <= 0) return cash > 0 ? 999 : 0;
+    return Math.max(0, Math.round((cash / monthlyBurn) * 30));
+}
+
+export function getSubscriptionBurdenPct(
+    accounts: FinanceAccount[],
+    subscriptions: FinanceSubscription[],
+): number {
+    const cash = accounts
+        .filter((a) => CASH_TYPES.has(a.type))
+        .reduce((s, a) => s + a.balance, 0);
+    const monthlySubs = subscriptions.reduce(
+        (s, sub) => s + toMonthlySubscriptionAmount(sub),
+        0,
+    );
+    if (cash <= 0 || monthlySubs <= 0) return 0;
+    return Math.round((monthlySubs / cash) * 100);
+}
+
+export function getLargestAssetAccount(
+    accounts: FinanceAccount[],
+): { account: FinanceAccount; pct: number } | null {
+    const assets = accounts.filter(
+        (a) => ASSET_TYPES.has(a.type) && a.balance > 0,
+    );
+    if (assets.length === 0) return null;
+    const total = assets.reduce((s, a) => s + a.balance, 0);
+    const largest = [...assets].sort((a, b) => b.balance - a.balance)[0]!;
+    return {
+        account: largest,
+        pct: total > 0 ? Math.round((largest.balance / total) * 100) : 0,
+    };
+}

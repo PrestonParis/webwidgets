@@ -2,9 +2,9 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6380:6379"
+      - '6380:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -17,12 +17,12 @@ services:
       POSTGRES_PASSWORD: conversion
       POSTGRES_DB: conversion
     ports:
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - conversion-postgres:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U conversion -d conversion"]
+      test: ['CMD-SHELL', 'pg_isready -U conversion -d conversion']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -35,12 +35,12 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - conversion-minio:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -71,7 +71,7 @@ services:
       S3_ACCESS_KEY_ID: minioadmin
       S3_SECRET_ACCESS_KEY: minioadmin
       S3_BUCKET: webwidgets-conversions
-      S3_FORCE_PATH_STYLE: "true"
+      S3_FORCE_PATH_STYLE: 'true'
       IMAGE_WORKER_CONCURRENCY: 4
     depends_on:
       postgres:
@@ -94,7 +94,7 @@ services:
       S3_ACCESS_KEY_ID: minioadmin
       S3_SECRET_ACCESS_KEY: minioadmin
       S3_BUCKET: webwidgets-conversions
-      S3_FORCE_PATH_STYLE: "true"
+      S3_FORCE_PATH_STYLE: 'true'
       WORKER_CONCURRENCY: 2
       WORKER_LOCK_DURATION_MS: 300000
     depends_on:

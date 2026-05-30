@@ -11,6 +11,7 @@ import {
     Target,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { useTrackingStats } from '@/features/tracking/hooks/useTrackingStats';
@@ -70,6 +71,12 @@ export default function SleepWidget() {
             footerLabel="Open sleep dashboard"
             widgetId="sleep-widget"
             widgetType="tracking-sleep"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Sleep"
+                />
+            }
         >
             <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">

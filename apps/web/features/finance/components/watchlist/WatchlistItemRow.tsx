@@ -1,8 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, RefreshCw, BarChart2, Edit3 } from 'lucide-react';
-import { PortfolioSparkline } from '@/features/finance/components/charts/PortfolioSparkline';
+import {
+    Trash2,
+    RefreshCw,
+    BarChart2,
+    Edit3,
+    TrendingUp,
+    TrendingDown,
+    Bitcoin,
+    Home,
+} from 'lucide-react';
+import { PortfolioSparkline } from '@/features/ui/visualizations/components/PortfolioSparkline';
 import type { WatchlistItemWithLatest } from '@/features/finance/types/watchlist';
 
 interface WatchlistItemRowProps {
@@ -14,15 +23,21 @@ interface WatchlistItemRowProps {
     onEdit: (item: WatchlistItemWithLatest) => void;
 }
 
-const ASSET_EMOJI: Record<string, string> = {
-    stock: '📈',
-    etf: '📈',
-    index: '📉',
-    crypto: '🪙',
-    real_estate: '🏠',
-    other: '📊',
-    custom: '📊',
-};
+function AssetTypeIcon({ assetType }: { assetType: string }) {
+    switch (assetType) {
+        case 'stock':
+        case 'etf':
+            return <TrendingUp size={15} />;
+        case 'index':
+            return <TrendingDown size={15} />;
+        case 'crypto':
+            return <Bitcoin size={15} />;
+        case 'real_estate':
+            return <Home size={15} />;
+        default:
+            return <BarChart2 size={15} />;
+    }
+}
 
 export function WatchlistItemRow({
     item,
@@ -79,8 +94,8 @@ export function WatchlistItemRow({
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-800 group">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-base">
-                        {ASSET_EMOJI[item.assetType] ?? '📊'}
+                    <span className="text-gray-500 dark:text-zinc-400 shrink-0">
+                        <AssetTypeIcon assetType={item.assetType} />
                     </span>
                     <div>
                         <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">

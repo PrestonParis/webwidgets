@@ -1,57 +1,138 @@
-import { Email } from '@/features/inbox/types/inbox';
+import { useMemo } from 'react';
+import type { Email, EmailAction } from '../types/inbox';
 
-export function EmailInsights({
+export type InboxFilter = string | null;
+
+// Special filter keys (category names are passed as plain strings)
+export const FILTER_ATTENTION = 'attention';
+export const FILTER_TASKS = 'tasks';
+export const FILTER_DEADLINES = 'deadlines';
+export const FILTER_MEETINGS = 'meetings';
+
+interface StatChipProps {
+    label: string;
+    value: number;
+    active: boolean;
+    filterKey: InboxFilter;
+    highlight?: boolean | undefined;
+    onClick: (key: InboxFilter) => void;
+}
+
+function StatChip({
+    label,
+    value,
+    active,
+    filterKey,
+    highlight,
+    onClick,
+}: StatChipProps) {
+    return (
+        <button
+            type="button"
+            onClick={() => onClick(active ? null : filterKey)}
+            className={`flex flex-col items-center px-3.5 py-2 rounded-xl border transition-all ${
+                active
+                    ? 'bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-950'
+                    : highlight
+                      ? 'border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/20'
+                      : 'border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50'
+            }`}
+        >
+            <span
+                className={`text-base font-bold tabular-nums leading-tight ${
+                    active
+                        ? ''
+                        : highlight
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-gray-900 dark:text-zinc-100'
+                }`}
+            >
+                {value}
+            </span>
+            <span
+                className={`text-[10px] font-medium leading-tight mt-0.5 whitespace-nowrap ${
+                    active ? 'opacity-80' : 'text-gray-500 dark:text-zinc-500'
+                }`}
+            >
+                {label}
+            </span>
+        </button>
+    );
+}
+
+export function InboxIntelligence({
     emails,
-    extractingAll,
-    onExtractAll,
+    actions,
+    activeFilter,
+    onFilter,
 }: {
     emails: Email[];
-    extractingAll: boolean;
-    onExtractAll: () => void;
+    actions: EmailAction[];
+    activeFilter: InboxFilter;
+    onFilter: (f: InboxFilter) => void;
 }) {
-    const senderCounts = emails.reduce((acc: Record<string, number>, mail) => {
-        const sender = mail.sender
-            ? (mail.sender.split('<')[0] ?? mail.sender).trim()
-            : 'Unknown Sender';
+    const stats = useMemo(() => {
+        const total = emails.length;
+        const needsAttention = emails.filter(
+            (e) => e.category === 'work' || e.category === 'finance',
+        ).length;
+        const tasks = actions.filter(
+            (a) => a.type === 'action' && !a.completed,
+        ).length;
+        const deadlines = actions.filter(
+            (a) => a.type === 'deadline' && !a.completed,
+        ).length;
+        const meetings = actions.filter(
+            (a) => a.type === 'event' && !a.completed,
+        ).length;
+        return { total, needsAttention, tasks, deadlines, meetings };
+    }, [emails, actions]);
 
-        acc[sender] = (acc[sender] || 0) + 1;
-        return acc;
-    }, {});
+    if (emails.length === 0) return null;
 
-    const topSenders = Object.entries(senderCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-    if (!topSenders.length) return null;
+    const chips: Array<{
+        label: string;
+        value: number;
+        key: InboxFilter;
+        highlight?: boolean | undefined;
+    }> = [
+        { label: 'Emails', value: stats.total, key: null },
+        {
+            label: 'Need Attention',
+            value: stats.needsAttention,
+            key: FILTER_ATTENTION,
+            highlight: stats.needsAttention > 0,
+        },
+        {
+            label: 'Tasks',
+            value: stats.tasks,
+            key: FILTER_TASKS,
+            highlight: stats.tasks > 0,
+        },
+        {
+            label: 'Deadlines',
+            value: stats.deadlines,
+            key: FILTER_DEADLINES,
+            highlight: stats.deadlines > 0,
+        },
+        { label: 'Meetings', value: stats.meetings, key: FILTER_MEETINGS },
+    ];
 
     return (
-        <div className="p-5 bg-linear-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-zinc-900 border border-blue-100 dark:border-blue-900/30 rounded-2xl">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider">
-                    Top Senders
-                </h3>
-                <button
-                    onClick={onExtractAll}
-                    disabled={extractingAll}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-wait transition-colors"
-                >
-                    {extractingAll ? 'Extracting…' : 'Extract all actions'}
-                </button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-                {topSenders.map(([sender, count]) => (
-                    <div
-                        key={sender}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full"
-                    >
-                        <span className="text-xs font-semibold">{sender}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40">
-                            {count}
-                        </span>
-                    </div>
-                ))}
-            </div>
+        <div className="flex items-center gap-2 flex-wrap">
+            {chips.map((chip) => (
+                <StatChip
+                    key={chip.label}
+                    label={chip.label}
+                    value={chip.value}
+                    active={activeFilter === chip.key}
+                    filterKey={chip.key}
+                    highlight={chip.highlight}
+                    onClick={onFilter}
+                />
+            ))}
         </div>
     );
 }
+
+export { InboxIntelligence as EmailInsights };

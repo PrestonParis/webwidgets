@@ -7,7 +7,7 @@ import {
     type LocationResult,
 } from '@/features/weather/lib/geocoding';
 
-interface Props {
+interface WeatherLocationPickerProps {
     locationName: string | undefined;
     onSelect: (name: string, lat: number, lon: number) => void;
     onClear: () => void;
@@ -19,7 +19,7 @@ export function WeatherLocationPicker({
     onSelect,
     onClear,
     hasCustom,
-}: Props) {
+}: WeatherLocationPickerProps) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<LocationResult[]>([]);

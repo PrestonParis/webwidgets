@@ -23,7 +23,7 @@ export function ReadingVersionSelector({
         >
             {versions.map((v) => (
                 <option key={v.id} value={v.id}>
-                    {v.abbreviation} — {v.name}
+                    {v.abbreviation}: {v.name}
                 </option>
             ))}
         </select>

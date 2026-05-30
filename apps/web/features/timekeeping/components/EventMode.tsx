@@ -10,8 +10,13 @@ import AddForm from '@/features/countdown/components/AddForm';
 import type { Countdown } from '@/features/countdown/types/countdown';
 
 export function EventMode() {
-    const { countdowns, loading, addCountdown, updateCountdown, deleteCountdown } =
-        useCountdowns();
+    const {
+        countdowns,
+        loading,
+        addCountdown,
+        updateCountdown,
+        deleteCountdown,
+    } = useCountdowns();
     const now = useTick();
     const [adding, setAdding] = useState(false);
     const [editingCountdown, setEditingCountdown] = useState<Countdown | null>(

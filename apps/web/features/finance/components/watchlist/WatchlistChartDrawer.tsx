@@ -1,7 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { LineChart } from '@/features/tracking/viz/LineChart';
+import { LineChart } from '@/features/ui/visualizations/components/LineChart';
 import { LoadingState } from '@/features/ui/loading';
 import { useWatchlistChart } from '@/features/finance/hooks/useWatchlistChart';
 import type { WatchlistItemWithLatest } from '@/features/finance/types/watchlist';
@@ -66,7 +66,7 @@ export function WatchlistChartDrawer({
                     />
                 ) : chartData.length < 2 ? (
                     <p className="text-sm text-gray-400 text-center py-10">
-                        Not enough data yet — fetch or log more readings
+                        Not enough data yet. Fetch or log more readings
                     </p>
                 ) : (
                     <LineChart

@@ -16,6 +16,7 @@ const emailSchema = z.object({
     provider: z.enum(['gmail', 'outlook']).optional(),
     category: z.string().optional(),
     is_manual: z.boolean().optional(),
+    account_email: z.string().optional(),
 });
 const inboxResponseSchema = z.object({
     emails: z.array(emailSchema).default([]),
@@ -143,7 +144,7 @@ async function fetchProviderPage(
 } | null> {
     const base =
         provider === 'gmail' ? '/api/gmail/inbox' : '/api/outlook/inbox';
-    const url = token ? `${base}?pageToken=${token}` : base;
+    const url = token ? `${base}?pageToken=${encodeURIComponent(token)}` : base;
     const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
     if (res.status === 401 || res.status === 403) return null;
     if (!res.ok) throw new Error(`${provider} inbox fetch failed`);
@@ -333,6 +334,14 @@ export function useEmails() {
         );
     };
 
+    const forceRefresh = useCallback(async () => {
+        gmailCache = null;
+        outlookCache = null;
+        setEmails([]);
+        setNextPageToken(null);
+        await loadEmails();
+    }, [loadEmails]);
+
     return {
         user,
         emails,
@@ -345,6 +354,7 @@ export function useEmails() {
         hasGoogleSync: hasGmail,
         hasMicrosoftSync: hasMicrosoft,
         loadEmails,
+        forceRefresh,
         handleManualClassify,
     };
 }

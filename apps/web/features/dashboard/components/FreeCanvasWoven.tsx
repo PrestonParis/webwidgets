@@ -53,7 +53,7 @@ function WovenTabBar({
             ))}
             <button
                 onClick={() => onUnweave(groupId)}
-                title="Unweave — restore as separate widgets"
+                title="Unweave: restore as separate widgets"
                 className="ml-auto flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-semibold text-zinc-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
             >
                 <Scissors size={9} /> Split

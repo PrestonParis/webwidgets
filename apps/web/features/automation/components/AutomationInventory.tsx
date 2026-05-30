@@ -88,7 +88,7 @@ function InstanceRow({
 
             {definition.consent.affectsExternal && (
                 <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400">
-                    Touches external services — actions require your approval.
+                    Touches external services. Actions require your approval.
                 </p>
             )}
 

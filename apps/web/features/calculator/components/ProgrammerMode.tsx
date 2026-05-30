@@ -18,7 +18,7 @@ const BASE_LABELS: Record<ProgrammerBase, string> = {
 };
 
 function toBase(n: number, base: ProgrammerBase): string {
-    if (!Number.isInteger(n) || !isFinite(n)) return '—';
+    if (!Number.isInteger(n) || !isFinite(n)) return 'N/A';
     const i = Math.trunc(n);
     switch (base) {
         case 2:
@@ -126,7 +126,7 @@ export function ProgrammerMode({ calc }: ProgrammerModeProps) {
                         >
                             {displayNum !== null
                                 ? toBase(displayNum, base)
-                                : '—'}
+                                : 'N/A'}
                         </span>
                         <button
                             onClick={() => {

@@ -12,9 +12,24 @@ interface ErrorStateProps {
 }
 
 const sizeMap = {
-    sm: { icon: 16, title: 'text-sm font-medium', msg: 'text-xs', btn: 'text-xs px-3 py-1.5 gap-1.5' },
-    md: { icon: 20, title: 'text-sm font-semibold', msg: 'text-sm', btn: 'text-sm px-4 py-2 gap-2' },
-    lg: { icon: 24, title: 'text-base font-semibold', msg: 'text-sm', btn: 'text-sm px-5 py-2.5 gap-2' },
+    sm: {
+        icon: 16,
+        title: 'text-sm font-medium',
+        msg: 'text-xs',
+        btn: 'text-xs px-3 py-1.5 gap-1.5',
+    },
+    md: {
+        icon: 20,
+        title: 'text-sm font-semibold',
+        msg: 'text-sm',
+        btn: 'text-sm px-4 py-2 gap-2',
+    },
+    lg: {
+        icon: 24,
+        title: 'text-base font-semibold',
+        msg: 'text-sm',
+        btn: 'text-sm px-5 py-2.5 gap-2',
+    },
 };
 
 export function ErrorState({
@@ -36,8 +51,15 @@ export function ErrorState({
                 <AlertCircleIcon size={s.icon} />
             </div>
             <div className="space-y-1">
-                <p className={cn(s.title, 'text-zinc-900 dark:text-zinc-100')}>{title}</p>
-                <p className={cn(s.msg, 'text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed')}>
+                <p className={cn(s.title, 'text-zinc-900 dark:text-zinc-100')}>
+                    {title}
+                </p>
+                <p
+                    className={cn(
+                        s.msg,
+                        'text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed',
+                    )}
+                >
                     {message}
                 </p>
             </div>

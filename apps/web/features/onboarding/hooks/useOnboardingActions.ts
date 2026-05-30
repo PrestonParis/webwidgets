@@ -5,6 +5,7 @@ import {
     getStepDefinition,
 } from '@/features/onboarding/lib/stepDefinitions';
 import type {
+    FocusAreaId,
     OnboardingGoalId,
     OnboardingStepId,
 } from '@/features/onboarding/types/goals';
@@ -58,6 +59,16 @@ export function useOnboardingActions(
         [persistProfile, profile],
     );
 
+    const toggleFocusArea = useCallback(
+        (areaId: FocusAreaId) => {
+            const focusAreas = profile.focusAreas.includes(areaId)
+                ? profile.focusAreas.filter((id) => id !== areaId)
+                : [...profile.focusAreas, areaId];
+            persistProfile({ ...profile, focusAreas });
+        },
+        [persistProfile, profile],
+    );
+
     const toggleWidget = useCallback(
         (widgetType: WidgetType) => {
             const selectedWidgetTypes = profile.selectedWidgetTypes.includes(
@@ -72,12 +83,21 @@ export function useOnboardingActions(
         [persistProfile, profile],
     );
 
+    const setSelectedWidgets = useCallback(
+        (widgetTypes: WidgetType[]) => {
+            persistProfile({ ...profile, selectedWidgetTypes: widgetTypes });
+        },
+        [persistProfile, profile],
+    );
+
     return {
         setStep,
         goNext,
         goBack,
         toggleGoal,
+        toggleFocusArea,
         toggleWidget,
+        setSelectedWidgets,
         updateIntent: (intent: string) =>
             persistProfile({ ...profile, status: 'in_progress', intent }),
         toggleIntegration: (providerId: string) =>
@@ -119,7 +139,7 @@ export function useOnboardingActions(
                 ...next,
                 status: 'completed',
                 completed: true,
-                currentStep: 'generate',
+                currentStep: 'launch',
             }),
         skipOnboarding: () =>
             persistProfile({ ...profile, status: 'skipped', completed: true }),

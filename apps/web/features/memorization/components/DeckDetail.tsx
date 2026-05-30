@@ -293,7 +293,7 @@ export function DeckDetail({
                     {deckCards.length === 0 && (
                         <div className="py-10 text-center text-sm text-zinc-400">
                             {total === 0
-                                ? 'No cards yet — add one above or import CSV'
+                                ? 'No cards yet. Add one above or import CSV.'
                                 : 'No cards match search'}
                         </div>
                     )}

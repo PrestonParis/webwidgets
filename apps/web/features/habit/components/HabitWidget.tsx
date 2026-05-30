@@ -172,7 +172,7 @@ export default function HabitWidget() {
             <WidgetShell
                 icon={<ClipboardList className="h-4 w-4 text-violet-500" />}
                 title="All Logging"
-                footerHref="/habit"
+                footerHref="/tracking"
                 footerLabel="Open logging dashboard"
                 widgetId="habit-widget"
                 widgetType="habit"
@@ -193,7 +193,7 @@ export default function HabitWidget() {
         <WidgetShell
             icon={<ClipboardList className="h-4 w-4 text-violet-500" />}
             title="All Logging"
-            footerHref="/habit"
+            footerHref="/tracking"
             footerLabel="Open logging dashboard"
             widgetId="habit-widget"
             widgetType="habit"
@@ -346,7 +346,7 @@ export default function HabitWidget() {
                                         {stats.completionRate === 1
                                             ? 'All events logged today 🎉'
                                             : stats.loggedToday === 0
-                                              ? 'Nothing logged yet — tap an event to log it'
+                                              ? 'Nothing logged yet. Tap an event to log it.'
                                               : `${activeEvents.length - stats.loggedToday} remaining`}
                                     </p>
                                 </div>

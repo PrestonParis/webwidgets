@@ -10,8 +10,9 @@ export function ConverterPageClient() {
                 <FileCog className="mx-auto mb-3 h-7 w-7 text-amber-500" />
                 <h1 className="text-3xl font-bold">File Converter</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                    Lightweight text conversions stay local. Office, PDF, and image
-                    routes are sent to the conversion service when supported.
+                    Lightweight text conversions stay local. Office, PDF, and
+                    image routes are sent to the conversion service when
+                    supported.
                 </p>
             </div>
             <ConverterWidget fullPage />

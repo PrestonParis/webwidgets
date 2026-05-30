@@ -4,6 +4,7 @@ import { getUserOrThrow } from '@/lib/supabase/getUser';
 import type { ReadingPosition } from '@/features/reading/types/positions';
 import { rowToHighlight } from '@/features/reading/types/annotations';
 import type { HighlightRow } from '@/features/reading/types/annotations';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function GET(req: Request) {
     try {
@@ -67,9 +68,33 @@ export async function POST(req: Request) {
 
         if (error)
             return NextResponse.json({ error: error.message }, { status: 500 });
-        return NextResponse.json(
-            rowToHighlight(data as unknown as HighlightRow),
-        );
+
+        const highlight = rowToHighlight(data as unknown as HighlightRow);
+        const snippet =
+            body.textSnippet.length > 80
+                ? `${body.textSnippet.slice(0, 80)}…`
+                : body.textSnippet;
+
+        await publishActivityEventSafe(supabase, {
+            userId: user.id,
+            source: 'reading',
+            eventType: 'reading.highlight_created',
+            sourceId: highlight.id,
+            sourceTable: 'reading_highlights',
+            category: 'content',
+            severity: 'info',
+            priority: 'low',
+            title: 'Highlight created',
+            body: snippet || undefined,
+            actionUrl: `/documents/${body.documentId}`,
+            metadata: {
+                documentId: body.documentId,
+                color: body.color,
+                textLength: body.textSnippet.length,
+            },
+        });
+
+        return NextResponse.json(highlight);
     } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { recordAuditEvent } from '@/features/audit/lib/auditService';
+import { recordAuditEvent } from '@/features/import-export/lib/auditService';
 
 export type EventType =
     | 'file_uploaded'

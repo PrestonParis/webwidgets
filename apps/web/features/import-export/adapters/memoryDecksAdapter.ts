@@ -12,7 +12,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
     id: 'memory_decks',
     displayName: 'Memory Decks',
     description:
-        'Memorization decks — deck summaries with card counts and due review stats',
+        'Memorization decks: deck summaries with card counts and due review stats',
     sourceType: 'memory_decks',
     canImport: false,
     canExport: true,
@@ -92,7 +92,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
         }
         if (cardError && isMissingTableError(cardError)) {
             warnings.push(
-                'memory_cards table not configured — card counts will be 0',
+                'memory_cards table not configured, card counts will be 0',
             );
         }
 

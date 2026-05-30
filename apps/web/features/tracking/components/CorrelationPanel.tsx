@@ -72,7 +72,7 @@ export function CorrelationPanel({ entries }: CorrelationPanelProps) {
     if (correlations.length === 0) {
         return (
             <p className="text-xs text-center text-gray-400 dark:text-zinc-500 py-8">
-                Not enough overlapping data yet — keep logging multiple
+                Not enough overlapping data yet. Keep logging multiple
                 categories.
             </p>
         );

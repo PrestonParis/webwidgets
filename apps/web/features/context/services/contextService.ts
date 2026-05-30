@@ -12,7 +12,9 @@ export async function listEntries(
 ): Promise<ContextEntry[]> {
     const { data, error } = await db
         .from('context_entries')
-        .select('id,user_id,entity_id,entry_type,label,data,linked_to,created_at,updated_at')
+        .select(
+            'id,user_id,entity_id,entry_type,label,data,linked_to,created_at,updated_at',
+        )
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
         .limit(200);
@@ -38,7 +40,9 @@ export async function upsertEntry(
     const { data, error } = await db
         .from('context_entries')
         .upsert(record, { onConflict: 'user_id,entity_id' })
-        .select('id,user_id,entity_id,entry_type,label,data,linked_to,created_at,updated_at')
+        .select(
+            'id,user_id,entity_id,entry_type,label,data,linked_to,created_at,updated_at',
+        )
         .single();
     if (error) throw new Error(error.message);
     return rowToEntry(data as unknown as ContextEntryRow);

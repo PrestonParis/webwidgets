@@ -40,7 +40,7 @@ export async function GET(req: Request) {
     const { from, to } = parsed.data;
     const admin = createAdminClient();
 
-    const [dauCount, widgetEvents, actionEvents, mlEvents, errorEvents] =
+    const [dauCount, widgetEvents, actionEvents, mlEvents, emailEvents] =
         await Promise.all([
             countActiveUsers(admin, { from, to }),
             countEventsByType(admin, { from, to }, [
@@ -57,6 +57,8 @@ export async function GET(req: Request) {
                 ANALYTICS_EVENTS.ML_PREDICTION_LOW_CONFIDENCE,
             ]),
             countEventsByType(admin, { from, to }, [
+                ANALYTICS_EVENTS.EMAIL_CLASSIFIED,
+                ANALYTICS_EVENTS.EMAIL_ACTION_EXTRACTED,
                 ANALYTICS_EVENTS.EMAIL_PROCESSING_FAILED,
             ]),
         ]);
@@ -92,8 +94,13 @@ export async function GET(req: Request) {
         mlPredictions: mlTotal,
         mlLowConfRate:
             mlTotal > 0 ? +((mlLowConf / mlTotal) * 100).toFixed(1) : 0,
-        emailProcessed: 0,
-        queueFailures: errorEvents.reduce((s, r) => s + r.count, 0),
+        emailProcessed:
+            byType([ANALYTICS_EVENTS.EMAIL_CLASSIFIED], emailEvents) +
+            byType([ANALYTICS_EVENTS.EMAIL_ACTION_EXTRACTED], emailEvents),
+        queueFailures: byType(
+            [ANALYTICS_EVENTS.EMAIL_PROCESSING_FAILED],
+            emailEvents,
+        ),
         frontendErrors: 0,
         apiErrors: 0,
         aiCostUsd: 0,

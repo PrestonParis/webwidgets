@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/features/ui/components/Header';
 import LoadingState from '@/features/ui/components/LoadingState';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { OnboardingShell } from '@/features/onboarding/components/OnboardingShell';
@@ -33,7 +32,21 @@ export function OnboardingPage() {
         () => buildWorkspaceRecommendation(onboarding.profile.goals),
         [onboarding.profile.goals],
     );
+
+    // Auto-populate selected widgets when the user first reaches the recommendation step
+    useEffect(() => {
+        if (
+            onboarding.profile.currentStep === 'recommendation' &&
+            onboarding.profile.selectedWidgetTypes.length === 0
+        ) {
+            onboarding.setSelectedWidgets(
+                recommendation.widgets.map((w) => w.widgetType),
+            );
+        }
+    }, [onboarding.profile.currentStep]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const selectedWidgetTypes = onboarding.profile.selectedWidgetTypes;
+
     const suggestedBucketTypes = buildSuggestedBucketWidgets({
         selectedWidgetTypes,
         goals: onboarding.profile.goals,
@@ -94,13 +107,12 @@ export function OnboardingPage() {
         onboarding.goNext();
     }
 
+    const step = onboarding.profile.currentStep;
     const canContinue =
-        onboarding.profile.currentStep !== 'workspace' ||
-        selectedWidgetTypes.length > 0;
+        step === 'welcome' ? onboarding.profile.goals.length > 0 : true;
 
     return (
         <>
-            <Header />
             <OnboardingShell
                 activeStep={onboarding.activeStep}
                 stepIndex={onboarding.stepIndex}
@@ -109,12 +121,15 @@ export function OnboardingPage() {
                 isLastStep={onboarding.isLastStep}
                 onBack={onboarding.goBack}
                 onNext={handleNext}
+                onSkip={() => {
+                    onboarding.skipOnboarding();
+                    router.push('/');
+                }}
             >
                 <OnboardingStepRenderer
                     onboarding={onboarding}
                     recommendation={recommendation}
                     selectedWidgetTypes={selectedWidgetTypes}
-                    suggestedBucketCount={suggestedBucketTypes.length}
                     integrations={integrations}
                 />
             </OnboardingShell>

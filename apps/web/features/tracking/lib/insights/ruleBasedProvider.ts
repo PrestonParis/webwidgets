@@ -49,7 +49,7 @@ function strongWorkoutStreakInsight(entries: TrackingEntry[]): Insight | null {
         id: makeId(),
         category: 'workout',
         title: `${streak}-day workout streak`,
-        body: `You've worked out ${streak} days in a row — great consistency! Keep it up.`,
+        body: `You've worked out ${streak} days in a row. Great consistency, keep it up.`,
         confidence: 'high',
         source: 'rule-based',
         generatedAt: now(),

@@ -130,7 +130,7 @@ export function CalendarSettingsModal({
                         </div>
                         <p className="text-[11px] text-zinc-500 mb-3">
                             Selecting a category when creating an event sets its
-                            color and duration. Color maps to Google Calendar —
+                            color and duration. Color maps to Google Calendar,
                             visible in your integrated calendar.
                         </p>
 

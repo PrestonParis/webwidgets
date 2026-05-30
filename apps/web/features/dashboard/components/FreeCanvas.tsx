@@ -82,7 +82,7 @@ function GlueWeaveBanner({
                 {pendingGlueId
                     ? 'Click another widget to glue'
                     : 'Click another widget to weave'}{' '}
-                — Esc to cancel
+                Press Esc to cancel
             </div>
         </div>
     );

@@ -54,9 +54,7 @@ export function RemoveWidgetsPanel({
         });
 
     const toggleAll = () =>
-        setSelected(
-            allSelected ? new Set() : new Set(active.map((w) => w.id)),
-        );
+        setSelected(allSelected ? new Set() : new Set(active.map((w) => w.id)));
 
     const ids = [...selected];
 
@@ -96,7 +94,9 @@ export function RemoveWidgetsPanel({
                     </p>
                 ) : (
                     active.map((widget) => {
-                        const entry = library.find((l) => l.type === widget.type);
+                        const entry = library.find(
+                            (l) => l.type === widget.type,
+                        );
                         const checked = selected.has(widget.id);
                         return (
                             <button

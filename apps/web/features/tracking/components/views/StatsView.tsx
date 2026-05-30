@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { BarChart } from '@/features/tracking/viz/BarChart';
+import { BarChart } from '@/features/ui/visualizations/components/BarChart';
 import {
     extractMetricSeries,
     calcRollingAverage,
@@ -239,7 +239,7 @@ export function StatsView({ entries, category, customDef }: StatsViewProps) {
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4">
                     <div className="flex items-center justify-between mb-3">
                         <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
-                            7-day rolling average — {rollingData.label}
+                            7-day rolling average: {rollingData.label}
                         </p>
                         <p className="text-[10px] text-gray-400 dark:text-zinc-500">
                             {rollingData.raw.length} data points

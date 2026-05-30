@@ -48,7 +48,9 @@ export function TransactionList({
 }: TransactionListProps) {
     const [showModal, setShowModal] = useState(autoOpenAdd ?? false);
     const [editing, setEditing] = useState<FinanceTransaction | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<FinanceTransaction | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<FinanceTransaction | null>(
+        null,
+    );
     const [isDeleting, setIsDeleting] = useState(false);
     const fmt =
         formatAmount ??

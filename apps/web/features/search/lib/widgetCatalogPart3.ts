@@ -128,7 +128,7 @@ export const WIDGET_CATALOG_PART_3: WidgetEntry[] = [
         name: 'Context Diagram',
         emoji: '🕸️',
         description:
-            'Visual knowledge graph of your workspace — goals, widgets, integrations, and AI memory',
+            'Visual knowledge graph of your workspace: goals, widgets, integrations, and AI memory',
         href: '/context',
         keywords: [
             'context',
@@ -146,7 +146,7 @@ export const WIDGET_CATALOG_PART_3: WidgetEntry[] = [
         name: 'AI Chat',
         emoji: '💬',
         description:
-            'Chat with Claude, GPT-4o, and Gemini — personalized using your context graph',
+            'Chat with Claude, GPT-4o, and Gemini, personalized using your context graph',
         href: '/chat',
         keywords: [
             'chat',

@@ -35,6 +35,8 @@ export interface EmailSnapshot {
     snippet: string;
     received_at: string; // ISO timestamp
     raw_date: string;
+    /** Full decoded body text. Stored when fetched during ingest. */
+    body_text?: string;
 }
 
 export async function getAllActiveAccounts(): Promise<EmailAccount[]> {
@@ -51,12 +53,10 @@ export async function upsertSnapshots(
     snapshots: EmailSnapshot[],
 ): Promise<void> {
     if (snapshots.length === 0) return;
-    const { error } = await supabase
-        .from('email_snapshots')
-        .upsert(snapshots, {
-            onConflict: 'user_id,id',
-            ignoreDuplicates: false,
-        });
+    const { error } = await supabase.from('email_snapshots').upsert(snapshots, {
+        onConflict: 'user_id,id',
+        ignoreDuplicates: false,
+    });
     if (error) throw new Error(`Failed to upsert snapshots: ${error.message}`);
 }
 

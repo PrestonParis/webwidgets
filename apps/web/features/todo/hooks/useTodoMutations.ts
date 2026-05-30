@@ -1,17 +1,28 @@
 'use client';
 
 // Mutation-only hook for todo write operations.
-// The read side (listing todos) is handled by the runtime adapter pipeline
-// via useWidgetData → import-export/exports → todosAdapter.
-// This hook only handles writes (add, toggle, delete, update).
+// Writes go through /api/todos so activity events are published server-side.
+// Reads are handled by the runtime adapter pipeline via useWidgetData → todosAdapter.
 
 import { useCallback } from 'react';
-import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Todo } from '@/features/todo/types/todo';
 
 const QUERY_KEY = ['widget-adapter', 'todos', 'current_user'];
+
+async function apiFetch(path: string, options: RequestInit): Promise<unknown> {
+    const res = await fetch(path, {
+        ...options,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+    });
+    if (!res.ok && res.status !== 204) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(json.error ?? `Request failed: ${res.status}`);
+    }
+    return res.status === 204 ? null : res.json();
+}
 
 export function useTodoMutations() {
     const { user } = useAuth();
@@ -24,30 +35,31 @@ export function useTodoMutations() {
     const addTodo = useCallback(
         async (text: string) => {
             if (!user?.id || !text.trim()) return;
-            const { error } = await supabase
-                .from('todos')
-                .insert({ text: text.trim(), user_id: user.id });
-            if (!error) invalidate();
+            await apiFetch('/api/todos', {
+                method: 'POST',
+                body: JSON.stringify({ text: text.trim() }),
+            }).catch(console.error);
+            invalidate();
         },
         [user, invalidate],
     );
 
     const toggleTodo = useCallback(
         async (id: string, currentCompleted: boolean) => {
-            const completed = !currentCompleted;
-            const completed_at = completed ? new Date().toISOString() : null;
-            const { error } = await supabase
-                .from('todos')
-                .update({ completed, completed_at })
-                .eq('id', id);
-            if (!error) invalidate();
+            await apiFetch(`/api/todos/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ completed: !currentCompleted }),
+            }).catch(console.error);
+            invalidate();
         },
         [invalidate],
     );
 
     const deleteTodo = useCallback(
         async (id: string) => {
-            await supabase.from('todos').delete().eq('id', id);
+            await apiFetch(`/api/todos/${id}`, { method: 'DELETE' }).catch(
+                console.error,
+            );
             invalidate();
         },
         [invalidate],
@@ -57,11 +69,11 @@ export function useTodoMutations() {
         async (id: string, text: string) => {
             const trimmed = text.trim();
             if (!trimmed) return;
-            const { error } = await supabase
-                .from('todos')
-                .update({ text: trimmed })
-                .eq('id', id);
-            if (!error) invalidate();
+            await apiFetch(`/api/todos/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ text: trimmed }),
+            }).catch(console.error);
+            invalidate();
         },
         [invalidate],
     );
@@ -88,8 +100,7 @@ export function useTodoMutations() {
                     signal: AbortSignal.timeout(5000),
                 });
                 if (!res.ok) return;
-                // AI sort result is UI-only — doesn't invalidate the query,
-                // just returns the ranked order for the caller to apply locally.
+                // AI sort result is UI-only — caller applies ranked order locally
             } catch {
                 // silent fallback
             }

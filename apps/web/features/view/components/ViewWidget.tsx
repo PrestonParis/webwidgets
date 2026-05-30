@@ -10,7 +10,8 @@ import { getFileIcon } from '@/features/view/lib/fileIcons';
 import { formatFileSize } from '@/features/view/lib/formatFileSize';
 import {
     requestPresignedUrl,
-    uploadFileContent,
+    uploadFileToS3,
+    confirmUpload,
     deleteUpload,
 } from '@/features/uploads/api/uploadApi';
 import { viewFileToRef } from '@/features/view/providers/uploadViewProvider';
@@ -39,12 +40,15 @@ export default function ViewWidget({
         setUploadProgress(0);
         setUploadError(null);
         try {
-            const { fileId } = await requestPresignedUrl(
+            const { fileId, presignedUrl } = await requestPresignedUrl(
                 file.name,
                 file.type || 'application/octet-stream',
                 file.size,
             );
-            await uploadFileContent(fileId, file, (p) => setUploadProgress(p));
+            await uploadFileToS3(presignedUrl, file, (p) =>
+                setUploadProgress(p),
+            );
+            await confirmUpload(fileId);
             await queryClient.invalidateQueries({ queryKey: ['view-files'] });
         } catch (err) {
             setUploadError(
@@ -108,7 +112,7 @@ export default function ViewWidget({
     return (
         <WidgetShell
             icon={<Eye size={16} />}
-            title="Files"
+            title="View"
             widgetId={widgetId}
             widgetType="view"
             footerHref="/view"

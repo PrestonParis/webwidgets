@@ -3,7 +3,11 @@
 import { BrainCircuit } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 
-export default function InsightCardsWidget({ widgetId = 'insight-cards' }: { widgetId?: string }) {
+export default function InsightCardsWidget({
+    widgetId = 'insight-cards',
+}: {
+    widgetId?: string;
+}) {
     return (
         <WidgetShell
             icon={<BrainCircuit size={16} />}
@@ -19,7 +23,8 @@ export default function InsightCardsWidget({ widgetId = 'insight-cards' }: { wid
                     No insights yet
                 </p>
                 <p className="mt-1 text-[11px] leading-4 text-zinc-400 dark:text-zinc-500">
-                    Insights are generated as you use the dashboard — connect integrations and start logging data.
+                    Insights are generated as you use the dashboard. Connect
+                    integrations and start logging data.
                 </p>
             </div>
         </WidgetShell>

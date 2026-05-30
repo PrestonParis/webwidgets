@@ -1,7 +1,7 @@
 'use client';
 
 import { MetricCard } from '../MetricCard';
-import { TimeSeriesChart } from '../TimeSeriesChart';
+import { TimeSeriesChart } from '@/features/ui/visualizations/components/TimeSeriesChart';
 import { MetricsErrorState } from '../MetricsErrorState';
 import { useMetricsFilter } from '../../hooks/useMetricsFilter';
 import { useMetricsFetch } from '../../hooks/useMetricsFetch';

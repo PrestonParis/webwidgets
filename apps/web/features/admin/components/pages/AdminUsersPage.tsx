@@ -93,7 +93,7 @@ export function AdminUsersPage() {
             key: 'full_name',
             header: 'Name',
             render: (r) =>
-                r.full_name || <span className="text-gray-400">—</span>,
+                r.full_name || <span className="text-gray-400">N/A</span>,
         },
         {
             key: 'role',

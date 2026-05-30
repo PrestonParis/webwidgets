@@ -12,7 +12,7 @@ export const financeAdapter: ImportExportAdapter = {
     id: 'finance_records',
     displayName: 'Finance',
     description:
-        'Finance accounts and transactions — export your financial data',
+        'Finance accounts and transactions: export your financial data',
     sourceType: 'finance_records',
     // canImport: false — complex relational data (accounts + transactions) with foreign keys
     canImport: false,

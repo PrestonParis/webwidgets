@@ -25,12 +25,14 @@ tests/e2e/
 ## Core Components
 
 ### 1. Traversal System
+
 - **Route Discovery**: Automatic route discovery or manifest-based traversal
 - **Stabilization**: Smart waits for app stabilization (network idle, hydration complete)
 - **Telemetry Collection**: Load duration, console errors, failed requests, hydration warnings
 - **Network Analysis**: Waterfalls, duplicate requests, long tasks, excessive re-renders
 
 ### 2. Widget Validation
+
 - **Mount Validation**: Widget shell renders correctly
 - **State Validation**: Loading, empty, error states all render
 - **Exception Detection**: Unhandled exceptions caught
@@ -38,36 +40,42 @@ tests/e2e/
 - **Viewport Batching**: Widgets validated in batches to avoid overload
 
 ### 3. Performance Instrumentation
+
 - **Metrics**: TTFB, hydration duration, API latency, widget render duration
 - **Thresholds**: Configurable performance thresholds
 - **Regression Detection**: Performance regressions flagged
 - **Reporting**: Top slow routes, widgets, duplicated requests
 
 ### 4. Slop Detection
+
 - **Pattern Matching**: example.com, lorem ipsum, TODO placeholders
 - **Fake Detection**: Fake integration labels, placeholder URLs, dev fallback strings
 - **Empty Detection**: Empty cards with no states, broken image URLs
 - **Analytics Detection**: Fake analytics/demo numbers in production paths
 
 ### 5. Hydration/Runtime Detection
+
 - **Warnings**: Hydration warnings, client/server render mismatch
 - **Mode Mismatches**: Dark mode mismatches, server-only import leakage
 - **Runtime Crashes**: Runtime crashes after hydration
 - **Layout Shifts**: Excessive layout shifts if practical
 
 ### 6. Request Duplication Analysis
+
 - **Detection**: Repeated identical requests
 - **Grouping**: Grouped duplicate request report
 - **Source Inference**: Likely source route/component if inferable
 - **Focus Areas**: Dashboard snapshot calls, auth/session requests, Supabase calls
 
 ### 7. Integration Degradation Testing
+
 - **Degraded States**: Missing Supabase rows, disconnected integrations
 - **Service Unavailability**: Go worker unavailable, analytics unavailable
 - **Slow APIs**: Slow API responses
 - **Graceful Degradation**: App still loads, clean empty states, no infinite loading
 
 ### 8. Dashboard-Specific Testing
+
 - **Render Speed**: Above-fold render speed, below-fold lazy loading
 - **Widget Behavior**: Hydration gating, move/reorder behavior
 - **Hidden Widgets**: Hidden widget non-rendering
@@ -77,7 +85,9 @@ tests/e2e/
 ## Metadata Strategies
 
 ### Route Metadata
+
 Routes are annotated with metadata for traversal:
+
 ```typescript
 interface RouteMetadata {
   path: string;
@@ -91,7 +101,9 @@ interface RouteMetadata {
 ```
 
 ### Widget Metadata
+
 Widget metadata from existing registry is enhanced:
+
 ```typescript
 interface WidgetTestMetadata {
   id: string;
@@ -110,6 +122,7 @@ interface WidgetTestMetadata {
 ## Failure Categories
 
 Failures are categorized for reporting:
+
 - **critical**: App crashes, auth failures, core routes broken
 - **degraded**: Slow loads, degraded integrations, partial failures
 - **cosmetic**: Visual issues, minor UI problems
@@ -122,6 +135,7 @@ Failures are categorized for reporting:
 ## Reporting
 
 Reports are generated in multiple formats:
+
 - **JSON**: Machine-readable for CI/CD integration
 - **Markdown**: Human-readable for review
 - **Terminal**: Quick summary for developers
@@ -129,6 +143,7 @@ Reports are generated in multiple formats:
 ## Test Tags
 
 Tests are tagged for selective execution:
+
 - `@traversal`: Route traversal tests
 - `@widget`: Widget validation tests
 - `@dashboard`: Dashboard-specific tests
@@ -142,6 +157,7 @@ Tests are tagged for selective execution:
 ## Environment Awareness
 
 Tests are environment-aware:
+
 - **Local**: Full traversal, all integrations
 - **CI**: Subset of tests, mocked integrations where needed
 - **Staging**: Full traversal, staging integrations
@@ -150,6 +166,7 @@ Tests are environment-aware:
 ## Retry Strategy
 
 Tests use retry-safe patterns:
+
 - Deterministic waits where possible
 - Retry on transient failures
 - No brittle timing assumptions
@@ -158,6 +175,7 @@ Tests use retry-safe patterns:
 ## Parallelization
 
 Tests are parallelized where safe:
+
 - Independent routes run in parallel
 - Widget validation batched by viewport
 - Performance tests run sequentially

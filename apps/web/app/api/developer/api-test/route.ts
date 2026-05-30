@@ -23,7 +23,9 @@ const SECRET_HEADER_PATTERNS = [
 function redactHeaders(headers: Headers): Record<string, string> {
     const result: Record<string, string> = {};
     headers.forEach((value, key) => {
-        result[key] = SECRET_HEADER_PATTERNS.some((pattern) => pattern.test(key))
+        result[key] = SECRET_HEADER_PATTERNS.some((pattern) =>
+            pattern.test(key),
+        )
             ? '[REDACTED]'
             : value;
     });
@@ -31,7 +33,9 @@ function redactHeaders(headers: Headers): Record<string, string> {
 }
 
 function isAllowedInternalPath(path: string) {
-    return path.startsWith('/api/') && !path.startsWith('/api/developer/api-test');
+    return (
+        path.startsWith('/api/') && !path.startsWith('/api/developer/api-test')
+    );
 }
 
 export async function POST(req: Request) {

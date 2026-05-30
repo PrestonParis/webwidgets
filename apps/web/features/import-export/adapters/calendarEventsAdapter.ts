@@ -201,7 +201,7 @@ export const calendarEventsAdapter: ImportExportAdapter = {
                 msg.includes('not_configured')
             ) {
                 warnings.push(
-                    'Calendar not connected — configure Google Calendar or Outlook in Settings.',
+                    'Calendar not connected. Configure Google Calendar or Outlook in Settings.',
                 );
                 const disconnectedPayload: CalendarAdapterPayload = {
                     events: [],

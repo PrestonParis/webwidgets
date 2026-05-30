@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useTrackingStats } from '@/features/tracking/hooks/useTrackingStats';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import { calcGoalProgress } from '@/features/tracking/lib/analyticsEngine';
-import { StreakCard } from '@/features/tracking/viz/StreakCard';
+import { StreakCard } from '@/features/ui/visualizations/components/StreakCard';
 import {
     getCategoryLabel,
     getCategoryEmoji,

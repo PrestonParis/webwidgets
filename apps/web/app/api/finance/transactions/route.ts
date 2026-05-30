@@ -7,6 +7,7 @@ import {
     createFinanceTransactionForUser,
 } from '@/features/finance/services/financeTransactionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const createSchema = z.object({
     accountId: z.string().optional(),
@@ -52,9 +53,38 @@ export async function POST(req: Request) {
                 'id'
             >,
         );
+
+        const { type, title, amount, category } = body.data;
+        const sign = type === 'income' ? '+' : type === 'expense' ? '-' : '↕';
+        const amountStr = `${sign}$${Math.abs(amount).toFixed(2)}`;
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'finance',
+            eventType: 'finance.transaction_added',
+            sourceId: (tx as { id?: string }).id,
+            sourceTable: 'finance_transactions',
+            category: 'data',
+            severity: type === 'expense' ? 'warning' : 'info',
+            priority: 'low',
+            title: `${capitalize(type)}: ${title}`,
+            body: `${amountStr} · ${category}`,
+            actionUrl: '/finance',
+            metadata: {
+                transactionType: type,
+                amount,
+                category,
+                merchant: body.data.merchant,
+            },
+        });
+
         return NextResponse.json({ transaction: tx });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
         return NextResponse.json({ error: msg }, { status: 500 });
     }
+}
+
+function capitalize(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }

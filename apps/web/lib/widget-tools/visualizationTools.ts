@@ -105,12 +105,10 @@ export function computeSparklinePoints(
     const sorted = [...rows].sort((a, b) =>
         String(a[dateField] ?? '').localeCompare(String(b[dateField] ?? '')),
     );
-    return sorted
-        .slice(-n)
-        .map((row) => ({
-            date: String(row[dateField] ?? ''),
-            value: Number(row[valueField] ?? 0),
-        }));
+    return sorted.slice(-n).map((row) => ({
+        date: String(row[dateField] ?? ''),
+        value: Number(row[valueField] ?? 0),
+    }));
 }
 
 export function computeDonutSlices(

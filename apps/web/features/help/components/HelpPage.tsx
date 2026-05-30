@@ -24,7 +24,7 @@ const sections = [
         icon: LayoutDashboard,
         title: 'Dashboard',
         items: [
-            'Add widgets using the + Add button in the top right — search by name or browse by category.',
+            'Add widgets using the + Add button in the top right. Search by name or browse by category.',
             'Drag widgets to reorder them in Grid mode, or freely position them in Free canvas mode.',
             'Group related widgets into folders to keep your dashboard tidy.',
             'Save different arrangements as Scenes and switch between them instantly.',
@@ -48,7 +48,7 @@ const sections = [
         icon: BookOpen,
         title: 'Reading',
         items: [
-            'Open the Reading widget to browse your document library — Bible, Quran, uploaded PDFs, and ebooks.',
+            'Open the Reading widget to browse your document library: Bible, Quran, uploaded PDFs, and ebooks.',
             'Highlight text by selecting it while reading; highlights are saved automatically.',
             'Add notes to any highlighted passage or any chapter.',
             'Bookmark any position to return to it quickly.',
@@ -67,7 +67,7 @@ const sections = [
             'Use the Quick Entry form to add an entry in seconds.',
             'Set goals per category in the Goals tab to see progress over time.',
             'The Insights panel surfaces AI-generated observations about your tracking patterns.',
-            'Recovery Trackers (streaks) live in the Recovery tab — add one from the + Add tracker button.',
+            'Recovery Trackers (streaks) live in the Recovery tab. Add one from the + Add tracker button.',
         ],
     },
     {
@@ -98,7 +98,7 @@ const sections = [
         icon: Newspaper,
         title: 'News',
         items: [
-            'The News widget shows your personalized feed — the most recent articles appear first.',
+            'The News widget shows your personalized feed with the most recent articles first.',
             'Click Refresh to fetch the latest updates.',
             'Use "View all →" to open the full news page with filtering options.',
             'Manage news sources and topics from the integrations settings.',
@@ -110,7 +110,7 @@ const sections = [
         title: 'Automation',
         items: [
             'The Automation widget surfaces actions extracted from your emails and calendar.',
-            'Review each action before approving — no action is taken without your confirmation.',
+            'Review each action before approving. No action is taken without your confirmation.',
             'Approve to execute, dismiss to ignore, or snooze for later.',
             'Configure automation workflows in the Automation page.',
         ],
@@ -157,7 +157,7 @@ const sections = [
         items: [
             'Sensitive widgets (Finance, Recovery, Health) can be blurred when sharing your screen.',
             'Enable low-profile display mode from the widget context menu.',
-            'Your data is stored in your own account — never shared with other users.',
+            'Your data is stored in your own account and never shared with other users.',
             'Feedback submitted from the feedback page is fully anonymous.',
             'You can delete your account and all data from Settings → Account.',
         ],
@@ -169,7 +169,7 @@ const sections = [
         items: [
             'AI features run in the background and never block the page.',
             'Suggestions in tracking, memorization, and automation are generated from your data only.',
-            'AI summaries of documents and emails are surfaced in context — not sent anywhere.',
+            'AI summaries of documents and emails are surfaced in context and not sent anywhere.',
             'You can disable AI features per-surface from the relevant settings page.',
         ],
     },

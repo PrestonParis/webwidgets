@@ -18,12 +18,14 @@ Build a time-series trend detection model for the Tracking feature. Given a user
 ## Required Implementation
 
 ### 1. `ml_service/train_health_trend.py`
+
 - Training approach: **rule-based + statistical** (not pure ML) since trends require time-series math
 - Uses `scipy.stats.linregress` for trend slope detection
 - Uses `numpy` for rolling averages, standard deviation, z-score anomaly detection
 - No model file needed — this is a deterministic analytics endpoint
 
 ### 2. `ml_service/health_analytics.py` (new module)
+
 ```python
 def detect_trends(series: list[float], window: int = 7) -> TrendResult
 def detect_anomalies(series: list[float], threshold: float = 2.0) -> list[int]
@@ -32,6 +34,7 @@ def compare_periods(current: list[float], previous: list[float]) -> PeriodCompar
 ```
 
 ### 3. `ml_service/schemas.py` — add schemas
+
 ```python
 class TrackingDataPoint(BaseModel):
     date: str  # ISO date
@@ -56,16 +59,19 @@ class TrendAnalysisResponse(BaseModel):
 ```
 
 ### 4. `ml_service/main.py` — add endpoint
+
 ```python
 @app.post("/analyze-trends")
 async def analyze_trends(data: TrendAnalysisRequest) -> TrendAnalysisResponse:
 ```
 
 ### 5. `app/api/ml/analyze-trends/route.ts`
+
 - POST proxy; called from tracking page after data loads
 - Requires auth; passes user's recent 30 days of tracking entries
 
 ### 6. `features/tracking/components/TrackingInsightsPanel.tsx` (new component)
+
 - Calls `/api/ml/analyze-trends` with the last 30 days of entries
 - Renders insights as colored cards (green/yellow/red by severity)
 - Add to `features/tracking/components/TrackingPage.tsx` below the log section
