@@ -6,7 +6,7 @@ import { getExactTimeParts } from '@/lib/utils/time';
 import { SoberWidgetProps } from '@/features/recovery/types/recovery';
 import { RecoveryView } from '@/features/widgets/types/widgets';
 import TimeUnit from '@/features/recovery/components/TimeUnit';
-import RecoveryHeatmap from '@/features/recovery/components/RecoveryHeatmap';
+import RecoveryHeatmap from '@/features/ui/visualizations/components/RecoveryHeatmap';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { HeartIcon } from '@/icons/HeartIcon';

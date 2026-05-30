@@ -191,16 +191,16 @@ export function NutritionImportPanel({
                                         className="border-t border-gray-100 dark:border-zinc-800"
                                     >
                                         <td className="py-1 pr-2 text-gray-700 dark:text-zinc-300">
-                                            {row.date ?? '—'}
+                                            {row.date ?? 'N/A'}
                                         </td>
                                         <td className="py-1 pr-2 text-gray-700 dark:text-zinc-300">
-                                            {row.mealType ?? '—'}
+                                            {row.mealType ?? 'N/A'}
                                         </td>
                                         <td className="py-1 pr-2 text-gray-700 dark:text-zinc-300 truncate max-w-[120px]">
-                                            {row.name ?? '—'}
+                                            {row.name ?? 'N/A'}
                                         </td>
                                         <td className="py-1 pr-2 text-gray-700 dark:text-zinc-300">
-                                            {row.calories ?? '—'}
+                                            {row.calories ?? 'N/A'}
                                         </td>
                                         <td className="py-1 pr-2">
                                             {row.issues.length > 0 ? (

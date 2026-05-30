@@ -17,7 +17,7 @@ export function buildCitation(
     const reference = versionName ? `${ref} (${versionName})` : ref;
     const longRef = version?.name ? `${ref} (${version.name})` : ref;
 
-    const formattedCitation = `"${text}" — ${reference}`;
+    const formattedCitation = `"${text}" (${reference})`;
     const apa = buildApa(text, ref, document, version);
     const mla = buildMla(text, ref, document, version);
 

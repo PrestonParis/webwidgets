@@ -78,7 +78,7 @@ export default function ChessLibraryPage() {
                                 Analysis Board
                             </h2>
                             <p className="text-sm text-zinc-500 mt-1">
-                                Free analysis — moves are saved to your browser
+                                Free analysis: moves are saved to your browser
                                 automatically.
                             </p>
                         </div>

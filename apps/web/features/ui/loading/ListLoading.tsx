@@ -39,7 +39,12 @@ export function ListLoading({
                         densityPadding[density],
                     )}
                 >
-                    <div className={cn('flex gap-3', showAvatar ? 'items-start' : 'items-center')}>
+                    <div
+                        className={cn(
+                            'flex gap-3',
+                            showAvatar ? 'items-start' : 'items-center',
+                        )}
+                    >
                         {showAvatar && (
                             <div className="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse shrink-0" />
                         )}

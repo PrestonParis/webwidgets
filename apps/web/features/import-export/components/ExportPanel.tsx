@@ -93,7 +93,7 @@ export function ExportPanel({
                 </div>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-3">
                     XLSX and ZIP formats require additional packages (xlsx,
-                    jszip) — not currently available.
+                    jszip) and not currently available.
                 </p>
                 {lastWarnings.length > 0 && (
                     <ul className="mb-3 text-xs text-amber-600 space-y-1">

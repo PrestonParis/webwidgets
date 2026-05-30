@@ -4,6 +4,7 @@ import { trackingEntriesAdapter } from '@/features/import-export/adapters/tracki
 import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
 import { collaborationHandoffsAdapter } from '@/features/import-export/adapters/collaborationHandoffsAdapter';
 import { contextEntriesAdapter } from '@/features/import-export/adapters/contextEntriesAdapter';
+import { activityAdapter } from '@/features/import-export/adapters/activityAdapter';
 import { registerAdapter } from '@/features/import-export/lib/adapterRegistry';
 import type { AdapterCapability } from '@/features/import-export/types/importExport';
 
@@ -14,6 +15,7 @@ function ensureAdaptersRegistered() {
         todosAdapter,
         collaborationHandoffsAdapter,
         contextEntriesAdapter,
+        activityAdapter,
     ];
     for (const adapter of adapters) {
         registerAdapter(adapter);
@@ -45,7 +47,7 @@ export async function GET() {
         unsupportedFormats: [
             {
                 format: 'xlsx',
-                reason: 'xlsx package not installed — install it to enable Excel support',
+                reason: 'xlsx package not installed. Install it to enable Excel support.',
             },
             {
                 format: 'google_sheets',
@@ -62,7 +64,7 @@ export async function GET() {
             {
                 id: 'merge',
                 description:
-                    'Merge fields (not fully implemented — behaves like overwrite)',
+                    'Merge fields (not fully implemented, behaves like overwrite)',
             },
             {
                 id: 'keep_both',

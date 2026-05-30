@@ -184,9 +184,8 @@ export function buildOnboardingContextPayloads(
         const linkedGoals = goals
             .filter((g) => {
                 const lower = meta.category.toLowerCase();
-                if (g === 'health-tracking' || g === 'recovery')
-                    return lower === 'health';
-                if (g === 'productivity')
+                if (g === 'health-fitness') return lower === 'health';
+                if (g === 'work' || g === 'personal-productivity')
                     return ['productivity', 'writing'].includes(lower);
                 return false;
             })

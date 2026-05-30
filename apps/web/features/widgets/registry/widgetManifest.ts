@@ -139,6 +139,15 @@ const manifests = [
         refreshPolicy: 'on-load',
         fallbackMode: 'skeleton',
     },
+    // ── Activity ──────────────────────────────────────────────────────────────
+    {
+        id: 'activity',
+        feature: 'activity',
+        title: 'Activity',
+        dataNeeds: ['activity.recent'],
+        refreshPolicy: 'on-load',
+        fallbackMode: 'empty',
+    },
     // ── System / Admin ────────────────────────────────────────────────────────
     {
         id: 'datahealth',

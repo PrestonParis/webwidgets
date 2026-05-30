@@ -132,6 +132,11 @@ const InsightCardsWidget = lazy(
 const CalculatorWidget = lazy(
     () => import('@/features/calculator/components/CalculatorWidget'),
 );
+const ActivityWidget = lazy(() =>
+    import('@/features/activity/components/ActivityWidget').then((m) => ({
+        default: m.ActivityWidget,
+    })),
+);
 
 function wrap(node: ReactNode): ReactNode {
     return <Suspense fallback={<WidgetSkeleton />}>{node}</Suspense>;
@@ -236,6 +241,8 @@ export function renderWidgetContent(
             return wrap(<InsightCardsWidget widgetId={config.id} />);
         case 'calculator':
             return wrap(<CalculatorWidget widgetId={config.id} />);
+        case 'activity':
+            return wrap(<ActivityWidget widgetId={config.id} />);
         case 'folder':
             return null;
         default:

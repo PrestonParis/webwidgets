@@ -8,6 +8,7 @@ import { createGmailClient } from '@/features/inbox/lib/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { calendar_v3 } from 'googleapis';
 import type { CalendarEvent } from '@/features/calendar/types/calendar';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 type CalEventsResource = {
     insert(
@@ -194,7 +195,30 @@ export async function POST(req: Request): Promise<Response> {
         },
     });
 
-    return NextResponse.json(mapEvent(data), { status: 201 });
+    const created = mapEvent(data);
+    const startLabel =
+        created.start.dateTime?.slice(0, 16).replace('T', ' ') ??
+        created.start.date ??
+        '';
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_created',
+        sourceId: created.id,
+        category: 'data',
+        severity: 'info',
+        priority: 'normal',
+        title: `Calendar event created: ${created.summary}`,
+        body: startLabel || undefined,
+        actionUrl: created.htmlLink,
+        metadata: {
+            eventId: created.id,
+            summary: created.summary,
+            start: startLabel,
+        },
+    });
+
+    return NextResponse.json(created, { status: 201 });
 }
 
 // ─── PATCH — update event ─────────────────────────────────────────────────────
@@ -258,7 +282,21 @@ export async function PATCH(req: Request): Promise<Response> {
         requestBody: patchBody,
     });
 
-    return NextResponse.json(mapEvent(data));
+    const updated = mapEvent(data);
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_updated',
+        sourceId: eventId,
+        category: 'data',
+        severity: 'info',
+        priority: 'low',
+        title: `Calendar event updated: ${updated.summary}`,
+        actionUrl: updated.htmlLink,
+        metadata: { eventId, summary: updated.summary },
+    });
+
+    return NextResponse.json(updated);
 }
 
 // ─── DELETE — remove event ────────────────────────────────────────────────────
@@ -282,6 +320,18 @@ export async function DELETE(req: Request): Promise<Response> {
 
     const calendar = await buildCalendarClient(supabaseAdmin, user.id);
     await calendar.events.delete({ calendarId: 'primary', eventId });
+
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_deleted',
+        sourceId: eventId,
+        category: 'data',
+        severity: 'info',
+        priority: 'low',
+        title: 'Calendar event deleted',
+        metadata: { eventId },
+    });
 
     return new Response(null, { status: 204 });
 }

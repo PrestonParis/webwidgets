@@ -33,19 +33,20 @@ Implement in this sequence to maximize reuse:
 
 ### Model Selection by Task Type
 
-| Task Type | Preferred Model | Fallback |
-|-----------|----------------|----------|
-| Regression/scoring | `GradientBoostingRegressor` | `RandomForestRegressor`, `Ridge` |
-| Binary classification | `GradientBoostingClassifier` | `LogisticRegression` |
-| Multi-class classification | `RandomForestClassifier` + `LogisticRegression` ensemble | `LinearSVC` |
-| Clustering/anomaly | `IsolationForest` + z-score | Statistical z-score only |
-| Text classification | TF-IDF + `LinearSVC` or `LogisticRegression` | Keyword matching |
-| Structured regression | `ColumnTransformer` + `GradientBoostingRegressor` | `RandomForestRegressor` |
-| Deterministic rule-based | Python scoring function (no sklearn) | Hardcoded thresholds |
+| Task Type                  | Preferred Model                                          | Fallback                         |
+| -------------------------- | -------------------------------------------------------- | -------------------------------- |
+| Regression/scoring         | `GradientBoostingRegressor`                              | `RandomForestRegressor`, `Ridge` |
+| Binary classification      | `GradientBoostingClassifier`                             | `LogisticRegression`             |
+| Multi-class classification | `RandomForestClassifier` + `LogisticRegression` ensemble | `LinearSVC`                      |
+| Clustering/anomaly         | `IsolationForest` + z-score                              | Statistical z-score only         |
+| Text classification        | TF-IDF + `LinearSVC` or `LogisticRegression`             | Keyword matching                 |
+| Structured regression      | `ColumnTransformer` + `GradientBoostingRegressor`        | `RandomForestRegressor`          |
+| Deterministic rule-based   | Python scoring function (no sklearn)                     | Hardcoded thresholds             |
 
 ### Feature Engineering Requirements
 
 Every model that processes text MUST use:
+
 ```python
 TfidfVectorizer(
     ngram_range=(1, 2),
@@ -58,6 +59,7 @@ TfidfVectorizer(
 ```
 
 Every model that processes structured numeric features MUST use:
+
 ```python
 StandardScaler()  # for regression targets
 # OR
@@ -65,6 +67,7 @@ RobustScaler()    # when outliers expected (finance, time data)
 ```
 
 Every model using mixed text + numeric MUST use `ColumnTransformer`:
+
 ```python
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -85,6 +88,7 @@ pipeline = Pipeline([
 ### Hyperparameter Tuning (required for all sklearn models)
 
 Use `RandomizedSearchCV` with 5-fold CV:
+
 ```python
 from sklearn.model_selection import RandomizedSearchCV
 
@@ -113,6 +117,7 @@ best_pipeline = search.best_estimator_
 ### Cross-Validation Standards
 
 All models must report:
+
 - **Regression**: RMSE, MAE, R², 5-fold CV mean ± std
 - **Classification**: Accuracy, F1-macro, Precision, Recall, confusion matrix, 5-fold CV mean ± std
 - These metrics go into the model metadata JSON alongside the artifact.
@@ -120,6 +125,7 @@ All models must report:
 ### Ensemble Strategies
 
 For regression tasks with score < target threshold after single model:
+
 ```python
 from sklearn.ensemble import VotingRegressor, StackingRegressor
 
@@ -147,15 +153,16 @@ stacking = StackingRegressor(
 
 ### Minimum Dataset Size
 
-| Task | Min samples | Target samples |
-|------|-------------|---------------|
-| Regression rankers | 500 | 1000 |
-| Classifiers | 400 | 800 |
-| Deterministic scoring | N/A | N/A |
+| Task                  | Min samples | Target samples |
+| --------------------- | ----------- | -------------- |
+| Regression rankers    | 500         | 1000           |
+| Classifiers           | 400         | 800            |
+| Deterministic scoring | N/A         | N/A            |
 
 ### Data Generation Guidelines
 
 Synthetic data MUST be realistic:
+
 - Use realistic distributions (not uniform) for numeric fields
 - Include edge cases: empty strings, zero values, boundary conditions
 - Ensure class balance within ±20% for classifiers
@@ -214,6 +221,7 @@ print(f"Saved: {metadata.model_path}")
 ```
 
 For regression models that don't use `train_and_save_model` (which targets classifiers), save manually:
+
 ```python
 import joblib, json
 from datetime import datetime, timezone
@@ -267,6 +275,7 @@ async def rank_news(data: NewsRankRequest) -> NewsRankResponse:
 ### Error Handling
 
 Every endpoint MUST:
+
 - Return the fallback response (not HTTP 500) when model is `None`
 - Log inference errors with `logger.error(...)` and return fallback
 - Validate input with Pydantic — malformed requests return HTTP 422 automatically
@@ -284,23 +293,29 @@ import { NextRequest, NextResponse } from 'next/server';
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
 export async function POST(req: NextRequest) {
-    if (!ML_SERVICE_URL) {
-        return NextResponse.json({ error: 'ML service not configured' }, { status: 503 });
-    }
-    try {
-        const body = await req.json();
-        const res = await fetch(`${ML_SERVICE_URL}/rank-news`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            signal: AbortSignal.timeout(5000),
-        });
-        if (!res.ok) throw new Error(`ML service error: ${res.status}`);
-        return NextResponse.json(await res.json());
-    } catch (err) {
-        console.error('[ml/rank-news]', err);
-        return NextResponse.json({ error: 'ML service unavailable' }, { status: 503 });
-    }
+  if (!ML_SERVICE_URL) {
+    return NextResponse.json(
+      { error: 'ML service not configured' },
+      { status: 503 },
+    );
+  }
+  try {
+    const body = await req.json();
+    const res = await fetch(`${ML_SERVICE_URL}/rank-news`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) throw new Error(`ML service error: ${res.status}`);
+    return NextResponse.json(await res.json());
+  } catch (err) {
+    console.error('[ml/rank-news]', err);
+    return NextResponse.json(
+      { error: 'ML service unavailable' },
+      { status: 503 },
+    );
+  }
 }
 ```
 
@@ -315,20 +330,37 @@ export async function POST(req: NextRequest) {
 const [aiRanked, setAiRanked] = useState(false);
 
 useEffect(() => {
-    if (!items.length) return;
-    fetch('/api/ml/rank-news', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: items.map(i => ({ id: i.id, title: i.title, description: i.summary, category: i.category })), user_topics: activeWidgetTypes }),
+  if (!items.length) return;
+  fetch('/api/ml/rank-news', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      items: items.map((i) => ({
+        id: i.id,
+        title: i.title,
+        description: i.summary,
+        category: i.category,
+      })),
+      user_topics: activeWidgetTypes,
+    }),
+  })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (!data?.ranked) return; // fallback: keep original order
+      const scoreMap = new Map(
+        data.ranked.map((r: { id: string; relevance_score: number }) => [
+          r.id,
+          r.relevance_score,
+        ]),
+      );
+      setItems((prev) =>
+        [...prev].sort(
+          (a, b) => (scoreMap.get(b.id) ?? 0.5) - (scoreMap.get(a.id) ?? 0.5),
+        ),
+      );
+      setAiRanked(true);
     })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-            if (!data?.ranked) return;  // fallback: keep original order
-            const scoreMap = new Map(data.ranked.map((r: { id: string; relevance_score: number }) => [r.id, r.relevance_score]));
-            setItems(prev => [...prev].sort((a, b) => (scoreMap.get(b.id) ?? 0.5) - (scoreMap.get(a.id) ?? 0.5)));
-            setAiRanked(true);
-        })
-        .catch(() => {});  // silent fallback
+    .catch(() => {}); // silent fallback
 }, [items.length]);
 ```
 
@@ -345,6 +377,7 @@ useEffect(() => {
 ## Quality Gates (all models must pass before marking Complete)
 
 ### Regression Models (021, 022, 024, 026, 027)
+
 - [ ] RMSE < 0.2 on held-out 20% test split
 - [ ] R² > 0.6 on test split
 - [ ] 5-fold CV RMSE std < 0.05 (low variance)
@@ -352,6 +385,7 @@ useEffect(() => {
 - [ ] Edge case: single item returns score 0.5 (neutral) or model prediction
 
 ### Classification Models (023, 025, 028)
+
 - [ ] F1-macro > 0.75 on held-out 20% test split
 - [ ] Accuracy > 0.78
 - [ ] 5-fold CV F1 std < 0.05
@@ -359,11 +393,13 @@ useEffect(() => {
 - [ ] Confidence scores are calibrated (use `CalibratedClassifierCV` if needed)
 
 ### Deterministic/Rule-based (029, 030, 031)
+
 - [ ] All documented scoring rules have unit tests in `ml_service/tests/`
 - [ ] Empty input → empty response (not error)
 - [ ] Maximum score case and minimum score case covered in tests
 
 ### All Models
+
 - [ ] Model artifact saved at `ml_service/models/<name>_v1.pkl`
 - [ ] Metadata JSON saved at `ml_service/models/<name>_v1_metadata.json`
 - [ ] Endpoint returns fallback response (not 500) when model file missing
@@ -374,19 +410,19 @@ useEffect(() => {
 
 ## Prompt-to-File Mapping
 
-| Prompt | ML file | API route | Frontend |
-|--------|---------|-----------|----------|
-| 021 | `train_news_ranker.py` | `app/api/ml/rank-news/` | `features/news/hooks/useNewsFeed.ts` |
-| 022 | `train_health_trend.py` | `app/api/ml/analyze-trends/` | `features/tracking/components/TrackingInsightsPanel.tsx` |
-| 023 | `train_document_classifier.py` | `app/api/ml/classify-document/` | `features/uploads/` or `features/view/` |
-| 024 | `train_task_priority.py` | `app/api/ml/rank-tasks/` | `features/todo/` |
-| 025 | `train_context_summarizer.py` | `app/api/ml/summarize-context/` + `/classify-intent/` | `features/chatbot/` |
-| 026 | `train_finance_anomaly.py` | `app/api/ml/detect-finance-anomalies/` | `features/finance/components/AnomalyAlertBanner.tsx` |
-| 027 | `train_command_center_ranker.py` | `app/api/ml/rank-command-workstreams/` | `features/command-center/hooks/useCommandCenter.ts` |
-| 028 | `memory_card_generator.py` + `train_memory_card_quality.py` | `app/api/ml/generate-memory-cards/` | `features/memorization/` |
-| 029 | `accessibility_advisor.py` | `app/api/ml/advise-accessibility/` | `features/accessibility/hooks/useAccessibilityCenter.ts` |
-| 030 | `collaboration_risk.py` | `app/api/ml/detect-collaboration-risk/` | `features/collaboration/` |
-| 031 | `creative_canvas_analyzer.py` | `app/api/ml/analyze-creative-canvas/` | `features/creative/` |
+| Prompt | ML file                                                     | API route                                             | Frontend                                                 |
+| ------ | ----------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| 021    | `train_news_ranker.py`                                      | `app/api/ml/rank-news/`                               | `features/news/hooks/useNewsFeed.ts`                     |
+| 022    | `train_health_trend.py`                                     | `app/api/ml/analyze-trends/`                          | `features/tracking/components/TrackingInsightsPanel.tsx` |
+| 023    | `train_document_classifier.py`                              | `app/api/ml/classify-document/`                       | `features/uploads/` or `features/view/`                  |
+| 024    | `train_task_priority.py`                                    | `app/api/ml/rank-tasks/`                              | `features/todo/`                                         |
+| 025    | `train_context_summarizer.py`                               | `app/api/ml/summarize-context/` + `/classify-intent/` | `features/chatbot/`                                      |
+| 026    | `train_finance_anomaly.py`                                  | `app/api/ml/detect-finance-anomalies/`                | `features/finance/components/AnomalyAlertBanner.tsx`     |
+| 027    | `train_command_center_ranker.py`                            | `app/api/ml/rank-command-workstreams/`                | `features/command-center/hooks/useCommandCenter.ts`      |
+| 028    | `memory_card_generator.py` + `train_memory_card_quality.py` | `app/api/ml/generate-memory-cards/`                   | `features/memorization/`                                 |
+| 029    | `accessibility_advisor.py`                                  | `app/api/ml/advise-accessibility/`                    | `features/accessibility/hooks/useAccessibilityCenter.ts` |
+| 030    | `collaboration_risk.py`                                     | `app/api/ml/detect-collaboration-risk/`               | `features/collaboration/`                                |
+| 031    | `creative_canvas_analyzer.py`                               | `app/api/ml/analyze-creative-canvas/`                 | `features/creative/`                                     |
 
 ---
 

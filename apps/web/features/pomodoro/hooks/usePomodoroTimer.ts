@@ -86,7 +86,7 @@ export function usePomodoroTimer(compact?: boolean) {
                     body:
                         state.mode === 'focus'
                             ? 'Focus session complete! Time for a break.'
-                            : 'Break over — back to focus.',
+                            : 'Break over. Time to focus.',
                 });
             }
         }

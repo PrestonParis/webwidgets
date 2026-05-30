@@ -84,7 +84,13 @@ function StarRating({
                         onClick={() => onChange(n === value ? 0 : n)}
                         className="text-2xl leading-none transition-transform hover:scale-110 focus:outline-none"
                     >
-                        <span className={n <= active ? 'text-yellow-400' : 'text-gray-200 dark:text-zinc-700'}>
+                        <span
+                            className={
+                                n <= active
+                                    ? 'text-yellow-400'
+                                    : 'text-gray-200 dark:text-zinc-700'
+                            }
+                        >
                             ★
                         </span>
                     </button>
@@ -114,7 +120,9 @@ function PillGroup({
                 <button
                     key={opt.value}
                     type="button"
-                    onClick={() => onChange(value === opt.value ? '' : opt.value)}
+                    onClick={() =>
+                        onChange(value === opt.value ? '' : opt.value)
+                    }
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                         value === opt.value
                             ? 'bg-[#4f6ef7] border-[#4f6ef7] text-white'
@@ -294,8 +302,8 @@ export function FeedbackPage() {
                         Thanks for your feedback!
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-zinc-400">
-                        Your response is completely anonymous and helps us improve
-                        the product.
+                        Your response is completely anonymous and helps us
+                        improve the product.
                     </p>
                     <div className="flex gap-3 justify-center pt-2">
                         <button
@@ -328,8 +336,8 @@ export function FeedbackPage() {
                     Share your feedback
                 </h1>
                 <p className="mt-1.5 text-sm text-gray-500 dark:text-zinc-400">
-                    All responses are completely anonymous — no account information
-                    is attached. Fill in any fields that apply.
+                    All responses are completely anonymous. No account
+                    information is attached. Fill in any fields that apply.
                 </p>
             </div>
 
@@ -362,7 +370,11 @@ export function FeedbackPage() {
                 <div className="border-t border-gray-100 dark:border-zinc-800" />
 
                 <Section title="Your experience">
-                    <Field label="What were you doing?" htmlFor="fb-did" optional>
+                    <Field
+                        label="What were you doing?"
+                        htmlFor="fb-did"
+                        optional
+                    >
                         <TextArea
                             id="fb-did"
                             placeholder="Describe what you were doing when this came up…"
@@ -391,7 +403,7 @@ export function FeedbackPage() {
                     >
                         <TextArea
                             id="fb-happened"
-                            placeholder="Describe what happened instead — errors, unexpected behavior…"
+                            placeholder="Describe what happened: errors, unexpected behavior…"
                             value={form.whatHappened}
                             onChange={(v) => set('whatHappened', v)}
                         />
@@ -444,7 +456,11 @@ export function FeedbackPage() {
                 <div className="border-t border-gray-100 dark:border-zinc-800" />
 
                 <Section title="Anything else?">
-                    <Field label="Additional comments" htmlFor="fb-general" optional>
+                    <Field
+                        label="Additional comments"
+                        htmlFor="fb-general"
+                        optional
+                    >
                         <TextArea
                             id="fb-general"
                             rows={4}
@@ -454,7 +470,11 @@ export function FeedbackPage() {
                         />
                     </Field>
 
-                    <Field label="How did you hear about us?" htmlFor="fb-heard" optional>
+                    <Field
+                        label="How did you hear about us?"
+                        htmlFor="fb-heard"
+                        optional
+                    >
                         <select
                             id="fb-heard"
                             value={form.howHeard}
@@ -477,7 +497,8 @@ export function FeedbackPage() {
 
                 <div className="flex items-center justify-between pt-2">
                     <p className="text-xs text-gray-400 dark:text-zinc-500">
-                        Responses are anonymous and never linked to your account.
+                        Responses are anonymous and never linked to your
+                        account.
                     </p>
                     <button
                         type="submit"

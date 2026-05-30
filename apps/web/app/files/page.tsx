@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { FolderOpen, HardDrive } from 'lucide-react';
+import { FolderOpen, HardDrive, Sparkles } from 'lucide-react';
 import Header from '@/features/ui/components/Header';
 import Footer from '@/features/ui/components/Footer';
 import { LoadingState } from '@/features/ui/loading';
@@ -19,11 +19,17 @@ const DriveFileBrowser = dynamic(
     { loading: () => <LoadingState variant="section" minHeight="min-h-40" /> },
 );
 
-type Tab = 'my-files' | 'drive';
+const ArtifactsPage = dynamic(
+    () => import('@/features/artifacts/components/ArtifactsPage'),
+    { loading: () => <LoadingState variant="section" minHeight="min-h-40" /> },
+);
+
+type Tab = 'my-files' | 'drive' | 'artifacts';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'my-files', label: 'My Files', icon: <FolderOpen size={14} /> },
     { id: 'drive', label: 'Google Drive', icon: <HardDrive size={14} /> },
+    { id: 'artifacts', label: 'Artifacts', icon: <Sparkles size={14} /> },
 ];
 
 export default function FilesPage() {
@@ -38,16 +44,24 @@ export default function FilesPage() {
     } = useFileUpload();
     const [tab, setTab] = useState<Tab>('my-files');
 
+    const isArtifacts = tab === 'artifacts';
+
     return (
         <>
             <Header />
-            <div className="mx-auto max-w-2xl space-y-6 px-6 py-10">
+            <div
+                className={cn(
+                    'mx-auto px-6 py-10 space-y-6',
+                    isArtifacts ? 'max-w-5xl' : 'max-w-2xl',
+                )}
+            >
                 <div>
                     <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                         Files
                     </h1>
                     <p className="mt-1 text-sm text-zinc-500">
-                        Upload files or browse your Google Drive.
+                        Upload files, browse your Google Drive, or view
+                        AI-generated artifacts.
                     </p>
                 </div>
 
@@ -78,13 +92,18 @@ export default function FilesPage() {
                             onUpload={upload}
                         />
                         {loading ? (
-                            <LoadingState variant="section" minHeight="min-h-40" />
+                            <LoadingState
+                                variant="section"
+                                minHeight="min-h-40"
+                            />
                         ) : (
                             <FileList files={files} onRemove={remove} />
                         )}
                     </div>
-                ) : (
+                ) : tab === 'drive' ? (
                     <DriveFileBrowser />
+                ) : (
+                    <ArtifactsPage />
                 )}
             </div>
             <Footer />

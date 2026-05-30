@@ -80,7 +80,7 @@ export function AdminMLPage() {
                 />
                 <AdminMetricCard
                     label="Avg Latency"
-                    value="—"
+                    value="N/A"
                     sub="latency histogram not yet aggregated"
                     icon={Clock}
                     color="blue"

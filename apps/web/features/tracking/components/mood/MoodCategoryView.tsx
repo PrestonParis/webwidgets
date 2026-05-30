@@ -106,13 +106,15 @@ export function MoodCategoryView({
                             value={
                                 average !== null
                                     ? `${average.toFixed(1)}/5`
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi
                             label="Latest score"
                             value={
-                                latestScore !== null ? `${latestScore}/5` : '—'
+                                latestScore !== null
+                                    ? `${latestScore}/5`
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi

@@ -1,5 +1,6 @@
 'use client';
 
+import { Wallet } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { WidgetLoading } from '@/features/ui/loading';
 import { useFinanceAccounts } from '@/features/finance/hooks/useFinanceAccounts';
@@ -41,10 +42,10 @@ export default function FinanceWidget({
 
     return (
         <WidgetShell
-            icon={<span className="text-base">💰</span>}
+            icon={<Wallet size={16} />}
             title="Finance"
             footerHref="/finance"
-            footerLabel="Open Finance →"
+            footerLabel="Open Finance"
             widgetId={widgetId}
             widgetType="finance"
         >

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { createElement, useState } from 'react';
 import {
     X,
     Download,
@@ -19,6 +19,7 @@ import { formatFileSize } from '@/features/view/lib/formatFileSize';
 import { deleteUpload } from '@/features/uploads/api/uploadApi';
 import { useQueryClient } from '@tanstack/react-query';
 import { useExtraction } from '@/features/extraction/hooks/useExtraction';
+import Image from 'next/image';
 
 interface ViewDetailsPaneProps {
     file: ViewFile;
@@ -48,7 +49,6 @@ export function ViewDetailsPane({
     onDeleted,
 }: ViewDetailsPaneProps) {
     const queryClient = useQueryClient();
-    const Icon = getFileIcon(file.mimeType);
     const [editingName, setEditingName] = useState(false);
     const [nameValue, setNameValue] = useState(file.name);
     const [renaming, setRenaming] = useState(false);
@@ -209,7 +209,7 @@ export function ViewDetailsPane({
     };
 
     return (
-        <div className="flex w-[280px] shrink-0 flex-col border-l border-zinc-800 bg-zinc-950/80">
+        <div className="flex w-70 shrink-0 flex-col border-l border-zinc-800 bg-zinc-950/80">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
@@ -227,17 +227,20 @@ export function ViewDetailsPane({
                 {/* Preview / Icon */}
                 <div className="mb-4 flex items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 py-8">
                     {file.mimeType.startsWith('image/') ? (
-                        <img
+                        <Image
                             src={`/api/uploads/${file.id}/content`}
                             alt={file.name}
-                            className="max-h-[120px] max-w-full rounded object-contain"
+                            className="max-h-30 max-w-full rounded object-contain"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).style.display =
                                     'none';
                             }}
                         />
                     ) : (
-                        <Icon size={48} className="text-zinc-500" />
+                        createElement(getFileIcon(file.mimeType), {
+                            size: 48,
+                            className: 'text-zinc-500',
+                        })
                     )}
                 </div>
 
@@ -294,7 +297,7 @@ export function ViewDetailsPane({
                     <div className="flex justify-between">
                         <dt className="text-zinc-500">Extension</dt>
                         <dd className="text-zinc-300">
-                            {file.extension ? `.${file.extension}` : '—'}
+                            {file.extension ? `.${file.extension}` : 'N/A'}
                         </dd>
                     </div>
                     <div className="flex justify-between">

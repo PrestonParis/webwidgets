@@ -106,7 +106,7 @@ function DeliverableRow({
 
             {external && (
                 <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400">
-                    Delivers to an external destination — output is reviewed
+                    Delivers to an external destination. Output is reviewed
                     before anything leaves your workspace.
                 </p>
             )}

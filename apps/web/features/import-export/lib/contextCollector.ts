@@ -3,6 +3,7 @@ import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { listEntries } from '@/features/context/services/contextService';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
 import { buildSystemPrompt } from '@/features/context/lib/contextPrompt';
+import { activityAdapter } from '@/features/import-export/adapters/activityAdapter';
 import type {
     ContextPayload,
     ContextSource,
@@ -47,7 +48,7 @@ export async function collectContext(
             systemPromptContent = buildSystemPrompt(graph, DEFAULT_PERMISSIONS);
         } else {
             warnings.push(
-                'Context graph is empty — add data through the Context page to improve AI responses.',
+                'Context graph is empty. Add data through the Context page to improve AI responses.',
             );
         }
     } catch (err) {
@@ -73,7 +74,6 @@ export async function collectContext(
 
     // ── Source 2: import/export service ───────────────────────────────────────
     if (options.includeImportExportService) {
-        // Import/export service is now integrated — mark as available
         sources.push({
             id: 'import_export_service',
             type: 'import_export_service',
@@ -98,18 +98,38 @@ export async function collectContext(
         });
     }
 
-    // ── Source 3: workspace context ───────────────────────────────────────────
-    // Future: load active workspace members/widgets
+    // ── Source 3: activity feed (recent platform events) ─────────────────────
+    // Gives Claude real-time awareness of what the user has been doing.
+    let activityContext = '';
+    let activityStatus: ContextSource['status'] = 'loading';
+    let activityEventCount = 0;
+    try {
+        activityContext = await activityAdapter.provideContext!(userId);
+        activityEventCount = activityContext
+            ? activityContext.split('\n').filter((l) => l.startsWith('- '))
+                  .length
+            : 0;
+        activityStatus = activityEventCount > 0 ? 'available' : 'empty';
+
+        if (activityContext) {
+            systemPromptContent = systemPromptContent
+                ? `${systemPromptContent}\n\n${activityContext}`
+                : activityContext;
+        }
+    } catch {
+        activityStatus = 'unavailable';
+        warnings.push('Failed to load recent activity context.');
+    }
+
     sources.push({
-        id: 'workspace',
-        type: 'workspace',
-        displayName: 'Workspace Context',
-        status: 'not_configured',
-        permissionGranted: false,
-        lastSynced: null,
-        included: false,
-        itemCount: 0,
-        error: 'Workspace context collection not yet wired into AI chat.',
+        id: 'activity_feed',
+        type: 'activity_feed',
+        displayName: 'Activity Feed',
+        status: activityStatus,
+        permissionGranted: DEFAULT_PERMISSIONS.aiPersonalization,
+        lastSynced: new Date().toISOString(),
+        included: activityStatus === 'available',
+        itemCount: activityEventCount,
     });
 
     const availableSources = sources.filter(

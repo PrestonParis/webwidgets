@@ -2,36 +2,43 @@ import type { OnboardingStepDefinition } from '@/features/onboarding/types/goals
 
 export const ONBOARDING_STEPS: OnboardingStepDefinition[] = [
     {
-        id: 'workspace',
-        label: 'Widgets',
-        eyebrow: 'Home dashboard',
-        title: 'Choose what belongs on your dashboard.',
+        id: 'welcome',
+        label: 'Goals',
+        eyebrow: 'Step 1 of 5',
+        title: 'What would you like WebWidgets to help you manage?',
         description:
-            'Pick only the widgets you want to see first. Everything else stays available in the widget catalog.',
+            "Choose everything that applies. We'll build your workspace around your goals.",
     },
     {
-        id: 'goals',
-        label: 'Goal',
-        eyebrow: 'Workspace intent',
-        title: 'What are you trying to accomplish?',
+        id: 'focus',
+        label: 'Focus areas',
+        eyebrow: 'Step 2 of 5',
+        title: 'What do you need help with?',
         description:
-            'Describe the workspace you want. WebWidgets stores this for future recommendations and setup passes without pretending to run AI here.',
+            'Select the tools and areas you want on your dashboard. You can add more later.',
     },
     {
         id: 'integrations',
-        label: 'Services',
-        eyebrow: 'Connections',
-        title: 'Connect services now, or skip them.',
+        label: 'Connect',
+        eyebrow: 'Step 3 of 5',
+        title: 'Connect your services.',
         description:
-            'Connect available providers, mark others for later, and keep unfinished integrations clearly labeled.',
+            'Link the apps you already use. You can skip any of these and connect them later.',
     },
     {
-        id: 'generate',
-        label: 'Finish',
-        eyebrow: 'Dashboard generation',
-        title: 'Create your starter workspace.',
+        id: 'recommendation',
+        label: 'Your workspace',
+        eyebrow: 'Step 4 of 5',
+        title: "Here's what we recommend.",
         description:
-            'Selected widgets go on the dashboard. A few deterministic suggestions land in the bucket for later.',
+            "Based on your goals we've picked a starting workspace. Adjust anything before launching.",
+    },
+    {
+        id: 'launch',
+        label: 'Launch',
+        eyebrow: 'Step 5 of 5',
+        title: 'Your workspace is ready.',
+        description: "Here's everything that was set up for you.",
     },
 ];
 
@@ -44,11 +51,11 @@ export function getStepDefinition(index: number): OnboardingStepDefinition {
     return (
         ONBOARDING_STEPS[index] ??
         ONBOARDING_STEPS[0] ?? {
-            id: 'workspace',
-            label: 'Widgets',
-            eyebrow: 'Home dashboard',
-            title: 'Choose what belongs on your dashboard.',
-            description: 'Pick starting widgets.',
+            id: 'welcome',
+            label: 'Goals',
+            eyebrow: 'Step 1 of 5',
+            title: 'What would you like WebWidgets to help you manage?',
+            description: 'Choose your goals.',
         }
     );
 }

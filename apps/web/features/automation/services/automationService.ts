@@ -11,6 +11,7 @@ import type {
     AutomationWidgetProfile,
 } from '@/features/automation/types/automation';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function listAutomationConfigs(userId: string) {
     const result = await db
@@ -72,7 +73,38 @@ export async function logAutomationRun(
         .select()
         .single();
     if (result.error) throw result.error;
-    return result.data as unknown;
+    const run = result.data as unknown;
+
+    // Publish activity event for terminal statuses
+    if (status === 'completed') {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'automation',
+            eventType: 'automation.executed',
+            sourceId: automationConfigId,
+            sourceTable: 'automation_configs',
+            category: 'automation',
+            severity: 'success',
+            priority: 'normal',
+            title: 'Automation executed',
+            metadata: { automationConfigId, runStatus: status },
+        });
+    } else if (status === 'failed') {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'automation',
+            eventType: 'automation.failed',
+            sourceId: automationConfigId,
+            sourceTable: 'automation_configs',
+            category: 'automation',
+            severity: 'critical',
+            priority: 'high',
+            title: 'Automation failed',
+            metadata: { automationConfigId, runStatus: status },
+        });
+    }
+
+    return run;
 }
 
 // ─── Automation Center service ─────────────────────────────────────────────────
@@ -87,7 +119,10 @@ export function listUserAutomations(
     return Promise.resolve([]);
 }
 
-export function toggleAutomation(_id: string, _enabled: boolean): Promise<void> {
+export function toggleAutomation(
+    _id: string,
+    _enabled: boolean,
+): Promise<void> {
     return Promise.resolve();
 }
 

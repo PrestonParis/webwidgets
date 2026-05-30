@@ -32,7 +32,7 @@ export default function ChessGameRow({
             <td className="px-6 py-4 text-zinc-500 whitespace-nowrap">
                 {game.played_at
                     ? new Date(game.played_at).toLocaleDateString()
-                    : '—'}
+                    : 'N/A'}
             </td>
 
             <td className="px-6 py-4">

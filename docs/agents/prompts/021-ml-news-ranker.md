@@ -19,6 +19,7 @@ Build a personalized news ranking model for the News Intel widget/page. Currentl
 ## Current ML Architecture
 
 The ML service has three models:
+
 1. `email_classifier` (TF-IDF + LogisticRegression) → `/predict`
 2. `widget_suggester` (TF-IDF + LogisticRegression) → `/suggest`
 3. `action_extractor` (ML + structural regex) → `/extract-actions`
@@ -28,6 +29,7 @@ Follow the same training pipeline pattern in `train.py` and `training_utils.py`.
 ## Required Implementation
 
 ### 1. `ml_service/train_news_ranker.py`
+
 - Training data: `data/news_relevance_training.json` — array of `{ title, description, category, user_topics: string[], relevance_score: 0-1 }`
 - Features: TF-IDF on `title + description`, one-hot encode `category`
 - Model: `GradientBoostingRegressor` or `Ridge` for relevance score prediction
@@ -35,6 +37,7 @@ Follow the same training pipeline pattern in `train.py` and `training_utils.py`.
 - Include threshold tuning from `training_utils.py`
 
 ### 2. `ml_service/main.py` — add endpoint
+
 ```python
 @app.post("/rank-news")
 async def rank_news(data: NewsRankRequest) -> NewsRankResponse:
@@ -42,6 +45,7 @@ async def rank_news(data: NewsRankRequest) -> NewsRankResponse:
 ```
 
 ### 3. `ml_service/schemas.py` — add schemas
+
 ```python
 class NewsRankItem(BaseModel):
     id: str
@@ -62,11 +66,13 @@ class NewsRankResponse(BaseModel):
 ```
 
 ### 4. `app/api/ml/rank-news/route.ts`
+
 - POST proxy to `ML_SERVICE_URL/rank-news`
 - Called from `features/news/hooks/useNewsFeed.ts` before displaying items
 - Graceful fallback: if ML unavailable, return items in original order
 
 ### 5. `features/news/hooks/useNewsFeed.ts`
+
 - After fetching items, POST to `/api/ml/rank-news` with current items + user's active widget types as topics
 - Sort items by returned `relevance_score` descending
 

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { WeightLogForm } from './WeightLogForm';
-import { WeightTrendChart } from './WeightTrendChart';
+import { WeightTrendChart } from '@/features/ui/visualizations/components/WeightTrendChart';
 import { WeightHistoryRow } from './WeightHistoryRow';
 import { BMICalculator } from './BMICalculator';
 import {
@@ -74,7 +74,7 @@ export function WeightBMIPanel({
                         Current
                     </p>
                     <p className="mt-1 text-lg font-bold text-gray-900 dark:text-zinc-100">
-                        {latest ? fmtWeight(latest.weightKg, unit) : '—'}
+                        {latest ? fmtWeight(latest.weightKg, unit) : 'N/A'}
                     </p>
                     {changeKg !== null && (
                         <p
@@ -95,7 +95,7 @@ export function WeightBMIPanel({
                     <p
                         className={`mt-1 text-lg font-bold ${bmiCategory ? BMI_CATEGORY_COLOR[bmiCategory] : 'text-gray-900 dark:text-zinc-100'}`}
                     >
-                        {currentBMI !== null ? currentBMI.toFixed(1) : '—'}
+                        {currentBMI !== null ? currentBMI.toFixed(1) : 'N/A'}
                     </p>
                     {bmiCategory && (
                         <span

@@ -118,7 +118,7 @@ export function formatMetadataDisplay(
         if (duration)
             return formatSleepDuration(duration.hours, duration.minutes);
         if (quality !== undefined) return `Quality: ${quality}/10`;
-        return '—';
+        return 'N/A';
     }
 
     if (category === 'workout') {
@@ -165,7 +165,7 @@ export function formatMetadataDisplay(
     if (category === 'mood') {
         const score =
             typeof metadata['score'] === 'number' ? metadata['score'] : null;
-        return score !== null ? `Mood: ${score}/5` : '—';
+        return score !== null ? `Mood: ${score}/5` : 'N/A';
     }
 
     if (category === 'supplement') {
@@ -187,7 +187,7 @@ export function formatMetadataDisplay(
                   : undefined;
         const time =
             typeof metadata['time'] === 'string' ? metadata['time'] : undefined;
-        return [name, dose, status, time].filter(Boolean).join(' — ');
+        return [name, dose, status, time].filter(Boolean).join(', ');
     }
 
     if (category === 'symptom') {
@@ -212,5 +212,5 @@ export function formatMetadataDisplay(
         return `${location}${severity}`;
     }
 
-    return '—';
+    return 'N/A';
 }

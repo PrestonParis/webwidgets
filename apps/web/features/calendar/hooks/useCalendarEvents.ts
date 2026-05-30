@@ -63,6 +63,8 @@ export function useCalendarEvents(year: number, month: number) {
     const events: CalendarEvent[] = data ? toCalendarEvents(data) : [];
     const isNotConnected = data?.isNotConnected ?? (error !== null && !loading);
 
+    const cacheKey = `${year}-${month}-wide`;
+
     const refresh = useCallback(() => {
         void queryClient.invalidateQueries({
             queryKey: [

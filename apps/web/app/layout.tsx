@@ -27,7 +27,10 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <Script id="theme-init" strategy="beforeInteractive">{`try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}`}</Script>
+                <Script
+                    id="theme-init"
+                    strategy="beforeInteractive"
+                >{`try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}`}</Script>
             </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}

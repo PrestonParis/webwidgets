@@ -33,10 +33,12 @@ import AddTrackerDrawer from '@/features/recovery/components/AddTrackerDrawer';
 import ConfirmModal from '@/features/recovery/components/ConfirmModal';
 import EmptyState from '@/features/recovery/components/EmptyState';
 import type { PendingAction } from '@/features/recovery/types/recovery';
+import { HabitPageContent } from '@/features/habit/components/HabitPage';
 import { Plus } from 'lucide-react';
 
 const LEFT_TABS = [
     { id: 'log', label: 'Log' },
+    { id: 'logging', label: 'Logging' },
     { id: 'recovery', label: 'Recovery' },
     { id: 'goals', label: 'Goals' },
     { id: 'import', label: 'Import' },
@@ -106,6 +108,8 @@ export default function TrackingPage() {
         activeTab === 'correlations'
             ? 'log'
             : activeTab;
+
+    const isLoggingTab = leftTab === 'logging';
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
@@ -204,7 +208,9 @@ export default function TrackingPage() {
                         tone="indigo"
                     />
 
-                    {leftTab === 'recovery' ? (
+                    {isLoggingTab ? (
+                        <HabitPageContent />
+                    ) : leftTab === 'recovery' ? (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300">

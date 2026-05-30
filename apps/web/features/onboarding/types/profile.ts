@@ -1,5 +1,6 @@
 import type { WidgetType } from '@/features/dashboard/types/dashboard';
 import type {
+    FocusAreaId,
     OnboardingGoalId,
     OnboardingStatus,
     OnboardingStepId,
@@ -32,6 +33,7 @@ export interface OnboardingProfile {
     currentStep: OnboardingStepId;
     completed: boolean;
     goals: OnboardingGoalId[];
+    focusAreas: FocusAreaId[];
     intent: string;
     selectedWidgetTypes: WidgetType[];
     enabledIntegrationIds: string[];

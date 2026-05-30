@@ -63,7 +63,7 @@ export function AutomationPage() {
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">
                             Triggers, conditions, actions, schedules, and
-                            approvals across your widgets — with consent gates
+                            approvals across your widgets, with consent gates
                             and no unsafe autonomous execution.
                         </p>
                     </div>

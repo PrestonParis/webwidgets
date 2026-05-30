@@ -205,7 +205,7 @@ export function fmtTrend(
     trendPerDayKg: number | null,
     unit: WeightUnit,
 ): string {
-    if (trendPerDayKg === null) return '—';
+    if (trendPerDayKg === null) return 'N/A';
     const weekKg = trendPerDayKg * 7;
     const val = unit === 'lbs' ? kgToLbs(weekKg) : weekKg;
     const sign = val > 0 ? '+' : '';

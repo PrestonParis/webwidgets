@@ -7,6 +7,7 @@ import {
     upsertGoal,
 } from '@/features/tracking/services/goalService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const upsertSchema = z.object({
     category: z.string().min(1),
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
                 { error: 'Invalid payload' },
                 { status: 400 },
             );
+
         const goal = await upsertGoal(
             supabase as unknown as SupabaseClient,
             userId,
@@ -48,6 +50,34 @@ export async function POST(req: Request) {
                 'id' | 'userId' | 'createdAt'
             >,
         );
+
+        const { category, targetType, targetValue } = body.data;
+        const goalId = (goal as { id?: string }).id;
+        const formatted = category
+            .split('_')
+            .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'tracking',
+            eventType: 'tracking.goal_created',
+            sourceId: goalId,
+            sourceTable: 'tracking_goals',
+            category: 'data',
+            severity: 'info',
+            priority: 'normal',
+            title: `Tracking goal set: ${formatted}`,
+            body: `Target: ${targetValue} (${targetType.replace(/_/g, ' ')})`,
+            actionUrl: '/tracking',
+            metadata: {
+                category,
+                targetType,
+                targetValue,
+                metricKey: body.data.metricKey,
+            },
+        });
+
         return NextResponse.json({ goal });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

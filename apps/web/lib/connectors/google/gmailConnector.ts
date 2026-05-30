@@ -80,16 +80,14 @@ export async function fetchGmailSummary(
     }
 
     const details = await Promise.allSettled(
-        messageIds
-            .slice(0, limit)
-            .map((msg) =>
-                gmail.users.messages.get({
-                    userId: 'me',
-                    id: msg.id ?? '',
-                    format: 'metadata',
-                    metadataHeaders: ['Subject', 'From', 'Date'],
-                }),
-            ),
+        messageIds.slice(0, limit).map((msg) =>
+            gmail.users.messages.get({
+                userId: 'me',
+                id: msg.id ?? '',
+                format: 'metadata',
+                metadataHeaders: ['Subject', 'From', 'Date'],
+            }),
+        ),
     );
 
     const messages: GmailMessage[] = details.flatMap((result) => {

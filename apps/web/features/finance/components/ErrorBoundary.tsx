@@ -31,7 +31,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
             return (
                 <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-4">
                     <div className="flex gap-3">
-                        <AlertCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />
+                        <AlertCircle
+                            className="text-red-600 dark:text-red-400 shrink-0 mt-0.5"
+                            size={18}
+                        />
                         <div>
                             <p className="text-sm font-medium text-red-900 dark:text-red-200">
                                 Something went wrong

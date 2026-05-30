@@ -4,7 +4,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { requireAdminUser } from '@/features/admin/lib/adminPermissions';
 import AdminShell from '@/features/admin/components/AdminShell';
 
-export const metadata = { title: 'Admin — Dashboard' };
+export const metadata = { title: 'Admin | Dashboard' };
 
 export default async function AdminLayout({
     children,

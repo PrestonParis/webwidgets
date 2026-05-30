@@ -223,7 +223,7 @@ export default function AccountDropdown({
                                             <Zap className="w-3 h-3" />
                                             {upgradeLoading
                                                 ? 'Loading…'
-                                                : 'Upgrade to Pro — $9/mo'}
+                                                : 'Upgrade to Pro for /mo'}
                                         </button>
                                         <Link
                                             href="/settings"

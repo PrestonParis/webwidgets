@@ -1,6 +1,11 @@
 'use client';
 
-import type { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes, ReactNode } from 'react';
+import type {
+    InputHTMLAttributes,
+    SelectHTMLAttributes,
+    TextareaHTMLAttributes,
+    ReactNode,
+} from 'react';
 import { cn } from '@/lib/utils/utils';
 
 interface FormFieldProps {
@@ -13,7 +18,15 @@ interface FormFieldProps {
     htmlFor?: string;
 }
 
-export function FormField({ label, hint, error, required, children, className, htmlFor }: FormFieldProps) {
+export function FormField({
+    label,
+    hint,
+    error,
+    required,
+    children,
+    className,
+    htmlFor,
+}: FormFieldProps) {
     return (
         <div className={cn('space-y-1.5', className)}>
             {label && (
@@ -22,15 +35,26 @@ export function FormField({ label, hint, error, required, children, className, h
                     className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                 >
                     {label}
-                    {required && <span className="ml-0.5 text-red-500" aria-hidden>*</span>}
+                    {required && (
+                        <span className="ml-0.5 text-red-500" aria-hidden>
+                            *
+                        </span>
+                    )}
                 </label>
             )}
             {children}
             {hint && !error && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">{hint}</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {hint}
+                </p>
             )}
             {error && (
-                <p className="text-xs text-red-600 dark:text-red-400" role="alert">{error}</p>
+                <p
+                    className="text-xs text-red-600 dark:text-red-400"
+                    role="alert"
+                >
+                    {error}
+                </p>
             )}
         </div>
     );
@@ -64,11 +88,21 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
     rows?: number;
 }
 
-export function TextArea({ error, className, rows = 4, ...props }: TextAreaProps) {
+export function TextArea({
+    error,
+    className,
+    rows = 4,
+    ...props
+}: TextAreaProps) {
     return (
         <textarea
             rows={rows}
-            className={cn(inputBase, 'resize-none', error && inputError, className)}
+            className={cn(
+                inputBase,
+                'resize-none',
+                error && inputError,
+                className,
+            )}
             {...props}
         />
     );
@@ -80,7 +114,13 @@ interface SelectInputProps extends SelectHTMLAttributes<HTMLSelectElement> {
     placeholder?: string;
 }
 
-export function SelectInput({ error, options, placeholder, className, ...props }: SelectInputProps) {
+export function SelectInput({
+    error,
+    options,
+    placeholder,
+    className,
+    ...props
+}: SelectInputProps) {
     return (
         <select
             className={cn(inputBase, error && inputError, className)}
@@ -88,7 +128,9 @@ export function SelectInput({ error, options, placeholder, className, ...props }
         >
             {placeholder && <option value="">{placeholder}</option>}
             {options.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                    {o.label}
+                </option>
             ))}
         </select>
     );

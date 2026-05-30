@@ -48,7 +48,8 @@ export type SourceDestinationType =
     | 'recovery_records'
     | 'calendar_events'
     | 'memory_decks'
-    | 'files';
+    | 'files'
+    | 'activity_events';
 
 // ── Field mapping ─────────────────────────────────────────────────────────────
 export interface FieldMapping {

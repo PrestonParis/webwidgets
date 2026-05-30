@@ -13,6 +13,7 @@ import {
     Target,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
@@ -81,6 +82,12 @@ export default function WorkoutWidget() {
             footerLabel="Open fitness dashboard"
             widgetId="workout-widget"
             widgetType="tracking-workout"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Workouts"
+                />
+            }
         >
             <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">

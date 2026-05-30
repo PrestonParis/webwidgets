@@ -79,7 +79,7 @@ function snapshotData(
  * This provides lightweight summary information before full hydration
  */
 function extractCompactPreview(
-    manifest: WidgetManifest,
+    _manifest: WidgetManifest,
     data: unknown,
 ): Record<string, unknown> | undefined {
     if (!data) return undefined;

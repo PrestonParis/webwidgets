@@ -59,7 +59,7 @@ export function EmailIntelligenceCard({
                     <label className="text-xs font-semibold text-gray-700 dark:text-zinc-300">
                         Anthropic API Key{' '}
                         <span className="font-normal text-gray-400">
-                            (optional — uses shared key if blank)
+                            (optional, uses shared key if blank)
                         </span>
                     </label>
                     <div className="flex gap-2">

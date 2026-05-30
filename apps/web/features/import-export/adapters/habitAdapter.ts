@@ -16,7 +16,7 @@ const COMPLETION_WINDOW_DAYS = 30;
 export const habitAdapter: ImportExportAdapter = {
     id: 'habits',
     displayName: 'Habits',
-    description: 'Habit tracking — export your habits and completion history',
+    description: 'Habit tracking: export your habits and completion history',
     sourceType: 'habits',
     canImport: false,
     canExport: true,
@@ -93,7 +93,7 @@ export const habitAdapter: ImportExportAdapter = {
         }
         if (completionError && isMissingTableError(completionError)) {
             warnings.push(
-                'habit_completions table not configured — completion data will be empty',
+                'habit_completions table not configured, completion data will be empty',
             );
         }
 

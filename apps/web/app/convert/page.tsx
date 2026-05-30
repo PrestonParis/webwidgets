@@ -1,15 +1,18 @@
+import { Suspense } from 'react';
 import Header from '@/features/ui/components/Header';
-import { ConverterPageClient } from '@/features/convert/components/ConverterPageClient';
+import UnitConvertPage from '@/features/convert/components/UnitConvertPage';
 
 export const metadata = {
-    title: 'File Converter',
+    title: 'Converter',
 };
 
 export default function ConvertPage() {
     return (
         <>
             <Header />
-            <ConverterPageClient />
+            <Suspense>
+                <UnitConvertPage />
+            </Suspense>
         </>
     );
 }

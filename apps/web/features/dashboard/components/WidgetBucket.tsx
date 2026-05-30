@@ -55,7 +55,7 @@ export function WidgetBucket({
                 {bucketed.length > 0 && (
                     <span
                         className={cn(
-                            'ml-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1',
+                            'ml-0.5 min-w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1',
                             open
                                 ? 'bg-white/20 text-white'
                                 : 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900',

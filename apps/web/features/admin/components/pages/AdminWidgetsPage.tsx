@@ -67,7 +67,7 @@ export function AdminWidgetsPage() {
             />
             {data === null && !loading ? (
                 <div className="text-sm text-gray-400 p-4">
-                    Widget data not available — add an /api/admin/widgets route
+                    Widget data not available. Add an /api/admin/widgets route.
                     to enable this view.
                 </div>
             ) : (

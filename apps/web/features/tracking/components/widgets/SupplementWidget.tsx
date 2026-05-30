@@ -14,6 +14,7 @@ import {
     Star,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { QuickEntryForm } from '@/features/tracking/components/QuickEntryForm';
 import { SupplementDefForm } from '@/features/tracking/components/widgets/SupplementDefForm';
 import {
@@ -96,6 +97,12 @@ export default function SupplementWidget() {
             footerLabel="Open supplement dashboard"
             widgetId="supplement-widget"
             widgetType="tracking-supplements"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Supplements"
+                />
+            }
         >
             <div className="space-y-3">
                 {loading ? (

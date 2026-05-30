@@ -63,7 +63,8 @@ export function AutomationSuggestions({
                         </div>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                             <SafetyBadge level={definition.safetyLevel} />
-                            {definition.consent.providersRequired.length > 0 && (
+                            {definition.consent.providersRequired.length >
+                                0 && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                                     <Plug size={10} />
                                     {definition.consent.providersRequired.join(

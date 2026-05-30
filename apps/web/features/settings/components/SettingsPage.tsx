@@ -130,7 +130,7 @@ export default function SettingsHomePage() {
                         Context diagram
                     </p>
                     <p className="mt-1 text-sm text-gray-500">
-                        View and edit your knowledge graph — goals, widgets,
+                        View and edit your knowledge graph: goals, widgets,
                         integrations, and AI memory.
                     </p>
                 </div>

@@ -8,6 +8,7 @@ Priority: High
 ## Objective
 
 Build two tightly-coupled ML capabilities for the Context Diagram and AI Chat features:
+
 1. **Context Summarizer** — given a user's context graph (widgets, integrations, recent actions), generate a concise natural-language summary usable as a system prompt prefix for AI chat
 2. **Chat Intent Classifier** — classify user chat messages into intent buckets to route to the right action (widget operation, search, file action, calendar action, general Q&A)
 
@@ -23,6 +24,7 @@ Build two tightly-coupled ML capabilities for the Context Diagram and AI Chat fe
 ### Part A: Context Summarizer (deterministic/template-based, no model file needed)
 
 #### `ml_service/context_summarizer.py` (new module)
+
 ```python
 def summarize_context(
     active_widgets: list[str],
@@ -34,37 +36,48 @@ def summarize_context(
 ```
 
 Template approach — no trained model needed. Build a template engine that produces:
+
 > "The user actively uses [widgets]. They have connected [integrations]. Recent focus: [actions]. Their stated goals are [goals]."
 
 #### `ml_service/main.py` — add endpoint
+
 ```python
 @app.post("/summarize-context")
 async def summarize_context_endpoint(data: ContextSummaryRequest) -> ContextSummaryResponse:
 ```
 
 #### `app/api/ml/summarize-context/route.ts`
+
 - POST proxy
 - Called from chat initialization to build system prompt prefix
 
 ### Part B: Chat Intent Classifier (trained model)
 
 #### `ml_service/data/chat_intent_training.json`
+
 Generate 400+ samples:
+
 ```json
 [
-  { "message": "Add a meeting with John tomorrow at 3pm", "intent": "calendar_action" },
+  {
+    "message": "Add a meeting with John tomorrow at 3pm",
+    "intent": "calendar_action"
+  },
   { "message": "What's the weather like?", "intent": "widget_query" },
   { "message": "Search my emails for the Netflix invoice", "intent": "search" },
   { "message": "Explain this code snippet", "intent": "general_qa" }
 ]
 ```
+
 Intents: `widget_query`, `calendar_action`, `file_action`, `search`, `tracking_log`, `general_qa`, `settings_change`
 
 #### `ml_service/train_chat_intent.py`
+
 - Model: TF-IDF + `LinearSVC`
 - Output: `models/chat_intent_v1.pkl` + metadata
 
 #### `ml_service/schemas.py` — add schemas
+
 ```python
 class ContextSummaryRequest(BaseModel):
     active_widgets: list[str]
@@ -86,6 +99,7 @@ class ChatIntentResponse(BaseModel):
 ```
 
 #### `ml_service/main.py` — add endpoint
+
 ```python
 @app.post("/classify-intent")
 async def classify_chat_intent(data: ChatIntentRequest) -> ChatIntentResponse:

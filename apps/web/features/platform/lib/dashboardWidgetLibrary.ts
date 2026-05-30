@@ -2,7 +2,6 @@ import type { WidgetType } from '@/features/dashboard/types/dashboard';
 import { WIDGET_CATALOG } from '@/features/search/lib/widgetCatalog';
 import { WIDGET_REGISTRY } from '@/features/platform/registry/widgetRegistry';
 import type { WidgetDefinition } from '@/features/platform/types/widget';
-import type { OnboardingGoalId } from '@/features/onboarding/types/goals';
 
 export interface DashboardWidgetLibraryEntry {
     type: WidgetType;
@@ -169,7 +168,7 @@ export function getDashboardWidgetLibrary() {
     return [...byType.values()].sort(sortByComplexity);
 }
 
-export function getDashboardWidgetTypesForGoals(goals: OnboardingGoalId[]) {
+export function getDashboardWidgetTypesForGoals(goals: string[]) {
     return WIDGET_REGISTRY.filter((widget) =>
         widget.goals.some((goal) => goals.includes(goal)),
     )

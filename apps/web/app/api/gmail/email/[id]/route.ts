@@ -11,7 +11,10 @@ export async function GET(
     _req: Request,
     { params }: { params: Promise<{ id: string }> },
 ) {
-    const { id } = await params;
+    const raw = await params;
+    // Snapshot IDs are prefixed "gmail:<msgId>" — strip the prefix before
+    // passing to the Gmail API which only accepts the raw message ID.
+    const id = raw.id.startsWith('gmail:') ? raw.id.slice(6) : raw.id;
     const { supabase, supabaseAdmin } = await createClients();
     const user = await getUserOrThrow(supabase);
 

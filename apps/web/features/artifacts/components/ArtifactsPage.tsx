@@ -70,7 +70,7 @@ export default function ArtifactsPage({ initialId }: { initialId?: string }) {
     };
 
     return (
-        <div className="flex h-full min-h-[600px] bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="flex h-full min-h-150 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             {/* Sidebar */}
             <div className="w-72 shrink-0 border-r border-zinc-200 dark:border-zinc-800 flex flex-col">
                 {/* Type filter tabs */}

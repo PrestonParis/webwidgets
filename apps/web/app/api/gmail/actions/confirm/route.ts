@@ -70,7 +70,7 @@ async function insertTodos(
         .filter((a) => a.type === 'action' || a.type === 'deadline')
         .map((a) => ({
             user_id: userId,
-            text: a.description ? `${a.title} — ${a.description}` : a.title,
+            text: a.description ? `${a.title}: ${a.description}` : a.title,
         }));
 
     if (todoRows.length === 0) return;

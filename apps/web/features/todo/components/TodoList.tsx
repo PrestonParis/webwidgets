@@ -35,7 +35,7 @@ export function TodoList({
         return (
             <div className="flex flex-col items-center justify-center py-6 text-stone-400 dark:text-zinc-600">
                 <CheckSquare size={28} className="mb-2 opacity-40" />
-                <p className="text-xs">All clear — nothing to do!</p>
+                <p className="text-xs">All clear, nothing to do!</p>
             </div>
         );
     }

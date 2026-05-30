@@ -199,8 +199,8 @@ export function AnalysisBoard({
                 </div>
                 {stockfishEnabled && (
                     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-500">
-                        Engine analysis — add{' '}
-                        <code className="text-zinc-400">stockfish.js</code> to{' '}
+                        Engine analysis requires{' '}
+                        <code className="text-zinc-400">stockfish.js</code> in{' '}
                         <code className="text-zinc-400">public/</code> to enable
                         evaluation.
                     </div>

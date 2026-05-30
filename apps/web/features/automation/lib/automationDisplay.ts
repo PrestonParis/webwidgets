@@ -135,7 +135,7 @@ export function scheduleSummary(schedule?: AutomationSchedule): string {
 // ─── Relative time ─────────────────────────────────────────────────────────────
 
 export function relativeTime(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return 'N/A';
     const diff = Date.parse(iso) - Date.now();
     const abs = Math.abs(diff);
     const minutes = Math.round(abs / 60_000);
@@ -149,7 +149,7 @@ export function relativeTime(iso?: string): string {
 }
 
 export function formatDuration(ms?: number): string {
-    if (ms === undefined) return '—';
+    if (ms === undefined) return 'N/A';
     if (ms < 1000) return `${ms}ms`;
     return `${(ms / 1000).toFixed(1)}s`;
 }

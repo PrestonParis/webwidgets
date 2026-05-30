@@ -1,8 +1,9 @@
 export type OnboardingStepId =
-    | 'workspace'
-    | 'goals'
+    | 'welcome'
+    | 'focus'
     | 'integrations'
-    | 'generate';
+    | 'recommendation'
+    | 'launch';
 
 export type OnboardingStatus =
     | 'not_started'
@@ -11,22 +12,38 @@ export type OnboardingStatus =
     | 'skipped';
 
 export type OnboardingGoalId =
-    | 'productivity'
-    | 'health-tracking'
-    | 'recovery'
-    | 'finance'
-    | 'development'
-    | 'writing-knowledge'
+    | 'school'
+    | 'work'
+    | 'software-development'
+    | 'personal-productivity'
+    | 'health-fitness'
+    | 'finances'
     | 'research'
-    | 'automation'
-    | 'learning'
-    | 'personal-dashboard';
+    | 'custom';
+
+export type FocusAreaId =
+    | 'email'
+    | 'calendar'
+    | 'tasks'
+    | 'notes'
+    | 'documents'
+    | 'research-queue'
+    | 'habits'
+    | 'health'
+    | 'finance'
+    | 'collaboration';
 
 export interface GoalDefinition {
     id: OnboardingGoalId;
     label: string;
+    emoji: string;
     summary: string;
-    details: string;
+}
+
+export interface FocusAreaDefinition {
+    id: FocusAreaId;
+    label: string;
+    emoji: string;
 }
 
 export interface OnboardingStepDefinition {

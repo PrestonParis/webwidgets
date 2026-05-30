@@ -173,7 +173,7 @@ export const WIDGET_CATALOG_PART_1: WidgetEntry[] = [
         type: 'timer',
         name: 'Timer',
         emoji: '⏳',
-        description: 'Countdown timer — set a duration and count down',
+        description: 'Countdown timer: set a duration and count down',
         href: '/time?mode=timer',
         keywords: [
             'timer',

@@ -4,14 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
-// Always request the full combined Google scope set so that connecting Gmail
-// doesn't overwrite calendar tokens (and vice versa) — we store one Google
-// token row per user that must cover all services.
-const GMAIL_SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/calendar.events',
-].join(' ');
-
 export interface ConnectedAccount {
     id: string;
     provider: 'google' | 'microsoft';
@@ -59,17 +51,8 @@ export function useEmailConnection() {
     }, [user?.id]);
 
     const connectGmail = useCallback(() => {
-        void supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: GMAIL_SCOPES,
-                queryParams: {
-                    access_type: 'offline',
-                    prompt: 'consent select_account',
-                },
-                redirectTo: `${window.location.origin}/auth/callback?next=/inbox`,
-            },
-        });
+        const redirect = encodeURIComponent(window.location.pathname);
+        window.location.assign(`/api/auth/google/start?redirect=${redirect}`);
     }, []);
 
     const connectOutlook = useCallback(() => {

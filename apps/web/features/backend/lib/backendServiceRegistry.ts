@@ -40,7 +40,7 @@ export const BACKEND_SERVICE_REGISTRY = [
     },
     {
         id: 'audit',
-        owner: 'features/audit',
+        owner: 'features/import-export',
         responsibilities: ['security and backend audit events'],
     },
     {

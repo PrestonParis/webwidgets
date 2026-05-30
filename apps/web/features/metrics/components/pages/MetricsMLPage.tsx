@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { MetricCard } from '../MetricCard';
-import { TimeSeriesChart } from '../TimeSeriesChart';
+import { TimeSeriesChart } from '@/features/ui/visualizations/components/TimeSeriesChart';
 import { MetricsDataTable } from '../MetricsDataTable';
 import { ExportCsvButton } from '../ExportCsvButton';
 import { MetricsErrorState } from '../MetricsErrorState';

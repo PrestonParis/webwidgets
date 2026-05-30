@@ -221,7 +221,7 @@ function RelationshipSection({
                         }}
                         className="w-full text-xs rounded-xl bg-zinc-100 dark:bg-zinc-800 border-0 px-3 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-400"
                     >
-                        <option value="">— none —</option>
+                        <option value="">None</option>
                         {widgetList.map((w) => (
                             <option key={w.id} value={w.id}>
                                 {w.label}
