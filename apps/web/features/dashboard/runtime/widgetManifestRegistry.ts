@@ -234,38 +234,35 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         exportsSchemas: [],
     },
 
-    // ── Direct API widgets (not yet migrated to import/export) ───────────────
+    // ── Calendar — fully adapter-backed ──────────────────────────────────────
+    // CalendarWidget uses useCalendarAdapterEvents (wraps useAdapterFetch) for
+    // the interactive month-grid. Dynamic start/end params produce separate cache
+    // entries per month, preventing stale data across navigation.
     calendar: {
         widgetType: 'calendar',
         priority: 'high',
         aboveFold: true,
         dataRequirements: [
             // calendar_events adapter wraps Google Calendar + Outlook via calendarService.
-            // ExportOptions.startDate/endDate are now supported; the adapter calculates
-            // daysAhead from the requested end date and filters results to the range.
+            // The widget reads this for the upcoming-events sidebar (14-day default window).
+            // For the interactive month-grid, CalendarWidget calls useCalendarAdapterEvents
+            // with dynamic startDate/endDate params — handled outside the manifest system.
             {
                 sourceType: 'calendar_events',
                 scope: 'current_user',
                 required: false,
-                label: 'Upcoming events',
+                label: 'Calendar events',
                 cacheTtlMs: 120_000,
-            },
-            // TODO(migration): still on sourceType:'api' for the interactive month-grid.
-            // CalendarWidget uses useCalendarPage() which manages date navigation state
-            // client-side. Moving the month grid to the adapter requires passing dynamic
-            // start_date/end_date through useWidgetData, which doesn't support per-request
-            // options yet. The CalendarWidget keeps its direct fetch for this path.
-            {
-                sourceType: 'api',
-                apiRoute: '/api/calendar/events',
-                required: false,
-                label: 'Month events',
-                cacheTtlMs: 60_000,
             },
         ],
         acceptsSchemas: ['calendar_event'],
         exportsSchemas: [],
     },
+    // ── Memorization — fully adapter-backed ───────────────────────────────────
+    // MemorizationWidget reads deck summaries via memoryDecksAdapter.
+    // Per-deck card fetches (review flow) happen in useMemorization with direct
+    // API calls — this is intentional as those are part of the full review page,
+    // not the dashboard widget.
     memorization: {
         widgetType: 'memorization',
         priority: 'normal',
@@ -278,16 +275,6 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
                 scope: 'current_user',
                 required: true,
                 label: 'Deck summaries',
-                cacheTtlMs: 10_000,
-            },
-            // TODO(migration): per-deck card fetch stays on sourceType:'api' because the
-            // deck ID (needed to filter cards) isn't available at manifest load time.
-            // This source is only used by the full MemorizationPage review flow, not the widget.
-            {
-                sourceType: 'api',
-                apiRoute: '/api/memory/cards',
-                required: false,
-                label: 'Cards (per-deck)',
                 cacheTtlMs: 10_000,
             },
         ],
