@@ -399,7 +399,7 @@ export function SupplementFields({
                 </div>
                 <div>
                     <label className={labelCls}>
-                        Severity —{' '}
+                        Severity:{' '}
                         <span className="text-indigo-500">{severity}/10</span>
                     </label>
                     <input
@@ -440,7 +440,7 @@ export function SupplementFields({
             </div>
             <div>
                 <label className={labelCls}>
-                    Severity —{' '}
+                    Severity:{' '}
                     <span className="text-indigo-500">{severity}/10</span>
                 </label>
                 <input

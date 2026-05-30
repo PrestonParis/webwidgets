@@ -311,7 +311,7 @@ function AiFallback({
                         Chat with AI
                     </p>
                     <p className="text-xs text-zinc-400 truncate">
-                        No widget matches — open AI Chat in WebWidgets
+                        No widget matches. Open AI Chat in WebWidgets
                     </p>
                 </div>
             </Link>

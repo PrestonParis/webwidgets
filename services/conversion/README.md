@@ -11,14 +11,14 @@ Lives at `services/conversion/` in the monorepo. WebWidgets keeps cheap browser/
 
 ## API
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/health` | Liveness check |
-| `GET` | `/v1/conversions` | List supported conversion routes |
-| `POST` | `/v1/jobs` | Create a job; returns presigned upload URL |
-| `GET` | `/v1/jobs/:jobId` | Get job status |
-| `POST` | `/v1/jobs/:jobId/start` | Enqueue the job after upload |
-| `GET` | `/v1/jobs/:jobId/download` | Get presigned download URL (status=completed only) |
+| Method | Path                       | Description                                        |
+| ------ | -------------------------- | -------------------------------------------------- |
+| `GET`  | `/health`                  | Liveness check                                     |
+| `GET`  | `/v1/conversions`          | List supported conversion routes                   |
+| `POST` | `/v1/jobs`                 | Create a job; returns presigned upload URL         |
+| `GET`  | `/v1/jobs/:jobId`          | Get job status                                     |
+| `POST` | `/v1/jobs/:jobId/start`    | Enqueue the job after upload                       |
+| `GET`  | `/v1/jobs/:jobId/download` | Get presigned download URL (status=completed only) |
 
 No paid or proprietary conversion APIs are used.
 
@@ -169,18 +169,18 @@ curl -s http://localhost:4010/v1/jobs/<jobId>/download | jq .downloadUrl
 
 ## Supported Document Conversions
 
-| Source | Targets | Engine | Notes |
-|---|---|---|---|
-| `doc`, `docx`, `odt`, `rtf` | `pdf` | LibreOffice | Office layout fidelity is best-effort. |
-| `txt` | `pdf` | Pandoc | PDF output may require a LaTeX PDF engine. |
-| `html` | `pdf`, `md`, `epub` | Pandoc | TODO: HTML input is not actively sanitized before conversion. |
-| `md` | `pdf`, `html`, `txt`, `epub` | Pandoc | `md` to `html` has a safe fallback if Pandoc is missing. PDF may require LaTeX. |
-| `txt` | `md` | Native | Plain text is valid Markdown and is preserved unchanged. |
-| `ppt`, `pptx`, `odp` | `pdf` | LibreOffice | Presentation layout fidelity is best-effort. |
-| `xls`, `xlsx`, `ods` | `pdf` | LibreOffice | Spreadsheet pagination is best-effort. |
-| `csv` | `xlsx`, `pdf` | LibreOffice | CSV is opened as a spreadsheet before export. |
-| `xlsx` | `csv` | LibreOffice | Exports the first sheet only. TODO: add multi-sheet export packaging. |
-| `epub` | `pdf`, `html` | Pandoc | Best-effort and may be lossy, especially for PDF. |
+| Source                      | Targets                      | Engine      | Notes                                                                           |
+| --------------------------- | ---------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `doc`, `docx`, `odt`, `rtf` | `pdf`                        | LibreOffice | Office layout fidelity is best-effort.                                          |
+| `txt`                       | `pdf`                        | Pandoc      | PDF output may require a LaTeX PDF engine.                                      |
+| `html`                      | `pdf`, `md`, `epub`          | Pandoc      | TODO: HTML input is not actively sanitized before conversion.                   |
+| `md`                        | `pdf`, `html`, `txt`, `epub` | Pandoc      | `md` to `html` has a safe fallback if Pandoc is missing. PDF may require LaTeX. |
+| `txt`                       | `md`                         | Native      | Plain text is valid Markdown and is preserved unchanged.                        |
+| `ppt`, `pptx`, `odp`        | `pdf`                        | LibreOffice | Presentation layout fidelity is best-effort.                                    |
+| `xls`, `xlsx`, `ods`        | `pdf`                        | LibreOffice | Spreadsheet pagination is best-effort.                                          |
+| `csv`                       | `xlsx`, `pdf`                | LibreOffice | CSV is opened as a spreadsheet before export.                                   |
+| `xlsx`                      | `csv`                        | LibreOffice | Exports the first sheet only. TODO: add multi-sheet export packaging.           |
+| `epub`                      | `pdf`, `html`                | Pandoc      | Best-effort and may be lossy, especially for PDF.                               |
 
 ### Known Limitations
 
@@ -218,12 +218,12 @@ To manually verify the full browser → proxy → API → worker round-trip:
 
 ## Common Failure Modes
 
-| Symptom | Likely Cause | Fix |
-|---|---|---|
-| `POST /v1/jobs` → 500 | Postgres unavailable | Start `conversion_postgres` container; check `DATABASE_URL` in `.env` |
-| Jobs queue but never process | Redis unavailable | Start `conversion_redis`; check `REDIS_URL` in `.env` |
-| Upload URL returns 403/connection refused | MinIO unavailable or bucket missing | Start `conversion_minio` + `conversion_createbucket`; check `S3_ENDPOINT` |
-| Worker processes job but `outputObjectKey` missing | LibreOffice/Pandoc not installed on host | Install them (see Step 4) or run worker in Docker |
-| `/api/conversion` returns 502 | API not running or `CONVERSION_API_URL` wrong | Start `npm run dev:api`; verify `CONVERSION_API_URL=http://localhost:4010` in `apps/web/.env` |
-| CORS error in browser console | Calling service directly without proxy | Leave `NEXT_PUBLIC_CONVERSION_API_URL` empty so calls go through `/api/conversion` |
-| `File extension does not match` error | `originalFileName` extension doesn't match `sourceExtension` | Ensure filename ends with the correct extension before uploading |
+| Symptom                                            | Likely Cause                                                 | Fix                                                                                           |
+| -------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `POST /v1/jobs` → 500                              | Postgres unavailable                                         | Start `conversion_postgres` container; check `DATABASE_URL` in `.env`                         |
+| Jobs queue but never process                       | Redis unavailable                                            | Start `conversion_redis`; check `REDIS_URL` in `.env`                                         |
+| Upload URL returns 403/connection refused          | MinIO unavailable or bucket missing                          | Start `conversion_minio` + `conversion_createbucket`; check `S3_ENDPOINT`                     |
+| Worker processes job but `outputObjectKey` missing | LibreOffice/Pandoc not installed on host                     | Install them (see Step 4) or run worker in Docker                                             |
+| `/api/conversion` returns 502                      | API not running or `CONVERSION_API_URL` wrong                | Start `npm run dev:api`; verify `CONVERSION_API_URL=http://localhost:4010` in `apps/web/.env` |
+| CORS error in browser console                      | Calling service directly without proxy                       | Leave `NEXT_PUBLIC_CONVERSION_API_URL` empty so calls go through `/api/conversion`            |
+| `File extension does not match` error              | `originalFileName` extension doesn't match `sourceExtension` | Ensure filename ends with the correct extension before uploading                              |

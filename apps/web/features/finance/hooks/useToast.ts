@@ -12,21 +12,24 @@ export interface Toast {
 export function useToast() {
     const [toasts, setToasts] = useState<Toast[]>([]);
 
-    const show = useCallback((
-        message: string,
-        type: 'error' | 'success' | 'info' = 'info',
-        duration = 5000,
-    ) => {
-        const id = Math.random().toString(36).slice(2);
-        const toast: Toast = { id, message, type, duration };
-        setToasts((prev) => [...prev, toast]);
-        if (duration) {
-            setTimeout(() => {
-                setToasts((prev) => prev.filter((t) => t.id !== id));
-            }, duration);
-        }
-        return id;
-    }, []);
+    const show = useCallback(
+        (
+            message: string,
+            type: 'error' | 'success' | 'info' = 'info',
+            duration = 5000,
+        ) => {
+            const id = Math.random().toString(36).slice(2);
+            const toast: Toast = { id, message, type, duration };
+            setToasts((prev) => [...prev, toast]);
+            if (duration) {
+                setTimeout(() => {
+                    setToasts((prev) => prev.filter((t) => t.id !== id));
+                }, duration);
+            }
+            return id;
+        },
+        [],
+    );
 
     const dismiss = useCallback((id: string) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -45,8 +48,7 @@ export function useToast() {
     );
 
     const info = useCallback(
-        (message: string, duration?: number) =>
-            show(message, 'info', duration),
+        (message: string, duration?: number) => show(message, 'info', duration),
         [show],
     );
 

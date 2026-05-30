@@ -43,7 +43,9 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
         >
             {!compact && (
                 <ViewFileBrowser
-                    {...(activeFile?.id !== undefined && { activeFileId: activeFile.id })}
+                    {...(activeFile?.id !== undefined && {
+                        activeFileId: activeFile.id,
+                    })}
                     onSelect={setActiveFile}
                 />
             )}

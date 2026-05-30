@@ -25,7 +25,7 @@ export function EmailList({
     onRejectAction: (id: string) => void;
 }) {
     return (
-        <div className="space-y-3">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {emails.map((mail) => (
                 <EmailCard
                     key={mail.id}

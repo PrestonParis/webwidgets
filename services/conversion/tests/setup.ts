@@ -3,10 +3,13 @@
 // Individual env vars are NOT overwritten if already set in the environment
 // (e.g. CI can inject its own DATABASE_URL).
 const def = (key: string, val: string) => {
-  if (process.env[key] === undefined) process.env[key] = val;
+    if (process.env[key] === undefined) process.env[key] = val;
 };
 
-def('DATABASE_URL', 'postgres://conversion:conversion@localhost:5433/conversion');
+def(
+    'DATABASE_URL',
+    'postgres://conversion:conversion@localhost:5433/conversion',
+);
 def('REDIS_URL', 'redis://localhost:6380');
 def('S3_ENDPOINT', 'http://localhost:9000');
 def('S3_ACCESS_KEY_ID', 'minioadmin');

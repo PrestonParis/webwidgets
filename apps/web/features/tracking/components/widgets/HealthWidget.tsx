@@ -12,12 +12,13 @@ import {
     Thermometer,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
 import HealthLogForm from '@/features/tracking/health/components/HealthLogForm';
 import AnatomicalBodyMap from '@/features/tracking/health/components/AnatomicalBodyMap';
-import BiometricChart from '@/features/tracking/health/components/BiometricChart';
+import BiometricChart from '@/features/ui/visualizations/components/BiometricChart';
 import { BodyIssuePanel } from '@/features/tracking/health/components/BodyIssuePanel';
 import {
     computeHealthAnalytics,
@@ -62,7 +63,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function deltaLabel(delta: number | null, unit: string): string {
-    if (delta === null) return '—';
+    if (delta === null) return 'N/A';
     const rounded = Math.round(delta);
     const sign = rounded > 0 ? '+' : '';
     return `${sign}${rounded}${unit}`;
@@ -193,6 +194,12 @@ export default function HealthWidget() {
             footerLabel="Open health dashboard"
             widgetId="health-widget"
             widgetType="tracking-health"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Health"
+                />
+            }
         >
             <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">
@@ -297,9 +304,10 @@ export default function HealthWidget() {
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-zinc-400">
                                     {formatDate(today)} · energy{' '}
-                                    {analytics.todayEntry?.energyLevel ?? '—'} ·
-                                    sleep{' '}
-                                    {analytics.todayEntry?.sleepQuality ?? '—'}
+                                    {analytics.todayEntry?.energyLevel ?? 'N/A'}{' '}
+                                    · sleep{' '}
+                                    {analytics.todayEntry?.sleepQuality ??
+                                        'N/A'}
                                 </p>
                             </div>
                         ) : (
@@ -329,7 +337,7 @@ export default function HealthWidget() {
                                               weightAnalytics.latest.weightKg,
                                               'lbs',
                                           )
-                                        : '—'
+                                        : 'N/A'
                                 }
                             />
                             <Stat
@@ -337,7 +345,7 @@ export default function HealthWidget() {
                                 value={
                                     weightAnalytics.currentBMI !== null
                                         ? weightAnalytics.currentBMI.toFixed(1)
-                                        : '—'
+                                        : 'N/A'
                                 }
                             />
                             <Stat
@@ -490,8 +498,8 @@ export default function HealthWidget() {
                                             {log.bodyMap
                                                 ? `${Object.keys(log.bodyMap).length} zones · `
                                                 : ''}
-                                            energy {log.energyLevel ?? '—'} ·
-                                            sleep {log.sleepQuality ?? '—'}
+                                            energy {log.energyLevel ?? 'N/A'} ·
+                                            sleep {log.sleepQuality ?? 'N/A'}
                                             {log.sickness
                                                 ? ` · ${log.sickness.type}`
                                                 : ''}

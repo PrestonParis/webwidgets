@@ -13,7 +13,7 @@ import type {
 export const countdownAdapter: ImportExportAdapter = {
     id: 'countdowns',
     displayName: 'Countdowns',
-    description: 'Countdown timers — import/export your countdown events',
+    description: 'Countdown timers: import/export your countdown events',
     sourceType: 'countdowns',
     canImport: true,
     canExport: true,
@@ -96,7 +96,7 @@ export const countdownAdapter: ImportExportAdapter = {
 
         if (strategy === 'merge') {
             warnings.push(
-                "'merge' strategy not fully implemented — using 'overwrite' behavior",
+                "'merge' strategy not fully implemented, using 'overwrite' behavior",
             );
         }
 

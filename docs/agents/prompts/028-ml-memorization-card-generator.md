@@ -41,4 +41,3 @@ Build an ML/text-processing service that turns highlights, notes, tutorial lesso
 - A tutorial checklist produces workflow drill cards.
 - Empty or very short input returns a safe empty response with a reason.
 - UI gracefully falls back to deterministic local examples when ML is unavailable.
-

@@ -123,7 +123,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
         // TODO: 'merge' strategy is complex — treat as 'overwrite' for now
         if (strategy === 'merge') {
             warnings.push(
-                "'merge' strategy not fully implemented — using 'overwrite' behavior",
+                "'merge' strategy not fully implemented, using 'overwrite' behavior",
             );
         }
 

@@ -1,3 +1,22 @@
+export type EmailProvider = 'gmail' | 'outlook';
+
+/** Row shape for `email_snapshots` — matches the DB schema. */
+export interface EmailSnapshotRow {
+    id: string; // "gmail:<msgId>" or "outlook:<msgId>"
+    user_id: string;
+    account_email: string;
+    provider: EmailProvider;
+    subject: string;
+    sender_email: string;
+    sender_name: string;
+    snippet: string;
+    received_at: string;
+    raw_date: string;
+    synced_at: string;
+    /** Full decoded body text. NULL until populated by the processing pipeline. */
+    body_text: string | null;
+}
+
 export type ActionType = 'action' | 'event' | 'deadline';
 
 export interface EmailAction {
@@ -37,6 +56,8 @@ export type Email = {
     providers?: ('gmail' | 'outlook')[];
     category?: string | undefined;
     is_manual?: boolean | undefined;
+    /** Which account inbox this email belongs to (e.g. user@gmail.com). */
+    account_email?: string | undefined;
 };
 
 export type TokenUpdate = {
@@ -80,4 +101,6 @@ export interface EmailConnectPromptProps {
     compact?: boolean;
     /** Small strip of add-account buttons shown alongside existing content */
     inline?: boolean;
+    /** Restrict to a single provider — omit to show both */
+    provider?: 'gmail' | 'outlook';
 }

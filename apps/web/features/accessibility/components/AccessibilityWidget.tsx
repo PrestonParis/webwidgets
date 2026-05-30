@@ -11,18 +11,32 @@ interface AccessibilitySettings {
     transcription_first: boolean;
 }
 
-export default function AccessibilityWidget({ widgetId = 'accessibility' }: { widgetId?: string }) {
-    const [settings, setSettings] = useState<AccessibilitySettings | null>(null);
+export default function AccessibilityWidget({
+    widgetId = 'accessibility',
+}: {
+    widgetId?: string;
+}) {
+    const [settings, setSettings] = useState<AccessibilitySettings | null>(
+        null,
+    );
 
     useEffect(() => {
         void fetch('/api/accessibility/settings')
-            .then((r) => r.ok ? r.json() as Promise<AccessibilitySettings> : Promise.resolve(null))
+            .then((r) =>
+                r.ok
+                    ? (r.json() as Promise<AccessibilitySettings>)
+                    : Promise.resolve(null),
+            )
             .then((s) => setSettings(s))
             .catch(() => setSettings(null));
     }, []);
 
     const activeCount = settings
-        ? [settings.high_contrast, settings.reduce_motion, settings.transcription_first].filter(Boolean).length
+        ? [
+              settings.high_contrast,
+              settings.reduce_motion,
+              settings.transcription_first,
+          ].filter(Boolean).length
         : 0;
 
     return (
@@ -30,7 +44,9 @@ export default function AccessibilityWidget({ widgetId = 'accessibility' }: { wi
             icon={<ShieldCheck size={16} />}
             title="Accessibility"
             badge={
-                <span className="text-[10px] font-bold text-emerald-500">AUDIT</span>
+                <span className="text-[10px] font-bold text-emerald-500">
+                    AUDIT
+                </span>
             }
             widgetId={widgetId}
             widgetType="accessibility"
@@ -43,11 +59,16 @@ export default function AccessibilityWidget({ widgetId = 'accessibility' }: { wi
                 ) : (
                     <>
                         <div className="flex items-center gap-3">
-                            <ShieldCheck size={14} className="shrink-0 text-emerald-500" />
+                            <ShieldCheck
+                                size={14}
+                                className="shrink-0 text-emerald-500"
+                            />
                             <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
                                 {activeCount}
                                 <span className="ml-1 font-normal text-zinc-500 dark:text-zinc-400">
-                                    accessibility {activeCount === 1 ? 'option' : 'options'} active
+                                    accessibility{' '}
+                                    {activeCount === 1 ? 'option' : 'options'}{' '}
+                                    active
                                 </span>
                             </p>
                         </div>
@@ -56,12 +77,16 @@ export default function AccessibilityWidget({ widgetId = 'accessibility' }: { wi
                                 Aa
                             </span>
                             <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                                Font size: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{settings.font_size}</span>
+                                Font size:{' '}
+                                <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                                    {settings.font_size}
+                                </span>
                             </p>
                         </div>
                         {activeCount === 0 && (
                             <p className="text-[11px] leading-4 text-zinc-400 dark:text-zinc-500">
-                                No accessibility preferences saved yet. Open the audit to configure your workspace.
+                                No accessibility preferences saved yet. Open the
+                                audit to configure your workspace.
                             </p>
                         )}
                     </>

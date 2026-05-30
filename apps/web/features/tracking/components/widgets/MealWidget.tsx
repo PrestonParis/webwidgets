@@ -11,6 +11,7 @@ import {
     Utensils,
 } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
+import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
 import { useTrackingActions } from '@/features/tracking/hooks/useTrackingActions';
 import { useTrackingGoals } from '@/features/tracking/hooks/useTrackingGoals';
@@ -105,6 +106,12 @@ export default function MealWidget() {
             footerLabel="Open nutrition dashboard"
             widgetId="meal-widget"
             widgetType="tracking-meal"
+            headerActionsSlot={
+                <WidgetImportExportControls
+                    sourceType="tracking_entries"
+                    displayName="Meals"
+                />
+            }
         >
             <div className="space-y-3">
                 {records[0] ? (

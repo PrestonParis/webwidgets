@@ -1,20 +1,24 @@
 import { bigint, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const conversionJobs = pgTable('conversion_jobs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  status: text('status').notNull(),
-  kind: text('kind').notNull().default('document'),
-  originalFileName: text('original_file_name').notNull(),
-  sourceMime: text('source_mime').notNull(),
-  sourceExtension: text('source_extension').notNull(),
-  targetExtension: text('target_extension').notNull(),
-  fileSizeBytes: bigint('file_size_bytes', { mode: 'number' }).notNull(),
-  userId: text('user_id'),
-  inputObjectKey: text('input_object_key').notNull(),
-  outputObjectKey: text('output_object_key'),
-  errorMessage: text('error_message'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+    id: uuid('id').primaryKey().defaultRandom(),
+    status: text('status').notNull(),
+    kind: text('kind').notNull().default('document'),
+    originalFileName: text('original_file_name').notNull(),
+    sourceMime: text('source_mime').notNull(),
+    sourceExtension: text('source_extension').notNull(),
+    targetExtension: text('target_extension').notNull(),
+    fileSizeBytes: bigint('file_size_bytes', { mode: 'number' }).notNull(),
+    userId: text('user_id'),
+    inputObjectKey: text('input_object_key').notNull(),
+    outputObjectKey: text('output_object_key'),
+    errorMessage: text('error_message'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .notNull()
+        .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .notNull()
+        .defaultNow(),
 });
 
 export type ConversionJobRow = typeof conversionJobs.$inferSelect;

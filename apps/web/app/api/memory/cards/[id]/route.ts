@@ -3,6 +3,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { applyGrade } from '@/features/memorization/lib/sm2';
 import type { MemoryDifficulty } from '@/features/memorization/types/memorization';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function PATCH(
     req: Request,
@@ -17,11 +18,12 @@ export async function PATCH(
         } & Record<string, unknown>;
 
         let updates: Record<string, unknown> = { ...body };
+        const isReview = !!body.grade;
 
         if (body.grade) {
             const { data: card } = await supabase
                 .from('memory_cards')
-                .select('interval_days,ease,repetitions')
+                .select('interval_days,ease,repetitions,deck_id,front')
                 .eq('id', id)
                 .eq('user_id', userId)
                 .single();
@@ -42,6 +44,32 @@ export async function PATCH(
                     repetitions: result.repetitions,
                     due_date: result.due_date,
                 };
+
+                // Publish activity event for card review
+                const front = (card.front as string | undefined) ?? '';
+                const deckId = card.deck_id as string | undefined;
+                await publishActivityEventSafe(supabase, {
+                    userId,
+                    source: 'memory',
+                    eventType: 'memory.card_reviewed',
+                    sourceId: id,
+                    sourceTable: 'memory_cards',
+                    category: 'content',
+                    severity: 'info',
+                    priority: 'low',
+                    title: `Card reviewed: ${front.slice(0, 60)}`,
+                    actionUrl: deckId ? `/memory/${deckId}` : '/memory',
+                    relatedEntities: deckId
+                        ? [{ type: 'memory_deck', id: deckId }]
+                        : [],
+                    metadata: {
+                        cardId: id,
+                        deckId,
+                        grade: body.grade,
+                        newStatus: result.status,
+                        nextInterval: result.interval_days,
+                    },
+                });
             }
             delete updates.grade;
         }
@@ -56,6 +84,7 @@ export async function PATCH(
             )
             .single();
         if (error) throw error;
+        void isReview; // used above
         return NextResponse.json(data);
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {

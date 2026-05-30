@@ -11,7 +11,7 @@ import type {
 export const recoveryAdapter: ImportExportAdapter = {
     id: 'recovery_records',
     displayName: 'Recovery',
-    description: 'Recovery trackers — export your sobriety tracker profiles',
+    description: 'Recovery trackers: export your sobriety tracker profiles',
     sourceType: 'recovery_records',
     canImport: false,
     canExport: true,

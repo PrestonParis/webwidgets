@@ -55,7 +55,7 @@ function buildColumns(
             header: 'Source',
             cell: ({ getValue }) => (
                 <span className="text-xs text-gray-400">
-                    {getValue<string | null>() ?? '—'}
+                    {getValue<string | null>() ?? 'N/A'}
                 </span>
             ),
         },
@@ -64,7 +64,7 @@ function buildColumns(
             header: 'User',
             cell: ({ getValue }) => (
                 <span className="text-xs font-mono text-gray-400">
-                    {getValue<string | null>() ?? '—'}
+                    {getValue<string | null>() ?? 'N/A'}
                 </span>
             ),
         },
@@ -164,11 +164,11 @@ export function MetricsEventsPage() {
                             </p>
                             <p>
                                 <span className="text-gray-500">Source:</span>{' '}
-                                {selected.source ?? '—'}
+                                {selected.source ?? 'N/A'}
                             </p>
                             <p>
                                 <span className="text-gray-500">User:</span>{' '}
-                                {selected.userId ?? '—'}
+                                {selected.userId ?? 'N/A'}
                             </p>
                         </div>
                         {selected.metadata && (

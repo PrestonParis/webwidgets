@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FileUpload } from '@/features/uploads/types/upload';
 import {
     requestPresignedUrl,
-    uploadFileContent,
+    uploadFileToS3,
+    confirmUpload,
     deleteUpload,
     listUploads,
 } from '@/features/uploads/api/uploadApi';
@@ -52,17 +53,17 @@ export function useFileUpload(): UseFileUploadReturn {
         setUploadError(null);
 
         try {
-            const { fileId } = await requestPresignedUrl(
+            const { fileId, presignedUrl } = await requestPresignedUrl(
                 file.name,
                 file.type || 'application/octet-stream',
                 file.size,
             );
 
-            const confirmed = await uploadFileContent(
-                fileId,
-                file,
-                setUploadProgress,
-            );
+            // PUT directly to S3 — bypasses Vercel's body size limit
+            await uploadFileToS3(presignedUrl, file, setUploadProgress);
+
+            // Tell the server the upload is complete so it marks it 'uploaded'
+            const confirmed = await confirmUpload(fileId);
             setFiles((prev) => [confirmed, ...prev]);
             setUploadState('idle');
             setUploadProgress(0);

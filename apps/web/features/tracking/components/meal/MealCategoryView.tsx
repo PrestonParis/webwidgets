@@ -349,7 +349,7 @@ export function MealCategoryView({
                             value={
                                 todayTotals.mealCount > 0
                                     ? String(todayTotals.mealCount)
-                                    : '—'
+                                    : 'N/A'
                             }
                             sub={
                                 todayTotals.mealCount === 0
@@ -362,7 +362,7 @@ export function MealCategoryView({
                             value={
                                 todayTotals.calories > 0
                                     ? `${Math.round(todayTotals.calories)} kcal`
-                                    : '—'
+                                    : 'N/A'
                             }
                             sub={
                                 calorieTarget
@@ -375,7 +375,7 @@ export function MealCategoryView({
                             value={
                                 todayTotals.proteinGrams > 0
                                     ? `${Math.round(todayTotals.proteinGrams)}g`
-                                    : '—'
+                                    : 'N/A'
                             }
                             sub={
                                 proteinMin
@@ -389,7 +389,7 @@ export function MealCategoryView({
                                 todayTotals.carbsGrams > 0 ||
                                 todayTotals.fatGrams > 0
                                     ? `${Math.round(todayTotals.carbsGrams)}g / ${Math.round(todayTotals.fatGrams)}g`
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi

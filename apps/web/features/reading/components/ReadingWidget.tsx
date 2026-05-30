@@ -91,7 +91,9 @@ interface ReadingWidgetProps {
     widgetId?: string;
 }
 
-export default function ReadingWidget({ widgetId = 'reading' }: ReadingWidgetProps) {
+export default function ReadingWidget({
+    widgetId = 'reading',
+}: ReadingWidgetProps) {
     const {
         activeDocumentId,
         activePanel,
@@ -146,7 +148,10 @@ export default function ReadingWidget({ widgetId = 'reading' }: ReadingWidgetPro
                     <ReadingLibraryPanel onSelect={openDocument} />
                 </div>
             ) : (
-                <div className="-mx-6 -mb-6 flex flex-col" style={{ minHeight: '320px' }}>
+                <div
+                    className="-mx-6 -mb-6 flex flex-col"
+                    style={{ minHeight: '320px' }}
+                >
                     <ReadingToolbar
                         title={docTitle}
                         versions={versions}
@@ -175,7 +180,10 @@ export default function ReadingWidget({ widgetId = 'reading' }: ReadingWidgetPro
                                     versionId={activeVersionId}
                                     prefs={prefs}
                                     onPageChange={(page) =>
-                                        docState.navigate({ type: 'page', page })
+                                        docState.navigate({
+                                            type: 'page',
+                                            page,
+                                        })
                                     }
                                 />
                             )}

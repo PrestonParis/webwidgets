@@ -32,7 +32,7 @@ export function evaluate(expression: string, unit: AngleUnit = 'deg'): number {
         if (!isFinite(result)) {
             if (isNaN(result)) throw new EvalError('Result is not a number');
             throw new EvalError(
-                'Result is infinity — check for division by zero or overflow',
+                'Result is infinity. Check for division by zero or overflow.',
             );
         }
         return result;

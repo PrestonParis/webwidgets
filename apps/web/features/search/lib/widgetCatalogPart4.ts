@@ -126,26 +126,6 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
         ],
     },
     {
-        type: 'creative',
-        name: 'Creative Studio',
-        emoji: '🎨',
-        description:
-            'Creative asset studio with layers, palette, and export tools',
-        href: '/creative',
-        keywords: [
-            'creative',
-            'design',
-            'studio',
-            'canvas',
-            'layers',
-            'palette',
-            'art',
-            'visual',
-            'export',
-            'assets',
-        ],
-    },
-    {
         type: 'insight-cards',
         name: 'Insight Cards',
         emoji: '💡',

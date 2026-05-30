@@ -49,7 +49,7 @@ export function SleepFields({ form, updateField }: SleepFieldsProps) {
             </div>
             <div>
                 <label className={labelCls}>
-                    Quality —{' '}
+                    Quality:{' '}
                     <span className="text-indigo-500">
                         {QUALITY_LABELS[quality] ?? quality}
                     </span>

@@ -13,7 +13,7 @@ import type {
 export const journalAdapter: ImportExportAdapter = {
     id: 'journals',
     displayName: 'Journal',
-    description: 'Journal entries and notes — import/export your writing',
+    description: 'Journal entries and notes: import/export your writing',
     sourceType: 'journals',
     canImport: true,
     canExport: true,
@@ -98,7 +98,7 @@ export const journalAdapter: ImportExportAdapter = {
 
         if (strategy === 'merge') {
             warnings.push(
-                "'merge' strategy not fully implemented — using 'overwrite' behavior",
+                "'merge' strategy not fully implemented, using 'overwrite' behavior",
             );
         }
 

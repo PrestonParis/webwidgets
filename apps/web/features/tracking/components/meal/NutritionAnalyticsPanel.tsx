@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { BarChart } from '@/features/tracking/viz/BarChart';
-import { LineChart } from '@/features/tracking/viz/LineChart';
+import { BarChart } from '@/features/ui/visualizations/components/BarChart';
+import { LineChart } from '@/features/ui/visualizations/components/LineChart';
 import { computeExtendedAnalytics } from '@/features/tracking/lib/meal/nutrition/analytics';
 import { buildExtendedInsights } from '@/features/tracking/lib/meal/nutrition/insights';
 import { MEAL_TYPE_LABELS } from '@/features/tracking/lib/meal/helpers';
@@ -121,7 +121,7 @@ export function NutritionAnalyticsPanel({
                     value={
                         analytics.sevenDayAvgCalories !== null
                             ? `${Math.round(analytics.sevenDayAvgCalories)}`
-                            : '—'
+                            : 'N/A'
                     }
                     sub={trendLabel(analytics.caloriesTrend)}
                 />
@@ -130,7 +130,7 @@ export function NutritionAnalyticsPanel({
                     value={
                         analytics.thirtyDayAvgCalories !== null
                             ? `${Math.round(analytics.thirtyDayAvgCalories)}`
-                            : '—'
+                            : 'N/A'
                     }
                 />
                 <StatCard
@@ -138,7 +138,7 @@ export function NutritionAnalyticsPanel({
                     value={
                         analytics.sevenDayAvgProtein !== null
                             ? `${Math.round(analytics.sevenDayAvgProtein)}g`
-                            : '—'
+                            : 'N/A'
                     }
                     sub={trendLabel(analytics.proteinTrend)}
                     accent="text-blue-500 dark:text-blue-400"
@@ -148,7 +148,7 @@ export function NutritionAnalyticsPanel({
                     value={
                         analytics.mealsPerDayAvg7d !== null
                             ? analytics.mealsPerDayAvg7d.toFixed(1)
-                            : '—'
+                            : 'N/A'
                     }
                 />
                 <StatCard
@@ -240,7 +240,7 @@ export function NutritionAnalyticsPanel({
             {/* Calorie chart */}
             <div>
                 <p className="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
-                    Daily calories — last 30 days
+                    Daily calories (last 30 days)
                 </p>
                 <BarChart
                     data={calBarData}

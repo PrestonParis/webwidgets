@@ -90,9 +90,7 @@ function RunRow({
                         </span>
                     </div>
                     <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
-                        {widgetEmoji(
-                            run.widgetName.toLowerCase(),
-                        )}{' '}
+                        {widgetEmoji(run.widgetName.toLowerCase())}{' '}
                         {run.widgetName} · {run.triggeredBy} ·{' '}
                         {relativeTime(run.startedAt)}
                     </p>

@@ -13,7 +13,7 @@ import type {
 export const moodAdapter: ImportExportAdapter = {
     id: 'mood_logs',
     displayName: 'Mood Logs',
-    description: 'Daily mood tracking — import/export your mood log history',
+    description: 'Daily mood tracking: import/export your mood log history',
     sourceType: 'mood_logs',
     canImport: true,
     canExport: true,
@@ -97,7 +97,7 @@ export const moodAdapter: ImportExportAdapter = {
 
         if (strategy === 'merge') {
             warnings.push(
-                "'merge' strategy not fully implemented — using 'overwrite' behavior",
+                "'merge' strategy not fully implemented, using 'overwrite' behavior",
             );
         }
 

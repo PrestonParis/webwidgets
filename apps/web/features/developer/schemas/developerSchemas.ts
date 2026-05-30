@@ -42,7 +42,5 @@ export const developerSnapshotSchema = z.object({
 
 export type DeveloperPR = z.infer<typeof developerPRSchema>;
 export type DeveloperIssue = z.infer<typeof developerIssueSchema>;
-export type DeveloperLinearIssue = z.infer<
-    typeof developerLinearIssueSchema
->;
+export type DeveloperLinearIssue = z.infer<typeof developerLinearIssueSchema>;
 export type DeveloperSnapshot = z.infer<typeof developerSnapshotSchema>;

@@ -33,8 +33,22 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const widgetMatches = searchWidgets(query);
+
+    // Also match the task-intent field against the catalog so that typing e.g.
+    // "convert" in "What are you trying to do?" surfaces the Converter widget
+    // rather than falling through to synthesis.
+    const taskWidgetMatches =
+        taskQuery && !query
+            ? searchWidgets(taskQuery).filter(
+                  (w) => !widgetMatches.some((m) => m.type === w.type),
+              )
+            : [];
+
+    const allWidgetMatches = [...widgetMatches, ...taskWidgetMatches];
+
+    // Only synthesize when no existing widget covers the intent.
     const synthesizedWidgets =
-        taskQuery.trim().length > 2
+        taskQuery.trim().length > 2 && allWidgetMatches.length === 0
             ? synthesizeWidgetFromQuery(taskQuery).slice(0, 3)
             : [];
 
@@ -89,7 +103,7 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
     }, [taskQuery]);
 
     return {
-        widgetMatches,
+        widgetMatches: allWidgetMatches,
         folderMatches,
         nlpSuggestions,
         synthesizedWidgets,

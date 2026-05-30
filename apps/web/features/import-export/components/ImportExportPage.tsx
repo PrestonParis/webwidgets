@@ -107,21 +107,21 @@ export function ImportExportPage() {
                             </h3>
                             <ul className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
                                 <li>
-                                    <strong>XLSX</strong> — install the{' '}
+                                    <strong>XLSX</strong>: install the{' '}
                                     <code>xlsx</code> npm package to enable
                                     Excel imports/exports
                                 </li>
                                 <li>
-                                    <strong>ZIP</strong> — install the{' '}
+                                    <strong>ZIP</strong>: install the{' '}
                                     <code>jszip</code> npm package to enable ZIP
                                     exports
                                 </li>
                                 <li>
-                                    <strong>Google Sheets</strong> — requires
+                                    <strong>Google Sheets</strong>: requires
                                     Google Sheets API credentials
                                 </li>
                                 <li>
-                                    <strong>S3 file attachments</strong> —
+                                    <strong>S3 file attachments</strong>:
                                     configure AWS S3 environment variables to
                                     attach files to import jobs
                                 </li>

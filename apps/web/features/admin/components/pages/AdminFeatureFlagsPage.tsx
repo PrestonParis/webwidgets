@@ -134,7 +134,7 @@ export function AdminFeatureFlagsPage() {
             header: 'Description',
             render: (r) => (
                 <span className="text-sm text-gray-500">
-                    {r.description || '—'}
+                    {r.description || 'N/A'}
                 </span>
             ),
         },

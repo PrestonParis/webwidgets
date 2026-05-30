@@ -30,8 +30,10 @@ export function Card({
             className={cn(
                 'rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900',
                 paddingMap[padding],
-                interactive && 'cursor-pointer transition-all hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700',
-                selected && 'border-zinc-900 dark:border-zinc-100 ring-1 ring-zinc-900 dark:ring-zinc-100',
+                interactive &&
+                    'cursor-pointer transition-all hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700',
+                selected &&
+                    'border-zinc-900 dark:border-zinc-100 ring-1 ring-zinc-900 dark:ring-zinc-100',
                 glass && 'bg-white/70 dark:bg-zinc-900/70 backdrop-blur-sm',
                 className,
             )}
@@ -49,13 +51,27 @@ interface CardHeaderProps {
     className?: string;
 }
 
-export function CardHeader({ title, description, action, className }: CardHeaderProps) {
+export function CardHeader({
+    title,
+    description,
+    action,
+    className,
+}: CardHeaderProps) {
     return (
-        <div className={cn('flex items-start justify-between gap-4 mb-4', className)}>
+        <div
+            className={cn(
+                'flex items-start justify-between gap-4 mb-4',
+                className,
+            )}
+        >
             <div className="space-y-0.5 min-w-0">
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{title}</p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                    {title}
+                </p>
                 {description && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {description}
+                    </p>
                 )}
             </div>
             {action && <div className="shrink-0">{action}</div>}
@@ -69,7 +85,11 @@ interface CardFooterProps {
     border?: boolean;
 }
 
-export function CardFooter({ children, className, border = true }: CardFooterProps) {
+export function CardFooter({
+    children,
+    className,
+    border = true,
+}: CardFooterProps) {
     return (
         <div
             className={cn(

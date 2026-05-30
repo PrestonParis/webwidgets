@@ -142,7 +142,7 @@ export function useImportExport() {
                 );
             } else {
                 toast.success(
-                    `Import complete — ${json.successCount} rows imported`,
+                    `Import complete. ${json.successCount} rows imported.`,
                 );
             }
             void refresh();

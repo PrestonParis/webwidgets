@@ -21,7 +21,7 @@ export async function PATCH(
             .single();
         if (!ws || ws.user_id !== userId)
             return NextResponse.json(
-                { error: 'Forbidden — only owner can change roles' },
+                { error: 'Forbidden. Only the owner can change roles.' },
                 { status: 403 },
             );
 

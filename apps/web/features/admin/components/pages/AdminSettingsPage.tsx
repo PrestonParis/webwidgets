@@ -9,10 +9,34 @@ import { LogoNegativeSpace } from '@/icons/LogoNegativeSpace';
 import { LogoMosaic } from '@/icons/LogoMosaic';
 
 const LOGO_CONCEPTS = [
-    { id: 1, tag: 'Concept 01', label: 'Isometric Stack',      accent: '#6c63ff', element: <LogoIsometric size={72} /> },
-    { id: 2, tag: 'Concept 02', label: 'Interlocked Circuit',  accent: '#00d4aa', element: <LogoCircuit size={72} /> },
-    { id: 3, tag: 'Concept 03', label: 'Building Block Mosaic',accent: '#ff6b6b', element: <LogoMosaic size={72} /> },
-    { id: 4, tag: 'Concept 04', label: 'Negative Space W',     accent: '#ffd93d', element: <LogoNegativeSpace size={72} /> },
+    {
+        id: 1,
+        tag: 'Concept 01',
+        label: 'Isometric Stack',
+        accent: '#6c63ff',
+        element: <LogoIsometric size={72} />,
+    },
+    {
+        id: 2,
+        tag: 'Concept 02',
+        label: 'Interlocked Circuit',
+        accent: '#00d4aa',
+        element: <LogoCircuit size={72} />,
+    },
+    {
+        id: 3,
+        tag: 'Concept 03',
+        label: 'Building Block Mosaic',
+        accent: '#ff6b6b',
+        element: <LogoMosaic size={72} />,
+    },
+    {
+        id: 4,
+        tag: 'Concept 04',
+        label: 'Negative Space W',
+        accent: '#ffd93d',
+        element: <LogoNegativeSpace size={72} />,
+    },
 ] as const;
 
 interface SettingRow {
@@ -88,7 +112,7 @@ export function AdminSettingsPage() {
         <div className="space-y-6">
             <AdminPageHeader
                 title="Admin Settings"
-                description="System configuration — owner access only"
+                description="System configuration, owner access only"
                 actions={<Shield size={18} className="text-purple-500" />}
             />
 
@@ -110,25 +134,33 @@ export function AdminSettingsPage() {
                     Logo Concepts
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {LOGO_CONCEPTS.map(({ id, tag, label, accent, element }) => (
-                        <div
-                            key={id}
-                            className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col items-center gap-3"
-                            style={{ borderTopColor: accent, borderTopWidth: 2 }}
-                        >
-                            <div className="w-full flex items-center justify-center h-20 rounded-lg bg-gray-50 dark:bg-zinc-950">
-                                {element}
+                    {LOGO_CONCEPTS.map(
+                        ({ id, tag, label, accent, element }) => (
+                            <div
+                                key={id}
+                                className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 flex flex-col items-center gap-3"
+                                style={{
+                                    borderTopColor: accent,
+                                    borderTopWidth: 2,
+                                }}
+                            >
+                                <div className="w-full flex items-center justify-center h-20 rounded-lg bg-gray-50 dark:bg-zinc-950">
+                                    {element}
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[10px] font-semibold text-gray-800 dark:text-zinc-200 leading-tight">
+                                        {label}
+                                    </p>
+                                    <p
+                                        className="text-[9px] uppercase tracking-wider mt-0.5"
+                                        style={{ color: accent }}
+                                    >
+                                        {tag}
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <p className="text-[10px] font-semibold text-gray-800 dark:text-zinc-200 leading-tight">
-                                    {label}
-                                </p>
-                                <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: accent }}>
-                                    {tag}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                        ),
+                    )}
                 </div>
             </div>
         </div>

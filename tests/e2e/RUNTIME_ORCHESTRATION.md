@@ -32,6 +32,7 @@ Before any tests run, the global setup performs:
 ### 2. Test Execution
 
 Tests run normally with the assurance that:
+
 - Server is running and reachable
 - Required services are available
 - Readiness checks have passed
@@ -39,6 +40,7 @@ Tests run normally with the assurance that:
 ### 3. Global Teardown (tests/e2e/helpers/global-teardown.ts)
 
 After all tests complete:
+
 - Stops managed server if it was started
 - Cleans up resources
 - Logs completion
@@ -50,6 +52,7 @@ After all tests complete:
 **Environment:** `E2E_MODE=attached` or not set
 
 **Behavior:**
+
 - Assumes server is already running
 - Checks if port is in use
 - Fails if port not in use
@@ -58,6 +61,7 @@ After all tests complete:
 **Use Case:** Local development where you manually start the dev server
 
 **Command:**
+
 ```bash
 npm run dev
 npm run test:e2e:attached
@@ -68,6 +72,7 @@ npm run test:e2e:attached
 **Environment:** `E2E_MODE=managed`
 
 **Behavior:**
+
 - Checks if port is in use
 - Starts server automatically if port not in use
 - Waits for server to be ready
@@ -76,6 +81,7 @@ npm run test:e2e:attached
 **Use Case:** CI/CD or automated testing where you want Playwright to manage the server lifecycle
 
 **Command:**
+
 ```bash
 npm run test:e2e:managed
 ```
@@ -85,6 +91,7 @@ npm run test:e2e:managed
 **Environment:** `CI=true`
 
 **Behavior:**
+
 - Automatically detected from CI environment
 - Does not reuse existing servers
 - Strict startup timeouts
@@ -93,6 +100,7 @@ npm run test:e2e:managed
 **Use Case:** CI/CD pipelines
 
 **Command:**
+
 ```bash
 CI=true npm run test:e2e
 ```
@@ -106,6 +114,7 @@ CI=true npm run test:e2e
 **Required:** Yes
 
 **Checks:**
+
 - Port is open and listening
 - Server responds to HTTP requests
 - Dashboard route is reachable
@@ -115,10 +124,12 @@ CI=true npm run test:e2e
 ### Environment Variables
 
 **Required:**
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 **Checks:**
+
 - Environment variables are loaded
 - Values are not empty
 
@@ -133,6 +144,7 @@ CI=true npm run test:e2e
 **Required:** No
 
 **Checks:**
+
 - Port is reachable
 - Service is responding
 
@@ -145,6 +157,7 @@ CI=true npm run test:e2e
 **Required:** No
 
 **Checks:**
+
 - Port is reachable
 - Service is responding
 
@@ -157,6 +170,7 @@ CI=true npm run test:e2e
 **Required:** No
 
 **Checks:**
+
 - Port is reachable
 - Service is responding
 
@@ -169,6 +183,7 @@ CI=true npm run test:e2e
 **Required:** No
 
 **Checks:**
+
 - Port is reachable
 - Service is responding
 
@@ -183,6 +198,7 @@ CI=true npm run test:e2e
 **Authentication:** None (public)
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -200,6 +216,7 @@ CI=true npm run test:e2e
 **Authentication:** None (public)
 
 **Response:**
+
 ```json
 {
   "status": "ready",
@@ -231,6 +248,7 @@ The traversal system distinguishes between infrastructure failures and app failu
 ### Infrastructure Failures (Category: `infrastructure`)
 
 **Examples:**
+
 - Server not running
 - Port not open
 - Connection refused
@@ -239,11 +257,13 @@ The traversal system distinguishes between infrastructure failures and app failu
 - Server unavailable
 
 **Detection:**
+
 - Error message patterns (ECONNREFUSED, ENOTFOUND, ETIMEDOUT)
 - Connection-level failures (status 0 or -1)
 - Localhost connection failures with 5xx status
 
 **Reporting:**
+
 - Categorized separately from app failures
 - Clear indication that this is an infrastructure issue
 - Different emoji (🏗️) in reports
@@ -251,6 +271,7 @@ The traversal system distinguishes between infrastructure failures and app failu
 ### Runtime Failures (Category: `critical`, `degraded`, etc.)
 
 **Examples:**
+
 - App crashes
 - Auth failures
 - Core routes broken
@@ -259,11 +280,13 @@ The traversal system distinguishes between infrastructure failures and app failu
 - Hydration mismatches
 
 **Detection:**
+
 - Console errors not matching infrastructure patterns
 - Failed requests with app-level status codes
 - Runtime exceptions
 
 **Reporting:**
+
 - Categorized by specific failure type
 - Indicates actual application issues
 
@@ -274,17 +297,20 @@ The traversal system distinguishes between infrastructure failures and app failu
 **Symptom:** Tests fail with "Port not in use" error
 
 **Attached Mode:**
+
 ```
 ❌ Attached mode requires server to be running on port 3000, but port is not in use
 ```
 
 **Solution:**
+
 ```bash
 npm run dev
 npm run test:e2e:attached
 ```
 
 **Managed Mode:**
+
 - Server starts automatically
 - No manual intervention needed
 
@@ -293,14 +319,17 @@ npm run test:e2e:attached
 **Symptom:** Tests fail with "Port already in use" error
 
 **Attached Mode:**
+
 - If server is running, tests proceed
 - If different service is on port, tests fail
 
 **Managed Mode:**
+
 - Reuses existing server if available
 - Fails if port conflict with non-Next.js service
 
 **Solution:**
+
 ```bash
 # Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
@@ -314,6 +343,7 @@ PORT=3001 npm run test:e2e:attached
 **Symptom:** Readiness check fails with "Missing required environment variables"
 
 **Solution:**
+
 ```bash
 # Check .env file
 cat .env
@@ -330,6 +360,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
 **Impact:** Tests proceed, but features depending on service may fail
 
 **Solution:**
+
 - Start optional service if needed
 - Or accept that some tests will fail/warn
 
@@ -338,6 +369,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
 **Symptom:** Tests fail with "Server startup timeout after 60000ms"
 
 **Solution:**
+
 - Increase startup timeout in global-setup.ts
 - Check server logs for startup issues
 - Verify system resources
@@ -349,6 +381,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
 **Detection:** Failures categorized as `infrastructure` instead of `critical` or `network`
 
 **Solution:**
+
 - Check server is still running
 - Check network connectivity
 - Verify no port conflicts during test run
@@ -360,11 +393,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
 **Purpose:** Start dev server and run e2e tests in attached mode
 
 **Command:**
+
 ```bash
 npm run dev:test
 ```
 
 **Behavior:**
+
 - Starts Next.js dev server
 - Waits for server to be ready (using wait-on)
 - Runs e2e tests in attached mode
@@ -375,11 +410,13 @@ npm run dev:test
 **Purpose:** Run e2e tests in attached mode
 
 **Command:**
+
 ```bash
 npm run test:e2e:attached
 ```
 
 **Behavior:**
+
 - Assumes server is already running
 - Checks port availability
 - Fails if server not running
@@ -389,11 +426,13 @@ npm run test:e2e:attached
 **Purpose:** Run e2e tests in managed mode
 
 **Command:**
+
 ```bash
 npm run test:e2e:managed
 ```
 
 **Behavior:**
+
 - Starts server if not running
 - Waits for readiness
 - Stops server after tests complete
@@ -403,11 +442,13 @@ npm run test:e2e:managed
 **Purpose:** Run quick smoke test
 
 **Command:**
+
 ```bash
 npm run test:e2e:smoke
 ```
 
 **Behavior:**
+
 - Runs single dashboard traversal test
 - Fast validation of basic functionality
 
@@ -416,6 +457,7 @@ npm run test:e2e:smoke
 Generated at: `tests/e2e/reports/startup-diagnostics.json`
 
 **Contents:**
+
 ```json
 {
   "mode": "attached",
@@ -476,6 +518,7 @@ Generated at: `tests/e2e/reports/startup-diagnostics.json`
 ## Strictness Preserved
 
 The system does NOT:
+
 - Silently skip traversal
 - Weaken runtime assertions
 - Auto-pass unavailable routes
@@ -483,6 +526,7 @@ The system does NOT:
 - Ignore connection errors
 
 The system DOES:
+
 - Fail fast on infrastructure issues
 - Provide clear error messages
 - Distinguish infrastructure from app failures
@@ -496,7 +540,7 @@ The system DOES:
 ```typescript
 const runtimeManager = new RuntimeManager({
   mode: 'attached', // 'attached' | 'managed' | 'ci'
-  port: 3000,       // Server port
+  port: 3000, // Server port
   host: 'localhost', // Server host
   startupTimeout: 120000, // 2 minutes
   readinessTimeout: 30000, // 30 seconds
@@ -551,6 +595,7 @@ webServer: process.env.E2E_MODE === 'managed' ? {
 **Cause:** Server not running or infrastructure unavailable
 
 **Solution:**
+
 1. Check if server is running: `curl http://localhost:3000/api/healthz`
 2. Start server if needed: `npm run dev`
 3. Check port conflicts: `lsof -i:3000`
@@ -561,6 +606,7 @@ webServer: process.env.E2E_MODE === 'managed' ? {
 **Cause:** Server stopped or became unavailable during test run
 
 **Solution:**
+
 1. Check server logs for crashes
 2. Verify system resources
 3. Check for port conflicts
@@ -571,6 +617,7 @@ webServer: process.env.E2E_MODE === 'managed' ? {
 **Cause:** Optional service not running
 
 **Solution:**
+
 1. Start optional service if needed
 2. Accept that some features may not work
 3. Update test expectations if service is truly optional
@@ -580,6 +627,7 @@ webServer: process.env.E2E_MODE === 'managed' ? {
 **Cause:** Server taking too long to start
 
 **Solution:**
+
 1. Increase startup timeout in global-setup.ts
 2. Check server logs for slow initialization
 3. Optimize server startup time

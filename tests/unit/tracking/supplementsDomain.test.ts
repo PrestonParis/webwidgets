@@ -14,7 +14,7 @@ import {
     detectSupplementWarnings,
 } from '@/features/tracking/lib/supplements/safety';
 import { mapSupplementCsv } from '@/features/tracking/lib/supplements/importExport';
-import type { TrackingEntry } from '@/features/tracking/types/trackingEntryTypes';
+import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { Supplement } from '@/features/tracking/types/supplement';
 
 const supplement: Supplement = {

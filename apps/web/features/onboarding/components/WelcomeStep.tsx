@@ -1,93 +1,57 @@
-import { Boxes, LayoutGrid, SlidersHorizontal } from 'lucide-react';
+'use client';
 
-const concepts = [
-    {
-        icon: Boxes,
-        title: 'Widgets are instruments',
-        body: 'Email, notes, tracking, timers, calendar, and future intelligence surfaces work as small composable tools.',
-    },
-    {
-        icon: LayoutGrid,
-        title: 'Workspaces are operating modes',
-        body: 'Arrange widgets into a command center now, then split scenes by recovery, focus, research, or development later.',
-    },
-    {
-        icon: SlidersHorizontal,
-        title: 'Setup stays yours',
-        body: 'Recommendations give you a strong first system without hiding controls or locking the dashboard into a preset.',
-    },
-];
+import { Check } from 'lucide-react';
+import { GOAL_DEFINITIONS } from '@/features/onboarding/lib/goalDefinitions';
+import type { OnboardingGoalId } from '@/features/onboarding/types/goals';
+import { cn } from '@/lib/utils/utils';
 
-export function WelcomeStep() {
+interface WelcomeStepProps {
+    selectedGoals: OnboardingGoalId[];
+    onToggleGoal: (goalId: OnboardingGoalId) => void;
+}
+
+export function WelcomeStep({ selectedGoals, onToggleGoal }: WelcomeStepProps) {
     return (
-        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-lg border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                <div className="grid min-h-[360px] place-items-center rounded-lg border border-dashed border-zinc-300 bg-[#f0f3ff] p-8 dark:border-zinc-700 dark:bg-zinc-950">
-                    <div className="w-full max-w-xl">
-                        <div className="mb-6 grid grid-cols-3 gap-3">
-                            <div className="h-24 rounded-lg bg-white p-4 shadow-sm dark:bg-zinc-900">
-                                <div className="h-3 w-16 rounded bg-[#4f6ef7]" />
-                                <div className="mt-4 space-y-2">
-                                    <div className="h-2 rounded bg-zinc-200 dark:bg-zinc-700" />
-                                    <div className="h-2 w-2/3 rounded bg-zinc-200 dark:bg-zinc-700" />
-                                </div>
-                            </div>
-                            <div className="h-24 rounded-lg bg-zinc-950 p-4 shadow-sm dark:bg-white">
-                                <div className="h-3 w-12 rounded bg-white dark:bg-zinc-950" />
-                                <div className="mt-4 grid grid-cols-4 gap-1">
-                                    {[0, 1, 2, 3].map((item) => (
-                                        <div
-                                            key={item}
-                                            className="h-8 rounded bg-[#9ccfbd]"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="h-24 rounded-lg bg-white p-4 shadow-sm dark:bg-zinc-900">
-                                <div className="h-12 rounded bg-[#f3c969]" />
-                                <div className="mt-3 h-2 w-20 rounded bg-zinc-200 dark:bg-zinc-700" />
-                            </div>
-                        </div>
-                        <div className="rounded-lg bg-white p-5 shadow-sm dark:bg-zinc-900">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                                Generated starter system
-                            </p>
-                            <div className="mt-4 grid gap-3 md:grid-cols-3">
-                                {['Dashboard', 'Tracking', 'Automations'].map(
-                                    (label) => (
-                                        <div
-                                            key={label}
-                                            className="rounded-lg border border-zinc-200 p-4 text-sm font-semibold dark:border-zinc-800"
-                                        >
-                                            {label}
-                                        </div>
-                                    ),
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid gap-4">
-                {concepts.map((concept) => {
-                    const Icon = concept.icon;
+        <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {GOAL_DEFINITIONS.map((goal) => {
+                    const selected = selectedGoals.includes(goal.id);
                     return (
-                        <article
-                            key={concept.title}
-                            className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                        <button
+                            key={goal.id}
+                            type="button"
+                            onClick={() => onToggleGoal(goal.id)}
+                            className={cn(
+                                'group relative rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5',
+                                selected
+                                    ? 'border-[#4f6ef7] bg-[#eef2ff] shadow-md dark:bg-[#172033]'
+                                    : 'border-zinc-200 bg-white shadow-sm hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700',
+                            )}
                         >
-                            <Icon className="h-5 w-5 text-[#4f6ef7]" />
-                            <h3 className="mt-4 text-lg font-semibold">
-                                {concept.title}
+                            {selected && (
+                                <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-[#4f6ef7]">
+                                    <Check className="h-3 w-3 text-white" />
+                                </span>
+                            )}
+                            <span className="block text-3xl leading-none">
+                                {goal.emoji}
+                            </span>
+                            <h3 className="mt-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                {goal.label}
                             </h3>
-                            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                                {concept.body}
+                            <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+                                {goal.summary}
                             </p>
-                        </article>
+                        </button>
                     );
                 })}
             </div>
+            {selectedGoals.length > 0 && (
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    {selectedGoals.length} selected. You can always change this
+                    later.
+                </p>
+            )}
         </div>
     );
 }

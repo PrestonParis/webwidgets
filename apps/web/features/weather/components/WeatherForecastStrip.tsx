@@ -9,11 +9,11 @@ function dayLabel(day: ForecastDay): string {
     return DAY_ABBREVS[d.getDay()] ?? day.date.slice(5);
 }
 
-interface Props {
+interface WeatherForecastStripProps {
     days: ForecastDay[];
 }
 
-export function WeatherForecastStrip({ days }: Props) {
+export function WeatherForecastStrip({ days }: WeatherForecastStripProps) {
     if (days.length === 0) return null;
 
     return (

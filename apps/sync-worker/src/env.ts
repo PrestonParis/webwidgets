@@ -13,6 +13,10 @@ const schema = z.object({
     SYNC_BATCH_SIZE: z.coerce.number().int().min(1).max(200).default(50),
     // Cron: how often to sync all users (default every 10 minutes)
     SYNC_INTERVAL_MINUTES: z.coerce.number().int().min(1).default(10),
+    // Optional: Next.js app URL + cron secret so the worker can trigger
+    // Outlook background processing immediately after each sync cycle.
+    NEXT_APP_URL: z.string().url().optional(),
+    CRON_SECRET: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);

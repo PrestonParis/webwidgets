@@ -72,7 +72,7 @@ export function SleepGoalPanel({ onClose }: SleepGoalPanelProps) {
                     htmlFor="sleep-goal-hours"
                     className="text-xs font-medium text-gray-600 dark:text-zinc-400 block mb-2"
                 >
-                    Sleep at least —{' '}
+                    Sleep at least:{' '}
                     <span className="text-indigo-500 font-semibold">
                         {targetHours}h
                     </span>{' '}

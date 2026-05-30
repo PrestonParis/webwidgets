@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { computeMealAnalytics } from '@/features/tracking/lib/meal/analytics';
-import { BarChart } from '@/features/tracking/viz/BarChart';
+import { BarChart } from '@/features/ui/visualizations/components/BarChart';
 import type { MealRecord } from '@/features/tracking/types/meal';
 
 interface MealTrendsViewProps {
@@ -54,7 +54,7 @@ export function MealTrendsView({
                     <p className="text-sm font-bold text-gray-800 dark:text-zinc-200 mt-0.5">
                         {analytics.sevenDayAvgCalories !== null
                             ? `${Math.round(analytics.sevenDayAvgCalories)} kcal`
-                            : '—'}
+                            : 'N/A'}
                     </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-xl p-2.5">
@@ -64,7 +64,7 @@ export function MealTrendsView({
                     <p className="text-sm font-bold text-gray-800 dark:text-zinc-200 mt-0.5">
                         {analytics.sevenDayAvgProtein !== null
                             ? `${Math.round(analytics.sevenDayAvgProtein)}g`
-                            : '—'}
+                            : 'N/A'}
                     </p>
                 </div>
             </div>
@@ -79,7 +79,7 @@ export function MealTrendsView({
             )}
             <div>
                 <p className="text-[10px] text-gray-400 dark:text-zinc-500 mb-2">
-                    Calories — last 7 days
+                    Calories (last 7 days)
                 </p>
                 <BarChart
                     data={barData.filter((d) => d.value > 0)}

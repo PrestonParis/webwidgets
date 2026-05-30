@@ -146,7 +146,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                 }
                 if (json.errorCount > 0) {
                     toast.warning(
-                        `Import done with ${json.errorCount} error(s) — ${json.successCount} rows imported`,
+                        `Import done with ${json.errorCount} error(s). ${json.successCount} rows imported.`,
                     );
                 } else {
                     toast.success(`${json.successCount} rows imported`);
