@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { Sparkles, Download, Archive } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Sparkles, Download, Archive, Loader2 } from 'lucide-react';
 import { useArtifacts } from '@/features/artifacts/hooks/useArtifacts';
 import { useArtifactMutations } from '@/features/artifacts/hooks/useArtifactMutations';
 import type {
     Artifact,
     ArtifactType,
 } from '@/features/artifacts/types/artifact';
+import type {
+    ConversionExtension,
+    ConversionJob,
+    SupportedConversion,
+} from '@/features/convert/types/conversion';
 import { cn } from '@/lib/utils/utils';
 
 const TYPE_TABS: Array<{ label: string; value: ArtifactType | 'all' }> = [
@@ -36,16 +41,6 @@ function formatDate(dateStr: string): string {
         day: 'numeric',
         year: 'numeric',
     });
-}
-
-function downloadMarkdown(artifact: Artifact) {
-    const blob = new Blob([artifact.content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${artifact.title.replace(/[^a-z0-9]/gi, '_')}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
 }
 
 export default function ArtifactsPage({ initialId }: { initialId?: string }) {
@@ -161,13 +156,27 @@ export default function ArtifactsPage({ initialId }: { initialId?: string }) {
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => downloadMarkdown(selected)}
+                                <a
+                                    href={`/api/artifacts/${selected.id}/download?format=md`}
                                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                                 >
                                     <Download className="w-3.5 h-3.5" />
-                                    Export
-                                </button>
+                                    MD
+                                </a>
+                                <a
+                                    href={`/api/artifacts/${selected.id}/download?format=html`}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                                >
+                                    <Download className="w-3.5 h-3.5" />
+                                    HTML
+                                </a>
+                                <a
+                                    href={`/api/artifacts/${selected.id}/download?format=txt`}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                                >
+                                    <Download className="w-3.5 h-3.5" />
+                                    TXT
+                                </a>
                                 <button
                                     onClick={() => void handleArchive(selected)}
                                     className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -177,6 +186,8 @@ export default function ArtifactsPage({ initialId }: { initialId?: string }) {
                                 </button>
                             </div>
                         </div>
+
+                        <ArtifactConversionPanel artifact={selected} />
 
                         <div className="flex-1 overflow-y-auto p-6">
                             {/* Render markdown as preformatted text — replace with a markdown renderer for production */}
@@ -194,4 +205,160 @@ export default function ArtifactsPage({ initialId }: { initialId?: string }) {
             </div>
         </div>
     );
+}
+
+function ArtifactConversionPanel({ artifact }: { artifact: Artifact }) {
+    const [conversions, setConversions] = useState<SupportedConversion[]>([]);
+    const [target, setTarget] = useState<ConversionExtension | ''>('');
+    const [jobId, setJobId] = useState<string | null>(null);
+    const [job, setJob] = useState<ConversionJob | null>(null);
+    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const source = artifactSourceExtension(artifact);
+    const options = useMemo(
+        () =>
+            conversions
+                .filter((conversion) => conversion.sourceExtension === source)
+                .sort((a, b) =>
+                    a.targetExtension.localeCompare(b.targetExtension),
+                ),
+        [conversions, source],
+    );
+
+    useEffect(() => {
+        let mounted = true;
+        fetch('/api/conversion/v1/conversions')
+            .then((response) => response.json())
+            .then((json: { conversions?: SupportedConversion[] }) => {
+                if (!mounted) return;
+                setConversions(json.conversions ?? []);
+            })
+            .catch(() => undefined);
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        setTarget('');
+        setJobId(null);
+        setJob(null);
+        setDownloadUrl(null);
+        setError(null);
+    }, [artifact.id]);
+
+    useEffect(() => {
+        if (!jobId) return;
+        if (job?.status === 'completed' || job?.status === 'failed') return;
+        const interval = window.setInterval(() => {
+            fetch(`/api/conversion/v1/jobs/${jobId}`)
+                .then((response) => response.json())
+                .then((nextJob: ConversionJob) => setJob(nextJob))
+                .catch(() => undefined);
+        }, 1500);
+        return () => window.clearInterval(interval);
+    }, [job?.status, jobId]);
+
+    useEffect(() => {
+        if (!jobId || job?.status !== 'completed' || downloadUrl) return;
+        fetch(`/api/conversion/v1/jobs/${jobId}/download`)
+            .then((response) => response.json())
+            .then((json: { downloadUrl?: string }) => {
+                setDownloadUrl(json.downloadUrl ?? null);
+            })
+            .catch(() => undefined);
+    }, [downloadUrl, job?.status, jobId]);
+
+    async function startConversion() {
+        if (!target) return;
+        setLoading(true);
+        setError(null);
+        setJobId(null);
+        setJob(null);
+        setDownloadUrl(null);
+        try {
+            const response = await fetch(
+                `/api/artifacts/${artifact.id}/convert`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetExtension: target }),
+                },
+            );
+            const json = (await response.json()) as {
+                job?: ConversionJob;
+                jobId?: string;
+                error?: string;
+            };
+            if (!response.ok || !json.jobId) {
+                throw new Error(json.error ?? 'Conversion failed');
+            }
+            setJobId(json.jobId);
+            setJob(json.job ?? null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Conversion failed');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (options.length === 0) return null;
+
+    return (
+        <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 px-6 py-2 text-xs dark:border-zinc-800">
+            <span className="text-zinc-500">Convert with service</span>
+            <select
+                value={target}
+                onChange={(event) =>
+                    setTarget(event.target.value as ConversionExtension)
+                }
+                className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200"
+            >
+                <option value="">Choose format</option>
+                {options.map((conversion) => (
+                    <option
+                        key={`${conversion.sourceExtension}-${conversion.targetExtension}`}
+                        value={conversion.targetExtension}
+                    >
+                        {conversion.targetExtension.toUpperCase()}
+                    </option>
+                ))}
+            </select>
+            <button
+                type="button"
+                disabled={!target || loading}
+                onClick={() => void startConversion()}
+                className="inline-flex items-center gap-1 rounded-md bg-zinc-900 px-2 py-1 text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            >
+                {loading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                    <Download className="h-3 w-3" />
+                )}
+                Convert
+            </button>
+            {job && (
+                <span className="text-zinc-400">
+                    {job.targetExtension.toUpperCase()} {job.status}
+                </span>
+            )}
+            {downloadUrl && (
+                <a
+                    href={downloadUrl}
+                    className="rounded-md bg-emerald-50 px-2 py-1 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200"
+                >
+                    Download converted file
+                </a>
+            )}
+            {error && <span className="text-red-500">{error}</span>}
+        </div>
+    );
+}
+
+function artifactSourceExtension(artifact: Artifact): ConversionExtension {
+    if (artifact.contentFormat === 'plain_text') return 'txt';
+    if (artifact.contentFormat === 'json') return 'json';
+    return 'md';
 }

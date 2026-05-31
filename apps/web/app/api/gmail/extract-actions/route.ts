@@ -10,6 +10,10 @@ import { extractText } from '@/features/inbox/lib/gmailBody';
 import type { GmailPart } from '@/features/inbox/lib/gmailBody';
 import { z } from 'zod';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import {
+    ingestContextEdge,
+    ingestContextNode,
+} from '@/features/context/services/contextService';
 
 const emailInputSchema = z.object({
     id: z.string().min(1),
@@ -358,5 +362,83 @@ export async function POST(req: Request) {
         });
     }
 
+    if (actionCount > 0) {
+        await Promise.all(
+            emails.map((email) =>
+                ingestContextNode(supabase, user.id, {
+                    entityId: `email:gmail:${email.id}`,
+                    type: 'email',
+                    label: email.subject || 'Gmail message',
+                    summary: email.snippet,
+                    data: {
+                        sender: email.sender,
+                        date: email.date,
+                        provider: 'gmail',
+                    },
+                    tags: ['email', 'gmail'],
+                    sourceType: 'gmail',
+                    sourceId: email.id,
+                    sourceTable: 'gmail_messages',
+                    createdByType: 'integration',
+                    permissions: ['private', 'ai', 'cross_widget'],
+                }).catch(() => null),
+            ),
+        );
+        await Promise.all(
+            (allActions ?? []).flatMap((action) => {
+                const actionRecord = action as {
+                    id?: string;
+                    email_id: string;
+                    title: string;
+                    description: string | null;
+                    due_date: string | null;
+                    type: string;
+                };
+                const actionEntityId = `agent_action:gmail:${actionRecord.email_id}:${slugify(actionRecord.title)}`;
+                return [
+                    ingestContextNode(supabase, user.id, {
+                        entityId: actionEntityId,
+                        type: 'agent_action',
+                        label: actionRecord.title,
+                        summary: actionRecord.description,
+                        data: {
+                            emailId: actionRecord.email_id,
+                            dueDate: actionRecord.due_date,
+                            actionType: actionRecord.type,
+                            provider: 'gmail',
+                        },
+                        tags: ['email-action', actionRecord.type],
+                        sourceType: 'email_actions',
+                        sourceId:
+                            actionRecord.id ??
+                            `${actionRecord.email_id}:${actionRecord.title}`,
+                        sourceTable: 'email_actions',
+                        createdByType: 'agent',
+                        permissions: ['private', 'ai', 'cross_widget'],
+                    }),
+                    ingestContextEdge(supabase, user.id, {
+                        fromEntityId: actionEntityId,
+                        toEntityId: `email:gmail:${actionRecord.email_id}`,
+                        kind: 'derived_from',
+                        label: 'extracted from email',
+                        sourceType: 'email_actions',
+                        sourceId:
+                            actionRecord.id ??
+                            `${actionRecord.email_id}:${actionRecord.title}`,
+                        createdByType: 'agent',
+                    }),
+                ];
+            }),
+        ).catch(() => undefined);
+    }
+
     return NextResponse.json({ actions: allActions ?? [] });
+}
+
+function slugify(value: string): string {
+    return value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80);
 }

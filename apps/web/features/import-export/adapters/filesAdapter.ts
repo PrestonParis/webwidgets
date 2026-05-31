@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const filesAdapter: ImportExportAdapter = {
     id: 'files',
@@ -87,4 +88,6 @@ export const filesAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('files'),
 };

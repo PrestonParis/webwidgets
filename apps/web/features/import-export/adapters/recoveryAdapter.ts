@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const recoveryAdapter: ImportExportAdapter = {
     id: 'recovery_records',
@@ -125,4 +126,6 @@ export const recoveryAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('recovery_records'),
 };

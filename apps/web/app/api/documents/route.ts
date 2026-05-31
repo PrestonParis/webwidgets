@@ -7,6 +7,10 @@ import {
     createDocument,
 } from '@/features/documents/services/documentService';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import {
+    ingestContextEdge,
+    ingestContextNode,
+} from '@/features/context/services/contextService';
 
 export async function GET(req: Request): Promise<Response> {
     try {
@@ -68,6 +72,34 @@ export async function POST(req: Request): Promise<Response> {
             ],
             metadata: { format: doc.format, tagCount: doc.tags.length },
         });
+        await ingestContextNode(supabase, userId, {
+            entityId: `document:${doc.id}`,
+            type: 'document',
+            label: doc.title,
+            summary: doc.content.slice(0, 240),
+            data: {
+                format: doc.format,
+                tagCount: doc.tags.length,
+                sourceFileId: doc.sourceFileId,
+            },
+            tags: doc.tags,
+            sourceType: 'documents',
+            sourceId: doc.id,
+            sourceTable: 'documents',
+            createdByType: 'user',
+            permissions: ['private', 'ai', 'cross_widget'],
+        });
+        if (doc.sourceFileId) {
+            await ingestContextEdge(supabase, userId, {
+                fromEntityId: `file:${doc.sourceFileId}`,
+                toEntityId: `document:${doc.id}`,
+                kind: 'created_from',
+                label: 'document from uploaded file',
+                sourceType: 'documents',
+                sourceId: doc.id,
+                createdByType: 'system',
+            });
+        }
 
         return NextResponse.json({ data: doc }, { status: 201 });
     } catch (err) {

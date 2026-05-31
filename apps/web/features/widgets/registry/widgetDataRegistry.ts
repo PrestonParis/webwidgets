@@ -10,6 +10,7 @@ const resolverKeys = [
     'inbox.messages',
     'calendar.events',
     'developer.activity',
+    'datahealth.system',
     'files.recent',
     'tracking.today',
     'recovery.trackers',
@@ -30,6 +31,8 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
     'calendar.events': () =>
         import('@/features/calendar/server/calendarResolvers'),
     'developer.activity': () =>
+        import('@/features/developer/server/developerResolvers'),
+    'datahealth.system': () =>
         import('@/features/developer/server/developerResolvers'),
     'files.recent': () => import('@/features/uploads/server/filesResolvers'),
     'tracking.today': () =>

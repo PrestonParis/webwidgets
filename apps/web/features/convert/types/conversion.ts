@@ -25,6 +25,9 @@ export type ConversionExtension =
     | 'txt'
     | 'pdf'
     | 'csv'
+    | 'tsv'
+    | 'json'
+    | 'rst'
     | 'epub'
     | 'png'
     | 'jpg'
@@ -42,7 +45,17 @@ export interface SupportedConversion {
     label: string;
     worker: 'worker-docs' | 'worker-images';
     workerFamily?: 'documents' | 'images';
-    engine?: 'libreoffice' | 'pandoc' | 'native';
+    engine?:
+        | 'libreoffice'
+        | 'libreoffice-pdf'
+        | 'pandoc'
+        | 'native'
+        | 'native-data'
+        | 'pdftotext'
+        | 'pdftohtml'
+        | 'pdftoepub'
+        | 'pdftoppm-png'
+        | 'pdftoppm-jpg';
     lossy?: boolean;
     notes?: string;
     warnings?: string[];

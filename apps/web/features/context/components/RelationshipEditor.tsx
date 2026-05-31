@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { Link2, Plus } from 'lucide-react';
 import type {
+    ContextEdge,
     ContextGraph,
     ContextNode,
     UpsertEntryPayload,
 } from '@/features/context/types/context';
+import { createEdge, deleteEdge } from '@/features/context/api/contextApi';
 
 interface RelationshipEditorProps {
     node: ContextNode;
@@ -24,11 +26,32 @@ export function RelationshipEditor({
     const [targetId, setTargetId] = useState('');
     const [note, setNote] = useState('');
     const [saving, setSaving] = useState(false);
-    const availableNodes = graph.nodes.filter(
-        (item) =>
-            item.entityId !== node.entityId &&
-            !node.linkedTo.includes(item.entityId),
+    const connectedEdges = graph.edges.filter(
+        (edge) => edge.from === node.entityId || edge.to === node.entityId,
     );
+    const explicitEdges = connectedEdges.filter(
+        (edge) => (edge.kind ?? 'explicit') === 'explicit',
+    );
+    const generatedEdges = connectedEdges.filter(
+        (edge) => (edge.kind ?? 'explicit') !== 'explicit',
+    );
+    const availableNodes = [
+        ...new Map(
+            graph.nodes
+                .filter(
+                    (item) =>
+                        item.entityId !== node.entityId &&
+                        !explicitEdges.some(
+                            (edge) =>
+                                (edge.from === node.entityId &&
+                                    edge.to === item.entityId) ||
+                                (edge.to === node.entityId &&
+                                    edge.from === item.entityId),
+                        ),
+                )
+                .map((item) => [item.entityId, item]),
+        ).values(),
+    ];
 
     async function addRelationship() {
         if (!targetId) return;
@@ -41,6 +64,13 @@ export function RelationshipEditor({
                 data: node.data,
                 linkedTo: [...node.linkedTo, targetId],
             });
+            await createEdge({
+                fromEntityId: node.entityId,
+                toEntityId: targetId,
+                kind: 'explicit',
+                label: 'linked',
+                metadata: { feature: 'context-relationship-editor' },
+            });
             setTargetId('');
             onSelectNode(node.entityId);
         } finally {
@@ -48,16 +78,20 @@ export function RelationshipEditor({
         }
     }
 
-    async function removeRelationship(id: string) {
+    async function removeRelationship(edge: ContextEdge) {
+        if (!edge.id) return;
         setSaving(true);
         try {
-            await onUpsert({
-                entityId: node.entityId,
-                entryType: node.entryType,
-                label: node.label,
-                data: node.data,
-                linkedTo: node.linkedTo.filter((item) => item !== id),
-            });
+            await deleteEdge(edge.id);
+            if (edge.from === node.entityId) {
+                await onUpsert({
+                    entityId: node.entityId,
+                    entryType: node.entryType,
+                    label: node.label,
+                    data: node.data,
+                    linkedTo: node.linkedTo.filter((item) => item !== edge.to),
+                });
+            }
         } finally {
             setSaving(false);
         }
@@ -109,28 +143,74 @@ export function RelationshipEditor({
                         Link
                     </button>
                 </div>
-                {node.linkedTo.length > 0 && (
+                {explicitEdges.length > 0 && (
                     <div className="mt-2 space-y-1">
-                        {node.linkedTo.map((id) => (
-                            <div
-                                key={id}
-                                className="flex items-center justify-between rounded-md bg-zinc-50 px-2 py-1.5 text-xs dark:bg-zinc-900"
-                            >
-                                <span className="truncate text-zinc-600 dark:text-zinc-300">
-                                    {graph.nodes.find(
-                                        (item) => item.entityId === id,
-                                    )?.label ?? id}
-                                </span>
-                                <button
-                                    type="button"
-                                    disabled={saving}
-                                    onClick={() => void removeRelationship(id)}
-                                    className="text-zinc-400 hover:text-rose-600"
+                        {explicitEdges.map((edge) => {
+                            const otherId =
+                                edge.from === node.entityId
+                                    ? edge.to
+                                    : edge.from;
+                            return (
+                                <div
+                                    key={edge.id ?? `${edge.from}-${edge.to}`}
+                                    className="flex items-center justify-between rounded-md bg-zinc-50 px-2 py-1.5 text-xs dark:bg-zinc-900"
                                 >
-                                    Remove
-                                </button>
-                            </div>
-                        ))}
+                                    <div className="min-w-0">
+                                        <p className="truncate text-zinc-600 dark:text-zinc-300">
+                                            {graph.nodes.find(
+                                                (item) =>
+                                                    item.entityId === otherId,
+                                            )?.label ?? otherId}
+                                        </p>
+                                        <p className="truncate text-[10px] text-zinc-400">
+                                            {edge.label ?? 'explicit link'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        disabled={saving || !edge.id}
+                                        onClick={() =>
+                                            void removeRelationship(edge)
+                                        }
+                                        className="text-zinc-400 hover:text-rose-600"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+                {generatedEdges.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                            Generated Relationships
+                        </p>
+                        {generatedEdges.slice(0, 8).map((edge) => {
+                            const otherId =
+                                edge.from === node.entityId
+                                    ? edge.to
+                                    : edge.from;
+                            return (
+                                <div
+                                    key={
+                                        edge.id ??
+                                        `${edge.from}-${edge.to}-${edge.kind}`
+                                    }
+                                    className="rounded-md bg-zinc-50 px-2 py-1.5 text-xs dark:bg-zinc-900"
+                                >
+                                    <p className="truncate text-zinc-600 dark:text-zinc-300">
+                                        {graph.nodes.find(
+                                            (item) => item.entityId === otherId,
+                                        )?.label ?? otherId}
+                                    </p>
+                                    <p className="truncate text-[10px] text-zinc-400">
+                                        {edge.kind} · confidence{' '}
+                                        {edge.confidence ?? 1}
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </section>

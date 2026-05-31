@@ -3,10 +3,15 @@ import type { SupportedConversion } from './types.js';
 
 type DocumentEngine =
     | 'libreoffice'
+    | 'libreoffice-pdf'
     | 'pandoc'
     | 'native'
+    | 'native-data'
     | 'pdftotext'
-    | 'pdftohtml';
+    | 'pdftohtml'
+    | 'pdftoepub'
+    | 'pdftoppm-png'
+    | 'pdftoppm-jpg';
 
 function documentConversion(
     sourceExtension: string,
@@ -200,6 +205,37 @@ export const documentConversions = [
         notes: 'Plain text wrapped in minimal Markdown structure.',
     }),
 
+    // ── PDF → editable office formats ─────────────────────────────────────────
+    // Uses LibreOffice Draw PDF Import filter. Output is editable but
+    // layout-based (text boxes), not reflowable prose. Best for structured
+    // PDFs; handwriting/scanned PDFs produce empty or garbled output.
+    documentConversion('pdf', 'docx', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'Uses LibreOffice Draw PDF Import. Text boxes, not reflowable prose. Scanned PDFs not supported.',
+        warnings: [
+            'PDF to DOCX uses Draw PDF Import — formatting fidelity is best-effort. Complex layouts may not round-trip cleanly.',
+        ],
+    }),
+    documentConversion('pdf', 'odt', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'Uses LibreOffice Draw PDF Import. Same fidelity caveats as PDF to DOCX.',
+    }),
+    documentConversion('pdf', 'rtf', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'PDF imported via LibreOffice Draw then exported to RTF.',
+    }),
+
+    // ── PDF → EPUB ────────────────────────────────────────────────────────────
+    // Two-step: pdftotext extracts the text layer, then Pandoc wraps it as EPUB.
+    // Result is readable prose; images and complex layout are lost.
+    documentConversion('pdf', 'epub', 'pdftoepub', {
+        lossy: true,
+        notes: 'Text layer extracted with pdftotext, then wrapped as EPUB via Pandoc. Images and layout are not preserved.',
+        warnings: [
+            'PDF to EPUB is text-only. Images, tables, and complex formatting are dropped.',
+        ],
+    }),
+
     // ── Remaining text extraction ─────────────────────────────────────────────
     documentConversion('ppt', 'txt', 'libreoffice', {
         lossy: true,
@@ -282,6 +318,119 @@ export const documentConversions = [
     }),
     documentConversion('docx', 'epub', 'pandoc', { lossy: false }),
     documentConversion('odt', 'epub', 'pandoc', { lossy: false }),
+
+    // ── txt → epub ────────────────────────────────────────────────────────────
+    documentConversion('txt', 'epub', 'pandoc', {
+        lossy: false,
+        notes: 'Plain text wrapped as EPUB via Pandoc.',
+    }),
+
+    // ── PPTX extraction (Pandoc) ──────────────────────────────────────────────
+    // Pandoc reads PPTX natively; slide text is extracted, images dropped.
+    documentConversion('pptx', 'html', 'pandoc', {
+        lossy: true,
+        notes: 'Slide text only; images and charts are dropped.',
+    }),
+    documentConversion('pptx', 'md', 'pandoc', {
+        lossy: true,
+        notes: 'Slide text only; images and charts are dropped.',
+    }),
+    documentConversion('pptx', 'epub', 'pandoc', {
+        lossy: true,
+        notes: 'Slides converted to EPUB chapters. Images dropped.',
+    }),
+    documentConversion('pptx', 'docx', 'pandoc', {
+        lossy: true,
+        notes: 'Slide content flattened to a Word document.',
+    }),
+    documentConversion('pptx', 'odt', 'pandoc', {
+        lossy: true,
+        notes: 'Slide content flattened to an ODT document.',
+    }),
+
+    // ── → PPTX (Pandoc) ───────────────────────────────────────────────────────
+    // Pandoc creates a presentation from headings: H1/H2 become slide titles.
+    documentConversion('md', 'pptx', 'pandoc', {
+        lossy: false,
+        notes: 'H1/H2 headings become slide titles. No image support.',
+    }),
+    documentConversion('html', 'pptx', 'pandoc', {
+        lossy: false,
+        notes: 'H1/H2 headings become slides.',
+        warnings: [htmlSafetyWarning],
+    }),
+    documentConversion('txt', 'pptx', 'pandoc', {
+        lossy: false,
+        notes: 'Sections separated by blank lines become slides.',
+    }),
+    documentConversion('docx', 'pptx', 'pandoc', {
+        lossy: true,
+        notes: 'Heading levels map to slide titles.',
+    }),
+    documentConversion('rst', 'pptx', 'pandoc', {
+        lossy: false,
+        notes: 'RST sections become slides.',
+    }),
+
+    // ── Spreadsheet / tabular → Markdown ─────────────────────────────────────
+    // Pandoc renders these as GFM pipe tables.
+    documentConversion('xlsx', 'md', 'pandoc', {
+        lossy: true,
+        notes: 'First sheet rendered as a GFM pipe table.',
+    }),
+    documentConversion('csv', 'md', 'pandoc', {
+        lossy: false,
+        notes: 'CSV rendered as a GFM pipe table.',
+    }),
+    documentConversion('tsv', 'md', 'pandoc', {
+        lossy: false,
+        notes: 'TSV rendered as a GFM pipe table.',
+    }),
+    documentConversion('tsv', 'html', 'pandoc', {
+        lossy: false,
+        notes: 'TSV rendered as an HTML table.',
+    }),
+
+    // ── LibreOffice spreadsheet upgrades ──────────────────────────────────────
+    documentConversion('xlsx', 'ods', 'libreoffice', { lossy: false }),
+    documentConversion('xls', 'ods', 'libreoffice', { lossy: false }),
+    documentConversion('ods', 'csv', 'libreoffice', {
+        lossy: true,
+        notes: 'Exports the first sheet only.',
+    }),
+
+    // ── Structured data (native-data engine) ─────────────────────────────────
+    // csv → json: each row becomes an object keyed by the header row.
+    // xlsx → json: LibreOffice exports to CSV first, then same parse.
+    // tsv → csv / tsv → json: delimiter swap then same parse path.
+    documentConversion('csv', 'json', 'native-data', {
+        lossy: false,
+        notes: 'Header row becomes object keys; each data row becomes an object.',
+    }),
+    documentConversion('tsv', 'csv', 'native-data', {
+        lossy: false,
+        notes: 'Tab-delimited input converted to comma-delimited output.',
+    }),
+    documentConversion('tsv', 'json', 'native-data', {
+        lossy: false,
+        notes: 'Header row becomes object keys; each data row becomes an object.',
+    }),
+    documentConversion('xlsx', 'json', 'native-data', {
+        lossy: true,
+        notes: 'First sheet exported via LibreOffice to CSV, then parsed to JSON.',
+    }),
+
+    // ── PDF → raster images (pdftoppm) ───────────────────────────────────────
+    // pdftoppm is from poppler-utils, installed in the worker-docs Docker image.
+    // First page only. Multi-page → ZIP is a future addition.
+    documentConversion('pdf', 'png', 'pdftoppm-png', {
+        lossy: false,
+        notes: 'First page only. Rasterised at 150 DPI. Scanned PDFs are supported.',
+    }),
+    documentConversion('pdf', 'jpg', 'pdftoppm-jpg', {
+        lossy: true,
+        notes: 'First page only. Rasterised at 150 DPI.',
+    }),
 ] as const satisfies readonly SupportedConversion[];
 
 const imageConversions = [
@@ -404,6 +553,44 @@ const imageConversions = [
         worker: 'worker-images',
         workerFamily: 'images',
         lossy: true,
+    },
+    // ── Additional raster conversions (sharp reads these natively) ────────────
+    {
+        kind: 'image',
+        sourceExtension: 'tiff',
+        targetExtension: 'webp',
+        label: 'TIFF to WebP',
+        worker: 'worker-images',
+        workerFamily: 'images',
+        lossy: true,
+    },
+    {
+        kind: 'image',
+        sourceExtension: 'bmp',
+        targetExtension: 'jpg',
+        label: 'BMP to JPG',
+        worker: 'worker-images',
+        workerFamily: 'images',
+        lossy: true,
+    },
+    {
+        kind: 'image',
+        sourceExtension: 'bmp',
+        targetExtension: 'webp',
+        label: 'BMP to WebP',
+        worker: 'worker-images',
+        workerFamily: 'images',
+        lossy: true,
+    },
+    {
+        kind: 'image',
+        sourceExtension: 'gif',
+        targetExtension: 'jpg',
+        label: 'GIF to JPG',
+        worker: 'worker-images',
+        workerFamily: 'images',
+        lossy: true,
+        notes: 'First-frame extraction.',
     },
 ] as const satisfies readonly SupportedConversion[];
 

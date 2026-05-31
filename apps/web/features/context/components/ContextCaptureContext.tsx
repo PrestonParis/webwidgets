@@ -45,6 +45,7 @@ export function ContextCaptureProvider({
             data?: Record<string, unknown>,
         ) => {
             if (!permissionsEnabled) return;
+            if (widgetType === 'context-diagram') return;
             const event: CaptureEvent = {
                 widgetType,
                 eventType,

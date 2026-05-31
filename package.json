@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev:web",
-    "dev:web": "cd apps/web && NODE_OPTIONS=--max-old-space-size=2048 next dev",
+    "dev:web": "npm run clean:next-cache && cd apps/web && NEXT_DISABLE_SENTRY=1 NEXT_PUBLIC_DISABLE_SENTRY=1 NODE_OPTIONS=--max-old-space-size=2048 next dev",
+    "dev:web:sentry": "npm run clean:next-cache && cd apps/web && NODE_OPTIONS=--max-old-space-size=2048 next dev",
     "dev:api": "cd services/conversion && npm run dev:api",
     "dev:sync": "cd apps/sync-worker && npm run dev",
     "dev:infra": "open -a Docker && until docker info > /dev/null 2>&1; do sleep 1; done && (supabase status > /dev/null 2>&1 || supabase start || true) && until supabase status > /dev/null 2>&1; do sleep 2; done && npm run conversion:up",

@@ -13,40 +13,12 @@ import {
     updateExportJob,
     addAuditEvent,
 } from '@/features/import-export/services/importExportService';
-import {
-    getAdapter,
-    registerAdapter,
-} from '@/features/import-export/lib/adapterRegistry';
-import { trackingEntriesAdapter } from '@/features/import-export/adapters/trackingEntriesAdapter';
-import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
-import { collaborationHandoffsAdapter } from '@/features/import-export/adapters/collaborationHandoffsAdapter';
-import { contextEntriesAdapter } from '@/features/import-export/adapters/contextEntriesAdapter';
-import { moodAdapter } from '@/features/import-export/adapters/moodAdapter';
-import { journalAdapter } from '@/features/import-export/adapters/journalAdapter';
-import { habitAdapter } from '@/features/import-export/adapters/habitAdapter';
-import { financeAdapter } from '@/features/import-export/adapters/financeAdapter';
-import { countdownAdapter } from '@/features/import-export/adapters/countdownAdapter';
-import { recoveryAdapter } from '@/features/import-export/adapters/recoveryAdapter';
-import { calendarEventsAdapter } from '@/features/import-export/adapters/calendarEventsAdapter';
-import { memoryDecksAdapter } from '@/features/import-export/adapters/memoryDecksAdapter';
-import { filesAdapter } from '@/features/import-export/adapters/filesAdapter';
+import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
+import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
+import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
 
 function ensureAdapters() {
-    [
-        trackingEntriesAdapter,
-        todosAdapter,
-        collaborationHandoffsAdapter,
-        contextEntriesAdapter,
-        moodAdapter,
-        journalAdapter,
-        habitAdapter,
-        financeAdapter,
-        countdownAdapter,
-        recoveryAdapter,
-        calendarEventsAdapter,
-        memoryDecksAdapter,
-        filesAdapter,
-    ].forEach(registerAdapter);
+    registerCoreImportExportAdapters();
 }
 
 // ── CSV serialization ─────────────────────────────────────────────────────────
@@ -105,6 +77,7 @@ export async function POST(req: Request) {
             // When true (used by dashboard runtime), skip job persistence and
             // return data directly. Faster for widget data reads.
             inline?: boolean;
+            ingest_context?: boolean;
             // Optional date range — passed through to adapters that support it
             // (e.g. calendarEventsAdapter for month-grid queries).
             start_date?: string;
@@ -168,6 +141,19 @@ export async function POST(req: Request) {
             const result = await adapterLimit(() =>
                 adapter.exportData!(userId, adapterOptions),
             );
+            if (body.ingest_context) {
+                void ingestContextFromAdapterPayload(
+                    supabase,
+                    userId,
+                    body.source_type,
+                    result.rows,
+                ).catch((error) =>
+                    console.warn(
+                        '[import-export] context ingestion skipped:',
+                        error,
+                    ),
+                );
+            }
             // If the adapter produced a rich inlinePayload (e.g. habits + completions),
             // return it as `data` so useWidgetData gets the full structure.
             // Otherwise fall back to the flat `records` array.
@@ -202,6 +188,14 @@ export async function POST(req: Request) {
                 ...adapterOptions,
                 format: format as 'csv' | 'json',
             }),
+        );
+        void ingestContextFromAdapterPayload(
+            supabase,
+            userId,
+            body.source_type,
+            exportResult.rows,
+        ).catch((error) =>
+            console.warn('[import-export] context ingestion skipped:', error),
         );
 
         // Generate output

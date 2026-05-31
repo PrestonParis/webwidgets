@@ -9,6 +9,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { calendar_v3 } from 'googleapis';
 import type { CalendarEvent } from '@/features/calendar/types/calendar';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestCalendarEventContext } from '@/features/context/services/contextProducerService';
+import { markContextStatus } from '@/features/context/services/contextService';
 
 type CalEventsResource = {
     insert(
@@ -217,6 +219,15 @@ export async function POST(req: Request): Promise<Response> {
             start: startLabel,
         },
     });
+    await ingestCalendarEventContext(supabase, user.id, {
+        id: created.id,
+        summary: created.summary,
+        description: created.description,
+        start: created.start.dateTime ?? created.start.date,
+        end: created.end.dateTime ?? created.end.date,
+        htmlLink: created.htmlLink,
+        createdByType: 'user',
+    }).catch(() => undefined);
 
     return NextResponse.json(created, { status: 201 });
 }
@@ -295,6 +306,15 @@ export async function PATCH(req: Request): Promise<Response> {
         actionUrl: updated.htmlLink,
         metadata: { eventId, summary: updated.summary },
     });
+    await ingestCalendarEventContext(supabase, user.id, {
+        id: updated.id || eventId,
+        summary: updated.summary,
+        description: updated.description,
+        start: updated.start.dateTime ?? updated.start.date,
+        end: updated.end.dateTime ?? updated.end.date,
+        htmlLink: updated.htmlLink,
+        createdByType: 'user',
+    }).catch(() => undefined);
 
     return NextResponse.json(updated);
 }
@@ -332,6 +352,12 @@ export async function DELETE(req: Request): Promise<Response> {
         title: 'Calendar event deleted',
         metadata: { eventId },
     });
+    await markContextStatus(
+        supabase,
+        user.id,
+        `calendar_event:${eventId}`,
+        'deleted',
+    ).catch(() => undefined);
 
     return new Response(null, { status: 204 });
 }

@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const financeAdapter: ImportExportAdapter = {
     id: 'finance_records',
@@ -142,4 +143,6 @@ export const financeAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('finance_records'),
 };

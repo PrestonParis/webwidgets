@@ -9,6 +9,7 @@ import type {
     MappedRow,
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const countdownAdapter: ImportExportAdapter = {
     id: 'countdowns',
@@ -167,4 +168,6 @@ export const countdownAdapter: ImportExportAdapter = {
             warnings,
         };
     },
+
+    mapToContext: getContextMapper('countdowns'),
 };

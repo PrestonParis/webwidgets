@@ -215,7 +215,7 @@ function MoreOptionsDropdown({
             {resetConfirming && (
                 <ConfirmModal
                     title="Reset Layout"
-                    message="Reset your dashboard to the default layout? All widget positions and customizations will be lost."
+                    message="Reset your dashboard to your onboarding layout? If no onboarding layout is available, the dashboard will be cleared."
                     confirmLabel="Reset"
                     onConfirm={() => {
                         setResetConfirming(false);

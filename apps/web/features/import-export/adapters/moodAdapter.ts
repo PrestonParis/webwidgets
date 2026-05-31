@@ -9,6 +9,7 @@ import type {
     MappedRow,
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const moodAdapter: ImportExportAdapter = {
     id: 'mood_logs',
@@ -181,4 +182,6 @@ export const moodAdapter: ImportExportAdapter = {
             warnings,
         };
     },
+
+    mapToContext: getContextMapper('mood_logs'),
 };

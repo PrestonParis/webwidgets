@@ -3,6 +3,10 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import {
+    ingestContextEdge,
+    ingestContextNode,
+} from '@/features/context/services/contextService';
 
 export async function GET(): Promise<Response> {
     try {
@@ -62,6 +66,29 @@ export async function POST(req: Request): Promise<Response> {
             title: `Task created: ${todo.text}`,
             actionUrl: '/',
             metadata: { todoId: todo.id, text: todo.text },
+        });
+        await ingestContextNode(supabase, userId, {
+            entityId: `todo:${todo.id}`,
+            type: 'todo',
+            label: todo.text,
+            summary: todo.text,
+            data: { completed: false },
+            tags: ['todo'],
+            sourceType: 'todos',
+            sourceId: todo.id,
+            sourceTable: 'todos',
+            createdByType: 'user',
+            permissions: ['private', 'ai', 'cross_widget'],
+        });
+        await ingestContextEdge(supabase, userId, {
+            fromEntityId: 'widget:todo',
+            toEntityId: `todo:${todo.id}`,
+            kind: 'produced_by',
+            label: 'created in Todo widget',
+            sourceType: 'todos',
+            sourceId: todo.id,
+            createdByType: 'system',
+            metadata: { eventType: 'todo.created' },
         });
 
         return NextResponse.json({ todo: data }, { status: 201 });

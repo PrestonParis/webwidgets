@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
-import { listEntries } from '@/features/context/services/contextService';
+import {
+    listEntries,
+    listEdges,
+} from '@/features/context/services/contextService';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -12,8 +15,13 @@ export async function GET() {
         const entries = await listEntries(
             supabase as unknown as SupabaseClient,
             userId,
+            { limit: 2000 },
         );
-        const graph = buildContextGraph(entries);
+        const edges = await listEdges(
+            supabase as unknown as SupabaseClient,
+            userId,
+        );
+        const graph = buildContextGraph(entries, edges);
         return NextResponse.json(graph);
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
