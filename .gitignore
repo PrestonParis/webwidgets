@@ -78,6 +78,8 @@ Desktop.ini
 # Coverage / testing
 # =========================
 coverage/
+!apps/web/app/api/context/coverage/
+!apps/web/app/api/context/coverage/route.ts
 .nyc_output/
 .pytest_cache/
 junit.xml

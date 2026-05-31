@@ -22,7 +22,7 @@ export function WeatherForecastStrip({ days }: WeatherForecastStripProps) {
                 <div
                     key={day.date}
                     className={cn(
-                        'flex flex-col items-center min-w-[44px] shrink-0 py-1.5 px-1 rounded-lg',
+                        'flex flex-col items-center min-w-11 shrink-0 py-1.5 px-1 rounded-lg',
                         day.isToday
                             ? 'bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/60'
                             : day.isPast

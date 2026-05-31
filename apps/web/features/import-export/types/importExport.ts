@@ -49,6 +49,7 @@ export type SourceDestinationType =
     | 'calendar_events'
     | 'memory_decks'
     | 'files'
+    | 'documents'
     | 'activity_events';
 
 // ── Field mapping ─────────────────────────────────────────────────────────────

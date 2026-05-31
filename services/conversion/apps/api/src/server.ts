@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { env } from './env.js';
+import { batchRoutes } from './routes/batches.js';
 import { healthRoutes } from './routes/health.js';
 import { jobRoutes } from './routes/jobs.js';
 
@@ -59,6 +60,7 @@ export function buildServer() {
     });
     void app.register(healthRoutes);
     void app.register(jobRoutes);
+    void app.register(batchRoutes);
 
     return app;
 }

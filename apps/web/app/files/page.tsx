@@ -8,6 +8,7 @@ import Footer from '@/features/ui/components/Footer';
 import { LoadingState } from '@/features/ui/loading';
 import { FileUploadZone } from '@/features/uploads/components/FileUploadZone';
 import { FileList } from '@/features/uploads/components/FileList';
+import { FileAiActionFlow } from '@/features/uploads/components/FileAiActionFlow';
 import { useFileUpload } from '@/features/uploads/hooks/useFileUpload';
 import { cn } from '@/lib/utils/utils';
 
@@ -44,7 +45,7 @@ export default function FilesPage() {
     } = useFileUpload();
     const [tab, setTab] = useState<Tab>('my-files');
 
-    const isArtifacts = tab === 'artifacts';
+    const isWide = tab === 'artifacts' || tab === 'my-files';
 
     return (
         <>
@@ -52,7 +53,7 @@ export default function FilesPage() {
             <div
                 className={cn(
                     'mx-auto px-6 py-10 space-y-6',
-                    isArtifacts ? 'max-w-5xl' : 'max-w-2xl',
+                    isWide ? 'max-w-5xl' : 'max-w-2xl',
                 )}
             >
                 <div>
@@ -90,6 +91,10 @@ export default function FilesPage() {
                             uploadProgress={uploadProgress}
                             uploadError={uploadError}
                             onUpload={upload}
+                        />
+                        <FileAiActionFlow
+                            files={files}
+                            onOpenArtifacts={() => setTab('artifacts')}
                         />
                         {loading ? (
                             <LoadingState

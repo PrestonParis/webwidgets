@@ -9,7 +9,9 @@ interface ContextTimelineProps {
 }
 
 export function ContextTimeline({ graph, onSelectNode }: ContextTimelineProps) {
-    const recent = [...graph.nodes]
+    const recent = [
+        ...new Map(graph.nodes.map((node) => [node.entityId, node])).values(),
+    ]
         .sort(
             (a, b) =>
                 new Date(b.updatedAt).getTime() -

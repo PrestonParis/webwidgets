@@ -13,6 +13,7 @@ const pandocTargets: Record<string, string> = {
     docx: 'docx',
     odt: 'odt',
     rtf: 'rtf',
+    pptx: 'pptx',
 };
 
 export async function convertWithPandoc(

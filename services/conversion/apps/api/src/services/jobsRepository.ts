@@ -71,7 +71,12 @@ export async function markJobQueued(jobId: string) {
     const [row] = await db
         .update(conversionJobs)
         .set({ status: 'queued', updatedAt: new Date() })
-        .where(eq(conversionJobs.id, jobId))
+        .where(
+            and(
+                eq(conversionJobs.id, jobId),
+                inArray(conversionJobs.status, ['pending', 'queued']),
+            ),
+        )
         .returning();
     return row ? toJob(row) : null;
 }

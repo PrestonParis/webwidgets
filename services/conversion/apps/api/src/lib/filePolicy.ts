@@ -19,6 +19,7 @@ const ALLOWED_MIME_PREFIXES = [
     'application/x-zip-compressed',
     'application/xhtml+xml',
     'application/csv',
+    'application/json',
     'application/octet-stream',
     'application/msword',
     'application/rtf',

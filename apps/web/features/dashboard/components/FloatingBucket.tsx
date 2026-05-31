@@ -45,6 +45,9 @@ export function FloatingBucket({
     const handleRef = useRef<HTMLDivElement>(null);
     const offset = useRef({ dx: 0, dy: 0 });
     const startClient = useRef({ x: 0, y: 0 });
+    const lastClient = useRef({ x: 0, y: 0 });
+    const activePointerId = useRef<number | null>(null);
+    const draggingRef = useRef(false);
     const didDrag = useRef(false);
 
     useEffect(() => {
@@ -77,17 +80,66 @@ export function FloatingBucket({
         return entry ? `${entry.emoji} ${entry.name}` : w.type;
     }
 
+    const clampPos = useCallback((clientX: number, clientY: number) => {
+        return {
+            x: Math.max(
+                0,
+                Math.min(
+                    clientX - offset.current.dx,
+                    window.innerWidth - HANDLE_W,
+                ),
+            ),
+            y: Math.max(
+                0,
+                Math.min(clientY - offset.current.dy, window.innerHeight - 80),
+            ),
+        };
+    }, []);
+
+    const releasePointer = useCallback((pointerId: number | null) => {
+        const el = handleRef.current;
+        if (!el || pointerId === null) return;
+        if (!el.hasPointerCapture(pointerId)) return;
+        el.releasePointerCapture(pointerId);
+    }, []);
+
+    const endDrag = useCallback(
+        (clientX = lastClient.current.x, clientY = lastClient.current.y) => {
+            const pointerId = activePointerId.current;
+            releasePointer(pointerId);
+
+            if (draggingRef.current) {
+                const final = clampPos(clientX, clientY);
+                setPos(final);
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
+                } catch {
+                    /* quota */
+                }
+            }
+
+            activePointerId.current = null;
+            draggingRef.current = false;
+            didDrag.current = false;
+            setDragging(false);
+        },
+        [clampPos, releasePointer],
+    );
+
     const onPointerDown = useCallback(
         (e: React.PointerEvent<HTMLDivElement>) => {
             e.preventDefault();
             const el = handleRef.current;
             if (!el) return;
+            activePointerId.current = e.pointerId;
             const rect = el.getBoundingClientRect();
             offset.current = {
                 dx: e.clientX - rect.left,
                 dy: e.clientY - rect.top,
             };
             startClient.current = { x: e.clientX, y: e.clientY };
+            lastClient.current = { x: e.clientX, y: e.clientY };
+            draggingRef.current = false;
             didDrag.current = false;
             el.setPointerCapture(e.pointerId);
         },
@@ -96,67 +148,60 @@ export function FloatingBucket({
 
     const onPointerMove = useCallback(
         (e: React.PointerEvent<HTMLDivElement>) => {
+            if (activePointerId.current !== e.pointerId) return;
+            lastClient.current = { x: e.clientX, y: e.clientY };
             const dx = e.clientX - startClient.current.x;
             const dy = e.clientY - startClient.current.y;
-            if (!dragging && Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+            if (!draggingRef.current && Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+                draggingRef.current = true;
                 setDragging(true);
                 setOpen(false);
                 didDrag.current = true;
             }
-            if (!dragging && Math.hypot(dx, dy) <= DRAG_THRESHOLD) return;
+            if (!draggingRef.current) return;
 
-            const x = Math.max(
-                0,
-                Math.min(
-                    e.clientX - offset.current.dx,
-                    window.innerWidth - HANDLE_W,
-                ),
-            );
-            const y = Math.max(
-                0,
-                Math.min(
-                    e.clientY - offset.current.dy,
-                    window.innerHeight - 80,
-                ),
-            );
-            setPos({ x, y });
+            setPos(clampPos(e.clientX, e.clientY));
         },
-        [dragging],
+        [clampPos],
     );
 
     const onPointerUp = useCallback(
         (e: React.PointerEvent<HTMLDivElement>) => {
-            handleRef.current?.releasePointerCapture(e.pointerId);
-            if (dragging) {
-                const x = Math.max(
-                    0,
-                    Math.min(
-                        e.clientX - offset.current.dx,
-                        window.innerWidth - HANDLE_W,
-                    ),
-                );
-                const y = Math.max(
-                    0,
-                    Math.min(
-                        e.clientY - offset.current.dy,
-                        window.innerHeight - 80,
-                    ),
-                );
-                const final = { x, y };
-                setPos(final);
-                setDragging(false);
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
-                } catch {
-                    /* quota */
-                }
-            } else if (!didDrag.current) {
+            if (activePointerId.current !== e.pointerId) return;
+            lastClient.current = { x: e.clientX, y: e.clientY };
+            const wasDragging = draggingRef.current;
+            const wasClick = !wasDragging && !didDrag.current;
+            endDrag(e.clientX, e.clientY);
+            if (wasClick) {
                 setOpen((v) => !v);
             }
-            didDrag.current = false;
         },
-        [dragging],
+        [endDrag],
     );
+
+    const onPointerCancel = useCallback(() => {
+        endDrag();
+    }, [endDrag]);
+
+    useEffect(() => {
+        if (!dragging) return;
+
+        const onWindowPointerUp = (e: PointerEvent) => {
+            if (activePointerId.current !== e.pointerId) return;
+            lastClient.current = { x: e.clientX, y: e.clientY };
+            endDrag(e.clientX, e.clientY);
+        };
+        const onWindowBlur = () => endDrag();
+
+        window.addEventListener('pointerup', onWindowPointerUp);
+        window.addEventListener('pointercancel', onWindowPointerUp);
+        window.addEventListener('blur', onWindowBlur);
+        return () => {
+            window.removeEventListener('pointerup', onWindowPointerUp);
+            window.removeEventListener('pointercancel', onWindowPointerUp);
+            window.removeEventListener('blur', onWindowBlur);
+        };
+    }, [dragging, endDrag]);
 
     const openLeft =
         pos.x > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400);
@@ -183,6 +228,8 @@ export function FloatingBucket({
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
+                onPointerCancel={onPointerCancel}
+                onLostPointerCapture={onPointerCancel}
                 className={cn(
                     'flex flex-col items-center justify-center gap-1.5 py-4 px-1.5 rounded-xl select-none transition-colors',
                     dragging

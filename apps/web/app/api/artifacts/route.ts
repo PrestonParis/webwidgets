@@ -48,6 +48,7 @@ export async function POST(req: Request): Promise<Response> {
             sourceDocumentId?: string;
             sourceJobId?: string;
             tags?: string[];
+            metadata?: Record<string, unknown>;
         };
 
         const artifact = await createArtifact(supabase, userId, {
@@ -67,6 +68,7 @@ export async function POST(req: Request): Promise<Response> {
                 ? { sourceJobId: body.sourceJobId }
                 : {}),
             tags: body.tags ?? [],
+            ...(body.metadata !== undefined ? { metadata: body.metadata } : {}),
         });
 
         // Publish activity event — fire and forget, never fails the request

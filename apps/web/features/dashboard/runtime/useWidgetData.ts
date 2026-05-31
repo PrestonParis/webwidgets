@@ -129,6 +129,28 @@ async function fetchRequirement(req: WidgetDataRequirement): Promise<unknown> {
     throw new Error(`Unknown sourceType: ${req.sourceType}`);
 }
 
+async function fetchWidgetContextBundle(
+    widgetId: string,
+    widgetType: string,
+): Promise<unknown> {
+    const res = await fetch('/api/context/bundle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+            consumer: 'widget',
+            query: `${widgetType} ${widgetId}`,
+            maxNodes: 20,
+            maxPromptChars: 3000,
+        }),
+    });
+    if (res.status === 401 || res.status === 403)
+        throw new Error('Unauthorized');
+    if (!res.ok) throw new Error('Widget context bundle failed');
+    const json = (await res.json()) as { bundle?: unknown };
+    return json.bundle ?? null;
+}
+
 function buildQueryOptions(
     req: WidgetDataRequirement,
 ): UseQueryOptions<unknown, Error> {
@@ -207,12 +229,22 @@ export function useWidgetData(
 ): UseWidgetDataResult {
     const manifest = getWidgetManifest(widgetType);
     const requirements = manifest?.dataRequirements ?? [];
+    const contextConsumer = manifest?.context?.contextConsumer === true;
 
     const queries = useQueries({
         queries: requirements.map((req) => ({
             ...buildQueryOptions(req),
             enabled,
         })),
+    });
+    const contextQuery = useQuery<unknown, Error>({
+        queryKey: ['widget-context-bundle', widgetType, widgetId],
+        queryFn: () => fetchWidgetContextBundle(widgetId, widgetType),
+        enabled: enabled && contextConsumer,
+        staleTime: 30_000,
+        gcTime: 60_000,
+        retry: false,
+        refetchOnWindowFocus: false,
     });
 
     if (!manifest || requirements.length === 0) {
@@ -224,8 +256,12 @@ export function useWidgetData(
         };
     }
 
-    const loading = queries.some((q) => q.isLoading);
-    const allResolved = queries.every((q) => q.isFetched);
+    const loading =
+        queries.some((q) => q.isLoading) ||
+        (contextConsumer && contextQuery.isLoading);
+    const allResolved =
+        queries.every((q) => q.isFetched) &&
+        (!contextConsumer || contextQuery.isFetched);
 
     const sources: WidgetDataPayload['sources'] = {};
     const errors: string[] = [];
@@ -252,6 +288,9 @@ export function useWidgetData(
         allResolved,
         partiallyResolved: allResolved && errors.length > 0,
         errors,
+        ...(contextConsumer
+            ? { contextBundle: contextQuery.data ?? null }
+            : {}),
     };
 
     return { payload, loading, allResolved, hasError: errors.length > 0 };

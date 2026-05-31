@@ -12,6 +12,7 @@ interface CreateArtifactInput {
     sourceDocumentId?: string;
     sourceJobId?: string;
     tags?: string[];
+    metadata?: Record<string, unknown>;
 }
 
 interface UpdateArtifactInput {

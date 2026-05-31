@@ -3,6 +3,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestJournalContext } from '@/features/context/services/contextProducerService';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -34,7 +35,7 @@ export async function PATCH(
             .update(update)
             .eq('id', id)
             .eq('user_id', userId)
-            .select('id, title, type')
+            .select('id, title, content, type')
             .single();
         if (error) {
             if (isMissingTableError(error))
@@ -45,7 +46,12 @@ export async function PATCH(
             throw error;
         }
 
-        const entry = data as { id: string; title: string; type: string };
+        const entry = data as {
+            id: string;
+            title: string;
+            content?: string;
+            type: string;
+        };
         await publishActivityEventSafe(supabase, {
             userId,
             source: 'document',
@@ -57,6 +63,12 @@ export async function PATCH(
             priority: 'low',
             title: `Journal entry updated: ${entry.title}`,
             metadata: { entryId: entry.id, entryType: entry.type },
+        });
+        await ingestJournalContext(supabase, userId, {
+            id: entry.id,
+            title: entry.title,
+            content: entry.content,
+            type: entry.type,
         });
 
         return NextResponse.json({ entry: data });
@@ -105,6 +117,11 @@ export async function DELETE(
             priority: 'low',
             title: `Journal entry deleted: ${title}`,
             metadata: { entryId: id },
+        });
+        await ingestJournalContext(supabase, userId, {
+            id,
+            title,
+            status: 'deleted',
         });
 
         return new Response(null, { status: 204 });

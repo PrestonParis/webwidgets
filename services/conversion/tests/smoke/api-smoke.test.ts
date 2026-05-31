@@ -81,7 +81,7 @@ describe('assertJobAllowed (no infra)', () => {
                 validJobPayload({
                     originalFileName: 'sample.txt',
                     sourceExtension: 'txt',
-                    targetExtension: 'html',
+                    targetExtension: 'xlsx',
                 }) as Parameters<typeof assertJobAllowed>[0],
             ),
         ).toThrow(HttpError);
@@ -159,7 +159,7 @@ describe('API HTTP endpoints (no infra)', () => {
             url: '/v1/jobs',
             payload: validJobPayload({
                 sourceExtension: 'txt',
-                targetExtension: 'html',
+                targetExtension: 'xlsx',
                 originalFileName: 'sample.txt',
             }),
         });
