@@ -19,6 +19,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 const DEFAULT_DAYS_AHEAD = 45;
 
@@ -217,4 +218,6 @@ export const calendarEventsAdapter: ImportExportAdapter = {
             throw err;
         }
     },
+
+    mapToContext: getContextMapper('calendar_events'),
 };

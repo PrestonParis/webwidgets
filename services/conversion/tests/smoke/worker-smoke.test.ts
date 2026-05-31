@@ -470,11 +470,11 @@ describe('processDocumentJob (mocked S3)', () => {
                 await copyFile(FIXTURES.txt, destPath);
             },
         );
-        // txt→html is not a supported conversion; the processor throws before uploading.
+        // txt→xlsx is not a supported conversion; the processor throws before uploading.
         const job = makeJob({
             originalFileName: 'sample.txt',
             sourceExtension: 'txt',
-            targetExtension: 'html',
+            targetExtension: 'xlsx',
         });
         await expect(processDocumentJob(job)).rejects.toThrow();
         expect(uploadObject).not.toHaveBeenCalled();
@@ -488,7 +488,10 @@ describe('processDocumentJob (mocked S3)', () => {
         );
         uploadObject.mockResolvedValue(undefined);
 
-        const job = makeJob({ sourceExtension: 'md', targetExtension: 'docx' }); // no md→docx
+        const job = makeJob({
+            sourceExtension: 'pdf',
+            targetExtension: 'xlsx',
+        }); // unsupported pair
         await expect(processDocumentJob(job)).rejects.toThrow();
         expect(uploadObject).not.toHaveBeenCalled();
     });

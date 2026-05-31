@@ -26,6 +26,7 @@ import type {
 export type AutomationTab =
     | 'overview'
     | 'automations'
+    | 'actions'
     | 'workstreams'
     | 'suggestions'
     | 'deliverables'

@@ -1,26 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { hasS3Config } from '@/lib/aws/s3Client';
-import {
-    listAdapters,
-    registerAdapter,
-} from '@/features/import-export/lib/adapterRegistry';
-import { trackingEntriesAdapter } from '@/features/import-export/adapters/trackingEntriesAdapter';
-import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
-import { collaborationHandoffsAdapter } from '@/features/import-export/adapters/collaborationHandoffsAdapter';
-import { contextEntriesAdapter } from '@/features/import-export/adapters/contextEntriesAdapter';
+import { listAdapters } from '@/features/import-export/lib/adapterRegistry';
+import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import type {
     ServiceHealth,
     ServiceHealthItem,
 } from '@/features/import-export/types/importExport';
 
 function ensureAdaptersRegistered() {
-    [
-        trackingEntriesAdapter,
-        todosAdapter,
-        collaborationHandoffsAdapter,
-        contextEntriesAdapter,
-    ].forEach(registerAdapter);
+    registerCoreImportExportAdapters();
 }
 
 // GET /api/import-export/health

@@ -5,6 +5,7 @@ import {
     type ArtifactType,
     rowToArtifact,
 } from '@/features/artifacts/types/artifact';
+import { ingestArtifactContext } from '@/features/context/services/contextProducerService';
 
 interface CreateArtifactInput {
     type: ArtifactType;
@@ -15,6 +16,7 @@ interface CreateArtifactInput {
     sourceDocumentId?: string;
     sourceJobId?: string;
     tags?: string[];
+    metadata?: Record<string, unknown>;
 }
 
 interface UpdateArtifactInput {
@@ -54,11 +56,14 @@ export async function createArtifact(
                 ? { source_job_id: data.sourceJobId }
                 : {}),
             tags: data.tags ?? [],
+            ...(data.metadata !== undefined ? { metadata: data.metadata } : {}),
         })
         .select()
         .single();
     if (result.error) throw result.error;
-    return rowToArtifact(result.data as unknown as ArtifactRow);
+    const artifact = rowToArtifact(result.data as unknown as ArtifactRow);
+    await ingestArtifactContext(supabase, artifact).catch(() => undefined);
+    return artifact;
 }
 
 export async function listArtifacts(

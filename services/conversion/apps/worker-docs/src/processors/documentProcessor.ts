@@ -15,7 +15,14 @@ import { convertWithLibreOffice } from './libreOfficeProcessor.js';
 import { convertWithPandoc } from './pandocProcessor.js';
 import { convertSpreadsheetWithLibreOffice } from './spreadsheetProcessor.js';
 import { convertWithNativeText } from './textProcessor.js';
-import { convertWithPdfToText, convertWithPdfToHtml } from './pdfProcessor.js';
+import {
+    convertPdfToDoc,
+    convertPdfToEpub,
+    convertPdfToImage,
+    convertWithPdfToHtml,
+    convertWithPdfToText,
+} from './pdfProcessor.js';
+import { convertDataFormat } from './dataProcessor.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -25,9 +32,15 @@ const CONTENT_TYPES: Record<string, string> = {
     md: 'text/markdown; charset=utf-8',
     txt: 'text/plain; charset=utf-8',
     csv: 'text/csv; charset=utf-8',
+    tsv: 'text/tab-separated-values; charset=utf-8',
+    json: 'application/json; charset=utf-8',
+    rst: 'text/x-rst; charset=utf-8',
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ods: 'application/vnd.oasis.opendocument.spreadsheet',
     epub: 'application/epub+zip',
     svg: 'image/svg+xml',
+    png: 'image/png',
+    jpg: 'image/jpeg',
     docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     odt: 'application/vnd.oasis.opendocument.text',
     rtf: 'application/rtf',
@@ -44,6 +57,7 @@ const EXPECTED_MIMES: Partial<Record<string, string[]>> = {
     odt: ['application/vnd.oasis.opendocument.text', 'application/zip'],
     rtf: ['application/rtf', 'text/rtf', 'text/plain'],
     txt: ['text/plain', 'application/octet-stream'],
+    rst: ['text/plain', 'text/x-rst', 'application/octet-stream'],
     html: ['text/html', 'text/plain', 'application/xhtml+xml'],
     md: ['text/plain', 'text/markdown', 'text/x-markdown'],
     ppt: ['application/vnd.ms-powerpoint', 'application/octet-stream'],
@@ -66,6 +80,12 @@ const EXPECTED_MIMES: Partial<Record<string, string[]>> = {
         'application/csv',
         'application/vnd.ms-excel',
     ],
+    tsv: [
+        'text/tab-separated-values',
+        'text/plain',
+        'application/octet-stream',
+    ],
+    json: ['application/json', 'text/plain', 'text/json'],
     epub: ['application/epub+zip', 'application/zip'],
     svg: ['image/svg+xml', 'text/xml', 'application/xml', 'text/plain'],
     pdf: ['application/pdf'],
@@ -190,6 +210,22 @@ async function convertDocument(
 
     if (engine === 'pdftohtml') {
         return convertWithPdfToHtml(job, inputPath, outputPath, workDir);
+    }
+
+    if (engine === 'libreoffice-pdf') {
+        return convertPdfToDoc(job, inputPath, workDir);
+    }
+
+    if (engine === 'pdftoepub') {
+        return convertPdfToEpub(job, inputPath, outputPath);
+    }
+
+    if (engine === 'pdftoppm-png' || engine === 'pdftoppm-jpg') {
+        return convertPdfToImage(job, inputPath, outputPath, workDir);
+    }
+
+    if (engine === 'native-data') {
+        return convertDataFormat(job, inputPath, outputPath, workDir);
     }
 
     if (engine === 'libreoffice') {

@@ -9,6 +9,7 @@ import type {
     MappedRow,
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const journalAdapter: ImportExportAdapter = {
     id: 'journals',
@@ -159,4 +160,6 @@ export const journalAdapter: ImportExportAdapter = {
             warnings,
         };
     },
+
+    mapToContext: getContextMapper('journals'),
 };

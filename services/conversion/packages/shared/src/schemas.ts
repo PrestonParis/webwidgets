@@ -28,6 +28,9 @@ export const supportedExtensionSchema = z.enum([
     'txt',
     'pdf',
     'csv',
+    'tsv',
+    'json',
+    'rst',
     'epub',
     'png',
     'jpg',
@@ -83,6 +86,32 @@ export const conversionJobSchema = z.object({
     updatedAt: z.string(),
 });
 
+export const createBatchJobRequestSchema = z.object({
+    jobs: z
+        .array(createConversionJobRequestSchema)
+        .min(1)
+        .max(30, 'Batch limit is 30 jobs per request.'),
+});
+
+export const batchStatusSchema = z.enum([
+    'pending',
+    'processing',
+    'completed',
+    'failed',
+    'partial',
+]);
+
+export const conversionBatchSchema = z.object({
+    id: z.string().uuid(),
+    status: batchStatusSchema,
+    totalJobs: z.number().int().nonnegative(),
+    completedJobs: z.number().int().nonnegative(),
+    failedJobs: z.number().int().nonnegative(),
+    userId: z.string().optional(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+
 export const supportedConversionSchema = z.object({
     kind: conversionKindSchema,
     sourceExtension: supportedExtensionSchema,
@@ -91,7 +120,18 @@ export const supportedConversionSchema = z.object({
     worker: z.enum(['worker-docs', 'worker-images']),
     workerFamily: z.enum(['documents', 'images']).optional(),
     engine: z
-        .enum(['libreoffice', 'pandoc', 'native', 'pdftotext', 'pdftohtml'])
+        .enum([
+            'libreoffice',
+            'libreoffice-pdf',
+            'pandoc',
+            'native',
+            'native-data',
+            'pdftotext',
+            'pdftohtml',
+            'pdftoepub',
+            'pdftoppm-png',
+            'pdftoppm-jpg',
+        ])
         .optional(),
     lossy: z.boolean().optional(),
     notes: z.string().optional(),

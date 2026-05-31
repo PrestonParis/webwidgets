@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { buildContextBundleForChat } from '@/features/context/services/contextBundleService';
 
 // Read-only context adapter — exports context entries and provides AI context
 export const contextEntriesAdapter: ImportExportAdapter = {
@@ -56,9 +57,10 @@ export const contextEntriesAdapter: ImportExportAdapter = {
         let query = supabase
             .from('context_entries')
             .select(
-                'id,entity_id,entry_type,label,data,linked_to,created_at,updated_at',
+                'id,entity_id,entry_type,label,summary,tags,source_type,source_id,source_table,confidence,status,visibility,permissions,metadata,data,linked_to,created_at,updated_at',
             )
             .eq('user_id', userId)
+            .neq('status', 'deleted')
             .order('created_at', { ascending: true });
 
         if (options?.limit) query = query.limit(options.limit);
@@ -76,10 +78,20 @@ export const contextEntriesAdapter: ImportExportAdapter = {
             rowIndex: i,
             data: {
                 id: row.id,
-                type: 'context_entry',
+                record_type: 'context_node',
                 entity_id: row.entity_id,
                 entry_type: row.entry_type,
                 label: row.label,
+                summary: row.summary,
+                tags: row.tags,
+                source_type: row.source_type,
+                source_id: row.source_id,
+                source_table: row.source_table,
+                confidence: row.confidence,
+                status: row.status,
+                visibility: row.visibility,
+                permissions: row.permissions,
+                metadata: row.metadata,
                 data: row.data,
                 linked_to: Array.isArray(row.linked_to)
                     ? row.linked_to.join(',')
@@ -88,35 +100,48 @@ export const contextEntriesAdapter: ImportExportAdapter = {
             },
         }));
 
-        return { rows, totalCount: rows.length, warnings };
+        const { data: edgeData, error: edgeError } = await (supabase as any)
+            .from('context_edges')
+            .select(
+                'id,from_entity_id,to_entity_id,kind,label,weight,confidence,source_type,source_id,metadata,created_at,updated_at',
+            )
+            .eq('user_id', userId);
+        if (edgeError) warnings.push('context_edges table unavailable');
+
+        const edgeRows: MappedRow[] = (
+            (edgeData ?? []) as Array<Record<string, unknown>>
+        ).map((row, index) => ({
+            rowIndex: rows.length + index,
+            data: {
+                record_type: 'context_edge',
+                id: row.id,
+                from_entity_id: row.from_entity_id,
+                to_entity_id: row.to_entity_id,
+                kind: row.kind,
+                label: row.label,
+                weight: row.weight,
+                confidence: row.confidence,
+                source_type: row.source_type,
+                source_id: row.source_id,
+                metadata: row.metadata,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+            },
+        }));
+
+        return {
+            rows: [...rows, ...edgeRows],
+            totalCount: rows.length + edgeRows.length,
+            warnings,
+        };
     },
 
     async provideContext(userId: string): Promise<string> {
         const { supabase } = await createClients();
-
-        const { data, error } = await supabase
-            .from('context_entries')
-            .select('entry_type,label,data')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: true })
-            .limit(100);
-
-        if (error || !data || data.length === 0) return '';
-
-        const lines: string[] = ['## Personal Context'];
-
-        const byType = new Map<string, typeof data>();
-        data.forEach((entry) => {
-            const t = entry.entry_type as string;
-            if (!byType.has(t)) byType.set(t, []);
-            byType.get(t)!.push(entry);
+        const bundle = await buildContextBundleForChat(supabase, userId, {
+            maxNodes: 40,
+            maxPromptChars: 7000,
         });
-
-        byType.forEach((entries, type) => {
-            lines.push(`### ${type}`);
-            entries.forEach((e) => lines.push(`- ${e.label}`));
-        });
-
-        return lines.join('\n');
+        return bundle.nodes.length > 0 ? bundle.promptSection : '';
     },
 };

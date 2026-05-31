@@ -9,6 +9,7 @@ import type {
     MappedRow,
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const todosAdapter: ImportExportAdapter = {
     id: 'todos',
@@ -167,4 +168,6 @@ export const todosAdapter: ImportExportAdapter = {
             warnings,
         };
     },
+
+    mapToContext: getContextMapper('todos'),
 };

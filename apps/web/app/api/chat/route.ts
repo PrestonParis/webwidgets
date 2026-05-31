@@ -9,13 +9,12 @@ import {
     listMessages,
     updateConversationTitle,
 } from '@/features/chatbot/services/chatService';
-import { listEntries } from '@/features/context/services/contextService';
-import { buildContextGraph } from '@/features/context/lib/graphBuilder';
+import { buildQueryGistLabel } from '@/features/context/lib/contextPrompt';
+import { buildContextBundleForChat } from '@/features/context/services/contextBundleService';
 import {
-    buildSystemPrompt,
-    buildQueryGistLabel,
-} from '@/features/context/lib/contextPrompt';
-import { upsertEntry } from '@/features/context/services/contextService';
+    ingestContextEdge,
+    ingestContextNode,
+} from '@/features/context/services/contextService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ModelProvider } from '@/features/chatbot/types/chat';
 import { DEFAULT_MODEL_BY_PROVIDER } from '@/features/chatbot/lib/modelProviders';
@@ -26,12 +25,6 @@ const bodySchema = z.object({
     model: z.string().min(1),
     provider: z.enum(['anthropic', 'openai', 'google']),
 });
-
-const DEFAULT_PERMISSIONS = {
-    captureWidgetInteractions: true,
-    includeQueryGists: true,
-    aiPersonalization: true,
-};
 
 async function* readStreamChunks(
     stream: ReadableStream<Uint8Array>,
@@ -51,11 +44,15 @@ async function* readStreamChunks(
 async function buildSystemMessage(
     userId: string,
     clientDb: SupabaseClient,
+    query: string,
 ): Promise<string> {
     try {
-        const entries = await listEntries(clientDb, userId);
-        const graph = buildContextGraph(entries);
-        return buildSystemPrompt(graph, DEFAULT_PERMISSIONS);
+        const bundle = await buildContextBundleForChat(clientDb, userId, {
+            query,
+            maxNodes: 30,
+            maxPromptChars: 6000,
+        });
+        return bundle.promptSection;
     } catch {
         return "You are a helpful AI assistant embedded in the user's WebWidgets workspace.";
     }
@@ -369,7 +366,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const systemMsg = await buildSystemMessage(userId, clientDb);
+        const systemMsg = await buildSystemMessage(userId, clientDb, content);
 
         const attempts = await buildFallbackAttempts(
             clientDb,
@@ -397,16 +394,34 @@ export async function POST(req: Request) {
                     result.text,
                     result.model,
                 );
-                await upsertEntry(clientDb, userId, {
-                    entityId: `query-${conversationId}-${Date.now()}`,
-                    entryType: 'query_gist',
+                const gistEntityId = `chat_gist:${conversationId}:${Date.now()}`;
+                await ingestContextNode(clientDb, userId, {
+                    entityId: gistEntityId,
+                    type: 'chat_gist',
                     label: buildQueryGistLabel(content),
+                    summary: result.text.slice(0, 240),
                     data: {
+                        conversationId,
+                        userMessagePreview: content.slice(0, 240),
                         responsePreview: result.text.slice(0, 120),
                         model: result.model,
                         provider: result.provider,
                     },
-                    linkedTo: [],
+                    tags: ['chat'],
+                    sourceType: 'chat',
+                    sourceId: conversationId,
+                    sourceTable: 'chat_messages',
+                    createdByType: 'agent',
+                    permissions: ['private', 'ai'],
+                });
+                await ingestContextEdge(clientDb, userId, {
+                    fromEntityId: `chat:${conversationId}`,
+                    toEntityId: gistEntityId,
+                    kind: 'summarizes',
+                    label: 'conversation gist',
+                    sourceType: 'chat',
+                    sourceId: conversationId,
+                    createdByType: 'agent',
                 });
             },
         });

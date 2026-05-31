@@ -3,6 +3,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestJournalContext } from '@/features/context/services/contextProducerService';
 
 export async function GET(): Promise<Response> {
     try {
@@ -48,7 +49,7 @@ export async function POST(req: Request): Promise<Response> {
         const { data, error } = await supabase
             .from('journals')
             .insert({ user_id: userId, title, content, type })
-            .select('id, title, type, created_at')
+            .select('id, title, content, type, created_at')
             .single();
         if (error) {
             if (isMissingTableError(error))
@@ -59,7 +60,12 @@ export async function POST(req: Request): Promise<Response> {
             throw error;
         }
 
-        const entry = data as { id: string; title: string; type: string };
+        const entry = data as {
+            id: string;
+            title: string;
+            content?: string;
+            type: string;
+        };
         await publishActivityEventSafe(supabase, {
             userId,
             source: 'document',
@@ -71,6 +77,12 @@ export async function POST(req: Request): Promise<Response> {
             priority: 'low',
             title: `Journal entry created: ${entry.title}`,
             metadata: { entryId: entry.id, entryType: entry.type },
+        });
+        await ingestJournalContext(supabase, userId, {
+            id: entry.id,
+            title: entry.title,
+            content: entry.content,
+            type: entry.type,
         });
 
         return NextResponse.json({ entry: data }, { status: 201 });

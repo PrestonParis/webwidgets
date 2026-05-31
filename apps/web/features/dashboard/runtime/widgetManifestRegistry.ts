@@ -22,6 +22,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['task'],
         exportsSchemas: ['task'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['todo', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'project', 'calendar_event'],
+            contextSourceType: 'todos',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     tracking: {
         widgetType: 'tracking',
@@ -45,6 +54,20 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['tracking_entry'],
         exportsSchemas: ['tracking_entry'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: [
+                'habit_entry',
+                'mood_entry',
+                'recovery_entry',
+                'widget_activity',
+            ],
+            consumedNodeTypes: ['goal', 'journal_entry', 'insight'],
+            contextSourceType: 'tracking_entries',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     'tracking-supplements': {
         widgetType: 'tracking-supplements',
@@ -61,6 +84,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['tracking_entry'],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['habit_entry', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'journal_entry', 'mood_entry'],
+            contextSourceType: 'supplements',
+            captureInteractions: true,
+            contextScopes: ['private', 'cross_widget'],
+        },
     },
     collaboration: {
         widgetType: 'collaboration',
@@ -84,6 +116,19 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['workspace', 'handoff'],
         exportsSchemas: ['handoff'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: [
+                'agent_action',
+                'document',
+                'import_export_object',
+            ],
+            consumedNodeTypes: ['project', 'todo', 'document', 'chat'],
+            contextSourceType: 'collaboration_handoffs',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     chat: {
         widgetType: 'chat',
@@ -114,6 +159,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['generic_record'],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['chat', 'chat_gist', 'memory'],
+            consumedNodeTypes: ['profile', 'goal', 'todo', 'document', 'file'],
+            contextSourceType: 'chat',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai'],
+        },
     },
     'context-diagram': {
         widgetType: 'context-diagram',
@@ -130,6 +184,22 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['generic_record'],
         exportsSchemas: ['generic_record'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['insight', 'agent_action'],
+            consumedNodeTypes: [
+                'profile',
+                'goal',
+                'todo',
+                'document',
+                'file',
+                'widget_activity',
+            ],
+            contextSourceType: 'context_entries',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
 
     // ── Import/Export adapter-backed widgets (new) ───────────────────────────
@@ -147,6 +217,19 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['mood_log'],
         exportsSchemas: ['mood_log'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['mood_entry', 'widget_activity'],
+            consumedNodeTypes: [
+                'journal_entry',
+                'habit_entry',
+                'recovery_entry',
+            ],
+            contextSourceType: 'mood_logs',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai'],
+        },
     },
     journal: {
         widgetType: 'journal',
@@ -162,6 +245,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['journal_entry'],
         exportsSchemas: ['journal_entry'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['journal_entry', 'memory'],
+            consumedNodeTypes: ['goal', 'mood_entry', 'habit_entry'],
+            contextSourceType: 'journals',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai'],
+        },
     },
     habit: {
         widgetType: 'habit',
@@ -180,6 +272,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['habit'],
         exportsSchemas: ['habit'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['habit_entry', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'mood_entry', 'recovery_entry'],
+            contextSourceType: 'habits',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     finance: {
         widgetType: 'finance',
@@ -195,6 +296,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['finance_record'],
         exportsSchemas: ['finance_record'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['insight', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'recommendation'],
+            contextSourceType: 'finance_records',
+            captureInteractions: true,
+            contextScopes: ['private'],
+        },
     },
     countdown: {
         widgetType: 'countdown',
@@ -210,6 +320,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['countdown'],
         exportsSchemas: ['countdown'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['todo', 'widget_activity'],
+            consumedNodeTypes: ['calendar_event', 'goal'],
+            contextSourceType: 'countdowns',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     recovery: {
         widgetType: 'recovery',
@@ -225,6 +344,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['recovery_record'],
         exportsSchemas: ['recovery_record'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['recovery_entry'],
+            consumedNodeTypes: ['habit_entry', 'journal_entry', 'mood_entry'],
+            contextSourceType: 'recovery_records',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai'],
+        },
     },
     weather: {
         widgetType: 'weather',
@@ -232,6 +360,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         dataRequirements: [], // pure external API, no persistence
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: false,
+            contextConsumer: false,
+            producedNodeTypes: [],
+            consumedNodeTypes: [],
+            contextSourceType: 'weather',
+            captureInteractions: false,
+            contextScopes: [],
+        },
     },
 
     // ── Calendar — fully adapter-backed ──────────────────────────────────────
@@ -257,6 +394,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['calendar_event'],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['calendar_event', 'widget_activity'],
+            consumedNodeTypes: ['todo', 'email', 'goal', 'project'],
+            contextSourceType: 'calendar_events',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     // ── Memorization — fully adapter-backed ───────────────────────────────────
     // MemorizationWidget reads deck summaries via memoryDecksAdapter.
@@ -280,6 +426,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['memory_deck'],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['memory', 'widget_activity'],
+            consumedNodeTypes: ['document', 'artifact', 'goal'],
+            contextSourceType: 'memory_decks',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     developer: {
         widgetType: 'developer',
@@ -298,6 +453,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: false,
+            contextConsumer: false,
+            producedNodeTypes: [],
+            consumedNodeTypes: [],
+            contextSourceType: 'developer',
+            captureInteractions: false,
+            contextScopes: [],
+        },
     },
     view: {
         widgetType: 'view',
@@ -314,6 +478,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['file_upload'],
         exportsSchemas: ['file_upload'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['file', 'widget_activity'],
+            consumedNodeTypes: ['document', 'artifact', 'todo'],
+            contextSourceType: 'files',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     files: {
         widgetType: 'files',
@@ -332,6 +505,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['file', 'widget_activity'],
+            consumedNodeTypes: ['document', 'artifact', 'todo'],
+            contextSourceType: 'files',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     news: {
         widgetType: 'news',
@@ -351,6 +533,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: false,
+            contextConsumer: true,
+            producedNodeTypes: ['recommendation', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'project', 'insight'],
+            contextSourceType: 'news',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai'],
+        },
     },
     chess: {
         widgetType: 'chess',
@@ -369,6 +560,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: false,
+            contextConsumer: false,
+            producedNodeTypes: [],
+            consumedNodeTypes: [],
+            contextSourceType: 'chess',
+            captureInteractions: false,
+            contextScopes: [],
+        },
     },
     creative: {
         widgetType: 'creative',
@@ -387,6 +587,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['project', 'artifact', 'widget_activity'],
+            consumedNodeTypes: ['goal', 'file', 'document'],
+            contextSourceType: 'creative_projects',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     reading: {
         widgetType: 'reading',
@@ -405,6 +614,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: [],
         exportsSchemas: [],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['document', 'insight', 'memory'],
+            consumedNodeTypes: ['memory', 'goal', 'artifact'],
+            contextSourceType: 'reading',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
 
     // ── Stage 1 foundation widgets ────────────────────────────────────────────
@@ -423,6 +641,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['document'],
         exportsSchemas: ['document'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['document', 'widget_activity'],
+            consumedNodeTypes: ['file', 'artifact', 'goal', 'todo'],
+            contextSourceType: 'documents',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
     artifacts: {
         widgetType: 'artifacts',
@@ -439,6 +666,15 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         ],
         acceptsSchemas: ['artifact'],
         exportsSchemas: ['artifact'],
+        context: {
+            contextProducer: true,
+            contextConsumer: true,
+            producedNodeTypes: ['artifact', 'widget_activity'],
+            consumedNodeTypes: ['file', 'document', 'goal'],
+            contextSourceType: 'artifacts',
+            captureInteractions: true,
+            contextScopes: ['private', 'ai', 'cross_widget'],
+        },
     },
 };
 

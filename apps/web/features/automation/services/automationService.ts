@@ -12,6 +12,8 @@ import type {
 } from '@/features/automation/types/automation';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { buildContextBundleForAutomation } from '@/features/context/services/contextBundleService';
+import { ingestAutomationRunContext } from '@/features/context/services/contextProducerService';
 
 export async function listAutomationConfigs(userId: string) {
     const result = await db
@@ -63,6 +65,12 @@ export async function logAutomationRun(
     automationConfigId: string,
     status = 'queued',
 ) {
+    const contextBundle = await buildContextBundleForAutomation(
+        supabase,
+        userId,
+        automationConfigId,
+        { maxNodes: 20, maxPromptChars: 3000 },
+    ).catch(() => null);
     const result = await supabase
         .from('automation_runs')
         .insert({
@@ -74,6 +82,14 @@ export async function logAutomationRun(
         .single();
     if (result.error) throw result.error;
     const run = result.data as unknown;
+    await ingestAutomationRunContext(supabase, userId, {
+        automationConfigId,
+        runId:
+            typeof run === 'object' && run && 'id' in run
+                ? String((run as { id: unknown }).id)
+                : undefined,
+        status,
+    }).catch(() => undefined);
 
     // Publish activity event for terminal statuses
     if (status === 'completed') {
@@ -87,7 +103,11 @@ export async function logAutomationRun(
             severity: 'success',
             priority: 'normal',
             title: 'Automation executed',
-            metadata: { automationConfigId, runStatus: status },
+            metadata: {
+                automationConfigId,
+                runStatus: status,
+                contextNodeCount: contextBundle?.nodes.length ?? 0,
+            },
         });
     } else if (status === 'failed') {
         await publishActivityEventSafe(supabase, {
@@ -100,7 +120,11 @@ export async function logAutomationRun(
             severity: 'critical',
             priority: 'high',
             title: 'Automation failed',
-            metadata: { automationConfigId, runStatus: status },
+            metadata: {
+                automationConfigId,
+                runStatus: status,
+                contextNodeCount: contextBundle?.nodes.length ?? 0,
+            },
         });
     }
 
