@@ -11,4 +11,12 @@ export const developerResolvers: DataResolver[] = [
             return getDeveloperSnapshot(ctx.userId);
         },
     },
+    {
+        key: 'datahealth.system',
+        cachePolicy: { ttlSeconds: 180, staleWhileRevalidateSeconds: 600 },
+        schema: developerSnapshotSchema,
+        async resolve(ctx) {
+            return getDeveloperSnapshot(ctx.userId);
+        },
+    },
 ];

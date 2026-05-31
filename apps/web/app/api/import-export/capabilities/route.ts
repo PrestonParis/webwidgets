@@ -1,31 +1,12 @@
 import { NextResponse } from 'next/server';
 import { listAdapters } from '@/features/import-export/lib/adapterRegistry';
-import { trackingEntriesAdapter } from '@/features/import-export/adapters/trackingEntriesAdapter';
-import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
-import { collaborationHandoffsAdapter } from '@/features/import-export/adapters/collaborationHandoffsAdapter';
-import { contextEntriesAdapter } from '@/features/import-export/adapters/contextEntriesAdapter';
-import { activityAdapter } from '@/features/import-export/adapters/activityAdapter';
-import { registerAdapter } from '@/features/import-export/lib/adapterRegistry';
+import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import type { AdapterCapability } from '@/features/import-export/types/importExport';
-
-// Ensure all adapters are registered
-function ensureAdaptersRegistered() {
-    const adapters = [
-        trackingEntriesAdapter,
-        todosAdapter,
-        collaborationHandoffsAdapter,
-        contextEntriesAdapter,
-        activityAdapter,
-    ];
-    for (const adapter of adapters) {
-        registerAdapter(adapter);
-    }
-}
 
 // GET /api/import-export/capabilities
 // Public capability discovery — no auth required
 export async function GET() {
-    ensureAdaptersRegistered();
+    registerCoreImportExportAdapters();
 
     const adapters = listAdapters();
     const capabilities: AdapterCapability[] = adapters.map((a) => ({

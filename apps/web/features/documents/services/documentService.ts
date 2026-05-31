@@ -10,7 +10,9 @@ interface CreateDocumentInput {
     content: string;
     format?: 'markdown' | 'plain_text' | 'rich_text' | 'json';
     sourceFileId?: string;
+    sourceArtifactId?: string;
     tags?: string[];
+    metadata?: Record<string, unknown>;
 }
 
 interface UpdateDocumentInput {
@@ -42,7 +44,11 @@ export async function createDocument(
             ...(data.sourceFileId !== undefined
                 ? { source_file_id: data.sourceFileId }
                 : {}),
+            ...(data.sourceArtifactId !== undefined
+                ? { source_artifact_id: data.sourceArtifactId }
+                : {}),
             tags: data.tags ?? [],
+            ...(data.metadata !== undefined ? { metadata: data.metadata } : {}),
         })
         .select()
         .single();

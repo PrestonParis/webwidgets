@@ -48,8 +48,9 @@ describe('document conversion matrix', () => {
     });
 
     it('rejects unsupported pairs', () => {
-        expect(findSupportedConversion('pdf', 'docx')).toBeUndefined();
+        expect(findSupportedConversion('pdf', 'xlsx')).toBeUndefined();
         expect(findSupportedConversion('txt', 'xlsx')).toBeUndefined();
+        expect(findSupportedConversion('epub', 'xlsx')).toBeUndefined();
     });
 
     it('exposes supported targets for a source extension', () => {

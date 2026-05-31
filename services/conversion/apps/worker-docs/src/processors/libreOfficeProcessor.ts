@@ -10,6 +10,7 @@ const libreOfficeOutputFormats: Record<string, string> = {
     pdf: 'pdf',
     csv: 'csv',
     xlsx: 'xlsx',
+    ods: 'ods',
     html: 'html',
     txt: 'txt:Text (encoded)',
     // Office format conversions / upgrades

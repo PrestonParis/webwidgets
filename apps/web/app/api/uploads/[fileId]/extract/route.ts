@@ -12,6 +12,7 @@ import {
 } from '@/features/extraction/services/extractionService';
 import { logEvent } from '@/features/events/lib/eventLogger';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestExtractionContext } from '@/features/context/services/contextProducerService';
 
 async function fetchTextFromS3(objectKey: string): Promise<string> {
     const cmd = new GetObjectCommand({
@@ -170,6 +171,11 @@ export async function POST(
                     tokenEstimate: extraction.tokenEstimate,
                     conversionId: conv.id,
                 },
+            });
+            await ingestExtractionContext(supabase, userId, {
+                fileId,
+                fileName: file.original_name,
+                extraction,
             });
 
             return NextResponse.json({ extraction });

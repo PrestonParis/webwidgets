@@ -3,6 +3,10 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import {
+    ingestContextNode,
+    markContextStatus,
+} from '@/features/context/services/contextService';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -42,6 +46,20 @@ export async function PATCH(
         if (error) throw error;
 
         const todo = data as { id: string; text: string; completed: boolean };
+        await ingestContextNode(supabase, userId, {
+            entityId: `todo:${todo.id}`,
+            type: 'todo',
+            label: todo.text,
+            summary: todo.text,
+            data: { completed: todo.completed },
+            tags: ['todo', todo.completed ? 'completed' : 'open'],
+            sourceType: 'todos',
+            sourceId: todo.id,
+            sourceTable: 'todos',
+            createdByType: 'user',
+            status: todo.completed ? 'archived' : 'active',
+            permissions: ['private', 'ai', 'cross_widget'],
+        });
 
         // Determine which event to publish
         if (body.completed === true) {
@@ -140,6 +158,7 @@ export async function DELETE(
             title: `Task deleted: ${todoText}`,
             metadata: { todoId: id },
         });
+        await markContextStatus(supabase, userId, `todo:${id}`, 'deleted');
 
         return new Response(null, { status: 204 });
     } catch (err) {

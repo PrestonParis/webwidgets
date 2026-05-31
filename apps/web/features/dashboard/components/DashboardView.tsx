@@ -17,7 +17,7 @@ import type {
 } from '@/features/dashboard/types/dashboard';
 import type { Tracker } from '@/features/recovery/types/recovery';
 import type { SnapRule } from '@/features/dashboard/types/dashboard';
-import { buildDefaultLayout } from '@/features/dashboard/lib/dashboardLayout';
+import { buildResetLayout } from '@/features/dashboard/lib/dashboardLayout';
 import { DashboardHeaderBar } from './DashboardHeaderBar';
 import { SimplifiedDashboard } from './SimplifiedDashboard';
 import type { Scene } from '@/features/dashboard/hooks/useScenes';
@@ -242,6 +242,7 @@ export default function Dashboard() {
     const { oneDimensionalMode } = useAccessibility();
     const {
         firstName,
+        userId,
         trackers,
         layout,
         updateLayout,
@@ -511,7 +512,10 @@ export default function Dashboard() {
                                     onRenameScene={renameScene}
                                     onResetLayout={() =>
                                         updateLayout(
-                                            buildDefaultLayout(trackers ?? []),
+                                            buildResetLayout(
+                                                userId,
+                                                trackers ?? [],
+                                            ),
                                         )
                                     }
                                     snapRule={snapRule}

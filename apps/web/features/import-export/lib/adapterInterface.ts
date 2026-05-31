@@ -8,6 +8,7 @@ import type {
     MappedRow,
     AdapterAvailability,
 } from '@/features/import-export/types/importExport';
+import type { AdapterContextMapper } from './contextMapper';
 
 export interface ImportExportAdapter {
     id: string;
@@ -39,4 +40,7 @@ export interface ImportExportAdapter {
 
     /** Return formatted text for AI system prompt */
     provideContext?(userId: string): Promise<string>;
+
+    /** Optional normalized adapter row -> context graph mapper */
+    mapToContext?: AdapterContextMapper;
 }

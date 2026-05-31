@@ -7,12 +7,9 @@ import {
     addImportJobLog,
     addAuditEvent,
 } from '@/features/import-export/services/importExportService';
-import {
-    getAdapter,
-    registerAdapter,
-} from '@/features/import-export/lib/adapterRegistry';
-import { trackingEntriesAdapter } from '@/features/import-export/adapters/trackingEntriesAdapter';
-import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
+import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
+import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
+import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
 import type {
     FieldMapping,
     MappedRow,
@@ -21,7 +18,7 @@ import type {
 
 // Ensure adapters registered
 function ensureAdapters() {
-    [trackingEntriesAdapter, todosAdapter].forEach(registerAdapter);
+    registerCoreImportExportAdapters();
 }
 
 function applyMappings(
@@ -143,6 +140,35 @@ export async function POST(
 
         // Execute
         const result = await adapter.importData(userId, mappedRows, strategy);
+        let contextIngested = { nodeCount: 0, edgeCount: 0 };
+        try {
+            contextIngested = await ingestContextFromAdapterPayload(
+                supabase,
+                userId,
+                destinationType,
+                mappedRows,
+            );
+            if (
+                contextIngested.nodeCount > 0 ||
+                contextIngested.edgeCount > 0
+            ) {
+                void addImportJobLog(
+                    supabase,
+                    id,
+                    'info',
+                    `Context graph updated: ${contextIngested.nodeCount} nodes, ${contextIngested.edgeCount} edges`,
+                );
+            }
+        } catch (error) {
+            void addImportJobLog(
+                supabase,
+                id,
+                'warn',
+                `Import succeeded but context ingestion failed: ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+            );
+        }
 
         // Log errors
         for (const e of result.errors.slice(0, 50)) {
@@ -177,6 +203,8 @@ export async function POST(
                 status: finalStatus,
                 successCount: result.successCount,
                 errorCount: result.errorCount,
+                contextNodes: contextIngested.nodeCount,
+                contextEdges: contextIngested.edgeCount,
             },
         );
 
@@ -193,6 +221,7 @@ export async function POST(
             successCount: result.successCount,
             errorCount: result.errorCount,
             warningCount: result.warningCount,
+            contextIngested,
             errors: result.errors.slice(0, 20),
             warnings: result.warnings.slice(0, 20),
         });

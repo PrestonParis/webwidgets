@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 // 30-day window for completions returned to the runtime.
 // Wide enough for streak calculations (longest realistic streak) without
@@ -141,4 +142,6 @@ export const habitAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings, inlinePayload };
     },
+
+    mapToContext: getContextMapper('habits'),
 };

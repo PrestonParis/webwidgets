@@ -16,6 +16,14 @@ export default function ContextDiagramWidget({
 }) {
     const [activeTab, setActiveTab] = useState<'graph' | 'activity'>('graph');
     const { graph, loading, refresh } = useContextGraph();
+    const uniqueGraph = {
+        ...graph,
+        nodes: [
+            ...new Map(
+                graph.nodes.map((node) => [node.entityId, node]),
+            ).values(),
+        ],
+    };
     const activityQuery = useActivityEvents();
     const events = activityQuery.data ?? [];
     const {
@@ -25,7 +33,7 @@ export default function ContextDiagramWidget({
         onCanvasMouseDown,
         onCanvasMouseMove,
         onCanvasMouseUp,
-    } = useContextDiagram(graph);
+    } = useContextDiagram(uniqueGraph);
 
     return (
         <WidgetShell
@@ -33,7 +41,7 @@ export default function ContextDiagramWidget({
             title="Context Graph"
             badge={
                 activeTab === 'graph'
-                    ? `${graph.nodes.length} nodes`
+                    ? `${uniqueGraph.nodes.length} nodes`
                     : `${events.length} events`
             }
             widgetId={widgetId}
@@ -87,7 +95,7 @@ export default function ContextDiagramWidget({
                         ) : (
                             <div className="min-h-56 flex-1 overflow-hidden rounded-lg">
                                 <ContextGraphCanvas
-                                    graph={graph}
+                                    graph={uniqueGraph}
                                     selectedId={selectedId}
                                     viewport={viewport}
                                     onSelectNode={selectNode}
@@ -99,8 +107,8 @@ export default function ContextDiagramWidget({
                         )}
 
                         <div className="flex items-center gap-3 text-xs text-gray-400">
-                            <span>{graph.nodes.length} nodes</span>
-                            <span>{graph.edges.length} connections</span>
+                            <span>{uniqueGraph.nodes.length} nodes</span>
+                            <span>{uniqueGraph.edges.length} connections</span>
                         </div>
                     </>
                 )}

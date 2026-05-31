@@ -1,8 +1,11 @@
 import type { z } from 'zod';
 import type {
+    batchStatusSchema,
+    conversionBatchSchema,
     conversionJobSchema,
     conversionJobStatusSchema,
     conversionKindSchema,
+    createBatchJobRequestSchema,
     createConversionJobRequestSchema,
     createConversionJobResponseSchema,
     supportedConversionSchema,
@@ -18,3 +21,6 @@ export type CreateConversionJobResponse = z.infer<
 >;
 export type ConversionJob = z.infer<typeof conversionJobSchema>;
 export type SupportedConversion = z.infer<typeof supportedConversionSchema>;
+export type BatchStatus = z.infer<typeof batchStatusSchema>;
+export type ConversionBatch = z.infer<typeof conversionBatchSchema>;
+export type CreateBatchJobRequest = z.infer<typeof createBatchJobRequestSchema>;
