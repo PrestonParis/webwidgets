@@ -53,6 +53,30 @@ export function useContextGraph(): UseContextGraphReturn {
                 return;
             }
 
+            // DB is empty, try adapter endpoint as fallback
+            console.log('Context tables empty, trying adapter endpoint...');
+            try {
+                const adapterRes = await fetch(
+                    '/api/context/graph/from-adapters',
+                );
+                if (adapterRes.ok) {
+                    const adapterData = await adapterRes.json();
+                    if (
+                        adapterData.graph &&
+                        adapterData.graph.nodes.length > 0
+                    ) {
+                        console.log(
+                            `Loaded ${adapterData.graph.nodes.length} nodes from adapters`,
+                            adapterData.summary,
+                        );
+                        setGraph(normalizeGraph(adapterData.graph));
+                        return;
+                    }
+                }
+            } catch (adapterError) {
+                console.error('Adapter endpoint failed:', adapterError);
+            }
+
             const seeded = await buildSeedEntries(userId);
             if (seeded.length > 0) {
                 setGraph(buildContextGraph(seeded));
@@ -123,7 +147,7 @@ export function useContextGraph(): UseContextGraphReturn {
     useEffect(() => {
         if (status !== 'authenticated') return;
         const intervalId = window.setInterval(() => void refresh(), 30_000);
-        return () => window.clearInterval(intervalId);
+        return () => window.clearTimeout(intervalId);
     }, [status, refresh]);
 
     useEffect(() => {
