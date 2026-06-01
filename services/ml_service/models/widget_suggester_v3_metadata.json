@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "model_name": "widget_suggester",
+  "accuracy": 0.6557377049180327,
+  "f1_macro": 0.6224867724867725,
+  "dataset_hash": "b766bd15e3e7c1fc",
+  "dataset_size": 302,
+  "num_classes": 15,
+  "class_distribution": {
+    "calendar": 20,
+    "chess": 19,
+    "converter": 30,
+    "countdown": 18,
+    "currency": 18,
+    "email": 20,
+    "habit": 20,
+    "journal": 20,
+    "mood": 20,
+    "pomodoro": 20,
+    "recovery": 20,
+    "scratchpad": 19,
+    "todo": 20,
+    "weather": 20,
+    "worldclock": 18
+  },
+  "trained_at": "2026-06-01T20:27:51.326985+00:00",
+  "model_path": "/Users/prestonparis/Projects/dashboard/services/ml_service/models/widget_suggester_v3.pkl"
+}

@@ -23,6 +23,9 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
     const zoom = useViewStore((state) => state.zoom);
     const setZoom = useViewStore((state) => state.setZoom);
     const addAnnotation = useViewStore((state) => state.addAnnotation);
+    const updateAnnotation = useViewStore((state) => state.updateAnnotation);
+    const removeAnnotation = useViewStore((state) => state.removeAnnotation);
+    const annotations = useViewStore((state) => state.annotations);
     const { data: document, isLoading, isError } = useViewDocument(activeFile);
 
     const addComment = () => {
@@ -39,7 +42,7 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
 
     return (
         <div
-            className={`flex min-h-0 overflow-hidden bg-zinc-950 text-zinc-100 ${compact ? 'h-[420px]' : 'h-screen'}`}
+            className={`flex min-h-0 overflow-hidden bg-zinc-950 text-zinc-100 ${compact ? 'h-full' : 'h-screen'}`}
         >
             {!compact && (
                 <ViewFileBrowser
@@ -118,7 +121,15 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
                         </div>
                     )}
                     {!isLoading && !isError && (
-                        <ViewRenderer document={document ?? null} />
+                        <ViewRenderer
+                            document={document ?? null}
+                            annotations={annotations}
+                            layers={layers}
+                            zoom={zoom}
+                            onAddAnnotation={addAnnotation}
+                            onUpdateAnnotation={updateAnnotation}
+                            onRemoveAnnotation={removeAnnotation}
+                        />
                     )}
                 </section>
             </main>

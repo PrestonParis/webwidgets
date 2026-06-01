@@ -10,11 +10,11 @@
     },
     {
       "path": "/api/gmail/process",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/outlook/process",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 8 * * *"
     }
   ]
 }
