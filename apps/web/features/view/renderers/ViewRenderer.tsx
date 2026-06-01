@@ -4,7 +4,15 @@ import { useMemo, useState } from 'react';
 import type React from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import Image from 'next/image';
-import { Highlighter, LetterText, ShieldX, Trash2 } from 'lucide-react';
+import {
+    Download,
+    Grip,
+    Highlighter,
+    LetterText,
+    PenLine,
+    ShieldX,
+    Trash2,
+} from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type {
@@ -13,6 +21,7 @@ import type {
     ViewLayer,
 } from '@/features/view/schemas/objectSchemas';
 import { createAnnotation } from '@/features/view/annotations/annotationStore';
+import { exportEditedPdf } from '@/features/view/pdf/pdfEditorExport';
 import { cn } from '@/lib/utils/utils';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -50,6 +59,7 @@ export function ViewRenderer({
     onAddAnnotation,
     onUpdateAnnotation,
     onRemoveAnnotation,
+    lastSavedAt,
 }: {
     document: NormalizedViewDocument | null;
     annotations?: ViewAnnotation[];
@@ -58,6 +68,7 @@ export function ViewRenderer({
     onAddAnnotation?: ((annotation: ViewAnnotation) => void) | undefined;
     onUpdateAnnotation?: UpdateAnnotation | undefined;
     onRemoveAnnotation?: ((annotationId: string) => void) | undefined;
+    lastSavedAt?: string | null;
 }) {
     const renderable = document?.renderable as
         | Record<string, unknown>
@@ -92,6 +103,7 @@ export function ViewRenderer({
                 onAddAnnotation={onAddAnnotation}
                 onUpdateAnnotation={onUpdateAnnotation}
                 onRemoveAnnotation={onRemoveAnnotation}
+                lastSavedAt={lastSavedAt ?? null}
             />
         );
     }
@@ -203,7 +215,13 @@ export function ViewRenderer({
     );
 }
 
-type PdfTool = 'select' | 'text' | 'highlight' | 'redaction';
+type PdfTool =
+    | 'select'
+    | 'text'
+    | 'replace-text'
+    | 'highlight'
+    | 'redaction'
+    | 'signature';
 
 function PdfEditor({
     document,
@@ -214,6 +232,7 @@ function PdfEditor({
     onAddAnnotation,
     onUpdateAnnotation,
     onRemoveAnnotation,
+    lastSavedAt,
 }: {
     document: NormalizedViewDocument;
     url: string;
@@ -223,16 +242,35 @@ function PdfEditor({
     onAddAnnotation?: ((annotation: ViewAnnotation) => void) | undefined;
     onUpdateAnnotation?: UpdateAnnotation | undefined;
     onRemoveAnnotation?: ((annotationId: string) => void) | undefined;
+    lastSavedAt: string | null;
 }) {
     const [numPages, setNumPages] = useState(1);
     const [tool, setTool] = useState<PdfTool>('select');
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(
+        null,
+    );
+    const [exporting, setExporting] = useState(false);
     const annotationLayerVisible = isLayerVisible(layers, 'annotations');
     const drawingLayerVisible = isLayerVisible(layers, 'drawings');
     const visibleAnnotations = annotations.filter(
         (annotation) => annotation.fileId === document.file.id,
     );
     const pageWidth = Math.round(760 * zoom);
+    const canExport = visibleAnnotations.length > 0 && !exporting;
+
+    const handleExport = async () => {
+        setExporting(true);
+        try {
+            await exportEditedPdf({
+                sourceUrl: url,
+                fileName: document.file.name,
+                annotations: visibleAnnotations,
+            });
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
         <div className="flex h-full min-h-0 flex-col bg-zinc-100 dark:bg-zinc-950">
@@ -252,6 +290,12 @@ function PdfEditor({
                     onClick={() => setTool('text')}
                 />
                 <PdfToolButton
+                    active={tool === 'replace-text'}
+                    icon={<LetterText size={14} />}
+                    label="Replace"
+                    onClick={() => setTool('replace-text')}
+                />
+                <PdfToolButton
                     active={tool === 'highlight'}
                     icon={<Highlighter size={14} />}
                     label="Highlight"
@@ -263,9 +307,32 @@ function PdfEditor({
                     label="Redact"
                     onClick={() => setTool('redaction')}
                 />
+                <PdfToolButton
+                    active={tool === 'signature'}
+                    icon={<PenLine size={14} />}
+                    label="Sign"
+                    onClick={() => setTool('signature')}
+                />
+                <SignatureCaptureButton
+                    onSignatureReady={setSignatureDataUrl}
+                />
+                <button
+                    type="button"
+                    disabled={!canExport}
+                    onClick={() => {
+                        void handleExport();
+                    }}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-emerald-600 px-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+                >
+                    <Download size={14} />
+                    {exporting ? 'Exporting...' : 'Download edited PDF'}
+                </button>
                 <span className="ml-auto text-[10px] text-zinc-500">
                     {visibleAnnotations.length} edit
-                    {visibleAnnotations.length === 1 ? '' : 's'}
+                    {visibleAnnotations.length === 1 ? '' : 's'} ·{' '}
+                    {lastSavedAt
+                        ? `saved ${new Date(lastSavedAt).toLocaleTimeString()}`
+                        : 'autosave ready'}
                 </span>
             </div>
             <div className="min-h-0 flex-1 overflow-auto p-6">
@@ -315,6 +382,7 @@ function PdfEditor({
                                     onAddAnnotation={onAddAnnotation}
                                     onUpdateAnnotation={onUpdateAnnotation}
                                     onRemoveAnnotation={onRemoveAnnotation}
+                                    signatureDataUrl={signatureDataUrl}
                                     onToolChange={setTool}
                                 />
                             ))}
@@ -354,6 +422,115 @@ function PdfToolButton({
     );
 }
 
+function SignatureCaptureButton({
+    onSignatureReady,
+}: {
+    onSignatureReady: (dataUrl: string) => void;
+}) {
+    const [open, setOpen] = useState(false);
+    const [drawing, setDrawing] = useState(false);
+    const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+
+    const draw = (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (!drawing || !canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#111827';
+        ctx.lineTo(event.clientX - rect.left, event.clientY - rect.top);
+        ctx.stroke();
+    };
+
+    const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.beginPath();
+        ctx.moveTo(event.clientX - rect.left, event.clientY - rect.top);
+        setDrawing(true);
+    };
+
+    const clear = () => {
+        const ctx = canvas?.getContext('2d');
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    const save = () => {
+        if (!canvas) return;
+        onSignatureReady(canvas.toDataURL('image/png'));
+        setOpen(false);
+    };
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-100"
+            >
+                <PenLine size={14} />
+                Capture signature
+            </button>
+            {open && (
+                <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
+                    <div className="w-full max-w-lg rounded-lg border border-zinc-800 bg-zinc-950 p-4 shadow-2xl">
+                        <div className="mb-3 flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-semibold text-zinc-100">
+                                    Capture signature
+                                </p>
+                                <p className="text-xs text-zinc-500">
+                                    Draw once, then use Sign and click the PDF.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(false)}
+                                className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <canvas
+                            ref={(node) => {
+                                if (!node || canvas === node) return;
+                                node.width = 760;
+                                node.height = 220;
+                                setCanvas(node);
+                            }}
+                            onPointerDown={startDrawing}
+                            onPointerMove={draw}
+                            onPointerUp={() => setDrawing(false)}
+                            onPointerLeave={() => setDrawing(false)}
+                            className="h-40 w-full touch-none rounded-md bg-white"
+                        />
+                        <div className="mt-3 flex justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={clear}
+                                className="rounded-md border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-zinc-900"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                type="button"
+                                onClick={save}
+                                className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white"
+                            >
+                                Use signature
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}
+
 function PdfPageEditor({
     pageNumber,
     pageWidth,
@@ -365,6 +542,7 @@ function PdfPageEditor({
     onAddAnnotation,
     onUpdateAnnotation,
     onRemoveAnnotation,
+    signatureDataUrl,
     onToolChange,
 }: {
     pageNumber: number;
@@ -377,6 +555,7 @@ function PdfPageEditor({
     onAddAnnotation?: ((annotation: ViewAnnotation) => void) | undefined;
     onUpdateAnnotation?: UpdateAnnotation | undefined;
     onRemoveAnnotation?: ((annotationId: string) => void) | undefined;
+    signatureDataUrl: string | null;
     onToolChange: (tool: PdfTool) => void;
 }) {
     const pageAnnotations = annotations.filter(
@@ -385,9 +564,26 @@ function PdfPageEditor({
 
     const addEditAt = (event: React.MouseEvent<HTMLDivElement>) => {
         if (tool === 'select' || !onAddAnnotation) return;
+        if (tool === 'signature' && !signatureDataUrl) return;
         const rect = event.currentTarget.getBoundingClientRect();
         const x = ((event.clientX - rect.left) / rect.width) * 100;
         const y = ((event.clientY - rect.top) / rect.height) * 100;
+        const replacementTarget =
+            tool === 'replace-text'
+                ? getPdfTextTargetAtPoint(
+                      event.clientX,
+                      event.clientY,
+                      rect,
+                      pageNumber,
+                  )
+                : null;
+        const replacementGeometry = replacementTarget?.geometry ?? {
+            page: pageNumber,
+            x: clamp(x, 1, 92),
+            y: clamp(y, 1, 94),
+            width: 24,
+            height: 7,
+        };
         const base = {
             fileId,
             layerId: tool === 'redaction' ? 'drawings' : 'annotations',
@@ -407,6 +603,41 @@ function PdfPageEditor({
                     kind: 'text',
                     text: 'Edit text',
                     color: '#111827',
+                }),
+            );
+        } else if (tool === 'replace-text') {
+            onAddAnnotation(
+                createAnnotation({
+                    fileId,
+                    layerId: 'drawings',
+                    kind: 'redaction',
+                    text: replacementTarget?.text ?? 'Replacement text',
+                    color: '#ffffff',
+                    geometry: replacementGeometry,
+                }),
+            );
+            onAddAnnotation(
+                createAnnotation({
+                    fileId,
+                    layerId: 'annotations',
+                    kind: 'text',
+                    text: replacementTarget?.text ?? 'Replacement text',
+                    color: '#111827',
+                    geometry: replacementGeometry,
+                }),
+            );
+        } else if (tool === 'signature') {
+            onAddAnnotation(
+                createAnnotation({
+                    ...base,
+                    kind: 'signature',
+                    text: signatureDataUrl ?? '',
+                    color: '#111827',
+                    geometry: {
+                        ...base.geometry,
+                        width: 24,
+                        height: 9,
+                    },
                 }),
             );
         } else if (tool === 'highlight') {
@@ -481,10 +712,34 @@ function PdfAnnotationOverlay({
         width: `${geometry.width ?? 20}%`,
         height: `${geometry.height ?? 6}%`,
     };
+    const startMove = createGeometryDragHandler(annotation, onUpdateAnnotation);
+    const startResize = createGeometryResizeHandler(
+        annotation,
+        onUpdateAnnotation,
+    );
+    const controls = (
+        <>
+            <button
+                type="button"
+                title="Move"
+                onPointerDown={startMove}
+                className="absolute -left-2 -top-2 hidden cursor-move rounded-full bg-zinc-900 p-0.5 text-white shadow group-hover:block"
+            >
+                <Grip size={10} />
+            </button>
+            <button
+                type="button"
+                title="Resize"
+                onPointerDown={startResize}
+                className="absolute -bottom-2 -right-2 hidden h-4 w-4 cursor-nwse-resize rounded-full border border-white bg-blue-600 shadow group-hover:block"
+            />
+        </>
+    );
 
     if (annotation.kind === 'text') {
         return (
             <div className="group absolute" style={style}>
+                {controls}
                 <textarea
                     value={annotation.text ?? ''}
                     onClick={(event) => event.stopPropagation()}
@@ -502,26 +757,44 @@ function PdfAnnotationOverlay({
         );
     }
 
+    if (annotation.kind === 'signature' && annotation.text) {
+        return (
+            <div
+                className="group absolute rounded-sm border border-blue-500/50 bg-white/70 p-1 hover:border-red-500"
+                style={style}
+            >
+                {controls}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={annotation.text}
+                    alt="Signature"
+                    className="h-full w-full object-contain"
+                />
+                <DeleteAnnotationButton
+                    onClick={() => onRemoveAnnotation?.(annotation.id)}
+                />
+            </div>
+        );
+    }
+
     return (
-        <button
-            type="button"
-            aria-label={`Remove ${annotation.kind}`}
-            onClick={(event) => {
-                event.stopPropagation();
-                onRemoveAnnotation?.(annotation.id);
-            }}
+        <div
             className={cn(
                 'group absolute rounded-sm border border-transparent transition-colors hover:border-red-500',
-                annotation.kind === 'redaction'
-                    ? 'bg-zinc-950'
-                    : 'bg-yellow-300/45 mix-blend-multiply',
+                annotation.kind === 'redaction' &&
+                    annotation.color?.toLowerCase() === '#ffffff'
+                    ? 'bg-white'
+                    : annotation.kind === 'redaction'
+                      ? 'bg-zinc-950'
+                      : 'bg-yellow-300/45 mix-blend-multiply',
             )}
             style={style}
         >
-            <span className="absolute -right-2 -top-2 hidden rounded-full bg-red-600 p-0.5 text-white group-hover:block">
-                <Trash2 size={10} />
-            </span>
-        </button>
+            {controls}
+            <DeleteAnnotationButton
+                onClick={() => onRemoveAnnotation?.(annotation.id)}
+            />
+        </div>
     );
 }
 
@@ -547,4 +820,125 @@ function isLayerVisible(layers: ViewLayer[], layerId: string) {
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
+}
+
+function getPdfTextTargetAtPoint(
+    clientX: number,
+    clientY: number,
+    pageRect: DOMRect,
+    pageNumber: number,
+) {
+    const span = document
+        .elementsFromPoint(clientX, clientY)
+        .map((element) => {
+            if (!(element instanceof HTMLElement)) return null;
+            if (
+                element.tagName === 'SPAN' &&
+                element.closest('.react-pdf__Page__textContent')
+            ) {
+                return element;
+            }
+            return element.closest<HTMLElement>(
+                '.react-pdf__Page__textContent span',
+            );
+        })
+        .find((element): element is HTMLElement =>
+            Boolean(element?.textContent?.trim()),
+        );
+
+    if (!span) return null;
+    const spanRect = span.getBoundingClientRect();
+    const x = ((spanRect.left - pageRect.left) / pageRect.width) * 100;
+    const y = ((spanRect.top - pageRect.top) / pageRect.height) * 100;
+    const width = (spanRect.width / pageRect.width) * 100;
+    const height = (spanRect.height / pageRect.height) * 100;
+
+    return {
+        text: span.textContent?.trim() || 'Replacement text',
+        geometry: {
+            page: pageNumber,
+            x: clamp(x, 0, 98),
+            y: clamp(y, 0, 98),
+            width: clamp(width, 3, 100 - clamp(x, 0, 98)),
+            height: clamp(height, 2.4, 100 - clamp(y, 0, 98)),
+        },
+    };
+}
+
+function createGeometryDragHandler(
+    annotation: ViewAnnotation,
+    onUpdateAnnotation: UpdateAnnotation | undefined,
+) {
+    return (event: React.PointerEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!onUpdateAnnotation) return;
+        const parent = event.currentTarget.parentElement?.parentElement;
+        const rect = parent?.getBoundingClientRect();
+        const geometry = annotation.geometry;
+        if (!rect || !geometry) return;
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originalX = geometry.x ?? 0;
+        const originalY = geometry.y ?? 0;
+        const width = geometry.width ?? 20;
+        const height = geometry.height ?? 6;
+
+        const move = (moveEvent: PointerEvent) => {
+            const dx = ((moveEvent.clientX - startX) / rect.width) * 100;
+            const dy = ((moveEvent.clientY - startY) / rect.height) * 100;
+            onUpdateAnnotation(annotation.id, {
+                geometry: {
+                    ...geometry,
+                    x: clamp(originalX + dx, 0, 100 - width),
+                    y: clamp(originalY + dy, 0, 100 - height),
+                },
+            });
+        };
+        const stop = () => {
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', stop);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', stop);
+    };
+}
+
+function createGeometryResizeHandler(
+    annotation: ViewAnnotation,
+    onUpdateAnnotation: UpdateAnnotation | undefined,
+) {
+    return (event: React.PointerEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!onUpdateAnnotation) return;
+        const parent = event.currentTarget.parentElement?.parentElement;
+        const rect = parent?.getBoundingClientRect();
+        const geometry = annotation.geometry;
+        if (!rect || !geometry) return;
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originalWidth = geometry.width ?? 20;
+        const originalHeight = geometry.height ?? 6;
+        const x = geometry.x ?? 0;
+        const y = geometry.y ?? 0;
+
+        const move = (moveEvent: PointerEvent) => {
+            const dw = ((moveEvent.clientX - startX) / rect.width) * 100;
+            const dh = ((moveEvent.clientY - startY) / rect.height) * 100;
+            onUpdateAnnotation(annotation.id, {
+                geometry: {
+                    ...geometry,
+                    width: clamp(originalWidth + dw, 3, 100 - x),
+                    height: clamp(originalHeight + dh, 2, 100 - y),
+                },
+            });
+        };
+        const stop = () => {
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', stop);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', stop);
+    };
 }
