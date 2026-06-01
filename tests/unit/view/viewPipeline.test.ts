@@ -3,6 +3,8 @@ import { getRendererForMime } from '@/features/view/registry/rendererRegistry';
 import { analyzeViewDocument } from '@/features/view/analyzers/viewAnalyzer';
 import { planViewExport } from '@/features/view/exporters/exportRegistry';
 import { parseTextLikeFile } from '@/features/view/parsers/textParser';
+import { viewAnnotationSchema } from '@/features/view/schemas/objectSchemas';
+import { uploadFileContent } from '@/features/uploads/api/uploadApi';
 
 describe('view pipeline primitives', () => {
     it('resolves renderers by mime type', () => {
@@ -32,5 +34,21 @@ describe('view pipeline primitives', () => {
             includeAnnotations: true,
         });
         expect(exportPlan.safe).toBe(true);
+    });
+
+    it('supports editable PDF text annotations', () => {
+        const result = viewAnnotationSchema.safeParse({
+            id: 'annotation-1',
+            fileId: 'pdf-1',
+            kind: 'text',
+            layerId: 'annotations',
+            geometry: { page: 1, x: 12, y: 18, width: 24, height: 7 },
+            text: 'Edited in place',
+            color: '#111827',
+            createdAt: new Date().toISOString(),
+        });
+
+        expect(result.success).toBe(true);
+        expect(typeof uploadFileContent).toBe('function');
     });
 });

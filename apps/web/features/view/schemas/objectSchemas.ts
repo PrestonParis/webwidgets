@@ -38,6 +38,7 @@ export const viewAnnotationSchema = z.object({
     kind: z.enum([
         'highlight',
         'comment',
+        'text',
         'shape',
         'freehand',
         'pin',

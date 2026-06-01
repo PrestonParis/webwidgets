@@ -32,6 +32,15 @@ const requiredPairs = [
     ['epub', 'html', 'pandoc'],
     ['html', 'epub', 'pandoc'],
     ['md', 'epub', 'pandoc'],
+    ['pdf', 'txt', 'pdftotext'],
+    ['pdf', 'html', 'pdftohtml'],
+    ['pdf', 'md', 'pdftotext'],
+    ['pdf', 'docx', 'libreoffice-pdf'],
+    ['pdf', 'odt', 'libreoffice-pdf'],
+    ['pdf', 'rtf', 'libreoffice-pdf'],
+    ['pdf', 'epub', 'pdftoepub'],
+    ['pdf', 'png', 'pdftoppm-png'],
+    ['pdf', 'jpg', 'pdftoppm-jpg'],
 ] as const;
 
 describe('document conversion matrix', () => {
@@ -62,6 +71,9 @@ describe('document conversion matrix', () => {
         );
         expect(getSupportedTargetsForSource('htm')).toEqual(
             expect.arrayContaining(['pdf', 'md', 'epub']),
+        );
+        expect(getSupportedTargetsForSource('pdf')).toEqual(
+            expect.arrayContaining(['docx', 'txt', 'html', 'md', 'epub']),
         );
     });
 

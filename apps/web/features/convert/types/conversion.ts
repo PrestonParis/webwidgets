@@ -107,7 +107,7 @@ const htmlSafetyWarning =
 function docRoute(
     sourceExtension: ConversionExtension,
     targetExtension: ConversionExtension,
-    engine: 'libreoffice' | 'pandoc' | 'native',
+    engine: NonNullable<SupportedConversion['engine']>,
     options: Pick<SupportedConversion, 'lossy' | 'notes' | 'warnings'> = {},
 ): SupportedConversion {
     return {
@@ -194,6 +194,52 @@ export const supportedConversionMatrix: SupportedConversion[] = [
         warnings: [htmlSafetyWarning],
     }),
     docRoute('md', 'epub', 'pandoc', { lossy: false }),
+
+    // PDF-sourced conversions. Keep this in sync with the conversion service
+    // matrix so the client does not reject supported remote routes.
+    docRoute('pdf', 'txt', 'pdftotext', {
+        lossy: true,
+        notes: 'Text layer only; scanned/image-only PDFs will produce empty output.',
+    }),
+    docRoute('pdf', 'html', 'pdftohtml', {
+        lossy: true,
+        notes: 'Best-effort positional HTML; layout may differ from the original.',
+    }),
+    docRoute('pdf', 'md', 'pdftotext', {
+        lossy: true,
+        notes: 'Plain text wrapped in minimal Markdown structure.',
+    }),
+    docRoute('pdf', 'docx', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'Uses LibreOffice Draw PDF Import. Text boxes, not reflowable prose. Scanned PDFs not supported.',
+        warnings: [
+            'PDF to DOCX uses Draw PDF Import. Formatting fidelity is best-effort and complex layouts may not round-trip cleanly.',
+        ],
+    }),
+    docRoute('pdf', 'odt', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'Uses LibreOffice Draw PDF Import. Same fidelity caveats as PDF to DOCX.',
+    }),
+    docRoute('pdf', 'rtf', 'libreoffice-pdf', {
+        lossy: true,
+        notes: 'PDF imported via LibreOffice Draw then exported to RTF.',
+    }),
+    docRoute('pdf', 'epub', 'pdftoepub', {
+        lossy: true,
+        notes: 'Text layer extracted with pdftotext, then wrapped as EPUB via Pandoc. Images and layout are not preserved.',
+        warnings: [
+            'PDF to EPUB is text-only. Images, tables, and complex formatting are dropped.',
+        ],
+    }),
+    docRoute('pdf', 'png', 'pdftoppm-png', {
+        lossy: true,
+        notes: 'Rasterizes the first PDF page to PNG.',
+    }),
+    docRoute('pdf', 'jpg', 'pdftoppm-jpg', {
+        lossy: true,
+        notes: 'Rasterizes the first PDF page to JPEG.',
+    }),
+
     // ── Image conversions (worker-images) ─────────────────────────────────
     // TODO: HEIC support is a future addition — requires libheif with decoder support
     {
