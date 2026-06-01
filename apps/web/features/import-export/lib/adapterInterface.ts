@@ -42,5 +42,5 @@ export interface ImportExportAdapter {
     provideContext?(userId: string): Promise<string>;
 
     /** Optional normalized adapter row -> context graph mapper */
-    mapToContext?: AdapterContextMapper;
+    mapToContext?: AdapterContextMapper | undefined;
 }

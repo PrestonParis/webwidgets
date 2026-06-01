@@ -26,6 +26,7 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
     const updateAnnotation = useViewStore((state) => state.updateAnnotation);
     const removeAnnotation = useViewStore((state) => state.removeAnnotation);
     const annotations = useViewStore((state) => state.annotations);
+    const lastSavedAt = useViewStore((state) => state.lastSavedAt);
     const { data: document, isLoading, isError } = useViewDocument(activeFile);
 
     const addComment = () => {
@@ -129,6 +130,7 @@ export function ViewWorkspace({ compact = false }: { compact?: boolean }) {
                             onAddAnnotation={addAnnotation}
                             onUpdateAnnotation={updateAnnotation}
                             onRemoveAnnotation={removeAnnotation}
+                            lastSavedAt={lastSavedAt}
                         />
                     )}
                 </section>

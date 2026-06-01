@@ -14,8 +14,6 @@ import { captureCategoryForSource } from '@/features/context/services/contextPer
 import {
     ingestContextEdges,
     ingestContextNodes,
-    listEdges,
-    listEntries,
     normalizeEntityId,
 } from '@/features/context/services/contextService';
 import type {
