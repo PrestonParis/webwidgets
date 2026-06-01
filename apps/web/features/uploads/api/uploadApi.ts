@@ -4,6 +4,8 @@ import type {
 } from '@/features/uploads/types/upload';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
 
+const presignedUploadUrls = new Map<string, string>();
+
 export async function requestPresignedUrl(
     originalName: string,
     mimeType: string,
@@ -18,7 +20,9 @@ export async function requestPresignedUrl(
         const data = (await res.json()) as { error?: string };
         throw new Error(data.error ?? 'Failed to get upload URL');
     }
-    return res.json() as Promise<PresignResponse>;
+    const body = (await res.json()) as PresignResponse;
+    presignedUploadUrls.set(body.fileId, body.presignedUrl);
+    return body;
 }
 
 export async function confirmUpload(fileId: string): Promise<FileUpload> {
@@ -59,6 +63,52 @@ export async function uploadFileToS3(
         );
         xhr.send(file);
     });
+}
+
+export async function uploadFileContent(
+    fileId: string,
+    file: File,
+    onProgress?: (progress: number) => void,
+): Promise<FileUpload> {
+    const presignedUrl = presignedUploadUrls.get(fileId);
+    if (presignedUrl) {
+        await uploadFileToS3(presignedUrl, file, onProgress);
+        presignedUploadUrls.delete(fileId);
+        clearCachedJson('/api/uploads');
+        return confirmUpload(fileId);
+    }
+
+    const uploaded = await new Promise<FileUpload>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+                onProgress?.(Math.round((event.loaded / event.total) * 100));
+            }
+        });
+        xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    resolve(JSON.parse(xhr.responseText) as FileUpload);
+                } catch {
+                    reject(new Error('Upload response was not valid JSON'));
+                }
+            } else {
+                reject(new Error(`File upload failed: ${xhr.status}`));
+            }
+        });
+        xhr.addEventListener('error', () =>
+            reject(new Error('Upload network error')),
+        );
+        xhr.open('PUT', `/api/uploads/${fileId}/content`);
+        xhr.setRequestHeader(
+            'Content-Type',
+            file.type || 'application/octet-stream',
+        );
+        xhr.send(file);
+    });
+
+    clearCachedJson('/api/uploads');
+    return uploaded;
 }
 
 export async function deleteUpload(fileId: string): Promise<void> {

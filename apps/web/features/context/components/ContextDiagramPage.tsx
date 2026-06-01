@@ -10,7 +10,6 @@ import {
     Maximize2,
     PanelRight,
     Plus,
-    Radio,
     RefreshCw,
     RotateCcw,
     Unlock,
@@ -26,7 +25,6 @@ import { useContextDiagram } from '@/features/context/hooks/useContextDiagram';
 import { ContextGraphCanvas } from './ContextGraphCanvas';
 import { ContextSidebar } from './ContextSidebar';
 import { ContextPermissionsPanel } from './ContextPermissionsPanel';
-import { useActivityEvents } from '@/features/activity/hooks/useActivityEvents';
 import { ContextFilters, type ContextFilterState } from './ContextFilters';
 import { ContextTimeline } from './ContextTimeline';
 import { GraphAnalyticsPanel } from './GraphAnalyticsPanel';
@@ -53,7 +51,6 @@ const DEFAULT_FILTERS: ContextFilterState = {
 };
 
 export default function ContextDiagramPage() {
-    const [activeTab, setActiveTab] = useState<'graph' | 'activity'>('graph');
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState<ContextFilterState>(DEFAULT_FILTERS);
     const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>('cluster');
@@ -68,11 +65,11 @@ export default function ContextDiagramPage() {
     const [coverage, setCoverage] = useState<ContextCoverageReport | null>(
         null,
     );
+    const [showDiagnostics, setShowDiagnostics] = useState(false);
+    const [diagnostics, setDiagnostics] = useState<any>(null);
 
     const { graph, loading, error, refresh, remove, upsert } =
         useContextGraph();
-    const activityQuery = useActivityEvents();
-    const events = activityQuery.data ?? [];
 
     const visibleGraph = useMemo(
         () =>
@@ -129,6 +126,12 @@ export default function ContextDiagramPage() {
         void fetchContextCoverage()
             .then(setCoverage)
             .catch(() => setCoverage(null));
+
+        // Fetch initial diagnostics
+        void fetch('/api/context/graph?diagnostics=true')
+            .then((res) => res.json())
+            .then((data) => setDiagnostics(data.diagnostics))
+            .catch(() => setDiagnostics(null));
     }, []);
 
     useEffect(() => {
@@ -143,13 +146,31 @@ export default function ContextDiagramPage() {
             await refresh();
             const nextCoverage = await fetchContextCoverage();
             setCoverage(nextCoverage);
+
+            // Fetch diagnostics
+            try {
+                const diagRes = await fetch(
+                    '/api/context/graph?diagnostics=true',
+                );
+                if (diagRes.ok) {
+                    const diagData = await diagRes.json();
+                    setDiagnostics(diagData.diagnostics);
+                }
+            } catch (e) {
+                console.error('Failed to fetch diagnostics:', e);
+            }
         } finally {
             setSyncing(false);
         }
     }
 
-    function exportGraph() {
-        const blob = new Blob([JSON.stringify(renderedGraph, null, 2)], {
+    async function exportGraph() {
+        const exportData = {
+            generatedAt: new Date().toISOString(),
+            graph: renderedGraph,
+            diagnostics: diagnostics || null,
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
             type: 'application/json',
         });
         const url = URL.createObjectURL(blob);
@@ -177,249 +198,321 @@ export default function ContextDiagramPage() {
                         </div>
                     </div>
 
-                    <div className="flex rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-zinc-800 dark:bg-zinc-900">
-                        <TabButton
-                            active={activeTab === 'graph'}
-                            onClick={() => setActiveTab('graph')}
+                    <>
+                        <div className="min-w-56 flex-1 md:max-w-md">
+                            <GraphSearch value={search} onChange={setSearch} />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => void syncContext()}
+                            disabled={syncing}
+                            className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                         >
-                            Graph
-                        </TabButton>
-                        <TabButton
-                            active={activeTab === 'activity'}
-                            onClick={() => setActiveTab('activity')}
+                            <DatabaseZap size={15} />
+                            {syncing ? 'Syncing' : 'Sync'}
+                        </button>
+                        <div className="relative">
+                            <MiniIconButton
+                                title="Filters"
+                                icon={Filter}
+                                active={filtersOpen}
+                                onClick={() => setFiltersOpen((open) => !open)}
+                            />
+                            {filtersOpen && (
+                                <div className="absolute right-0 top-11 z-40 w-80 rounded-lg border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
+                                    <ContextFilters
+                                        graph={graph}
+                                        filters={filters}
+                                        onChange={setFilters}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <select
+                            value={layoutMode}
+                            onChange={(event) =>
+                                setLayoutMode(
+                                    event.target.value as GraphLayoutMode,
+                                )
+                            }
+                            className="h-9 rounded-lg border border-zinc-200 bg-white px-2 text-xs dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                            aria-label="Layout"
                         >
-                            Activity
-                        </TabButton>
-                    </div>
-
-                    {activeTab === 'graph' && (
-                        <>
-                            <div className="min-w-56 flex-1 md:max-w-md">
-                                <GraphSearch
-                                    value={search}
-                                    onChange={setSearch}
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => void syncContext()}
-                                disabled={syncing}
-                                className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-                            >
-                                <DatabaseZap size={15} />
-                                {syncing ? 'Syncing' : 'Sync'}
-                            </button>
-                            <div className="relative">
-                                <MiniIconButton
-                                    title="Filters"
-                                    icon={Filter}
-                                    active={filtersOpen}
-                                    onClick={() =>
-                                        setFiltersOpen((open) => !open)
-                                    }
-                                />
-                                {filtersOpen && (
-                                    <div className="absolute right-0 top-11 z-40 w-80 rounded-lg border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-                                        <ContextFilters
-                                            graph={graph}
-                                            filters={filters}
-                                            onChange={setFilters}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                            <select
-                                value={layoutMode}
-                                onChange={(event) =>
-                                    setLayoutMode(
-                                        event.target.value as GraphLayoutMode,
+                            <option value="cluster">Clusters</option>
+                            <option value="workflow">Workflow</option>
+                            <option value="compact">Compact</option>
+                        </select>
+                        <MiniIconButton
+                            title={
+                                lockLayout
+                                    ? 'Unlock node movement'
+                                    : 'Lock node movement'
+                            }
+                            icon={lockLayout ? Lock : Unlock}
+                            active={lockLayout}
+                            onClick={() => setLockLayout(!lockLayout)}
+                        />
+                        <MiniIconButton
+                            title="Inspector"
+                            icon={PanelRight}
+                            active={inspectorOpen}
+                            onClick={() => setInspectorOpen((open) => !open)}
+                        />
+                        <MiniIconButton
+                            title="Focus selected"
+                            icon={Focus}
+                            active={focusMode}
+                            onClick={() => {
+                                setFocusMode(!focusMode);
+                                focusNode(selectedId);
+                            }}
+                        />
+                        <div className="flex overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+                            <MiniIconButton
+                                title="Zoom out"
+                                icon={ZoomOut}
+                                borderless
+                                onClick={zoomOut}
+                            />
+                            <MiniIconButton
+                                title="Zoom in"
+                                icon={ZoomIn}
+                                borderless
+                                onClick={zoomIn}
+                            />
+                            <MiniIconButton
+                                title="Fit view"
+                                icon={Maximize2}
+                                borderless
+                                onClick={fitView}
+                            />
+                        </div>
+                        <MiniIconButton
+                            title="Reset layout"
+                            icon={RotateCcw}
+                            onClick={resetLayout}
+                        />
+                        <MiniIconButton
+                            title="Add context node"
+                            icon={Plus}
+                            onClick={() => setShowAddNode(true)}
+                        />
+                        <MiniIconButton
+                            title="Export graph JSON"
+                            icon={Download}
+                            onClick={exportGraph}
+                        />
+                        <MiniIconButton
+                            title="Refresh"
+                            icon={RefreshCw}
+                            onClick={() => void refresh()}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowDiagnostics((open) => !open);
+                                if (!showDiagnostics) {
+                                    void fetch(
+                                        '/api/context/graph?diagnostics=true',
                                     )
+                                        .then((res) => res.json())
+                                        .then((data) =>
+                                            setDiagnostics(data.diagnostics),
+                                        )
+                                        .catch(() => setDiagnostics(null));
                                 }
-                                className="h-9 rounded-lg border border-zinc-200 bg-white px-2 text-xs dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
-                                aria-label="Layout"
-                            >
-                                <option value="cluster">Clusters</option>
-                                <option value="workflow">Workflow</option>
-                                <option value="compact">Compact</option>
-                            </select>
-                            <MiniIconButton
-                                title={
-                                    lockLayout
-                                        ? 'Unlock node movement'
-                                        : 'Lock node movement'
-                                }
-                                icon={lockLayout ? Lock : Unlock}
-                                active={lockLayout}
-                                onClick={() => setLockLayout(!lockLayout)}
-                            />
-                            <MiniIconButton
-                                title="Inspector"
-                                icon={PanelRight}
-                                active={inspectorOpen}
-                                onClick={() =>
-                                    setInspectorOpen((open) => !open)
-                                }
-                            />
-                            <MiniIconButton
-                                title="Focus selected"
-                                icon={Focus}
-                                active={focusMode}
-                                onClick={() => {
-                                    setFocusMode(!focusMode);
-                                    focusNode(selectedId);
-                                }}
-                            />
-                            <div className="flex overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-                                <MiniIconButton
-                                    title="Zoom out"
-                                    icon={ZoomOut}
-                                    borderless
-                                    onClick={zoomOut}
-                                />
-                                <MiniIconButton
-                                    title="Zoom in"
-                                    icon={ZoomIn}
-                                    borderless
-                                    onClick={zoomIn}
-                                />
-                                <MiniIconButton
-                                    title="Fit view"
-                                    icon={Maximize2}
-                                    borderless
-                                    onClick={fitView}
-                                />
-                            </div>
-                            <MiniIconButton
-                                title="Reset layout"
-                                icon={RotateCcw}
-                                onClick={resetLayout}
-                            />
-                            <MiniIconButton
-                                title="Add context node"
-                                icon={Plus}
-                                onClick={() => setShowAddNode(true)}
-                            />
-                            <MiniIconButton
-                                title="Export graph JSON"
-                                icon={Download}
-                                onClick={exportGraph}
-                            />
-                            <MiniIconButton
-                                title="Refresh"
-                                icon={RefreshCw}
-                                onClick={() => void refresh()}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setOverviewOpen((open) => !open)}
-                                className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
-                            >
-                                Overview
-                            </button>
-                        </>
-                    )}
+                            }}
+                            className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+                        >
+                            Diagnostics
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setOverviewOpen((open) => !open)}
+                            className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+                        >
+                            Overview
+                        </button>
+                    </>
                 </div>
 
                 <div className="relative min-h-0 flex-1 overflow-hidden p-2">
-                    {activeTab === 'graph' ? (
-                        <>
-                            {error && (
-                                <div className="absolute left-4 top-4 z-20 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 shadow dark:bg-amber-950/80 dark:text-amber-200">
-                                    {error}
-                                </div>
-                            )}
-                            {loading ? (
-                                <div className="flex h-full items-center justify-center rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-                                    <LoadingState variant="inline" />
+                    {error && (
+                        <div className="absolute left-4 top-4 z-20 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 shadow dark:bg-amber-950/80 dark:text-amber-200">
+                            {error}
+                        </div>
+                    )}
+                    {loading ? (
+                        <div className="flex h-full items-center justify-center rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+                            <LoadingState variant="inline" />
+                        </div>
+                    ) : (
+                        <div
+                            className="h-full min-h-0"
+                            style={{
+                                cursor: isDragging ? 'grabbing' : 'default',
+                            }}
+                        >
+                            <ContextGraphCanvas
+                                graph={renderedGraph}
+                                selectedId={selectedId}
+                                viewport={viewport}
+                                lockLayout={lockLayout}
+                                onSelectNode={selectNode}
+                                onMouseDown={onCanvasMouseDown}
+                                onMouseMove={onCanvasMouseMove}
+                                onMouseUp={onCanvasMouseUp}
+                                onWheel={onCanvasWheel}
+                                onNodePointerDown={onNodePointerDown}
+                                onNodeDoubleClick={focusNode}
+                            />
+                        </div>
+                    )}
+
+                    {showDiagnostics && (
+                        <div className="absolute bottom-4 left-4 z-30 max-h-[55vh] w-[min(520px,calc(100vw-2rem))] overflow-auto rounded-xl border border-zinc-200 bg-white/95 p-3 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+                            <h3 className="mb-2 text-xs font-semibold uppercase text-zinc-500">
+                                Graph Diagnostics
+                            </h3>
+                            {diagnostics ? (
+                                <div className="space-y-2 text-xs">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <span className="font-medium text-zinc-500">
+                                                DB Entries:
+                                            </span>{' '}
+                                            {diagnostics.entriesCount}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-zinc-500">
+                                                DB Edges:
+                                            </span>{' '}
+                                            {diagnostics.edgesCount}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-zinc-500">
+                                                Graph Nodes:
+                                            </span>{' '}
+                                            {diagnostics.nodesCount}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-zinc-500">
+                                                Sources:
+                                            </span>{' '}
+                                            {
+                                                Object.keys(
+                                                    diagnostics.sourceCounts,
+                                                ).length
+                                            }
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-zinc-500">
+                                            Source Counts:
+                                        </span>
+                                        <div className="mt-1 flex flex-wrap gap-1">
+                                            {Object.entries(
+                                                diagnostics.sourceCounts,
+                                            ).map(([source, count]) => (
+                                                <span
+                                                    key={source}
+                                                    className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800"
+                                                >
+                                                    {source}: {String(count)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-zinc-500">
+                                            Type Counts:
+                                        </span>
+                                        <div className="mt-1 flex flex-wrap gap-1">
+                                            {Object.entries(
+                                                diagnostics.typeCounts,
+                                            ).map(([type, count]) => (
+                                                <span
+                                                    key={type}
+                                                    className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800"
+                                                >
+                                                    {type}: {String(count)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {diagnostics.entriesCount === 0 && (
+                                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                                            <strong>
+                                                Context tables are empty.
+                                            </strong>{' '}
+                                            Click "Sync" to pull platform data
+                                            from import-export adapters.
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
-                                <div
-                                    className="h-full min-h-0"
-                                    style={{
-                                        cursor: isDragging
-                                            ? 'grabbing'
-                                            : 'default',
+                                <div className="text-xs text-zinc-500">
+                                    Loading diagnostics...
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {overviewOpen && (
+                        <div className="absolute bottom-4 left-4 z-30 max-h-[55vh] w-[min(520px,calc(100vw-2rem))] overflow-auto rounded-xl border border-zinc-200 bg-white/95 p-3 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+                            <ContextCoveragePanel
+                                graph={renderedGraph}
+                                coverage={coverage}
+                                syncSummary={syncSummary}
+                                syncing={syncing}
+                                onSync={() => void syncContext()}
+                            />
+                            <div className="mt-3">
+                                <GraphAnalyticsPanel
+                                    graph={renderedGraph}
+                                    onSelectNode={selectNode}
+                                />
+                            </div>
+                            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                                <SavedViewsPanel
+                                    current={{
+                                        filters,
+                                        layoutMode,
+                                        focusMode,
+                                        focusNode: selectedId,
                                     }}
-                                >
-                                    <ContextGraphCanvas
-                                        graph={renderedGraph}
-                                        selectedId={selectedId}
-                                        viewport={viewport}
-                                        lockLayout={lockLayout}
-                                        onSelectNode={selectNode}
-                                        onMouseDown={onCanvasMouseDown}
-                                        onMouseMove={onCanvasMouseMove}
-                                        onMouseUp={onCanvasMouseUp}
-                                        onWheel={onCanvasWheel}
-                                        onNodePointerDown={onNodePointerDown}
-                                        onNodeDoubleClick={focusNode}
-                                    />
-                                </div>
-                            )}
+                                    onApply={(view) => {
+                                        setFilters(view.filters);
+                                        setLayoutMode(view.layoutMode);
+                                        setFocusMode(view.focusMode);
+                                    }}
+                                />
+                                <ContextTimeline
+                                    graph={graph}
+                                    onSelectNode={selectNode}
+                                />
+                                <ContextPermissionsPanel />
+                            </div>
+                        </div>
+                    )}
 
-                            {overviewOpen && (
-                                <div className="absolute bottom-4 left-4 z-30 max-h-[55vh] w-[min(520px,calc(100vw-2rem))] overflow-auto rounded-xl border border-zinc-200 bg-white/95 p-3 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
-                                    <ContextCoveragePanel
-                                        graph={renderedGraph}
-                                        coverage={coverage}
-                                        syncSummary={syncSummary}
-                                        syncing={syncing}
-                                        onSync={() => void syncContext()}
-                                    />
-                                    <div className="mt-3">
-                                        <GraphAnalyticsPanel
-                                            graph={renderedGraph}
-                                            onSelectNode={selectNode}
-                                        />
-                                    </div>
-                                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                                        <SavedViewsPanel
-                                            current={{
-                                                filters,
-                                                layoutMode,
-                                                focusMode,
-                                                focusNode: selectedId,
-                                            }}
-                                            onApply={(view) => {
-                                                setFilters(view.filters);
-                                                setLayoutMode(view.layoutMode);
-                                                setFocusMode(view.focusMode);
-                                            }}
-                                        />
-                                        <ContextTimeline
-                                            graph={graph}
-                                            onSelectNode={selectNode}
-                                        />
-                                        <ContextPermissionsPanel />
-                                    </div>
-                                </div>
-                            )}
-
-                            {inspectorOpen && (
-                                <div className="absolute bottom-2 right-2 top-2 z-30 w-[min(390px,calc(100vw-1rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-                                    <ContextSidebar
-                                        node={inspectedNode}
-                                        graph={renderedGraph}
-                                        onSelectNode={selectNode}
-                                        onUpsert={upsert}
-                                        onClose={() => {
-                                            setInspectorOpen(false);
-                                            selectNode(null);
-                                        }}
-                                        onDelete={(id) => {
-                                            void remove(id);
-                                            selectNode(null);
-                                        }}
-                                    />
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <ActivityPanel
-                            events={events}
-                            loading={activityQuery.isLoading}
-                            error={activityQuery.isError}
-                        />
+                    {inspectorOpen && (
+                        <div className="absolute bottom-2 right-2 top-2 z-30 w-[min(390px,calc(100vw-1rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
+                            <ContextSidebar
+                                node={inspectedNode}
+                                graph={renderedGraph}
+                                onSelectNode={selectNode}
+                                onUpsert={upsert}
+                                onClose={() => {
+                                    setInspectorOpen(false);
+                                    selectNode(null);
+                                }}
+                                onDelete={(id) => {
+                                    void remove(id);
+                                    selectNode(null);
+                                }}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
@@ -738,86 +831,6 @@ function layoutVisibleGraph(
             y: 110 + Math.floor(index / columns) * 92,
         })),
     };
-}
-
-function TabButton({
-    active,
-    onClick,
-    children,
-}: {
-    active: boolean;
-    onClick: () => void;
-    children: React.ReactNode;
-}) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium ${
-                active
-                    ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100'
-                    : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'
-            }`}
-        >
-            {children}
-        </button>
-    );
-}
-
-function ActivityPanel({
-    events,
-    loading,
-    error,
-}: {
-    events: Array<{
-        id: string;
-        title: string;
-        source: string;
-        createdAt: string;
-    }>;
-    loading: boolean;
-    error: boolean;
-}) {
-    if (loading) {
-        return (
-            <div className="flex items-center gap-2 text-sm text-zinc-500">
-                <Radio className="animate-pulse" size={16} />
-                Loading activity
-            </div>
-        );
-    }
-    if (error) {
-        return (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
-                Activity events are unavailable.
-            </div>
-        );
-    }
-    if (events.length === 0) {
-        return (
-            <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-3 text-xs text-zinc-500 dark:border-zinc-700 dark:bg-zinc-950">
-                No real activity events have been recorded yet.
-            </div>
-        );
-    }
-    return (
-        <div className="space-y-2 overflow-auto">
-            {events.map((event) => (
-                <div
-                    key={event.id}
-                    className="rounded-lg border border-zinc-100 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
-                >
-                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                        {event.title}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                        {event.source} ·{' '}
-                        {new Date(event.createdAt).toLocaleString()}
-                    </p>
-                </div>
-            ))}
-        </div>
-    );
 }
 
 function AddNodeDialog({

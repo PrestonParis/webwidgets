@@ -23,6 +23,10 @@ interface ViewStore {
     setActiveFile: (file: ViewFileRef | null) => void;
     setDocument: (document: NormalizedViewDocument | null) => void;
     addAnnotation: (annotation: ViewAnnotation) => void;
+    updateAnnotation: (
+        annotationId: string,
+        patch: Partial<ViewAnnotation>,
+    ) => void;
     removeAnnotation: (annotationId: string) => void;
     toggleLayer: (layerId: string) => void;
     setZoom: (zoom: number) => void;
@@ -41,6 +45,14 @@ export const useViewStore = create<ViewStore>((set) => ({
     setDocument: (document) => set({ document }),
     addAnnotation: (annotation) =>
         set((state) => ({ annotations: [...state.annotations, annotation] })),
+    updateAnnotation: (annotationId, patch) =>
+        set((state) => ({
+            annotations: state.annotations.map((annotation) =>
+                annotation.id === annotationId
+                    ? { ...annotation, ...patch }
+                    : annotation,
+            ),
+        })),
     removeAnnotation: (annotationId) =>
         set((state) => ({
             annotations: state.annotations.filter(

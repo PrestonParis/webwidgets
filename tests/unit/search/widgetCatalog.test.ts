@@ -80,4 +80,10 @@ describe('searchWidgets', () => {
         const results = searchWidgets('exchange');
         expect(results.some((w) => w.type === 'converter')).toBe(true);
     });
+
+    it('prioritizes converter over widget builder for "convert"', () => {
+        const results = searchWidgets('convert');
+        expect(results[0]?.type).toBe('converter');
+        expect(results.some((w) => w.type === 'widget-builder')).toBe(false);
+    });
 });

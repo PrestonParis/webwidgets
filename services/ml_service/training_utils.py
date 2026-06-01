@@ -3,6 +3,7 @@ import json
 import os
 import hashlib
 import joblib
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
@@ -261,11 +262,11 @@ def train_and_save_model(
         f.write(f"\nClassification Report:\n")
         f.write(eval_results["classification_report"])
     
-    # Create symlink to latest model (for backwards compatibility)
+    # Refresh stable alias/artifact for backwards compatibility.
     latest_path = models_dir / f"{model_name}.pkl"
     if latest_path.exists():
         latest_path.unlink()
-    latest_path.symlink_to(model_filename)
+    shutil.copy2(model_path, latest_path)
     
     print(f"✅ Trained {model_name} v{version}")
     print(f"   Accuracy: {eval_results['accuracy']:.4f}")
@@ -300,7 +301,10 @@ def tune_threshold(
     else:
         # Use max confidence across all classes
         y_proba_binary = np.max(y_proba, axis=1)
-        y_val_binary = np.array([1 if y == pipeline.predict([x])[0] else 0 for x in X_val])
+        y_val_binary = np.array([
+            1 if y == pipeline.predict([x])[0] else 0
+            for x, y in zip(X_val, y_val)
+        ])
     
     thresholds = np.linspace(0.1, 0.9, 81)
     precisions = []

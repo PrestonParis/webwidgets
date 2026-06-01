@@ -1,0 +1,46 @@
+Model: widget_suggester v3
+Trained at: 2026-06-01T20:27:51.326985+00:00
+Dataset size: 302
+Dataset hash: b766bd15e3e7c1fc
+Test accuracy: 0.6557
+Macro F1: 0.6225
+
+Class distribution:
+  calendar: 20
+  chess: 19
+  converter: 30
+  countdown: 18
+  currency: 18
+  email: 20
+  habit: 20
+  journal: 20
+  mood: 20
+  pomodoro: 20
+  recovery: 20
+  scratchpad: 19
+  todo: 20
+  weather: 20
+  worldclock: 18
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    calendar       0.80      1.00      0.89         4
+       chess       1.00      1.00      1.00         4
+   converter       0.43      1.00      0.60         6
+   countdown       0.75      0.75      0.75         4
+    currency       0.00      0.00      0.00         3
+       email       1.00      0.25      0.40         4
+       habit       0.50      0.50      0.50         4
+     journal       0.50      0.50      0.50         4
+        mood       0.75      0.75      0.75         4
+    pomodoro       0.75      0.75      0.75         4
+    recovery       0.33      0.25      0.29         4
+  scratchpad       1.00      0.50      0.67         4
+        todo       0.80      1.00      0.89         4
+     weather       1.00      0.75      0.86         4
+  worldclock       0.50      0.50      0.50         4
+
+    accuracy                           0.66        61
+   macro avg       0.67      0.63      0.62        61
+weighted avg       0.68      0.66      0.63        61
