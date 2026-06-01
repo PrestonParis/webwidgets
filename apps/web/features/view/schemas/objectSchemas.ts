@@ -39,6 +39,7 @@ export const viewAnnotationSchema = z.object({
         'highlight',
         'comment',
         'text',
+        'signature',
         'shape',
         'freehand',
         'pin',
