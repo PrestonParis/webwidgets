@@ -3,6 +3,11 @@ import pLimit from 'p-limit';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import {
+    convertHtmlToDocument,
+    type DocumentConvertFormat,
+} from '@/features/convert/lib/serverDocumentConverter';
+import { getOutputMimeType } from '@/features/files/lib/conversionService';
 
 // Max concurrent adapter calls per export request — prevents slamming Supabase
 // when multi-source exports are added.
@@ -96,12 +101,20 @@ export async function POST(req: Request) {
         }
 
         const format = body.format ?? 'json';
-        if (!['csv', 'json'].includes(format)) {
+        const documentFormats: DocumentConvertFormat[] = [
+            'docx',
+            'pdf',
+            'rtf',
+            'odt',
+            'epub',
+        ];
+        const textFormats = ['csv', 'json'];
+        if (![...textFormats, ...documentFormats].includes(format)) {
             return NextResponse.json(
                 {
                     ok: false,
                     error: 'UNSUPPORTED_FORMAT',
-                    message: `Format '${format}' is not supported. Use csv or json. XLSX and ZIP require additional packages.`,
+                    message: `Format '${format}' is not supported. Use csv, json, docx, or pdf.`,
                 },
                 { status: 400 },
             );
@@ -165,6 +178,71 @@ export async function POST(req: Request) {
                     : { records: result.rows.map((r) => r.data) }),
                 warnings: result.warnings,
                 fetchedAt: new Date().toISOString(),
+            });
+        }
+
+        // Document format path (docx, pdf, etc.) — requires adapter.exportDocument
+        if (documentFormats.includes(format as DocumentConvertFormat)) {
+            if (!adapter.exportDocument) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: 'UNSUPPORTED_FORMAT',
+                        message: `The '${body.source_type}' adapter does not support document export (docx/pdf).`,
+                    },
+                    { status: 422 },
+                );
+            }
+
+            const docResult = await adapterLimit(() =>
+                adapter.exportDocument!(userId, {
+                    format: format as 'docx' | 'pdf',
+                    ...(body.start_date ? { startDate: body.start_date } : {}),
+                    ...(body.end_date ? { endDate: body.end_date } : {}),
+                }),
+            );
+
+            const docTitle =
+                body.title ??
+                `${adapter.displayName} export ${new Date().toISOString().slice(0, 10)}`;
+
+            const docBytes = await convertHtmlToDocument({
+                html: docResult.html,
+                title: docTitle,
+                targetExtension: format as DocumentConvertFormat,
+            });
+
+            const contentType = getOutputMimeType(
+                format as Parameters<typeof getOutputMimeType>[0],
+            );
+            const safeFilename =
+                docTitle
+                    .trim()
+                    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+                    .replace(/^-+|-+$/g, '')
+                    .slice(0, 80) || body.source_type;
+            const filename = `${safeFilename}.${format}`;
+
+            const base64Content = Buffer.from(docBytes).toString('base64');
+
+            return NextResponse.json({
+                ok: true,
+                job: {
+                    id: `doc-export-${Date.now()}`,
+                    status: 'ready',
+                    sourceType: body.source_type,
+                    format,
+                    title: docTitle,
+                    rowCount: null,
+                },
+                warnings: docResult.warnings,
+                download: {
+                    content: base64Content,
+                    encoding: 'base64',
+                    contentType,
+                    filename,
+                    sizeBytes: docBytes.byteLength,
+                },
             });
         }
 

@@ -138,7 +138,7 @@ export interface ExportJob {
     userId: string;
     title: string;
     sourceType: SourceDestinationType;
-    format: 'json' | 'csv' | 'xlsx' | 'zip';
+    format: 'json' | 'csv' | 'xlsx' | 'zip' | 'docx' | 'pdf';
     status: ExportJobStatus;
     rowCount?: number;
     outputUrl?: string;
@@ -177,7 +177,7 @@ export interface AdapterCapability {
     canExport: boolean;
     canProvideContext: boolean;
     importFormats: ImportFormat[];
-    exportFormats: ('csv' | 'json')[];
+    exportFormats: ('csv' | 'json' | 'docx' | 'pdf')[];
     availability?: 'available' | 'unavailable' | 'unknown';
     availabilityMessage?: string;
 }
@@ -201,7 +201,7 @@ export interface ServiceHealthItem {
 export interface ExportOptions {
     limit?: number;
     since?: string;
-    format?: 'csv' | 'json';
+    format?: 'csv' | 'json' | 'docx' | 'pdf';
     // Date range filters — used by adapters like calendarEventsAdapter
     startDate?: string;
     endDate?: string;
@@ -256,7 +256,12 @@ export interface ExportPanelProps {
         title?: string;
     }) => Promise<{
         job: ExportJob;
-        download: { content: string; contentType: string; filename: string };
+        download: {
+            content: string;
+            encoding?: 'base64';
+            contentType: string;
+            filename: string;
+        };
         warnings: string[];
     } | null>;
 }
