@@ -53,7 +53,8 @@ export type WidgetType =
     | 'creative'
     | 'insight-cards'
     | 'action-cards'
-    | 'calculator';
+    | 'calculator'
+    | 'synthesized';
 
 export type SnapRule = 'free' | 'grid' | 'edges' | 'guides';
 export type LayoutMode = 'grid' | 'free';

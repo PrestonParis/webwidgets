@@ -1,6 +1,6 @@
 'use client';
 
-import { Network, RefreshCw, Radio } from 'lucide-react';
+import { Hand, Network, Pencil, Radio, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { LoadingState } from '@/features/ui/loading';
@@ -8,6 +8,10 @@ import { useContextGraph } from '@/features/context/hooks/useContextGraph';
 import { ContextGraphCanvas } from './ContextGraphCanvas';
 import { useContextDiagram } from '@/features/context/hooks/useContextDiagram';
 import { useActivityEvents } from '@/features/activity/hooks/useActivityEvents';
+import { useWidgetPanMode } from '@/features/context/hooks/useWidgetPanMode';
+
+const NOOP = () => {};
+const NOOP_E = (_e: React.MouseEvent) => {};
 
 export default function ContextDiagramWidget({
     widgetId = 'context-diagram',
@@ -15,6 +19,9 @@ export default function ContextDiagramWidget({
     widgetId?: string;
 }) {
     const [activeTab, setActiveTab] = useState<'graph' | 'activity'>('graph');
+    const { widgetMode, toggleMode, onPanGestureStart, onPanGestureEnd } =
+        useWidgetPanMode();
+
     const { graph, loading, refresh } = useContextGraph();
     const uniqueGraph = {
         ...graph,
@@ -33,7 +40,15 @@ export default function ContextDiagramWidget({
         onCanvasMouseDown,
         onCanvasMouseMove,
         onCanvasMouseUp,
+        onNodePointerDown,
     } = useContextDiagram(uniqueGraph);
+
+    const modeButtonClass = (active: boolean) =>
+        `p-1 rounded transition-colors ${
+            active
+                ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
+        }`;
 
     return (
         <WidgetShell
@@ -49,8 +64,8 @@ export default function ContextDiagramWidget({
             footerHref="/context"
             footerLabel="Open context graph ->"
         >
-            <div className="flex h-full flex-col gap-2">
-                <div className="flex gap-2 border-b border-gray-200 dark:border-zinc-800">
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 border-b border-gray-200 dark:border-zinc-800">
                     <button
                         type="button"
                         onClick={() => setActiveTab('graph')}
@@ -77,31 +92,93 @@ export default function ContextDiagramWidget({
 
                 {activeTab === 'graph' && (
                     <>
-                        <div className="flex justify-end">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleMode('pan')}
+                                    className={modeButtonClass(
+                                        widgetMode === 'pan',
+                                    )}
+                                    title={
+                                        widgetMode === 'pan'
+                                            ? 'Exit pan mode'
+                                            : 'Pan view'
+                                    }
+                                >
+                                    <Hand className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleMode('edit')}
+                                    className={modeButtonClass(
+                                        widgetMode === 'edit',
+                                    )}
+                                    title={
+                                        widgetMode === 'edit'
+                                            ? 'Exit edit mode'
+                                            : 'Edit diagram'
+                                    }
+                                >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                             <button
                                 type="button"
                                 onClick={() => void refresh()}
-                                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-800"
+                                className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                                 title="Refresh"
                             >
-                                <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
+                                <RefreshCw className="w-3.5 h-3.5" />
                             </button>
                         </div>
 
                         {loading ? (
-                            <div className="flex-1 flex items-center justify-center">
+                            <div className="h-48 flex items-center justify-center">
                                 <LoadingState variant="inline" />
                             </div>
                         ) : (
-                            <div className="min-h-56 flex-1 overflow-hidden rounded-lg">
+                            <div
+                                className="h-48 overflow-hidden rounded-lg"
+                                // Prevent the dashboard from treating a pan
+                                // drag as a widget-move gesture.
+                                {...(widgetMode === 'pan'
+                                    ? { 'data-no-drag': '' }
+                                    : {})}
+                            >
                                 <ContextGraphCanvas
                                     graph={uniqueGraph}
                                     selectedId={selectedId}
                                     viewport={viewport}
+                                    mode={widgetMode}
+                                    lockLayout={widgetMode !== 'edit'}
                                     onSelectNode={selectNode}
-                                    onMouseDown={onCanvasMouseDown}
-                                    onMouseMove={onCanvasMouseMove}
-                                    onMouseUp={onCanvasMouseUp}
+                                    onMouseDown={
+                                        widgetMode === 'pan'
+                                            ? (e) => {
+                                                  onPanGestureStart();
+                                                  onCanvasMouseDown(e);
+                                              }
+                                            : NOOP_E
+                                    }
+                                    onMouseMove={
+                                        widgetMode === 'pan'
+                                            ? onCanvasMouseMove
+                                            : NOOP_E
+                                    }
+                                    onMouseUp={
+                                        widgetMode === 'pan'
+                                            ? () => {
+                                                  onCanvasMouseUp();
+                                                  onPanGestureEnd();
+                                              }
+                                            : NOOP
+                                    }
+                                    onNodePointerDown={
+                                        widgetMode === 'edit'
+                                            ? onNodePointerDown
+                                            : undefined
+                                    }
                                 />
                             </div>
                         )}
@@ -109,12 +186,19 @@ export default function ContextDiagramWidget({
                         <div className="flex items-center gap-3 text-xs text-gray-400">
                             <span>{uniqueGraph.nodes.length} nodes</span>
                             <span>{uniqueGraph.edges.length} connections</span>
+                            {widgetMode !== 'view' && (
+                                <span className="ml-auto text-indigo-400 dark:text-indigo-500">
+                                    {widgetMode === 'pan'
+                                        ? 'Drag to pan'
+                                        : 'Drag nodes to reposition'}
+                                </span>
+                            )}
                         </div>
                     </>
                 )}
 
                 {activeTab === 'activity' && (
-                    <div className="flex-1 overflow-auto">
+                    <div className="h-48 overflow-auto">
                         {activityQuery.isLoading && (
                             <div className="flex items-center gap-2 text-sm text-zinc-500">
                                 <RefreshCw className="animate-spin" size={16} />

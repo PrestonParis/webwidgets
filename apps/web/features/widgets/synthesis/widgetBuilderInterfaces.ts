@@ -62,6 +62,7 @@ export interface WidgetBuilderState {
     isValid: boolean;
     validationIssues: WidgetValidationIssue[];
     previewMode: WidgetPreviewMode;
+    visitedStepIds: string[];
 }
 
 export interface WidgetSynthesisCandidate {

@@ -23,10 +23,11 @@ export const journalService = {
         title: string,
         content: string,
         type: 'journal' | 'document' | 'note' = 'journal',
+        metadata?: Record<string, unknown>,
     ) {
         return apiFetch('/api/journals', {
             method: 'POST',
-            body: JSON.stringify({ title, content, type }),
+            body: JSON.stringify({ title, content, type, metadata }),
         });
     },
 
@@ -44,5 +45,16 @@ export const journalService = {
 
     async deleteEntry(_userId: string, entryId: string) {
         return apiFetch(`/api/journals/${entryId}`, { method: 'DELETE' });
+    },
+
+    async updateEntryMetadata(
+        _userId: string,
+        entryId: string,
+        metadata: Record<string, unknown>,
+    ) {
+        return apiFetch(`/api/journals/${entryId}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ metadata }),
+        });
     },
 };

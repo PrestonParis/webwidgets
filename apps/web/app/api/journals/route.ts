@@ -11,7 +11,9 @@ export async function GET(): Promise<Response> {
         const userId = await getRequestUserId(supabase);
         const { data, error } = await supabase
             .from('journals')
-            .select('id, title, content, type, created_at, updated_at')
+            .select(
+                'id, title, content, type, created_at, updated_at, metadata',
+            )
             .eq('user_id', userId)
             .is('deleted_at', null)
             .order('created_at', { ascending: false })
@@ -40,6 +42,7 @@ export async function POST(req: Request): Promise<Response> {
             title?: string;
             content?: string;
             type?: 'journal' | 'document' | 'note';
+            metadata?: Record<string, unknown>;
         };
 
         const title = (body.title ?? '').trim() || 'Untitled';
@@ -48,8 +51,14 @@ export async function POST(req: Request): Promise<Response> {
 
         const { data, error } = await supabase
             .from('journals')
-            .insert({ user_id: userId, title, content, type })
-            .select('id, title, content, type, created_at')
+            .insert({
+                user_id: userId,
+                title,
+                content,
+                type,
+                metadata: body.metadata ?? null,
+            })
+            .select('id, title, content, type, created_at, metadata')
             .single();
         if (error) {
             if (isMissingTableError(error))
@@ -81,8 +90,8 @@ export async function POST(req: Request): Promise<Response> {
         await ingestJournalContext(supabase, userId, {
             id: entry.id,
             title: entry.title,
-            content: entry.content,
             type: entry.type,
+            ...(entry.content !== undefined ? { content: entry.content } : {}),
         });
 
         return NextResponse.json({ entry: data }, { status: 201 });

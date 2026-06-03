@@ -177,11 +177,14 @@ export interface ContextEdgeLayerProps {
     selectedId: string | null;
 }
 
+export type DiagramMode = 'view' | 'pan' | 'edit';
+
 export interface ContextGraphCanvasProps {
     graph: ContextGraph;
     selectedId: string | null;
     viewport: DiagramViewport;
     lockLayout?: boolean;
+    mode?: DiagramMode;
     onSelectNode: (id: string | null) => void;
     onMouseDown: (e: React.MouseEvent) => void;
     onMouseMove: (e: React.MouseEvent) => void;

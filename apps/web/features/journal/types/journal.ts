@@ -1,4 +1,6 @@
 import { Editor } from '@tiptap/react';
+import type { Json } from '@/types/supabase';
+
 export interface JournalEntry {
     id: number;
     title: string;
@@ -6,6 +8,8 @@ export interface JournalEntry {
     image_url: string | null;
     deleted_at: string | null;
     created_at: string;
+    updated_at?: string | null | undefined;
+    metadata?: Json | null | undefined;
     type: 'journal' | 'document' | 'note';
 }
 

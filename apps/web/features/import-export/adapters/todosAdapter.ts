@@ -100,13 +100,6 @@ export const todosAdapter: ImportExportAdapter = {
         const errors: { rowIndex: number; message: string }[] = [];
         const warnings: string[] = [];
 
-        // TODO: 'merge' strategy not implemented — treated as 'overwrite'
-        if (strategy === 'merge') {
-            warnings.push(
-                "'merge' strategy not fully implemented, using 'overwrite' behavior",
-            );
-        }
-
         for (const row of rows) {
             try {
                 const d = row.data as Record<string, unknown>;
@@ -123,32 +116,70 @@ export const todosAdapter: ImportExportAdapter = {
                     continue;
                 }
 
-                const record = {
-                    user_id: userId,
-                    // The todos table uses 'text' as the task description column
-                    text: String(textValue),
-                    completed:
-                        d['completed'] === true ||
-                        d['done'] === true ||
-                        d['done'] === 'true' ||
-                        d['done'] === '1',
-                };
+                const completed =
+                    d['completed'] === true ||
+                    d['done'] === true ||
+                    d['done'] === 'true' ||
+                    d['done'] === '1';
 
-                if (strategy === 'skip' && d['id']) {
+                const rowId = d['id'] ? String(d['id']) : undefined;
+
+                if (strategy === 'skip' && rowId) {
                     const { data: existing } = await supabase
                         .from('todos')
                         .select('id')
-                        .eq('id', String(d['id']))
+                        .eq('id', rowId)
                         .single();
                     if (existing) {
                         warnings.push(
-                            `Row ${row.rowIndex}: skipped existing todo (id=${String(d['id'])})`,
+                            `Row ${row.rowIndex}: skipped existing todo (id=${rowId})`,
                         );
                         continue;
                     }
                 }
 
-                const { error } = await supabase.from('todos').insert(record);
+                if (strategy === 'merge' && rowId) {
+                    const { data: existing } = await supabase
+                        .from('todos')
+                        .select('text, completed')
+                        .eq('id', rowId)
+                        .maybeSingle();
+                    if (existing) {
+                        const { error } = await supabase
+                            .from('todos')
+                            .update({
+                                // Only overwrite text if the imported value differs from existing
+                                text: textValue || existing.text,
+                                completed,
+                            })
+                            .eq('id', rowId);
+                        if (error) throw error;
+                        successCount++;
+                        continue;
+                    }
+                    // No existing record — fall through to insert
+                }
+
+                if (strategy === 'overwrite' && rowId) {
+                    const { error } = await supabase.from('todos').upsert(
+                        {
+                            id: rowId,
+                            user_id: userId,
+                            text: String(textValue),
+                            completed,
+                        },
+                        { onConflict: 'id' },
+                    );
+                    if (error) throw error;
+                    successCount++;
+                    continue;
+                }
+
+                const { error } = await supabase.from('todos').insert({
+                    user_id: userId,
+                    text: String(textValue),
+                    completed,
+                });
                 if (error) throw error;
                 successCount++;
             } catch (e) {
