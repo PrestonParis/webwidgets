@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import { WidgetSkeleton } from '@/features/widgets/components/WidgetSkeleton';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
@@ -104,7 +106,8 @@ const FinanceWidget = lazy(
     () => import('@/features/finance/components/FinanceWidget'),
 );
 const WidgetBuilderShellWidget = lazy(
-    () => import('@/features/widgets/builder/WidgetBuilderShellWidget'),
+    () =>
+        import('@/features/widget-builder/components/WidgetBuilderShellWidget'),
 );
 const FilesWidget = lazy(
     () => import('@/features/uploads/components/FilesWidget'),
@@ -243,6 +246,19 @@ export function renderWidgetContent(
             return wrap(<CalculatorWidget widgetId={config.id} />);
         case 'activity':
             return wrap(<ActivityWidget widgetId={config.id} />);
+        case 'synthesized': {
+            const configExt = config as unknown as {
+                settings?: { definition?: SynthesizedWidgetDefinition };
+            };
+            const def = configExt.settings?.definition;
+            if (!def) return null;
+            const SynthesizedRenderer = dynamic(() =>
+                import('@/features/widget-builder/renderer/SynthesizedWidgetRenderer').then(
+                    (m) => ({ default: m.SynthesizedWidgetRenderer }),
+                ),
+            );
+            return wrap(<SynthesizedRenderer definition={def} />);
+        }
         case 'folder':
             return null;
         default:

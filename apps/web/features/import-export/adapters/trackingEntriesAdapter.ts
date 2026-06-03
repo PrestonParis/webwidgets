@@ -120,13 +120,6 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
         const errors: { rowIndex: number; message: string }[] = [];
         const warnings: string[] = [];
 
-        // TODO: 'merge' strategy is complex — treat as 'overwrite' for now
-        if (strategy === 'merge') {
-            warnings.push(
-                "'merge' strategy not fully implemented, using 'overwrite' behavior",
-            );
-        }
-
         for (const row of rows) {
             try {
                 const d = row.data;
@@ -163,7 +156,6 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                 };
 
                 if (strategy === 'skip') {
-                    // Check for existing entry with same category + entry_date
                     const { data: existing } = await supabase
                         .from('tracking_entries')
                         .select('id')
@@ -181,7 +173,52 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                     }
                 }
 
-                if (strategy === 'overwrite' || strategy === 'merge') {
+                if (strategy === 'merge') {
+                    // Fetch existing to do a field-level merge: union tags,
+                    // deep-merge metadata, preserve notes when incoming is empty.
+                    const { data: existing } = await supabase
+                        .from('tracking_entries')
+                        .select('notes, tags, metadata')
+                        .eq('user_id', userId)
+                        .eq('category', record.category)
+                        .eq('entry_date', record.entry_date)
+                        .maybeSingle();
+
+                    if (existing) {
+                        const mergedRecord = {
+                            ...record,
+                            notes: record.notes ?? existing.notes,
+                            tags: Array.from(
+                                new Set([
+                                    ...(existing.tags ?? []),
+                                    ...record.tags,
+                                ]),
+                            ),
+                            metadata: {
+                                ...(typeof existing.metadata === 'object' &&
+                                existing.metadata !== null
+                                    ? (existing.metadata as Record<
+                                          string,
+                                          unknown
+                                      >)
+                                    : {}),
+                                ...(record.metadata as Record<string, unknown>),
+                            },
+                        };
+                        const { error } = await supabase
+                            .from('tracking_entries')
+                            .update(mergedRecord)
+                            .eq('user_id', userId)
+                            .eq('category', record.category)
+                            .eq('entry_date', record.entry_date);
+                        if (error) throw error;
+                        successCount++;
+                        continue;
+                    }
+                    // No existing record — fall through to insert
+                }
+
+                if (strategy === 'overwrite') {
                     const { error } = await supabase
                         .from('tracking_entries')
                         .upsert(record, {
@@ -189,7 +226,8 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                         });
                     if (error) throw error;
                 } else {
-                    // 'skip' (no duplicate) or 'keep_both'
+                    // 'skip' (no duplicate found above), 'keep_both', or
+                    // 'merge' with no pre-existing record
                     const { error } = await supabase
                         .from('tracking_entries')
                         .insert(record);

@@ -227,28 +227,27 @@ export function useContextDiagram(
 
         const onWindowMove = (e: MouseEvent | PointerEvent) => {
             if (nodeDrag.current) {
-                const dx = (e.clientX - nodeDrag.current.x) / viewport.scale;
-                const dy = (e.clientY - nodeDrag.current.y) / viewport.scale;
+                const snap = nodeDrag.current;
+                const dx = (e.clientX - snap.x) / viewport.scale;
+                const dy = (e.clientY - snap.y) / viewport.scale;
                 if (Math.abs(dx) + Math.abs(dy) > 2) {
-                    nodeDrag.current.moved = true;
+                    snap.moved = true;
                 }
-                const id = nodeDrag.current.id;
+                const { id, nodeX, nodeY } = snap;
                 setManualPositions((positions) => ({
                     ...positions,
-                    [id]: {
-                        x: nodeDrag.current!.nodeX + dx,
-                        y: nodeDrag.current!.nodeY + dy,
-                    },
+                    [id]: { x: nodeX + dx, y: nodeY + dy },
                 }));
                 return;
             }
             if (!dragStart.current) return;
-            const dx = e.clientX - dragStart.current.x;
-            const dy = e.clientY - dragStart.current.y;
+            const { x: startX, y: startY, ox, oy } = dragStart.current;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
             setViewport((v) => ({
                 ...v,
-                offsetX: dragStart.current!.ox + dx,
-                offsetY: dragStart.current!.oy + dy,
+                offsetX: ox + dx,
+                offsetY: oy + dy,
             }));
         };
         const onWindowUp = () => {

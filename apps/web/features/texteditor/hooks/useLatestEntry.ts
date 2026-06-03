@@ -10,6 +10,8 @@ const entrySchema = z.object({
     title: z.string(),
     content: z.string(),
     created_at: z.string(),
+    updated_at: z.string().nullable().optional(),
+    metadata: z.unknown().optional(),
     type: z.enum(['journal', 'document', 'note']).default('journal'),
     image_url: z.string().nullable(),
     deleted_at: z.string().nullable(),

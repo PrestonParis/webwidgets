@@ -51,6 +51,12 @@ export const BUILDER_STEPS: WidgetBuilderStepConfig[] = [
         optional: true,
     },
     {
+        id: 'style',
+        label: 'Style',
+        description: 'Colors and visual options',
+        optional: true,
+    },
+    {
         id: 'permissions',
         label: 'Permissions',
         description: 'Access review',

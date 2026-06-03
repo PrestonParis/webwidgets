@@ -1,11 +1,19 @@
 'use client';
 
 import { EditorContent } from '@tiptap/react';
+import { Download } from 'lucide-react';
+import { useState } from 'react';
+import { TextEditorMetadataPanel } from '@/features/texteditor/components/TextEditorMetadataPanel';
 import { Toolbar } from '@/features/texteditor/components/Toolbar';
 import {
     saveEditorContent,
     useRichEditorState,
 } from '@/features/texteditor/hooks/useRichEditorState';
+import {
+    downloadTextEditorDocument,
+    textEditorDownloadFormats,
+    type TextEditorDownloadFormat,
+} from '@/features/texteditor/lib/downloadTextEditor';
 import type { JournalEntry } from '@/features/journal/types/journal';
 import type { NoteType } from '@/features/texteditor/types/texteditor';
 
@@ -14,6 +22,7 @@ interface RichEditorProps {
     noteType: NoteType;
     isSaving: boolean;
     onSave: (title: string, content: string) => Promise<void>;
+    onMetadataSave: (metadata: Record<string, unknown>) => Promise<void>;
     onNew: () => void;
 }
 
@@ -108,6 +117,43 @@ function RichEditorContent(props: RichEditorProps) {
     const { autosaved, editor, setTitle, title, titleRef } =
         useRichEditorState(props);
     const wordCount = editor?.storage.characterCount.words() ?? 0;
+    const [downloadFormat, setDownloadFormat] =
+        useState<TextEditorDownloadFormat>('docx');
+    const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isSavingMetadata, setIsSavingMetadata] = useState(false);
+
+    const handleDownload = async () => {
+        if (!editor) return;
+        setIsDownloading(true);
+        setDownloadStatus(null);
+        try {
+            await downloadTextEditorDocument({
+                format: downloadFormat,
+                html: editor.getHTML(),
+                title: title || 'Untitled',
+            });
+            setDownloadStatus(`Downloaded ${downloadFormat.toUpperCase()}.`);
+        } catch (error) {
+            setDownloadStatus(
+                error instanceof Error
+                    ? error.message
+                    : 'Could not export this document.',
+            );
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const handleMetadataSave = async (metadata: Record<string, unknown>) => {
+        setIsSavingMetadata(true);
+        try {
+            await props.onMetadataSave(metadata);
+            setDownloadStatus('Metadata saved.');
+        } finally {
+            setIsSavingMetadata(false);
+        }
+    };
 
     return (
         <div className="flex flex-col h-full">
@@ -118,9 +164,61 @@ function RichEditorContent(props: RichEditorProps) {
                 onChange={setTitle}
             />
             <div className="px-10 py-2 flex items-center gap-3 border-b border-stone-100 dark:border-zinc-800/60">
-                <Toolbar editor={editor} />
+                <Toolbar
+                    editor={editor}
+                    trailingSlot={
+                        <div className="flex items-center gap-2">
+                            {downloadStatus && (
+                                <span className="max-w-64 truncate text-[11px] text-stone-400 dark:text-zinc-500">
+                                    {downloadStatus}
+                                </span>
+                            )}
+                            <label className="sr-only" htmlFor="download-as">
+                                Download as
+                            </label>
+                            <select
+                                id="download-as"
+                                value={downloadFormat}
+                                onChange={(event) =>
+                                    setDownloadFormat(
+                                        event.target
+                                            .value as TextEditorDownloadFormat,
+                                    )
+                                }
+                                className="h-8 rounded-lg border border-stone-200 bg-white px-2 text-xs font-medium text-stone-700 outline-none transition-colors hover:border-stone-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200"
+                            >
+                                {textEditorDownloadFormats.map((format) => (
+                                    <option
+                                        key={format.value}
+                                        value={format.value}
+                                    >
+                                        {format.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    void handleDownload();
+                                }}
+                                disabled={!editor || isDownloading}
+                                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-stone-900 px-2.5 text-xs font-semibold text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                            >
+                                <Download size={13} />
+                                {isDownloading ? 'Preparing…' : 'Download as'}
+                            </button>
+                        </div>
+                    }
+                />
             </div>
             <div className="flex-1 overflow-y-auto px-10 py-6">
+                <div className="mb-5">
+                    <TextEditorMetadataPanel
+                        entry={props.entry}
+                        saving={isSavingMetadata}
+                        onSave={handleMetadataSave}
+                    />
+                </div>
                 <EditorContent editor={editor} />
             </div>
             <EditorStatusBar

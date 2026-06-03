@@ -3,13 +3,15 @@ import { supabase } from '@/lib/db/supabase';
 import { JournalEntry } from '@/features/journal/types/journal';
 import { z } from 'zod';
 
-const journalEntrySchema: z.ZodType<JournalEntry> = z.object({
+const journalEntrySchema = z.object({
     id: z.number(),
     title: z.string(),
     content: z.string(),
     image_url: z.string().nullable(),
     deleted_at: z.string().nullable(),
     created_at: z.string(),
+    updated_at: z.string().nullable().optional(),
+    metadata: z.unknown().optional(),
     type: z.enum(['journal', 'document', 'note']).default('journal'),
 });
 
@@ -40,7 +42,7 @@ export function useJournalEntries(
         if (error) console.error('Fetch error:', error.message, error.hint);
         else {
             const parsed = journalEntryArraySchema.safeParse(data);
-            return parsed.success ? parsed.data : [];
+            return parsed.success ? (parsed.data as JournalEntry[]) : [];
         }
     }, [userId, view, noteType]);
 

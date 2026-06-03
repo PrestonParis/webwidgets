@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { Search, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
+import {
+    getEntryDisplayDate,
+    parseTextEditorDisplayDate,
+} from '@/features/texteditor/lib/entryMetadata';
 import type { JournalEntry } from '@/features/journal/types/journal';
 
 interface EntryListProps {
@@ -65,7 +69,9 @@ function EntryButton({
                     </p>
                 </div>
                 <p className="text-[10px] text-stone-400 dark:text-zinc-600 mt-0.5">
-                    {new Date(entry.created_at).toLocaleDateString('en-US', {
+                    {parseTextEditorDisplayDate(
+                        getEntryDisplayDate(entry),
+                    ).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                     })}

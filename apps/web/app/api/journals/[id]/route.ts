@@ -22,6 +22,7 @@ export async function PATCH(
         const body = (await req.json()) as {
             title?: string;
             content?: string;
+            metadata?: Record<string, unknown> | null;
         };
 
         const update: Record<string, unknown> = {
@@ -29,13 +30,16 @@ export async function PATCH(
         };
         if (body.title !== undefined) update.title = body.title.trim();
         if (body.content !== undefined) update.content = body.content;
+        if (body.metadata !== undefined) update.metadata = body.metadata;
 
         const { data, error } = await supabase
             .from('journals')
             .update(update)
             .eq('id', id)
             .eq('user_id', userId)
-            .select('id, title, content, type')
+            .select(
+                'id, title, content, type, created_at, updated_at, metadata',
+            )
             .single();
         if (error) {
             if (isMissingTableError(error))
@@ -67,8 +71,8 @@ export async function PATCH(
         await ingestJournalContext(supabase, userId, {
             id: entry.id,
             title: entry.title,
-            content: entry.content,
             type: entry.type,
+            ...(entry.content !== undefined ? { content: entry.content } : {}),
         });
 
         return NextResponse.json({ entry: data });

@@ -9,6 +9,7 @@ export function ContextGraphCanvas({
     selectedId,
     viewport,
     lockLayout = false,
+    mode,
     onSelectNode,
     onMouseDown,
     onMouseMove,
@@ -25,13 +26,19 @@ export function ContextGraphCanvas({
         onSelectNode(null);
     };
 
+    // When mode is undefined (full-page view), always show grab cursor.
+    // In the widget, only show grab cursor in pan mode.
+    const canPan = mode === undefined || mode === 'pan';
+    const cursorClass = canPan
+        ? 'cursor-grab active:cursor-grabbing'
+        : 'cursor-default';
+
     return (
         <div
-            className="relative overflow-hidden bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800"
+            className={`relative overflow-hidden bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 ${cursorClass}`}
             style={{
                 width: '100%',
                 height: '100%',
-                cursor: 'grab',
                 touchAction: 'none',
                 overscrollBehavior: 'contain',
             }}
