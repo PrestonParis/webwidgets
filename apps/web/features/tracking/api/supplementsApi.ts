@@ -18,8 +18,10 @@ function toSupplement(row: DbSupplementRow): Supplement {
     };
 }
 
-export async function fetchSupplements(): Promise<Supplement[]> {
-    const res = await fetch('/api/supplements');
+export async function fetchSupplements(
+    signal?: AbortSignal,
+): Promise<Supplement[]> {
+    const res = await fetch('/api/supplements', { signal });
     if (!res.ok) return [];
     const data = (await res.json()) as { supplements: DbSupplementRow[] };
     return (data.supplements ?? []).map(toSupplement);
