@@ -68,11 +68,14 @@ export async function POST(req: Request): Promise<Response> {
         const hours = RANGE_HOURS[range] ?? 168;
         const since = new Date(Date.now() - hours * 3_600_000).toISOString();
 
-        const events = await listActivityEvents(supabase, userId, {
+        const options: { limit: number; since: string; archived?: boolean } = {
             limit: 100,
             since,
-            archived: body.includeArchived ? undefined : false,
-        });
+        };
+        if (!body.includeArchived) {
+            options.archived = false;
+        }
+        const events = await listActivityEvents(supabase, userId, options);
 
         if (events.length === 0) {
             return NextResponse.json({
