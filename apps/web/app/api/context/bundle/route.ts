@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { buildContextBundle } from '@/features/context/services/contextBundleService';
+import type { ContextBundleOptions } from '@/features/context/services/contextBundleService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 const bodySchema = z.object({
@@ -15,6 +16,21 @@ const bodySchema = z.object({
     nodeTypes: z.array(z.string()).optional(),
     edgeKinds: z.array(z.string()).optional(),
 });
+
+function cleanBundleOptions(
+    data: z.infer<typeof bodySchema>,
+): ContextBundleOptions {
+    return {
+        ...(data.query !== undefined ? { query: data.query } : {}),
+        ...(data.consumer !== undefined ? { consumer: data.consumer } : {}),
+        ...(data.maxNodes !== undefined ? { maxNodes: data.maxNodes } : {}),
+        ...(data.maxPromptChars !== undefined
+            ? { maxPromptChars: data.maxPromptChars }
+            : {}),
+        ...(data.nodeTypes !== undefined ? { nodeTypes: data.nodeTypes } : {}),
+        ...(data.edgeKinds !== undefined ? { edgeKinds: data.edgeKinds } : {}),
+    };
+}
 
 export async function POST(req: Request) {
     try {
@@ -29,7 +45,7 @@ export async function POST(req: Request) {
         const bundle = await buildContextBundle(
             supabase as unknown as SupabaseClient,
             userId,
-            parsed.data,
+            cleanBundleOptions(parsed.data),
         );
         return NextResponse.json({ bundle });
     } catch (err) {

@@ -89,10 +89,7 @@ export function ActivityWidget({
     widgetId = 'widget-activity',
 }: ActivityWidgetProps) {
     const snapshot = useWidgetSnapshot<ActivityWidgetData>(widgetId);
-    const isLoading =
-        !snapshot ||
-        snapshot.status === 'loading' ||
-        snapshot.status === 'skeleton';
+    const isLoading = !snapshot || snapshot.status === 'loading';
     const data =
         snapshot?.status === 'ready'
             ? (snapshot.data as ActivityWidgetData | undefined)

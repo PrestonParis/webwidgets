@@ -100,6 +100,33 @@ function mapEvent(e: {
     };
 }
 
+function calendarContextPayload(
+    event: CalendarEvent,
+    fallbackId?: string,
+): {
+    id: string;
+    summary: string;
+    description?: string | null;
+    start?: string | null;
+    end?: string | null;
+    htmlLink?: string | null;
+    createdByType: 'user';
+} {
+    const start = event.start.dateTime ?? event.start.date;
+    const end = event.end.dateTime ?? event.end.date;
+    return {
+        id: event.id || fallbackId || '',
+        summary: event.summary,
+        ...(event.description !== undefined
+            ? { description: event.description }
+            : {}),
+        ...(start !== undefined ? { start } : {}),
+        ...(end !== undefined ? { end } : {}),
+        ...(event.htmlLink ? { htmlLink: event.htmlLink } : {}),
+        createdByType: 'user',
+    };
+}
+
 // ─── GET — list events ────────────────────────────────────────────────────────
 
 const querySchema = z.object({
@@ -211,7 +238,7 @@ export async function POST(req: Request): Promise<Response> {
         severity: 'info',
         priority: 'normal',
         title: `Calendar event created: ${created.summary}`,
-        body: startLabel || undefined,
+        ...(startLabel ? { body: startLabel } : {}),
         actionUrl: created.htmlLink,
         metadata: {
             eventId: created.id,
@@ -219,15 +246,11 @@ export async function POST(req: Request): Promise<Response> {
             start: startLabel,
         },
     });
-    await ingestCalendarEventContext(supabase, user.id, {
-        id: created.id,
-        summary: created.summary,
-        description: created.description,
-        start: created.start.dateTime ?? created.start.date,
-        end: created.end.dateTime ?? created.end.date,
-        htmlLink: created.htmlLink,
-        createdByType: 'user',
-    }).catch(() => undefined);
+    await ingestCalendarEventContext(
+        supabase,
+        user.id,
+        calendarContextPayload(created),
+    ).catch(() => undefined);
 
     return NextResponse.json(created, { status: 201 });
 }
@@ -306,15 +329,11 @@ export async function PATCH(req: Request): Promise<Response> {
         actionUrl: updated.htmlLink,
         metadata: { eventId, summary: updated.summary },
     });
-    await ingestCalendarEventContext(supabase, user.id, {
-        id: updated.id || eventId,
-        summary: updated.summary,
-        description: updated.description,
-        start: updated.start.dateTime ?? updated.start.date,
-        end: updated.end.dateTime ?? updated.end.date,
-        htmlLink: updated.htmlLink,
-        createdByType: 'user',
-    }).catch(() => undefined);
+    await ingestCalendarEventContext(
+        supabase,
+        user.id,
+        calendarContextPayload(updated, eventId),
+    ).catch(() => undefined);
 
     return NextResponse.json(updated);
 }

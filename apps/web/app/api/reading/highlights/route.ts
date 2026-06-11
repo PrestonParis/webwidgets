@@ -85,7 +85,7 @@ export async function POST(req: Request) {
             severity: 'info',
             priority: 'low',
             title: 'Highlight created',
-            body: snippet || undefined,
+            ...(snippet ? { body: snippet } : {}),
             actionUrl: `/documents/${body.documentId}`,
             metadata: {
                 documentId: body.documentId,

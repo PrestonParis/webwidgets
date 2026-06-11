@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import {
     getContextPermissions,
     upsertContextPermissions,
@@ -38,7 +39,7 @@ export async function PUT(req: Request) {
         const permissions = await upsertContextPermissions(
             supabase as unknown as SupabaseClient,
             userId,
-            parsed.data,
+            omitUndefined(parsed.data),
         );
         return NextResponse.json({ permissions });
     } catch (err) {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     createFinanceAccountForUser,
@@ -45,25 +46,28 @@ export async function POST(req: Request) {
     });
 
     const acc = account as { id?: string; name?: string; type?: string };
-    await publishActivityEventSafe(supabase, {
-        userId,
-        source: 'finance',
-        eventType: 'finance.account_created',
-        sourceId: acc.id,
-        sourceTable: 'finance_accounts',
-        category: 'data',
-        severity: 'info',
-        priority: 'low',
-        title: `Finance account added: ${parsed.data.name}`,
-        body: `${parsed.data.type} · ${parsed.data.currency}`,
-        actionUrl: '/finance',
-        metadata: {
-            accountName: parsed.data.name,
-            accountType: parsed.data.type,
-            currency: parsed.data.currency,
-            institution: parsed.data.institution,
-        },
-    });
+    await publishActivityEventSafe(
+        supabase,
+        omitUndefined({
+            userId,
+            source: 'finance',
+            eventType: 'finance.account_created',
+            sourceId: acc.id,
+            sourceTable: 'finance_accounts',
+            category: 'data',
+            severity: 'info',
+            priority: 'low',
+            title: `Finance account added: ${parsed.data.name}`,
+            body: `${parsed.data.type} · ${parsed.data.currency}`,
+            actionUrl: '/finance',
+            metadata: {
+                accountName: parsed.data.name,
+                accountType: parsed.data.type,
+                currency: parsed.data.currency,
+                institution: parsed.data.institution,
+            },
+        }),
+    );
 
     return NextResponse.json(account);
 }
