@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     ReadingProvider,
     ReadingProviderCapabilities,
@@ -31,7 +32,7 @@ async function apiBible<T>(
     params?: Record<string, string>,
 ): Promise<T> {
     const qs = new URLSearchParams({ path, ...params });
-    const res = await fetch(`/api/bible?${qs.toString()}`);
+    const res = await apiRouteFetch(`/api/bible?${qs.toString()}`);
     if (!res.ok) throw new Error(`Bible API error ${res.status}: ${path}`);
     return res.json() as Promise<T>;
 }

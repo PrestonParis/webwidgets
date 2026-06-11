@@ -241,7 +241,7 @@ export const supportedConversionMatrix: SupportedConversion[] = [
     }),
 
     // ── Image conversions (worker-images) ─────────────────────────────────
-    // TODO: HEIC support is a future addition — requires libheif with decoder support
+    // Future: HEIC support requires libheif with decoder support.
     {
         kind: 'image',
         sourceExtension: 'png',

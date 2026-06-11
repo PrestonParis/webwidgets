@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 
 export interface SavedWidget {
@@ -17,7 +18,7 @@ export interface SavedWidget {
 export async function saveCustomWidget(
     definition: Partial<SynthesizedWidgetDefinition>,
 ): Promise<SavedWidget> {
-    const res = await fetch('/api/widget-builder', {
+    const res = await apiRouteFetch('/api/widget-builder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -36,7 +37,7 @@ export async function saveCustomWidget(
 }
 
 export async function listCustomWidgets(): Promise<SavedWidget[]> {
-    const res = await fetch('/api/widget-builder');
+    const res = await apiRouteFetch('/api/widget-builder');
     if (!res.ok) throw new Error('Failed to load widgets');
     const { widgets } = (await res.json()) as { widgets: SavedWidget[] };
     return widgets;
@@ -46,7 +47,7 @@ export async function updateCustomWidget(
     id: string,
     patch: Partial<SynthesizedWidgetDefinition>,
 ): Promise<SavedWidget> {
-    const res = await fetch(`/api/widget-builder/${id}`, {
+    const res = await apiRouteFetch(`/api/widget-builder/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ definition: patch }),
@@ -57,13 +58,13 @@ export async function updateCustomWidget(
 }
 
 export async function deleteCustomWidget(id: string): Promise<void> {
-    await fetch(`/api/widget-builder/${id}`, { method: 'DELETE' });
+    await apiRouteFetch(`/api/widget-builder/${id}`, { method: 'DELETE' });
 }
 
 export async function fetchWidgetData(
     id: string,
 ): Promise<Record<string, unknown[]>> {
-    const res = await fetch(`/api/widget-builder/${id}/data`);
+    const res = await apiRouteFetch(`/api/widget-builder/${id}/data`);
     if (!res.ok) throw new Error('Failed to fetch widget data');
     const { data } = (await res.json()) as { data: Record<string, unknown[]> };
     return data;

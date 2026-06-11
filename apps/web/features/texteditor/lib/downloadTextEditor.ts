@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 export const textEditorDownloadFormats = [
     { value: 'docx', label: 'DOCX' },
     { value: 'pdf', label: 'PDF' },
@@ -21,7 +22,7 @@ export async function downloadTextEditorDocument({
     html: string;
     title: string;
 }) {
-    const response = await fetch('/api/texteditor/download-as', {
+    const response = await apiRouteFetch('/api/texteditor/download-as', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format, html, title }),

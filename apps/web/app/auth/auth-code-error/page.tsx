@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LockKeyhole } from 'lucide-react';
 import { LogoIsometric } from '@/icons/LogoIsometric';
 
 export default function AuthCodeError() {
@@ -37,33 +38,11 @@ export default function AuthCodeError() {
                 {/* Lock icon */}
                 <div className="flex justify-center mb-6">
                     <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                        <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#ef4444"
-                            strokeWidth="1.75"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <rect
-                                x="3"
-                                y="11"
-                                width="18"
-                                height="11"
-                                rx="2"
-                                ry="2"
-                            />
-                            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                            <line
-                                x1="12"
-                                y1="16"
-                                x2="12"
-                                y2="16"
-                                strokeWidth="3"
-                            />
-                        </svg>
+                        <LockKeyhole
+                            size={24}
+                            color="#ef4444"
+                            strokeWidth={1.75}
+                        />
                     </div>
                 </div>
 

@@ -88,7 +88,7 @@ export async function deleteObjects(objectKeys: string[]): Promise<void> {
 }
 
 // Deletes both the input upload and the output result for a completed/failed job.
-// TODO: Wire into a periodic cleanup routine (e.g. a cron job or BullMQ scheduled job)
+// Future: wire into a periodic cleanup routine (e.g. a cron job or BullMQ scheduled job)
 // that calls this for jobs older than the configured retention period.
 export async function deleteJobObjects(
     inputObjectKey: string,

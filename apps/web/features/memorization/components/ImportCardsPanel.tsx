@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useMemo, useRef, useState } from 'react';
 import { FileText, Sparkles, Upload } from 'lucide-react';
 import Papa from 'papaparse';
@@ -107,7 +108,7 @@ export function ImportCardsPanel({
         if (!text.trim()) return;
         setBusy(true);
         try {
-            const res = await fetch('/api/ml/generate-memory-cards', {
+            const res = await apiRouteFetch('/api/ml/generate-memory-cards', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, source: 'notes' }),

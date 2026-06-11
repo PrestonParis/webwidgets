@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -81,7 +82,7 @@ export function DevApiTester({ data }: { data: DeveloperWorkspaceSnapshot }) {
                 headers: parsePairs(headerText),
                 query: parsePairs(queryText),
             };
-            const res = await fetch('/api/developer/api-test', {
+            const res = await apiRouteFetch('/api/developer/api-test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

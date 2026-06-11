@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 // Write operations route through /api/tracking/entries so activity events are
 // published server-side. Read operations (fetchEntries) retain direct Supabase
 // access for widget performance. migrateFromLocalStorage remains direct since
@@ -56,7 +57,7 @@ export async function addEntry(
     _userId: string,
     entry: BaseTrackingEntry,
 ): Promise<TrackingEntry> {
-    const res = await fetch('/api/tracking/entries', {
+    const res = await apiRouteFetch('/api/tracking/entries', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +85,7 @@ export async function updateEntry(
     id: string,
     updates: Partial<BaseTrackingEntry>,
 ): Promise<TrackingEntry> {
-    const res = await fetch(`/api/tracking/entries/${id}`, {
+    const res = await apiRouteFetch(`/api/tracking/entries/${id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -113,7 +114,7 @@ export async function updateEntry(
 }
 
 export async function deleteEntry(_userId: string, id: string): Promise<void> {
-    const res = await fetch(`/api/tracking/entries/${id}`, {
+    const res = await apiRouteFetch(`/api/tracking/entries/${id}`, {
         method: 'DELETE',
         credentials: 'include',
     });

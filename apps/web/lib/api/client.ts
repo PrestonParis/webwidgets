@@ -1,3 +1,10 @@
+export function apiRouteFetch(
+    input: `/api/${string}`,
+    init?: RequestInit,
+): Promise<Response> {
+    return fetch(input, init);
+}
+
 export async function chessGameFetch<T>(
     url: string,
     options?: RequestInit,

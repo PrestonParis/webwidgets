@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNewsFeed } from '@/features/news/api/newsClient';
@@ -19,7 +20,7 @@ async function applyMlRanking(
     userTopics: string[],
 ): Promise<RankedFeedItem[]> {
     try {
-        const res = await fetch('/api/ml/rank-news', {
+        const res = await apiRouteFetch('/api/ml/rank-news', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
