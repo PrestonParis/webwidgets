@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useMemo, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import {
@@ -52,7 +53,7 @@ export function FileAiActionFlow({
 
     useEffect(() => {
         let mounted = true;
-        fetch('/api/import-export/capabilities')
+        apiRouteFetch('/api/import-export/capabilities')
             .then((res) => res.json())
             .then((json: { capabilities?: Capability[] }) => {
                 if (!mounted) return;
@@ -86,7 +87,7 @@ export function FileAiActionFlow({
         setError(null);
         setResult(null);
         try {
-            const res = await fetch('/api/uploads/ai-actions', {
+            const res = await apiRouteFetch('/api/uploads/ai-actions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

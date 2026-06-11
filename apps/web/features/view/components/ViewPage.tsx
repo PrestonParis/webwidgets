@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
@@ -21,7 +22,7 @@ import type {
 } from '@/features/view/types/viewFile';
 
 async function fetchFolders(): Promise<ViewFolder[]> {
-    const res = await fetch('/api/uploads/folders');
+    const res = await apiRouteFetch('/api/uploads/folders');
     if (!res.ok) return [];
     const data = (await res.json()) as { folders?: ViewFolder[] };
     return data.folders ?? [];
@@ -68,7 +69,7 @@ export function ViewPage() {
     };
 
     const handleCreateFolder = async (name: string) => {
-        await fetch('/api/uploads/folders', {
+        await apiRouteFetch('/api/uploads/folders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name }),

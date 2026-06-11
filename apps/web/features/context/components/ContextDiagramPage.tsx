@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useMemo, useState } from 'react';
 import {
     DatabaseZap,
@@ -128,7 +129,7 @@ export default function ContextDiagramPage() {
             .catch(() => setCoverage(null));
 
         // Fetch initial diagnostics
-        void fetch('/api/context/graph?diagnostics=true')
+        void apiRouteFetch('/api/context/graph?diagnostics=true')
             .then((res) => res.json())
             .then((data) => setDiagnostics(data.diagnostics))
             .catch(() => setDiagnostics(null));
@@ -149,7 +150,7 @@ export default function ContextDiagramPage() {
 
             // Fetch diagnostics
             try {
-                const diagRes = await fetch(
+                const diagRes = await apiRouteFetch(
                     '/api/context/graph?diagnostics=true',
                 );
                 if (diagRes.ok) {
@@ -312,7 +313,7 @@ export default function ContextDiagramPage() {
                             onClick={() => {
                                 setShowDiagnostics((open) => !open);
                                 if (!showDiagnostics) {
-                                    void fetch(
+                                    void apiRouteFetch(
                                         '/api/context/graph?diagnostics=true',
                                     )
                                         .then((res) => res.json())

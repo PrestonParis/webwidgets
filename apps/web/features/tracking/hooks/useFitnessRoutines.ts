@@ -1,4 +1,5 @@
 'use client';
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 
 export interface FitnessRoutine {
@@ -25,7 +26,7 @@ export function useFitnessRoutines() {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/fitness/routines');
+            const res = await apiRouteFetch('/api/fitness/routines');
             if (!res.ok) return;
             const { routines: data } = (await res.json()) as {
                 routines: FitnessRoutine[];
@@ -44,7 +45,7 @@ export function useFitnessRoutines() {
 
     const create = useCallback(
         async (routine: Omit<FitnessRoutine, 'id' | 'created_at'>) => {
-            const res = await fetch('/api/fitness/routines', {
+            const res = await apiRouteFetch('/api/fitness/routines', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(routine),
@@ -60,7 +61,9 @@ export function useFitnessRoutines() {
     );
 
     const remove = useCallback(async (id: string) => {
-        await fetch(`/api/fitness/routines/${id}`, { method: 'DELETE' });
+        await apiRouteFetch(`/api/fitness/routines/${id}`, {
+            method: 'DELETE',
+        });
         setRoutines((prev) => prev.filter((r) => r.id !== id));
     }, []);
 

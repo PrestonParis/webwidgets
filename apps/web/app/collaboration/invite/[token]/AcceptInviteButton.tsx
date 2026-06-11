@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/features/ui/components/Button';
@@ -17,7 +18,7 @@ export function AcceptInviteButton({ token }: AcceptInviteButtonProps) {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/collaboration/invites/${token}/accept`,
                 {
                     method: 'POST',

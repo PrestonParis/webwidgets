@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import type {
     TrackingGoal,
@@ -23,7 +24,7 @@ export function useTrackingGoals(category?: string): {
     const reload = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/tracking/goals');
+            const res = await apiRouteFetch('/api/tracking/goals');
             if (!res.ok) throw new Error('Failed to fetch goals');
             const { goals } = (await res.json()) as { goals: TrackingGoal[] };
             setAllGoals(goals ?? []);
@@ -48,7 +49,7 @@ export function useTrackingGoals(category?: string): {
             targetValue: number;
         }) => {
             if (!category) return;
-            await fetch('/api/tracking/goals', {
+            await apiRouteFetch('/api/tracking/goals', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ category, ...g }),
@@ -60,9 +61,12 @@ export function useTrackingGoals(category?: string): {
 
     const remove = useCallback(async () => {
         if (!category) return;
-        await fetch(`/api/tracking/goals/${encodeURIComponent(category)}`, {
-            method: 'DELETE',
-        });
+        await apiRouteFetch(
+            `/api/tracking/goals/${encodeURIComponent(category)}`,
+            {
+                method: 'DELETE',
+            },
+        );
         await reload();
     }, [category, reload]);
 

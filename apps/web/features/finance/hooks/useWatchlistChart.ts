@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import type { WatchlistReading } from '@/features/finance/types/watchlist';
 
@@ -11,7 +12,7 @@ export function useWatchlistChart(itemId: string | null) {
         if (!itemId) return;
         setLoading(true);
         try {
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/finance/watchlist/${itemId}/readings`,
             );
             if (!res.ok) return;

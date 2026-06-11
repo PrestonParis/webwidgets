@@ -1,12 +1,13 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useQuery } from '@tanstack/react-query';
 
 export function useActivityUnreadCount() {
     return useQuery({
         queryKey: ['activity-unread-count'],
         queryFn: async (): Promise<number> => {
-            const res = await fetch('/api/activity/unread-count', {
+            const res = await apiRouteFetch('/api/activity/unread-count', {
                 credentials: 'include',
             });
             // Fail silently — unread badge should never break layout

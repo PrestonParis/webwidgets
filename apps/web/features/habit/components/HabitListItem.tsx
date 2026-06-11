@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, X } from 'lucide-react';
+import { Clock, Flame, X } from 'lucide-react';
 import type { HabitListItemProps } from '@/features/habit/types/habit';
 import DatePicker from '@/features/ui/datepicker/DatePicker';
 import { cn } from '@/lib/utils/utils';
@@ -92,7 +92,8 @@ export default function HabitListItem({
 
                 {streak > 0 && (
                     <span className="text-[10px] font-semibold text-orange-500 dark:text-orange-400 flex items-center gap-0.5 shrink-0">
-                        🔥{streak}
+                        <Flame className="h-3 w-3" />
+                        {streak}
                     </span>
                 )}
                 {bestStreak !== undefined && bestStreak > streak && (
@@ -136,6 +137,7 @@ export default function HabitListItem({
                         }}
                         onCancel={() => setEditingTime(false)}
                         saveLabel="Save log time"
+                        accentColor="#7c3aed"
                     />
                 </div>
             )}

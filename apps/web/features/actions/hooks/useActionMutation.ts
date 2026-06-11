@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import superjson, { type SuperJSONResult } from 'superjson';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ActionRequestEnvelope } from '@/features/actions/lib/schemas/actionPayloadSchemas';
@@ -9,7 +10,7 @@ import type { ActionDefinitionMetadata } from '@/features/actions/lib/schemas/de
 async function invokeAction(
     envelope: ActionRequestEnvelope,
 ): Promise<ActionEngineResult> {
-    const response = await fetch('/api/actions/execute', {
+    const response = await apiRouteFetch('/api/actions/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(superjson.serialize(envelope)),
@@ -29,7 +30,7 @@ async function invokeAction(
 async function fetchActionMetadata(
     query = '',
 ): Promise<ActionDefinitionMetadata[]> {
-    const response = await fetch(
+    const response = await apiRouteFetch(
         `/api/actions?query=${encodeURIComponent(query)}`,
     );
     if (!response.ok) throw new Error('Failed to load actions');

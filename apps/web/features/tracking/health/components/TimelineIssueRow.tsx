@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronDown } from 'lucide-react';
 import {
     STATUS_STYLES,
     ISSUE_TYPES,
@@ -8,35 +9,8 @@ import {
     type BodyIssueHistory,
     type IssueStatus,
 } from '@/features/tracking/health/lib/bodyIssues';
+import { MiniSparkline } from '@/features/tracking/health/icons/HealthSparklines';
 import { BODY_REGION_MAP } from '@/features/tracking/health/lib/bodyRegions';
-
-function MiniSparkline({ entries }: { entries: BodyIssueHistory[] }) {
-    if (entries.length < 2) return null;
-    const W = 40;
-    const H = 12;
-    const pts = entries.map(
-        (e, i) =>
-            `${(i / (entries.length - 1)) * W},${H - (e.severity / 10) * H}`,
-    );
-    return (
-        <svg
-            width={W}
-            height={H}
-            viewBox={`0 0 ${W} ${H}`}
-            aria-hidden
-            className="shrink-0"
-        >
-            <polyline
-                points={pts.join(' ')}
-                fill="none"
-                stroke="#6366f1"
-                strokeWidth={1.5}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-            />
-        </svg>
-    );
-}
 
 interface TimelineIssueRowProps {
     issue: BodyIssue;
@@ -94,20 +68,10 @@ export function TimelineIssueRow({
                     >
                         {issue.status}
                     </span>
-                    <svg
+                    <ChevronDown
                         className={`w-3 h-3 text-gray-400 dark:text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
                         aria-hidden
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                        />
-                    </svg>
+                    />
                 </div>
             </button>
             {isExpanded && (

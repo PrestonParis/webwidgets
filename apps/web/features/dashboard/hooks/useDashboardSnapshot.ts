@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { screenSnapshotSchema } from '@/features/widgets/schemas/snapshotSchemas';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
@@ -80,7 +81,7 @@ export function useDashboardSnapshot(
             const existing = inflightSnapshots.get(requestKey);
             const promise =
                 existing ??
-                fetch('/api/dashboard/snapshot', {
+                apiRouteFetch('/api/dashboard/snapshot', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ widgets }),

@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
@@ -56,7 +57,7 @@ export function useContextGraph(): UseContextGraphReturn {
             // DB is empty, try adapter endpoint as fallback
             console.log('Context tables empty, trying adapter endpoint...');
             try {
-                const adapterRes = await fetch(
+                const adapterRes = await apiRouteFetch(
                     '/api/context/graph/from-adapters',
                 );
                 if (adapterRes.ok) {

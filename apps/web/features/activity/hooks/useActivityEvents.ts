@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
     ActivityEvent,
@@ -35,7 +36,7 @@ export function useActivityEvents(opts: ActivityQueryOptions = {}) {
         queryKey,
         queryFn: async () => {
             const qs = buildQueryString(opts);
-            const response = await fetch(`/api/activity${qs}`, {
+            const response = await apiRouteFetch(`/api/activity${qs}`, {
                 credentials: 'include',
             });
             if (!response.ok) {
@@ -66,7 +67,7 @@ export function useActivityBulkMutation() {
                       ids: string[];
                   },
         ) => {
-            const response = await fetch('/api/activity/bulk', {
+            const response = await apiRouteFetch('/api/activity/bulk', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -102,7 +103,7 @@ export function useActivityEventMutation() {
             id: string;
             action: 'read' | 'unread' | 'archive' | 'unarchive';
         }) => {
-            const response = await fetch(`/api/activity/${id}`, {
+            const response = await apiRouteFetch(`/api/activity/${id}`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },

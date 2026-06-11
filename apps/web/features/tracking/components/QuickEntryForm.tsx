@@ -176,6 +176,7 @@ export function QuickEntryForm({
                                     setShowDatePicker(false);
                                 }}
                                 onCancel={() => setShowDatePicker(false)}
+                                accentColor="#6366f1"
                             />
                         </div>
                     </div>

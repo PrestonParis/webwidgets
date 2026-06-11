@@ -1,4 +1,5 @@
 'use client';
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 
 interface Memory {
@@ -14,7 +15,7 @@ export function OnThisDayPanel() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/knowledge/on-this-day')
+        apiRouteFetch('/api/knowledge/on-this-day')
             .then((r) => r.json())
             .then(({ memories: m }: { memories: Memory[] }) =>
                 setMemories(m ?? []),

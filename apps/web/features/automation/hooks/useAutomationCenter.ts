@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
@@ -390,7 +391,7 @@ export function useAutomationCenter() {
     // Workstream CRUD operations
     const createWorkstream = useCallback(
         async (data: Partial<WorkstreamRecord> & { title: string }) => {
-            const res = await fetch('/api/command/workstreams', {
+            const res = await apiRouteFetch('/api/command/workstreams', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -408,7 +409,7 @@ export function useAutomationCenter() {
 
     const updateWorkstream = useCallback(
         async (id: string, updates: Record<string, unknown>) => {
-            const res = await fetch(`/api/command/workstreams/${id}`, {
+            const res = await apiRouteFetch(`/api/command/workstreams/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updates),
@@ -425,7 +426,9 @@ export function useAutomationCenter() {
     );
 
     const deleteWorkstream = useCallback(async (id: string) => {
-        await fetch(`/api/command/workstreams/${id}`, { method: 'DELETE' });
+        await apiRouteFetch(`/api/command/workstreams/${id}`, {
+            method: 'DELETE',
+        });
         clearCachedJson('/api/command/workstreams');
         setWorkstreams((prev) => prev.filter((w) => w.id !== id));
     }, []);

@@ -24,7 +24,7 @@ const MONTH_NAMES = [
     'December',
 ];
 const selectCls =
-    'h-8 px-2 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 outline-none focus:border-purple-400 cursor-pointer appearance-none text-center';
+    'h-8 px-2 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 outline-none focus:border-(--dp-accent) cursor-pointer appearance-none text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
 function TimeSelector({
     hour,
@@ -91,7 +91,7 @@ function TimeSelector({
             />
             <button
                 onClick={() => setAmpm(ampm === 'AM' ? 'PM' : 'AM')}
-                className="h-8 px-3 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
+                className="h-8 px-3 text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 rounded-lg text-gray-700 dark:text-zinc-300 hover:bg-(--dp-accent)/10 hover:text-(--dp-accent) transition-colors font-medium"
             >
                 {ampm}
             </button>
@@ -107,6 +107,7 @@ export default function DatePicker({
     showQuickActions = true,
     className,
     saveLabel = 'Save date',
+    accentColor = '#9333ea',
 }: DatePickerProps) {
     const state = useDatePickerState(value);
     const today = new Date();
@@ -133,6 +134,7 @@ export default function DatePicker({
                 'bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-lg w-72',
                 className,
             )}
+            style={{ '--dp-accent': accentColor } as React.CSSProperties}
         >
             <CalendarHeader
                 label={monthLabel}

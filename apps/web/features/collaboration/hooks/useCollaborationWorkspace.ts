@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CollaborationFilters } from '../types/collaboration';
 import { cachedJson, clearCachedJson } from '@/lib/api/requestCache';
@@ -73,7 +74,7 @@ export function useCollaborationWorkspace() {
             scope?: string;
             description?: string;
         }) => {
-            const res = await fetch('/api/collaboration/workspaces', {
+            const res = await apiRouteFetch('/api/collaboration/workspaces', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -89,7 +90,7 @@ export function useCollaborationWorkspace() {
     );
 
     const deleteWorkspace = useCallback(async (id: string) => {
-        await fetch(`/api/collaboration/workspaces/${id}`, {
+        await apiRouteFetch(`/api/collaboration/workspaces/${id}`, {
             method: 'DELETE',
         });
         clearCachedJson('/api/collaboration/workspaces');
@@ -105,7 +106,7 @@ export function useCollaborationWorkspace() {
             due?: string;
             workspace_id?: string;
         }) => {
-            const res = await fetch('/api/collaboration/handoffs', {
+            const res = await apiRouteFetch('/api/collaboration/handoffs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -123,11 +124,14 @@ export function useCollaborationWorkspace() {
         async (id: string) => {
             const handoff = handoffs.find((h) => h.id === id);
             if (!handoff) return;
-            const res = await fetch(`/api/collaboration/handoffs/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ complete: !handoff.complete }),
-            });
+            const res = await apiRouteFetch(
+                `/api/collaboration/handoffs/${id}`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ complete: !handoff.complete }),
+                },
+            );
             if (!res.ok) return;
             clearCachedJson('/api/collaboration/handoffs');
             const updated = (await res.json()) as HandoffRecord;
@@ -137,7 +141,9 @@ export function useCollaborationWorkspace() {
     );
 
     const deleteHandoff = useCallback(async (id: string) => {
-        await fetch(`/api/collaboration/handoffs/${id}`, { method: 'DELETE' });
+        await apiRouteFetch(`/api/collaboration/handoffs/${id}`, {
+            method: 'DELETE',
+        });
         clearCachedJson('/api/collaboration/handoffs');
         setHandoffs((prev) => prev.filter((h) => h.id !== id));
     }, []);

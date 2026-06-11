@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useMemo, useState } from 'react';
 import { Sparkles, Download, Archive, Loader2 } from 'lucide-react';
 import { useArtifacts } from '@/features/artifacts/hooks/useArtifacts';
@@ -229,7 +230,7 @@ function ArtifactConversionPanel({ artifact }: { artifact: Artifact }) {
 
     useEffect(() => {
         let mounted = true;
-        fetch('/api/conversion/v1/conversions')
+        apiRouteFetch('/api/conversion/v1/conversions')
             .then((response) => response.json())
             .then((json: { conversions?: SupportedConversion[] }) => {
                 if (!mounted) return;
@@ -253,7 +254,7 @@ function ArtifactConversionPanel({ artifact }: { artifact: Artifact }) {
         if (!jobId) return;
         if (job?.status === 'completed' || job?.status === 'failed') return;
         const interval = window.setInterval(() => {
-            fetch(`/api/conversion/v1/jobs/${jobId}`)
+            apiRouteFetch(`/api/conversion/v1/jobs/${jobId}`)
                 .then((response) => response.json())
                 .then((nextJob: ConversionJob) => setJob(nextJob))
                 .catch(() => undefined);
@@ -263,7 +264,7 @@ function ArtifactConversionPanel({ artifact }: { artifact: Artifact }) {
 
     useEffect(() => {
         if (!jobId || job?.status !== 'completed' || downloadUrl) return;
-        fetch(`/api/conversion/v1/jobs/${jobId}/download`)
+        apiRouteFetch(`/api/conversion/v1/jobs/${jobId}/download`)
             .then((response) => response.json())
             .then((json: { downloadUrl?: string }) => {
                 setDownloadUrl(json.downloadUrl ?? null);
@@ -279,7 +280,7 @@ function ArtifactConversionPanel({ artifact }: { artifact: Artifact }) {
         setJob(null);
         setDownloadUrl(null);
         try {
-            const response = await fetch(
+            const response = await apiRouteFetch(
                 `/api/artifacts/${artifact.id}/convert`,
                 {
                     method: 'POST',

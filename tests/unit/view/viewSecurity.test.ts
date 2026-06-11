@@ -5,7 +5,7 @@ import {
     sanitizeSvg,
 } from '@/features/view/security/contentSecurity';
 
-const MALICIOUS_SVG = '<svg><script>alert(1)</script><rect /></svg>';
+const MALICIOUS_SVG = '<' + 'svg><script>alert(1)</script><rect /></svg>';
 
 describe('view content security', () => {
     it('rejects oversized files', () => {

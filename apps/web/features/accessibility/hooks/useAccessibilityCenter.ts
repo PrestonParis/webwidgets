@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useMemo, useState } from 'react';
 import {
     accessibilityAudits,
@@ -165,7 +166,7 @@ export function useAccessibilityCenter() {
         // Best-effort API sync for future server-side persistence.
         setSaving(true);
         try {
-            await fetch('/api/accessibility/settings', {
+            await apiRouteFetch('/api/accessibility/settings', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
