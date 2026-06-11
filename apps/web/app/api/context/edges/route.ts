@@ -13,13 +13,16 @@ export async function GET(req: Request) {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { searchParams } = new URL(req.url);
+        const fromEntityId = searchParams.get('from');
+        const toEntityId = searchParams.get('to');
+        const kinds = searchParams.getAll('kind');
         const edges = await listEdges(
             supabase as unknown as SupabaseClient,
             userId,
             {
-                fromEntityId: searchParams.get('from') ?? undefined,
-                toEntityId: searchParams.get('to') ?? undefined,
-                kinds: searchParams.getAll('kind'),
+                ...(fromEntityId ? { fromEntityId } : {}),
+                ...(toEntityId ? { toEntityId } : {}),
+                ...(kinds.length > 0 ? { kinds } : {}),
             },
         );
         return NextResponse.json({ edges });

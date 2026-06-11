@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import {
     BarChartComponent,
@@ -123,7 +124,8 @@ function renderComponent(
         case 'table': {
             if (data.length === 0)
                 return <p className="text-xs text-zinc-500">No data</p>;
-            const cols = Object.keys(data[0]).slice(0, 4);
+            const firstRow = data[0] ?? {};
+            const cols = Object.keys(firstRow).slice(0, 4);
             return (
                 <div className="overflow-x-auto">
                     <table className="w-full text-xs">
@@ -229,8 +231,9 @@ export function SynthesizedWidgetRenderer({
     liveData,
 }: SynthesizedWidgetRendererProps) {
     const primarySource = definition.dataSources[0];
+    const liveRows = primarySource ? liveData?.[primarySource.id] : undefined;
     const data: Record<string, unknown>[] =
-        (liveData?.[primarySource?.id] as Record<string, unknown>[]) ??
+        (liveRows as Record<string, unknown>[] | undefined) ??
         (primarySource ? getSampleData(primarySource.schema) : []);
 
     if (definition.components.length === 0) {

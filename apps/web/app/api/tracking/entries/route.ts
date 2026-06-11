@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
@@ -84,23 +85,26 @@ export async function POST(req: Request): Promise<Response> {
         const valueLabel = getValueLabel(body.category, meta);
         const title = `${formatCategory(body.category)} logged${valueLabel}`;
 
-        await publishActivityEventSafe(supabase, {
-            userId,
-            source: 'tracking',
-            eventType: 'tracking.entry_created',
-            sourceId: (data as { id?: string }).id,
-            sourceTable: 'tracking_entries',
-            category: 'data',
-            severity: 'info',
-            priority: 'low',
-            title,
-            actionUrl: '/tracking',
-            metadata: {
-                trackingCategory: body.category,
-                entryDate: body.entryDate,
-                metadataSummary: Object.keys(meta).slice(0, 5),
-            },
-        });
+        await publishActivityEventSafe(
+            supabase,
+            omitUndefined({
+                userId,
+                source: 'tracking',
+                eventType: 'tracking.entry_created',
+                sourceId: (data as { id?: string }).id,
+                sourceTable: 'tracking_entries',
+                category: 'data',
+                severity: 'info',
+                priority: 'low',
+                title,
+                actionUrl: '/tracking',
+                metadata: {
+                    trackingCategory: body.category,
+                    entryDate: body.entryDate,
+                    metadataSummary: Object.keys(meta).slice(0, 5),
+                },
+            }),
+        );
 
         return NextResponse.json(data, { status: 201 });
     } catch (err) {

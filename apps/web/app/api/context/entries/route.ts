@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     listEntries,
@@ -64,26 +65,28 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const legacy = body.data as unknown as UpsertEntryPayload;
-        const canonical = contextNodeInputSchema.parse({
-            entityId: legacy.entityId,
-            type: legacy.entryType,
-            label: legacy.label,
-            summary: legacy.summary,
-            data: legacy.data,
-            tags: legacy.tags,
-            sourceType: legacy.sourceType,
-            sourceId: legacy.sourceId,
-            sourceTable: legacy.sourceTable,
-            sourceCollection: legacy.sourceCollection,
-            createdBy: legacy.createdBy,
-            createdByType: legacy.createdByType,
-            confidence: legacy.confidence,
-            status: legacy.status,
-            visibility: legacy.visibility,
-            permissions: legacy.permissions,
-            lastVerifiedAt: legacy.lastVerifiedAt,
-            metadata: legacy.metadata,
-        });
+        const canonical = contextNodeInputSchema.parse(
+            omitUndefined({
+                entityId: legacy.entityId,
+                type: legacy.entryType,
+                label: legacy.label,
+                summary: legacy.summary,
+                data: legacy.data,
+                tags: legacy.tags,
+                sourceType: legacy.sourceType,
+                sourceId: legacy.sourceId,
+                sourceTable: legacy.sourceTable,
+                sourceCollection: legacy.sourceCollection,
+                createdBy: legacy.createdBy,
+                createdByType: legacy.createdByType,
+                confidence: legacy.confidence,
+                status: legacy.status,
+                visibility: legacy.visibility,
+                permissions: legacy.permissions,
+                lastVerifiedAt: legacy.lastVerifiedAt,
+                metadata: legacy.metadata,
+            }),
+        );
         const entry = await ingestContextNode(
             supabase as unknown as SupabaseClient,
             userId,
@@ -111,26 +114,28 @@ export async function PUT(req: Request) {
         const nodes = (
             body.data.entries as unknown as UpsertEntryPayload[]
         ).map((entry) =>
-            contextNodeInputSchema.parse({
-                entityId: entry.entityId,
-                type: entry.entryType,
-                label: entry.label,
-                summary: entry.summary,
-                data: entry.data,
-                tags: entry.tags,
-                sourceType: entry.sourceType,
-                sourceId: entry.sourceId,
-                sourceTable: entry.sourceTable,
-                sourceCollection: entry.sourceCollection,
-                createdBy: entry.createdBy,
-                createdByType: entry.createdByType,
-                confidence: entry.confidence,
-                status: entry.status,
-                visibility: entry.visibility,
-                permissions: entry.permissions,
-                lastVerifiedAt: entry.lastVerifiedAt,
-                metadata: entry.metadata,
-            }),
+            contextNodeInputSchema.parse(
+                omitUndefined({
+                    entityId: entry.entityId,
+                    type: entry.entryType,
+                    label: entry.label,
+                    summary: entry.summary,
+                    data: entry.data,
+                    tags: entry.tags,
+                    sourceType: entry.sourceType,
+                    sourceId: entry.sourceId,
+                    sourceTable: entry.sourceTable,
+                    sourceCollection: entry.sourceCollection,
+                    createdBy: entry.createdBy,
+                    createdByType: entry.createdByType,
+                    confidence: entry.confidence,
+                    status: entry.status,
+                    visibility: entry.visibility,
+                    permissions: entry.permissions,
+                    lastVerifiedAt: entry.lastVerifiedAt,
+                    metadata: entry.metadata,
+                }),
+            ),
         );
         await ingestContextNodes(
             supabase as unknown as SupabaseClient,

@@ -9,6 +9,7 @@ import {
 } from '@/features/news/schemas/ingestionSchemas';
 import { createAdminClient } from '@/lib/supabase/adminClient';
 import { publishNewsIngestedEvent } from '@/features/activity/integrations/newsActivityPublisher';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 
 const queueName = 'news-event-ingestion';
 const defaultJobOptions: JobsOptions = {
@@ -96,12 +97,12 @@ export function createNewsWorker() {
                     await publishNewsIngestedEvent(
                         adminSupabase,
                         data.requestedBy,
-                        {
+                        omitUndefined({
                             feedUrl: data.url,
                             feedName: data.providerId,
                             articleCount: rawEvents.length,
                             jobId: job.id,
-                        },
+                        }),
                     );
                 }
 

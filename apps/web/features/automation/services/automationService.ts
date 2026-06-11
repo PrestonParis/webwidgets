@@ -12,6 +12,7 @@ import type {
 } from '@/features/automation/types/automation';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { buildContextBundleForAutomation } from '@/features/context/services/contextBundleService';
 import { ingestAutomationRunContext } from '@/features/context/services/contextProducerService';
 
@@ -82,14 +83,18 @@ export async function logAutomationRun(
         .single();
     if (result.error) throw result.error;
     const run = result.data as unknown;
-    await ingestAutomationRunContext(supabase, userId, {
-        automationConfigId,
-        runId:
-            typeof run === 'object' && run && 'id' in run
-                ? String((run as { id: unknown }).id)
-                : undefined,
-        status,
-    }).catch(() => undefined);
+    await ingestAutomationRunContext(
+        supabase,
+        userId,
+        omitUndefined({
+            automationConfigId,
+            runId:
+                typeof run === 'object' && run && 'id' in run
+                    ? String((run as { id: unknown }).id)
+                    : undefined,
+            status,
+        }),
+    ).catch(() => undefined);
 
     // Publish activity event for terminal statuses
     if (status === 'completed') {

@@ -174,11 +174,9 @@ export default function ContextDiagramWidget({
                                               }
                                             : NOOP
                                     }
-                                    onNodePointerDown={
-                                        widgetMode === 'edit'
-                                            ? onNodePointerDown
-                                            : undefined
-                                    }
+                                    {...(widgetMode === 'edit'
+                                        ? { onNodePointerDown }
+                                        : {})}
                                 />
                             </div>
                         )}

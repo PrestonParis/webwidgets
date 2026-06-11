@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { traverseContextGraph } from '@/features/context/services/contextTraversalService';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -27,7 +28,12 @@ export async function POST(req: Request) {
             supabase as unknown as SupabaseClient,
             userId,
             parsed.data.startEntityId,
-            parsed.data,
+            omitUndefined({
+                maxDepth: parsed.data.maxDepth,
+                direction: parsed.data.direction,
+                nodeTypes: parsed.data.nodeTypes,
+                edgeKinds: parsed.data.edgeKinds,
+            }),
         );
         return NextResponse.json(graph);
     } catch (err) {
