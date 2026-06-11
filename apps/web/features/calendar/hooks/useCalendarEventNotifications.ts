@@ -134,12 +134,19 @@ export function useCalendarEventNotifications() {
     }
 
     useEffect(() => {
-        // Clear cached events at midnight so next day's events are fresh
+        let lastFetchDate = new Date().toISOString().slice(0, 10);
+
+        // Only clear the event cache if the day has changed since last fetch.
+        // Previously this cleared on every visibility change, causing a calendar
+        // API call every time the user alt-tabbed back to the page.
         function onVisibilityChange() {
-            if (document.visibilityState === 'visible') {
+            if (document.visibilityState !== 'visible') return;
+            const today = new Date().toISOString().slice(0, 10);
+            if (today !== lastFetchDate) {
                 eventsRef.current = [];
-                void fetchAndCheck();
+                lastFetchDate = today;
             }
+            void fetchAndCheck();
         }
 
         void fetchAndCheck();

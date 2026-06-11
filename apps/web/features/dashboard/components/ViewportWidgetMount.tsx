@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import {
@@ -31,6 +31,13 @@ export function ViewportWidgetMount({
     const { markWidgetFailed } = useDashboardRuntime();
     const { ref, loaded, visible, canHydrate, status, retry } =
         useDashboardRuntimeWidget({ metadata, eager });
+
+    // Once a widget has been hydrated, keep it mounted even when scrolled out of
+    // view. Toggling canHydrate causes unmount → remount which re-runs all hooks
+    // and triggers fresh API fetches. Use CSS visibility instead.
+    const everHydratedRef = useRef(false);
+    if (canHydrate) everHydratedRef.current = true;
+    const keepMounted = everHydratedRef.current;
 
     const unavailable =
         status === 'failed' || status === 'cooldown' || status === 'disabled';
@@ -63,7 +70,34 @@ export function ViewportWidgetMount({
             data-widget-body-active={canHydrate ? 'true' : 'false'}
             data-widget-runtime-status={status}
         >
-            {canHydrate ? (
+            {keepMounted && !unavailable ? (
+                // Keep widget mounted once hydrated; hide via CSS when offscreen
+                // to avoid unmount → remount cycles that re-trigger all fetch hooks.
+                // visibility:hidden keeps layout dimensions so recharts can measure its container;
+                // display:none collapses to 0x0 and breaks ResponsiveContainer.
+                <div
+                    style={
+                        canHydrate
+                            ? undefined
+                            : {
+                                  visibility: 'hidden',
+                                  pointerEvents: 'none',
+                                  height: 0,
+                                  overflow: 'hidden',
+                              }
+                    }
+                >
+                    <WidgetErrorBoundary
+                        widgetId={widgetId}
+                        label={label}
+                        emoji={emoji}
+                        onFailure={markWidgetFailed}
+                        onRetry={retry}
+                    >
+                        {render()}
+                    </WidgetErrorBoundary>
+                </div>
+            ) : canHydrate ? (
                 <WidgetErrorBoundary
                     widgetId={widgetId}
                     label={label}

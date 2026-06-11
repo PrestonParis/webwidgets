@@ -79,16 +79,16 @@ const TrackingWidget = lazy(
     () => import('@/features/tracking/components/TrackingWidget'),
 );
 const SleepWidget = lazy(
-    () => import('@/features/tracking/components/widgets/SleepWidget'),
+    () => import('@/features/tracking/components/SleepWidget'),
 );
 const WorkoutWidget = lazy(
-    () => import('@/features/tracking/components/widgets/WorkoutWidget'),
+    () => import('@/features/tracking/components/WorkoutWidget'),
 );
 const MealWidget = lazy(
-    () => import('@/features/tracking/components/widgets/MealWidget'),
+    () => import('@/features/tracking/components/MealWidget'),
 );
 const MoodTrackingWidget = lazy(
-    () => import('@/features/tracking/components/widgets/MoodTrackingWidget'),
+    () => import('@/features/tracking/components/MoodTrackingWidget'),
 );
 const ContextDiagramWidget = lazy(
     () => import('@/features/context/components/ContextDiagramWidget'),
@@ -97,10 +97,10 @@ const ChatWidget = lazy(
     () => import('@/features/chatbot/components/ChatWidget'),
 );
 const SupplementWidget = lazy(
-    () => import('@/features/tracking/components/widgets/SupplementWidget'),
+    () => import('@/features/tracking/components/SupplementWidget'),
 );
 const HealthWidget = lazy(
-    () => import('@/features/tracking/components/widgets/HealthWidget'),
+    () => import('@/features/tracking/components/HealthWidget'),
 );
 const FinanceWidget = lazy(
     () => import('@/features/finance/components/FinanceWidget'),
