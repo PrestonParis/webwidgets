@@ -400,3 +400,72 @@ export async function ingestCalendarEventContext(
         permissions: ['private', 'ai', 'cross_widget'],
     });
 }
+
+// ── Finance & Document producers ─────────────────────────────────────────────
+
+export async function ingestFinanceTransactionContext(
+    userId: string,
+    tx: {
+        id: string;
+        title: string;
+        amount: number;
+        type: string;
+        category: string;
+    },
+): Promise<void> {
+    // Lightweight best-effort ingestion — never throws
+    try {
+        const { createClients } = await import('@/lib/supabase/serverClient');
+        const { supabase } = await createClients();
+        const sign =
+            tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : '↕';
+        await ingestContextNode(supabase, userId, {
+            entityId: `finance_tx:${tx.id}`,
+            type: 'artifact',
+            label: tx.title,
+            summary: `${sign}$${Math.abs(tx.amount).toFixed(2)} · ${tx.category}`,
+            data: {
+                transactionId: tx.id,
+                type: tx.type,
+                amount: tx.amount,
+                category: tx.category,
+            },
+            tags: ['finance', tx.type, tx.category],
+            sourceType: 'finance_records',
+            sourceId: tx.id,
+            sourceTable: 'finance_transactions',
+            createdByType: 'user',
+            status: 'active',
+            permissions: ['private'],
+        });
+    } catch {
+        // silently ignore — context ingestion is non-critical
+    }
+}
+
+export async function ingestDocumentContext(
+    userId: string,
+    doc: { id: string; title?: string; content?: string },
+): Promise<void> {
+    try {
+        const { createClients } = await import('@/lib/supabase/serverClient');
+        const { supabase } = await createClients();
+        const snippet = (doc.content ?? '').slice(0, 200);
+        await ingestContextNode(supabase, userId, {
+            entityId: `document:${doc.id}`,
+            type: 'document',
+            label: doc.title ?? 'Document',
+            summary: snippet,
+            data: { documentId: doc.id },
+            tags: ['document'],
+            sourceType: 'documents',
+            sourceId: doc.id,
+            sourceTable: 'journal_entries',
+            createdByType: 'user',
+            status: 'active',
+            permissions: ['private', 'ai'],
+        });
+    } catch {
+        // silently ignore
+    }
+}
