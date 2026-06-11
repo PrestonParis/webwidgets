@@ -6,6 +6,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { insertUploadRecord } from '@/features/uploads/services/uploadService';
 import { s3, S3_BUCKET, buildS3Key, hasS3Config } from '@/lib/aws/s3Client';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const bodySchema = z.object({
     originalName: z.string().min(1).max(255),
@@ -58,6 +59,38 @@ export async function POST(req: Request) {
             mimeType,
             sizeBytes,
             s3Key,
+        });
+
+        // Publish activity event — non-blocking, never fails the upload flow
+        const ext = originalName.includes('.')
+            ? originalName.split('.').pop()?.toUpperCase()
+            : null;
+        const sizeLabel =
+            sizeBytes > 1_048_576
+                ? `${(sizeBytes / 1_048_576).toFixed(1)} MB`
+                : `${Math.round(sizeBytes / 1024)} KB`;
+
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'file',
+            eventType: 'file.uploaded',
+            sourceId: fileId,
+            sourceTable: 'file_uploads',
+            category: 'content',
+            severity: 'info',
+            priority: 'normal',
+            title: `File uploaded: ${originalName}`,
+            body: ext ? `${ext} · ${sizeLabel}` : sizeLabel,
+            actionUrl: `/files`,
+            relatedEntities: [
+                { type: 'file', id: fileId, label: originalName },
+            ],
+            metadata: {
+                originalName,
+                mimeType,
+                sizeBytes,
+                s3Key,
+            },
         });
 
         return NextResponse.json({ fileId, presignedUrl, key: s3Key });

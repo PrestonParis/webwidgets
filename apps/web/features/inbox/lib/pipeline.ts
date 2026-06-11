@@ -5,19 +5,9 @@ import he from 'he';
 import type { QueueItem } from './queueManager';
 import type { NormalizedEmailEvent } from '@/features/inbox/types/events';
 import { routeInference } from './modelRouter';
-import { extractEmailActions } from './extractActions';
-import type { EmailInput as ExtractInput } from './extractActions';
+import { processEmail } from '@/features/inbox/server/emailExtractionService';
 
 type GmailClient = ReturnType<typeof google.gmail>;
-type ActionRow = {
-    user_id: string;
-    email_id: string;
-    type: string;
-    title: string;
-    description: string | null;
-    due_date: string | null;
-    action_url: string | null;
-};
 
 export interface PipelineOptions {
     gmail: GmailClient;
@@ -127,37 +117,6 @@ async function upsertClassification(
     );
 }
 
-async function hasProcessingLog(item: QueueItem, opts: PipelineOptions) {
-    const { data: already } = await opts.supabase
-        .from('email_processing_log')
-        .select('email_id')
-        .eq('user_id', opts.userId)
-        .eq('email_id', item.message_id)
-        .maybeSingle();
-    return Boolean(already);
-}
-
-function buildActionRows(
-    actionsMap: Awaited<ReturnType<typeof extractEmailActions>>,
-    userId: string,
-): ActionRow[] {
-    const rows: ActionRow[] = [];
-    for (const [emailId, actions] of actionsMap) {
-        for (const action of actions) {
-            rows.push({
-                user_id: userId,
-                email_id: emailId,
-                type: action.type,
-                title: action.title,
-                description: action.description,
-                due_date: action.due_date,
-                action_url: action.action_url,
-            });
-        }
-    }
-    return rows;
-}
-
 async function extractAndStoreActions(
     item: QueueItem,
     opts: PipelineOptions,
@@ -165,27 +124,20 @@ async function extractAndStoreActions(
     sender: string,
     subject: string,
 ): Promise<void> {
-    if (!opts.useAI || (await hasProcessingLog(item, opts))) return;
-
-    const extractInput: ExtractInput[] = [
-        { id: item.message_id, sender, subject, snippet: body.slice(0, 500) },
-    ];
-    const actionsMap = await extractEmailActions(extractInput, {
-        ...(opts.apiKey ? { apiKey: opts.apiKey } : {}),
-    });
-
-    await opts.supabase
-        .from('email_processing_log')
-        .upsert([{ user_id: opts.userId, email_id: item.message_id }], {
-            onConflict: 'user_id,email_id',
-        });
-
-    const rows = buildActionRows(actionsMap, opts.userId);
-    if (rows.length > 0) {
-        await opts.supabase
-            .from('email_actions')
-            .upsert(rows, { onConflict: 'user_id,email_id,title' });
-    }
+    if (!opts.useAI) return;
+    const extractOpts = {
+        useAI: true as const,
+        ...(opts.apiKey !== undefined ? { apiKey: opts.apiKey } : {}),
+    };
+    const input = {
+        userId: opts.userId,
+        provider: 'gmail' as const,
+        emailId: item.message_id,
+        subject,
+        sender,
+        bodyText: body,
+    };
+    await processEmail(opts.supabase, input, extractOpts);
 }
 
 async function advanceQueue(
@@ -206,6 +158,20 @@ async function advanceQueue(
         .eq('id', item.id);
 }
 
+async function cacheBodyInSnapshot(
+    item: QueueItem,
+    opts: PipelineOptions,
+    body: string,
+): Promise<void> {
+    if (!body) return;
+    const snapshotId = `gmail:${item.message_id}`;
+    await opts.supabase
+        .from('email_snapshots')
+        .update({ body_text: body.slice(0, 20_000) })
+        .eq('id', snapshotId)
+        .eq('user_id', opts.userId);
+}
+
 export async function processQueueItem(
     item: QueueItem,
     opts: PipelineOptions,
@@ -214,7 +180,12 @@ export async function processQueueItem(
         item,
         opts,
     );
-    await upsertClassification(item, opts, sender, subject);
+    // Run these in parallel — classification, body caching, and queue advance
+    // don't depend on each other; extraction waits for nothing else.
+    await Promise.all([
+        upsertClassification(item, opts, sender, subject),
+        cacheBodyInSnapshot(item, opts, body),
+    ]);
     await extractAndStoreActions(item, opts, body, sender, subject);
     await advanceQueue(item, opts, event);
 }

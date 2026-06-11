@@ -90,6 +90,7 @@ export type WidgetBuilderStepId =
     | 'components'
     | 'actions'
     | 'automations'
+    | 'style'
     | 'permissions'
     | 'preview'
     | 'save';

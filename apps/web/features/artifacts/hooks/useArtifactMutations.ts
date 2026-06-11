@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback } from 'react';
 import type { ArtifactType } from '@/features/artifacts/types/artifact';
 
@@ -12,6 +13,7 @@ interface CreateArtifactInput {
     sourceDocumentId?: string;
     sourceJobId?: string;
     tags?: string[];
+    metadata?: Record<string, unknown>;
 }
 
 interface UpdateArtifactInput {
@@ -25,7 +27,7 @@ interface UpdateArtifactInput {
 export function useArtifactMutations(onSuccess?: () => void) {
     const createArtifact = useCallback(
         async (data: CreateArtifactInput) => {
-            const res = await fetch('/api/artifacts', {
+            const res = await apiRouteFetch('/api/artifacts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -40,7 +42,7 @@ export function useArtifactMutations(onSuccess?: () => void) {
 
     const updateArtifact = useCallback(
         async (id: string, data: UpdateArtifactInput) => {
-            const res = await fetch(`/api/artifacts/${id}`, {
+            const res = await apiRouteFetch(`/api/artifacts/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -55,7 +57,7 @@ export function useArtifactMutations(onSuccess?: () => void) {
 
     const archiveArtifact = useCallback(
         async (id: string) => {
-            const res = await fetch(`/api/artifacts/${id}`, {
+            const res = await apiRouteFetch(`/api/artifacts/${id}`, {
                 method: 'DELETE',
             });
             if (!res.ok && res.status !== 204)

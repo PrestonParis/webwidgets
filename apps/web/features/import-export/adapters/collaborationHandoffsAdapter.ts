@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 // Read-only adapter — collaboration handoffs cannot be bulk-imported
 export const collaborationHandoffsAdapter: ImportExportAdapter = {
@@ -89,4 +90,6 @@ export const collaborationHandoffsAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('collaboration_handoffs'),
 };

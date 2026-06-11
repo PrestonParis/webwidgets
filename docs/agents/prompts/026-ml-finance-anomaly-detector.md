@@ -19,6 +19,7 @@ Build a spending anomaly detector for the Finance feature. Given a user's transa
 ## Required Implementation
 
 ### 1. `ml_service/finance_analytics.py` (new module, statistical approach)
+
 ```python
 def detect_transaction_anomalies(
     transactions: list[dict],  # {amount, merchant, category, date}
@@ -39,6 +40,7 @@ def detect_subscription_changes(
 No trained model file — purely statistical (`scipy.stats`, `numpy`, `pandas`).
 
 ### 2. `ml_service/schemas.py` — add schemas
+
 ```python
 class TransactionItem(BaseModel):
     id: str
@@ -64,21 +66,25 @@ class FinanceAnomalyResponse(BaseModel):
 ```
 
 ### 3. `ml_service/main.py` — add endpoint
+
 ```python
 @app.post("/detect-finance-anomalies")
 async def detect_finance_anomalies(data: FinanceAnomalyRequest) -> FinanceAnomalyResponse:
 ```
 
 ### 4. `app/api/ml/finance-anomalies/route.ts`
+
 - POST proxy with auth check
 - Called when finance page loads with transactions
 
 ### 5. Wire into Finance feature
+
 - `features/finance/components/TransactionList.tsx` — add anomaly badge (⚠️ icon) to flagged transactions
 - `features/finance/components/FinancePageContent.tsx` — add `AnomalyAlertBanner` at top of page when anomalies detected
 - `features/finance/components/FinanceWidget.tsx` — show anomaly count badge if any high-severity alerts
 
 ### 6. `features/finance/components/AnomalyAlertBanner.tsx` (new)
+
 - Collapsible banner listing high-severity anomalies
 - Each item shows: transaction name, amount, reason, "Dismiss" action
 - Persists dismissed IDs to localStorage

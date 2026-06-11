@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy } from 'lucide-react';
+import { Flame, Trophy } from 'lucide-react';
 import type { Habit } from '@/features/habit/types/habit';
 import HabitEmptyState from './HabitEmptyState';
 
@@ -36,8 +36,8 @@ export function HabitStreaksView({
                             {habit.name}
                         </p>
                         <div className="flex flex-col items-end shrink-0">
-                            <span className="text-[10px] font-semibold text-orange-500 dark:text-orange-400">
-                                🔥 {streak}d
+                            <span className="text-[10px] font-semibold text-orange-500 dark:text-orange-400 flex items-center gap-0.5">
+                                <Flame className="h-3 w-3" /> {streak}d
                             </span>
                             {best > streak && (
                                 <span className="text-[9px] text-stone-400 dark:text-zinc-500">

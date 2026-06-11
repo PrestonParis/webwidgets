@@ -8,6 +8,10 @@ import {
     getUpload,
 } from '@/features/uploads/services/uploadService';
 import { s3, S3_BUCKET, hasS3Config } from '@/lib/aws/s3Client';
+import {
+    ingestFileUploadContext,
+    markFileUploadContextDeleted,
+} from '@/features/context/services/contextProducerService';
 
 interface RouteContext {
     params: Promise<{ fileId: string }>;
@@ -19,6 +23,7 @@ export async function PATCH(req: Request, ctx: RouteContext) {
         const userId = await getRequestUserId(supabase);
         const { fileId } = await ctx.params;
         const updated = await confirmUpload(supabase, userId, fileId);
+        await ingestFileUploadContext(supabase, updated);
         return NextResponse.json(updated);
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
@@ -47,6 +52,7 @@ export async function DELETE(_req: Request, ctx: RouteContext) {
             new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: upload.s3Key }),
         );
         await markUploadDeleted(supabase, userId, fileId);
+        await markFileUploadContextDeleted(supabase, userId, fileId);
 
         return NextResponse.json({ success: true });
     } catch (err) {

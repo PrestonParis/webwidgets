@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Plug, Sparkles, X } from 'lucide-react';
 import { EmptyState } from '@/features/ui/components/EmptyState';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type { AutomationCenterController } from '@/features/automation/hooks/useAutomationCenter';
 import { widgetEmoji } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge } from './AutomationBadges';
+import { createAutomation } from '@/features/automation/services/automationService';
 
 export function AutomationSuggestions({
     controller,
@@ -14,6 +16,7 @@ export function AutomationSuggestions({
 }) {
     const { suggestions, dismissSuggestion } = controller;
     const toast = useToastContext();
+    const [enabling, setEnabling] = useState<string | null>(null);
 
     if (suggestions.length === 0) {
         return (
@@ -63,7 +66,8 @@ export function AutomationSuggestions({
                         </div>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                             <SafetyBadge level={definition.safetyLevel} />
-                            {definition.consent.providersRequired.length > 0 && (
+                            {definition.consent.providersRequired.length >
+                                0 && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                                     <Plug size={10} />
                                     {definition.consent.providersRequired.join(
@@ -75,14 +79,31 @@ export function AutomationSuggestions({
                         <div className="mt-4 flex items-center gap-2">
                             <button
                                 type="button"
-                                onClick={() =>
-                                    toast.info(
-                                        `Setup for "${definition.name}" coming soon`,
-                                    )
-                                }
-                                className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
+                                disabled={enabling === suggestion.id}
+                                onClick={async () => {
+                                    setEnabling(suggestion.id);
+                                    try {
+                                        await createAutomation({
+                                            userId: 'me',
+                                            definitionId: definition.id,
+                                        });
+                                        toast.success(
+                                            `"${definition.name}" enabled — check Automations tab`,
+                                        );
+                                        dismissSuggestion(suggestion.id);
+                                    } catch {
+                                        toast.error(
+                                            'Failed to enable automation',
+                                        );
+                                    } finally {
+                                        setEnabling(null);
+                                    }
+                                }}
+                                className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
                             >
-                                Set up
+                                {enabling === suggestion.id
+                                    ? 'Enabling…'
+                                    : 'Set up'}
                             </button>
                             <button
                                 type="button"

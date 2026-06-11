@@ -13,6 +13,7 @@ const pandocTargets: Record<string, string> = {
     docx: 'docx',
     odt: 'odt',
     rtf: 'rtf',
+    pptx: 'pptx',
 };
 
 export async function convertWithPandoc(
@@ -34,7 +35,7 @@ export async function convertWithPandoc(
     }
 
     try {
-        // TODO: HTML input is not sanitized before Pandoc conversion. Pandoc does
+        // Future: HTML input is not sanitized before Pandoc conversion. Pandoc does
         // not execute scripts, but untrusted HTML should still pass through a
         // sanitizer before richer preview/display paths use the result.
         await runCommand('pandoc', args, {

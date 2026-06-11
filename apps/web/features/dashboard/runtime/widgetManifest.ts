@@ -39,6 +39,25 @@ export const widgetDataRequirementSchema = z.object({
     label: z.string().optional(),
 });
 
+export const widgetContextDeclarationSchema = z.object({
+    contextProducer: z.boolean().optional().default(false),
+    contextConsumer: z.boolean().optional().default(false),
+    producedNodeTypes: z.array(z.string()).optional().default([]),
+    consumedNodeTypes: z.array(z.string()).optional().default([]),
+    contextSourceType: z.string().optional(),
+    captureInteractions: z.boolean().optional().default(false),
+    contextScopes: z.array(z.string()).optional().default([]),
+    contextBundleOptions: z
+        .record(z.string(), z.unknown())
+        .optional()
+        .default({}),
+    allowCrossWidgetContext: z.boolean().optional().default(true),
+});
+
+export type WidgetContextDeclaration = z.input<
+    typeof widgetContextDeclarationSchema
+>;
+
 // Use z.input for WidgetDataRequirement so optional-with-default fields (scope, required, aboveFold)
 // don't need to be specified in object literals — they are filled in by Zod at parse time.
 export type WidgetDataRequirement = z.input<typeof widgetDataRequirementSchema>;
@@ -55,6 +74,8 @@ export const widgetManifestSchema = z.object({
     acceptsSchemas: z.array(z.string()).default([]),
     // What this widget can export back through import/export
     exportsSchemas: z.array(z.string()).default([]),
+    // Context graph producer/consumer declaration.
+    context: widgetContextDeclarationSchema.optional(),
 });
 
 // Use z.input for WidgetManifest so optional-with-default fields don't require
@@ -77,4 +98,5 @@ export interface WidgetDataPayload {
     allResolved: boolean;
     partiallyResolved: boolean;
     errors: string[];
+    contextBundle?: unknown;
 }

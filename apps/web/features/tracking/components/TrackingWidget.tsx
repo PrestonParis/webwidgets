@@ -1,25 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    ActivitySquare,
-    BarChart3,
-    CalendarDays,
-    ListPlus,
-    Plus,
-    TableProperties,
-} from 'lucide-react';
+import { ActivitySquare } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { useTrackingWidgetData } from '@/features/tracking/hooks/useTrackingWidgetData';
 import { QuickEntryForm } from '@/features/tracking/components/QuickEntryForm';
-import {
-    QuickActionButton,
-    WidgetStat,
-} from '@/features/tracking/components/TrackingSurface';
-import { GraphView } from '@/features/tracking/components/views/GraphView';
-import { HeatmapView } from '@/features/tracking/components/views/HeatmapView';
-import { StatsView } from '@/features/tracking/components/views/StatsView';
-import { TimelineView } from '@/features/tracking/components/views/TimelineView';
+import { GraphView } from '@/features/tracking/components/GraphView';
+import { HeatmapView } from '@/features/tracking/components/HeatmapView';
+import { StatsView } from '@/features/tracking/components/StatsView';
+import { TimelineView } from '@/features/tracking/components/TimelineView';
 import {
     getCategoryLabel,
     TRACKING_CATEGORIES,
@@ -27,17 +16,9 @@ import {
 import type { TrackingCategory } from '@/features/tracking/types/trackingCategories';
 import type { Tracker } from '@/features/recovery/types/recovery';
 import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
+import { MiniHistoryChart } from '@/features/tracking/components/MiniHistoryChart';
 
-type ViewMode = 'log' | 'graph' | 'heatmap' | 'stats' | 'timeline' | 'recovery';
-
-const VIEW_LABELS: Record<ViewMode, string> = {
-    log: 'Log',
-    graph: 'Graph',
-    heatmap: 'Heatmap',
-    stats: 'Stats',
-    timeline: 'Timeline',
-    recovery: 'Recovery',
-};
+type Tab = 'add' | 'history' | 'insights' | 'lab';
 
 function daysSince(isoTime: string): number {
     return Math.floor((Date.now() - new Date(isoTime).getTime()) / 86_400_000);
@@ -65,11 +46,9 @@ function RecoveryPanel({ trackers }: { trackers: Tracker[] }) {
                         key={t.id}
                         className="flex items-center justify-between rounded-xl bg-gray-50 dark:bg-zinc-800/60 px-3 py-2"
                     >
-                        <div className="flex items-center gap-2">
-                            <p className="text-xs font-medium text-gray-700 dark:text-zinc-300 capitalize">
-                                {t.addiction}
-                            </p>
-                        </div>
+                        <p className="text-xs font-medium text-gray-700 dark:text-zinc-300 capitalize">
+                            {t.addiction}
+                        </p>
                         <div className="text-right">
                             <p className="text-sm font-bold text-purple-600 dark:text-purple-400">
                                 {days}
@@ -124,26 +103,15 @@ function CategoryPicker({
 }
 
 export default function TrackingWidget() {
-    const [viewMode, setViewMode] = useState<ViewMode>('log');
+    const [tab, setTab] = useState<Tab>('add');
     const [activeCategory, setActiveCategory] =
         useState<ActiveCategory>('mood');
+    const [showRecovery, setShowRecovery] = useState(false);
 
     const dataCategory: TrackingCategory =
         activeCategory === 'recovery' ? 'mood' : activeCategory;
     const { entries, allEntries, trackers, handleAdd } =
         useTrackingWidgetData(dataCategory);
-
-    const isRecovery = activeCategory === 'recovery' || viewMode === 'recovery';
-    const setTrackingView = (next: ViewMode) => {
-        setViewMode(next);
-        setActiveCategory((current) =>
-            next === 'recovery'
-                ? 'recovery'
-                : current === 'recovery'
-                  ? 'mood'
-                  : current,
-        );
-    };
 
     return (
         <WidgetShell
@@ -166,134 +134,100 @@ export default function TrackingWidget() {
                     active={activeCategory}
                     onChange={(c) => {
                         setActiveCategory(c);
-                        setViewMode(c === 'recovery' ? 'recovery' : 'log');
                     }}
                 />
 
-                {!isRecovery && (
-                    <div className="rounded-xl border border-indigo-100 bg-indigo-50/80 p-3 dark:border-indigo-900/50 dark:bg-indigo-950/20">
-                        <p className="text-[10px] font-semibold uppercase text-indigo-500 dark:text-indigo-300">
-                            Active tracker
-                        </p>
-                        <p className="mt-1 truncate text-sm font-semibold text-gray-900 dark:text-zinc-100">
-                            {getCategoryLabel(dataCategory)}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400">
-                            {entries.length} recent entries ·{' '}
-                            {allEntries.length} total in range
-                        </p>
-                    </div>
-                )}
-
-                {!isRecovery && (
-                    <div className="grid grid-cols-3 gap-2">
-                        <WidgetStat
-                            label="Recent"
-                            value={String(entries.length)}
-                        />
-                        <WidgetStat
-                            label="All"
-                            value={String(allEntries.length)}
-                        />
-                        <WidgetStat
-                            label="View"
-                            value={VIEW_LABELS[viewMode]}
-                        />
-                    </div>
-                )}
-
-                <div className="grid grid-cols-3 gap-1">
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'log'}
-                        onClick={() => setTrackingView('log')}
-                    >
-                        <Plus className="h-3 w-3" /> Log
-                    </QuickActionButton>
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'graph'}
-                        onClick={() => setTrackingView('graph')}
-                    >
-                        <BarChart3 className="h-3 w-3" /> Graph
-                    </QuickActionButton>
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'timeline'}
-                        onClick={() => setTrackingView('timeline')}
-                    >
-                        <ListPlus className="h-3 w-3" /> Timeline
-                    </QuickActionButton>
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'stats'}
-                        onClick={() => setTrackingView('stats')}
-                    >
-                        <TableProperties className="h-3 w-3" /> Stats
-                    </QuickActionButton>
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'heatmap'}
-                        onClick={() => setTrackingView('heatmap')}
-                    >
-                        <CalendarDays className="h-3 w-3" /> Heatmap
-                    </QuickActionButton>
-                    <QuickActionButton
-                        tone="indigo"
-                        primary={viewMode === 'recovery'}
-                        onClick={() => setTrackingView('recovery')}
-                    >
-                        Recovery
-                    </QuickActionButton>
+                {/* Tab bar */}
+                <div className="flex gap-0 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 p-0.5">
+                    {(['add', 'history', 'insights', 'lab'] as const).map(
+                        (t) => (
+                            <button
+                                key={t}
+                                onClick={() => setTab(t)}
+                                className={`flex-1 rounded-lg py-1.5 text-xs font-medium capitalize transition-colors ${
+                                    tab === t
+                                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm'
+                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+                                }`}
+                            >
+                                {t === 'lab'
+                                    ? 'Lab'
+                                    : t.charAt(0).toUpperCase() + t.slice(1)}
+                            </button>
+                        ),
+                    )}
                 </div>
 
-                {/* View content */}
-                {!isRecovery &&
-                    viewMode === 'graph' &&
-                    (entries.length > 0 ? (
-                        <GraphView entries={entries} category={dataCategory} />
-                    ) : (
-                        <EmptyHint action={() => setTrackingView('log')} />
-                    ))}
-                {!isRecovery &&
-                    viewMode === 'heatmap' &&
-                    (allEntries.length > 0 ? (
-                        <HeatmapView
-                            entries={allEntries}
-                            category={dataCategory}
-                            weeks={8}
-                        />
-                    ) : (
-                        <EmptyHint action={() => setTrackingView('log')} />
-                    ))}
-                {!isRecovery &&
-                    viewMode === 'stats' &&
-                    (allEntries.length > 0 ? (
-                        <StatsView
-                            entries={allEntries}
-                            category={dataCategory}
-                        />
-                    ) : (
-                        <EmptyHint action={() => setTrackingView('log')} />
-                    ))}
-                {!isRecovery &&
-                    viewMode === 'timeline' &&
-                    (entries.length > 0 ? (
-                        <TimelineView entries={entries} />
-                    ) : (
-                        <EmptyHint action={() => setTrackingView('log')} />
-                    ))}
-                {isRecovery && <RecoveryPanel trackers={trackers} />}
-
-                {!isRecovery && viewMode === 'log' && (
+                {tab === 'add' && (
                     <QuickEntryForm
                         initialCategory={dataCategory}
                         onSubmit={async (entry) => {
                             await handleAdd(entry);
-                            setTrackingView('log');
+                            setTab('history');
                         }}
-                        onCancel={() => setTrackingView('log')}
+                        onCancel={() => setTab('history')}
                     />
+                )}
+
+                {tab === 'history' && (
+                    <div className="space-y-3">
+                        <MiniHistoryChart
+                            dates={entries.map((e) => e.entryDate)}
+                            accentColor="indigo"
+                        />
+                        {entries.length > 0 ? (
+                            <TimelineView entries={entries} />
+                        ) : (
+                            <EmptyHint action={() => setTab('add')} />
+                        )}
+                    </div>
+                )}
+
+                {tab === 'insights' && (
+                    <div className="space-y-3">
+                        {allEntries.length > 0 ? (
+                            <StatsView
+                                entries={allEntries}
+                                category={dataCategory}
+                            />
+                        ) : (
+                            <EmptyHint action={() => setTab('add')} />
+                        )}
+                    </div>
+                )}
+
+                {tab === 'lab' && (
+                    <div className="space-y-3">
+                        {entries.length > 0 ? (
+                            <GraphView
+                                entries={entries}
+                                category={dataCategory}
+                            />
+                        ) : (
+                            <EmptyHint action={() => setTab('add')} />
+                        )}
+                        {allEntries.length > 0 && (
+                            <HeatmapView
+                                entries={allEntries}
+                                category={dataCategory}
+                                weeks={8}
+                            />
+                        )}
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() => setShowRecovery((v) => !v)}
+                                className="rounded-md bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 text-xs font-medium text-purple-700 dark:text-purple-300"
+                            >
+                                Recovery
+                            </button>
+                            {showRecovery && (
+                                <div className="mt-2">
+                                    <RecoveryPanel trackers={trackers} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 )}
             </div>
         </WidgetShell>

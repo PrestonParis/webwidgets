@@ -7,12 +7,13 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const financeAdapter: ImportExportAdapter = {
     id: 'finance_records',
     displayName: 'Finance',
     description:
-        'Finance accounts and transactions — export your financial data',
+        'Finance accounts and transactions: export your financial data',
     sourceType: 'finance_records',
     // canImport: false — complex relational data (accounts + transactions) with foreign keys
     canImport: false,
@@ -142,4 +143,6 @@ export const financeAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('finance_records'),
 };

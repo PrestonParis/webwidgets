@@ -10,12 +10,14 @@ const resolverKeys = [
     'inbox.messages',
     'calendar.events',
     'developer.activity',
+    'datahealth.system',
     'files.recent',
     'tracking.today',
     'recovery.trackers',
     'tasks.open',
     'weather.current',
     'events.feed.ranked',
+    'activity.recent',
 ] as const;
 
 const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
@@ -30,6 +32,8 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
         import('@/features/calendar/server/calendarResolvers'),
     'developer.activity': () =>
         import('@/features/developer/server/developerResolvers'),
+    'datahealth.system': () =>
+        import('@/features/developer/server/developerResolvers'),
     'files.recent': () => import('@/features/uploads/server/filesResolvers'),
     'tracking.today': () =>
         import('@/features/tracking/server/trackingResolvers'),
@@ -39,6 +43,8 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
     'weather.current': () =>
         import('@/features/weather/server/weatherResolvers'),
     'events.feed.ranked': () => import('@/features/news/server/newsResolvers'),
+    'activity.recent': () =>
+        import('@/features/activity/server/activityResolvers'),
 };
 
 const resolverCache = new Map<string, DataResolver>();

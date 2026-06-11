@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useRef } from 'react';
 import { useNotificationStore } from '@/features/notifications/hooks/useNotificationStore';
 import { isAllDay } from '@/features/calendar/types/calendar';
@@ -79,7 +80,7 @@ export function useCalendarEventNotifications() {
                     today.getMonth(),
                     today.getDate() + 1,
                 ).toISOString();
-                const res = await fetch(
+                const res = await apiRouteFetch(
                     `/api/calendar/events?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`,
                     { credentials: 'include', cache: 'no-store' },
                 );
@@ -134,12 +135,19 @@ export function useCalendarEventNotifications() {
     }
 
     useEffect(() => {
-        // Clear cached events at midnight so next day's events are fresh
+        let lastFetchDate = new Date().toISOString().slice(0, 10);
+
+        // Only clear the event cache if the day has changed since last fetch.
+        // Previously this cleared on every visibility change, causing a calendar
+        // API call every time the user alt-tabbed back to the page.
         function onVisibilityChange() {
-            if (document.visibilityState === 'visible') {
+            if (document.visibilityState !== 'visible') return;
+            const today = new Date().toISOString().slice(0, 10);
+            if (today !== lastFetchDate) {
                 eventsRef.current = [];
-                void fetchAndCheck();
+                lastFetchDate = today;
             }
+            void fetchAndCheck();
         }
 
         void fetchAndCheck();

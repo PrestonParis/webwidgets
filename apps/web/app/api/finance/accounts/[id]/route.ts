@@ -7,6 +7,7 @@ import {
     deleteFinanceAccountForUser,
 } from '@/features/finance/services/financeAccountService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const patchSchema = z.object({
     name: z.string().min(1).optional(),
@@ -51,6 +52,22 @@ export async function PATCH(
                 >
             >,
         );
+        const acc = account as { name?: string; type?: string } | undefined;
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'finance',
+            eventType: 'finance.account_updated',
+            sourceId: id,
+            sourceTable: 'finance_accounts',
+            category: 'data',
+            severity: 'info',
+            priority: 'low',
+            title: acc?.name
+                ? `Finance account updated: ${acc.name}`
+                : 'Finance account updated',
+            actionUrl: '/finance',
+            metadata: { accountId: id, changedFields: Object.keys(body.data) },
+        });
         return NextResponse.json({ account });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -66,11 +83,36 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
+
+        // Fetch name before deletion
+        const { data: existing } = await supabase
+            .from('finance_accounts')
+            .select('name')
+            .eq('id', id)
+            .eq('user_id', userId)
+            .maybeSingle();
+
         await deleteFinanceAccountForUser(
             supabase as unknown as SupabaseClient,
             userId,
             id,
         );
+
+        const name = (existing as { name?: string } | null)?.name ?? 'Account';
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'finance',
+            eventType: 'finance.account_deleted',
+            sourceId: id,
+            sourceTable: 'finance_accounts',
+            category: 'data',
+            severity: 'warning',
+            priority: 'low',
+            title: `Finance account removed: ${name}`,
+            actionUrl: '/finance',
+            metadata: { accountId: id },
+        });
+
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

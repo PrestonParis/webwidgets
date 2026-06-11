@@ -21,14 +21,8 @@
         "id": "chromium",
         "name": "chromium",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "**/*.spec.ts",
-          "**/*.e2e.ts"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["**/*.spec.ts", "**/*.e2e.ts"],
         "timeout": 60000
       },
       {
@@ -39,14 +33,8 @@
         "id": "firefox",
         "name": "firefox",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "**/*.spec.ts",
-          "**/*.e2e.ts"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["**/*.spec.ts", "**/*.e2e.ts"],
         "timeout": 60000
       },
       {
@@ -57,14 +45,8 @@
         "id": "webkit",
         "name": "webkit",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "**/*.spec.ts",
-          "**/*.e2e.ts"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["**/*.spec.ts", "**/*.e2e.ts"],
         "timeout": 60000
       },
       {
@@ -75,14 +57,8 @@
         "id": "mobile-chrome",
         "name": "mobile-chrome",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "**/*.spec.ts",
-          "**/*.e2e.ts"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["**/*.spec.ts", "**/*.e2e.ts"],
         "timeout": 60000
       },
       {
@@ -93,13 +69,8 @@
         "id": "critical",
         "name": "critical",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "/.*\\.critical\\.spec\\.ts/"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["/.*\\.critical\\.spec\\.ts/"],
         "timeout": 60000
       },
       {
@@ -110,13 +81,8 @@
         "id": "performance",
         "name": "performance",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "/.*\\.perf\\.spec\\.ts/"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["/.*\\.perf\\.spec\\.ts/"],
         "timeout": 60000
       },
       {
@@ -127,13 +93,8 @@
         "id": "slow",
         "name": "slow",
         "testDir": "tests/e2e",
-        "testIgnore": [
-          "**/*.unit.spec.ts",
-          "**/node_modules/**"
-        ],
-        "testMatch": [
-          "/.*\\.slow\\.spec\\.ts/"
-        ],
+        "testIgnore": ["**/*.unit.spec.ts", "**/node_modules/**"],
+        "testMatch": ["/.*\\.slow\\.spec\\.ts/"],
         "timeout": 60000
       }
     ],
@@ -157,10 +118,7 @@
           "outputFile": "tests/e2e/reports/junit.xml"
         }
       ],
-      [
-        "list",
-        null
-      ]
+      ["list", null]
     ],
     "reportSlowTests": {
       "max": 5,

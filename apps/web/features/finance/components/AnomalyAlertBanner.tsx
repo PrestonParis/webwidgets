@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import type { AnomalyAlertBannerProps } from '@/features/finance/types/finance';
@@ -17,7 +18,7 @@ export function AnomalyAlertBanner({ transactions }: AnomalyAlertBannerProps) {
     useEffect(() => {
         if (!transactions.length) return;
         const recent = transactions.slice(0, 50);
-        fetch('/api/ml/detect-finance-anomalies', {
+        apiRouteFetch('/api/ml/detect-finance-anomalies', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -50,7 +51,7 @@ export function AnomalyAlertBanner({ transactions }: AnomalyAlertBannerProps) {
                     {anomalies.length > 1 ? 's' : ''} detected
                 </span>
                 <span className="ml-1 text-amber-300/70">
-                    — review your recent activity
+                    Review your recent activity.
                 </span>
             </div>
             <button

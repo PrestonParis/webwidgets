@@ -3,6 +3,11 @@ import pLimit from 'p-limit';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import {
+    convertHtmlToDocument,
+    type DocumentConvertFormat,
+} from '@/features/convert/lib/serverDocumentConverter';
+import { getOutputMimeType } from '@/features/files/lib/conversionService';
 
 // Max concurrent adapter calls per export request — prevents slamming Supabase
 // when multi-source exports are added.
@@ -13,40 +18,12 @@ import {
     updateExportJob,
     addAuditEvent,
 } from '@/features/import-export/services/importExportService';
-import {
-    getAdapter,
-    registerAdapter,
-} from '@/features/import-export/lib/adapterRegistry';
-import { trackingEntriesAdapter } from '@/features/import-export/adapters/trackingEntriesAdapter';
-import { todosAdapter } from '@/features/import-export/adapters/todosAdapter';
-import { collaborationHandoffsAdapter } from '@/features/import-export/adapters/collaborationHandoffsAdapter';
-import { contextEntriesAdapter } from '@/features/import-export/adapters/contextEntriesAdapter';
-import { moodAdapter } from '@/features/import-export/adapters/moodAdapter';
-import { journalAdapter } from '@/features/import-export/adapters/journalAdapter';
-import { habitAdapter } from '@/features/import-export/adapters/habitAdapter';
-import { financeAdapter } from '@/features/import-export/adapters/financeAdapter';
-import { countdownAdapter } from '@/features/import-export/adapters/countdownAdapter';
-import { recoveryAdapter } from '@/features/import-export/adapters/recoveryAdapter';
-import { calendarEventsAdapter } from '@/features/import-export/adapters/calendarEventsAdapter';
-import { memoryDecksAdapter } from '@/features/import-export/adapters/memoryDecksAdapter';
-import { filesAdapter } from '@/features/import-export/adapters/filesAdapter';
+import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
+import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
+import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
 
 function ensureAdapters() {
-    [
-        trackingEntriesAdapter,
-        todosAdapter,
-        collaborationHandoffsAdapter,
-        contextEntriesAdapter,
-        moodAdapter,
-        journalAdapter,
-        habitAdapter,
-        financeAdapter,
-        countdownAdapter,
-        recoveryAdapter,
-        calendarEventsAdapter,
-        memoryDecksAdapter,
-        filesAdapter,
-    ].forEach(registerAdapter);
+    registerCoreImportExportAdapters();
 }
 
 // ── CSV serialization ─────────────────────────────────────────────────────────
@@ -105,6 +82,7 @@ export async function POST(req: Request) {
             // When true (used by dashboard runtime), skip job persistence and
             // return data directly. Faster for widget data reads.
             inline?: boolean;
+            ingest_context?: boolean;
             // Optional date range — passed through to adapters that support it
             // (e.g. calendarEventsAdapter for month-grid queries).
             start_date?: string;
@@ -123,12 +101,20 @@ export async function POST(req: Request) {
         }
 
         const format = body.format ?? 'json';
-        if (!['csv', 'json'].includes(format)) {
+        const documentFormats: DocumentConvertFormat[] = [
+            'docx',
+            'pdf',
+            'rtf',
+            'odt',
+            'epub',
+        ];
+        const textFormats = ['csv', 'json'];
+        if (![...textFormats, ...documentFormats].includes(format)) {
             return NextResponse.json(
                 {
                     ok: false,
                     error: 'UNSUPPORTED_FORMAT',
-                    message: `Format '${format}' is not supported. Use csv or json. XLSX and ZIP require additional packages.`,
+                    message: `Format '${format}' is not supported. Use csv, json, docx, or pdf.`,
                 },
                 { status: 400 },
             );
@@ -168,6 +154,19 @@ export async function POST(req: Request) {
             const result = await adapterLimit(() =>
                 adapter.exportData!(userId, adapterOptions),
             );
+            if (body.ingest_context) {
+                void ingestContextFromAdapterPayload(
+                    supabase,
+                    userId,
+                    body.source_type,
+                    result.rows,
+                ).catch((error) =>
+                    console.warn(
+                        '[import-export] context ingestion skipped:',
+                        error,
+                    ),
+                );
+            }
             // If the adapter produced a rich inlinePayload (e.g. habits + completions),
             // return it as `data` so useWidgetData gets the full structure.
             // Otherwise fall back to the flat `records` array.
@@ -179,6 +178,71 @@ export async function POST(req: Request) {
                     : { records: result.rows.map((r) => r.data) }),
                 warnings: result.warnings,
                 fetchedAt: new Date().toISOString(),
+            });
+        }
+
+        // Document format path (docx, pdf, etc.) — requires adapter.exportDocument
+        if (documentFormats.includes(format as DocumentConvertFormat)) {
+            if (!adapter.exportDocument) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: 'UNSUPPORTED_FORMAT',
+                        message: `The '${body.source_type}' adapter does not support document export (docx/pdf).`,
+                    },
+                    { status: 422 },
+                );
+            }
+
+            const docResult = await adapterLimit(() =>
+                adapter.exportDocument!(userId, {
+                    format: format as 'docx' | 'pdf',
+                    ...(body.start_date ? { startDate: body.start_date } : {}),
+                    ...(body.end_date ? { endDate: body.end_date } : {}),
+                }),
+            );
+
+            const docTitle =
+                body.title ??
+                `${adapter.displayName} export ${new Date().toISOString().slice(0, 10)}`;
+
+            const docBytes = await convertHtmlToDocument({
+                html: docResult.html,
+                title: docTitle,
+                targetExtension: format as DocumentConvertFormat,
+            });
+
+            const contentType = getOutputMimeType(
+                format as Parameters<typeof getOutputMimeType>[0],
+            );
+            const safeFilename =
+                docTitle
+                    .trim()
+                    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+                    .replace(/^-+|-+$/g, '')
+                    .slice(0, 80) || body.source_type;
+            const filename = `${safeFilename}.${format}`;
+
+            const base64Content = Buffer.from(docBytes).toString('base64');
+
+            return NextResponse.json({
+                ok: true,
+                job: {
+                    id: `doc-export-${Date.now()}`,
+                    status: 'ready',
+                    sourceType: body.source_type,
+                    format,
+                    title: docTitle,
+                    rowCount: null,
+                },
+                warnings: docResult.warnings,
+                download: {
+                    content: base64Content,
+                    encoding: 'base64',
+                    contentType,
+                    filename,
+                    sizeBytes: docBytes.byteLength,
+                },
             });
         }
 
@@ -202,6 +266,14 @@ export async function POST(req: Request) {
                 ...adapterOptions,
                 format: format as 'csv' | 'json',
             }),
+        );
+        void ingestContextFromAdapterPayload(
+            supabase,
+            userId,
+            body.source_type,
+            exportResult.rows,
+        ).catch((error) =>
+            console.warn('[import-export] context ingestion skipped:', error),
         );
 
         // Generate output

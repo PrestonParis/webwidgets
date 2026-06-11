@@ -31,7 +31,10 @@ async function handleRequest(
 ) {
     const log = getLogger();
     const { searchParams } = new URL(req.url);
-    const pageToken = searchParams.get('pageToken');
+    // searchParams.get already decodes %2B → +, but if the client sent a raw +
+    // it arrives as a space. Normalise spaces back so Postgres gets a valid timestamptz.
+    const rawToken = searchParams.get('pageToken');
+    const pageToken = rawToken ? rawToken.replace(/ /g, '+') : null;
     const PAGE_SIZE = 50;
 
     // Read from the snapshot table — the sync worker keeps this fresh.
@@ -93,6 +96,7 @@ async function handleRequest(
             date: s.raw_date || s.received_at,
             category: cat?.category ?? 'other',
             is_manual: cat?.is_manual ?? false,
+            account_email: s.account_email,
         };
     });
 

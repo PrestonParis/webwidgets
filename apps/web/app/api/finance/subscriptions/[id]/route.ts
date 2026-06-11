@@ -7,6 +7,7 @@ import {
     updateFinanceSubscriptionForUser,
 } from '@/features/finance/services/financeSubscriptionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const patchSchema = z.object({
     name: z.string().min(1).optional(),
@@ -43,6 +44,31 @@ export async function PATCH(
                 typeof updateFinanceSubscriptionForUser
             >[3],
         );
+        const sub = subscription as { name?: string } | undefined;
+
+        // active=false means the subscription was cancelled
+        const isCancellation = body.data.active === false;
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'finance',
+            eventType: isCancellation
+                ? 'finance.subscription_cancelled'
+                : 'finance.subscription_updated',
+            sourceId: id,
+            sourceTable: 'finance_subscriptions',
+            category: 'data',
+            severity: 'info',
+            priority: 'low',
+            title: isCancellation
+                ? `Subscription cancelled: ${sub?.name ?? 'Subscription'}`
+                : `Subscription updated: ${sub?.name ?? 'Subscription'}`,
+            actionUrl: '/finance',
+            metadata: {
+                subscriptionId: id,
+                changedFields: Object.keys(body.data),
+            },
+        });
+
         return NextResponse.json({ subscription });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -58,11 +84,36 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
+
+        const { data: existing } = await supabase
+            .from('finance_subscriptions')
+            .select('name')
+            .eq('id', id)
+            .eq('user_id', userId)
+            .maybeSingle();
+
         await deleteFinanceSubscriptionForUser(
             supabase as unknown as SupabaseClient,
             userId,
             id,
         );
+
+        const name =
+            (existing as { name?: string } | null)?.name ?? 'Subscription';
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'finance',
+            eventType: 'finance.subscription_cancelled',
+            sourceId: id,
+            sourceTable: 'finance_subscriptions',
+            category: 'data',
+            severity: 'info',
+            priority: 'low',
+            title: `Subscription removed: ${name}`,
+            actionUrl: '/finance',
+            metadata: { subscriptionId: id },
+        });
+
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

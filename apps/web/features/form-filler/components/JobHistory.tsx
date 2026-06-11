@@ -20,7 +20,7 @@ export function JobHistory({ jobs, loading }: JobHistoryProps) {
     if (jobs.length === 0) {
         return (
             <div className="text-sm text-stone-400 dark:text-zinc-500 py-6 text-center">
-                No fill jobs yet — enter a URL above and click Fill form.
+                No fill jobs yet. Enter a URL above and click Fill form.
             </div>
         );
     }

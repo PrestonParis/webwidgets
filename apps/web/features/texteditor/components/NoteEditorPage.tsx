@@ -12,6 +12,7 @@ import {
 } from '@/features/texteditor/hooks/useWidgetEditor';
 import type { JournalEntry } from '@/features/journal/types/journal';
 import type { NoteType } from '@/features/texteditor/types/texteditor';
+import type { Json } from '@/types/supabase';
 
 export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
     const { user } = useAuth();
@@ -87,6 +88,20 @@ export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
         [user, activeEntry, noteType, entryUtils, setActiveEntry],
     );
 
+    const handleMetadataSave = useCallback(
+        async (metadata: Record<string, unknown>) => {
+            if (!user?.id || !activeEntry) return;
+            await journalService.updateEntryMetadata(
+                user.id,
+                String(activeEntry.id),
+                metadata,
+            );
+            setActiveEntryState({ ...activeEntry, metadata: metadata as Json });
+            entryUtils.refreshEntries();
+        },
+        [user, activeEntry, entryUtils],
+    );
+
     const handleNew = useCallback(() => setActiveEntry(null), [setActiveEntry]);
 
     const handleDelete = useCallback(
@@ -119,6 +134,7 @@ export function NoteEditorPage({ noteType }: { noteType: NoteType }) {
                     noteType={noteType}
                     isSaving={isSaving}
                     onSave={handleSave}
+                    onMetadataSave={handleMetadataSave}
                     onNew={handleNew}
                 />
             </main>

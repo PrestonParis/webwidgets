@@ -4,17 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
-    Users,
     Puzzle,
     Zap,
     Brain,
-    Mail,
-    Server,
     Gauge,
     AlertTriangle,
     DollarSign,
-    RefreshCw,
-    Filter,
     Activity,
     BarChart2,
 } from 'lucide-react';
@@ -28,17 +23,12 @@ interface NavItem {
 
 const NAV: NavItem[] = [
     { href: '/metrics/overview', label: 'Overview', icon: LayoutDashboard },
-    { href: '/metrics/product', label: 'Product', icon: Users },
     { href: '/metrics/widgets', label: 'Widgets', icon: Puzzle },
     { href: '/metrics/actions', label: 'Actions', icon: Zap },
     { href: '/metrics/ml', label: 'ML', icon: Brain },
-    { href: '/metrics/email', label: 'Email', icon: Mail },
-    { href: '/metrics/jobs', label: 'Jobs', icon: Server },
     { href: '/metrics/performance', label: 'Performance', icon: Gauge },
     { href: '/metrics/errors', label: 'Errors', icon: AlertTriangle },
     { href: '/metrics/costs', label: 'Costs', icon: DollarSign },
-    { href: '/metrics/retention', label: 'Retention', icon: RefreshCw },
-    { href: '/metrics/funnels', label: 'Funnels', icon: Filter },
     { href: '/metrics/events', label: 'Events', icon: Activity },
 ];
 

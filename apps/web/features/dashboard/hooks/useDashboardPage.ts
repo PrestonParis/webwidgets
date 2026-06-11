@@ -11,6 +11,7 @@ import { useScenes } from './useScenes';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
 export interface DashboardPageState {
+    userId: string | null;
     firstName: string | null;
     trackers: import('@/features/recovery/types/recovery').Tracker[] | null;
     layout: WidgetConfig[];
@@ -48,7 +49,7 @@ export interface DashboardPageState {
 }
 
 export function useDashboardPage(): DashboardPageState {
-    const { firstName } = useAuth();
+    const { firstName, userId } = useAuth();
     const { trackers, handleReset } = useTrackers();
     const { layout, updateLayout, toggleVisibility, ready } =
         useDashboardLayout(trackers);
@@ -74,6 +75,7 @@ export function useDashboardPage(): DashboardPageState {
         useScenes(layout, updateLayout);
 
     return {
+        userId: userId ?? null,
         firstName,
         trackers,
         layout,

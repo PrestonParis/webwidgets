@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import { logActivity } from '@/features/collaboration/lib/activityLogger';
 
 export async function GET(req: Request) {
     try {
@@ -70,6 +71,23 @@ export async function POST(req: Request) {
             )
             .single();
         if (error) throw error;
+
+        const handoff = data as {
+            id: string;
+            title: string;
+            workspace_id: string | null;
+        };
+        if (handoff.workspace_id) {
+            await logActivity(supabase, {
+                workspaceId: handoff.workspace_id,
+                actorId: userId,
+                action: 'handoff_created',
+                targetType: 'handoff',
+                targetId: handoff.id,
+                metadata: { targetTitle: handoff.title },
+            });
+        }
+
         return NextResponse.json(data, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {

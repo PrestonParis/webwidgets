@@ -47,9 +47,9 @@ export function CalendarGrid({
                             ${isDisabled ? 'text-gray-200 dark:text-zinc-800 cursor-default' : 'cursor-pointer'}
                             ${
                                 isSelected
-                                    ? 'bg-purple-600 text-white'
+                                    ? 'bg-(--dp-accent) text-white'
                                     : isToday
-                                      ? 'text-purple-600 dark:text-purple-400 font-bold'
+                                      ? 'text-(--dp-accent) font-bold'
                                       : isDisabled
                                         ? ''
                                         : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800'

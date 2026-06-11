@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { executeUnifiedAction } from '@/features/actions/engine/actionEngine';
+import { executeUnifiedAction } from '@/features/actions/lib/actionEngine';
 
 const runtime = { userId: 'user-test' };
 

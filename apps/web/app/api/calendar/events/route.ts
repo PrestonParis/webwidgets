@@ -8,6 +8,9 @@ import { createGmailClient } from '@/features/inbox/lib/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { calendar_v3 } from 'googleapis';
 import type { CalendarEvent } from '@/features/calendar/types/calendar';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestCalendarEventContext } from '@/features/context/services/contextProducerService';
+import { markContextStatus } from '@/features/context/services/contextService';
 
 type CalEventsResource = {
     insert(
@@ -94,6 +97,33 @@ function mapEvent(e: {
         htmlLink: e.htmlLink ?? '',
         ...(e.hangoutLink ? { hangoutLink: e.hangoutLink } : {}),
         ...(e.colorId ? { colorId: e.colorId } : {}),
+    };
+}
+
+function calendarContextPayload(
+    event: CalendarEvent,
+    fallbackId?: string,
+): {
+    id: string;
+    summary: string;
+    description?: string | null;
+    start?: string | null;
+    end?: string | null;
+    htmlLink?: string | null;
+    createdByType: 'user';
+} {
+    const start = event.start.dateTime ?? event.start.date;
+    const end = event.end.dateTime ?? event.end.date;
+    return {
+        id: event.id || fallbackId || '',
+        summary: event.summary,
+        ...(event.description !== undefined
+            ? { description: event.description }
+            : {}),
+        ...(start !== undefined ? { start } : {}),
+        ...(end !== undefined ? { end } : {}),
+        ...(event.htmlLink ? { htmlLink: event.htmlLink } : {}),
+        createdByType: 'user',
     };
 }
 
@@ -194,7 +224,35 @@ export async function POST(req: Request): Promise<Response> {
         },
     });
 
-    return NextResponse.json(mapEvent(data), { status: 201 });
+    const created = mapEvent(data);
+    const startLabel =
+        created.start.dateTime?.slice(0, 16).replace('T', ' ') ??
+        created.start.date ??
+        '';
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_created',
+        sourceId: created.id,
+        category: 'data',
+        severity: 'info',
+        priority: 'normal',
+        title: `Calendar event created: ${created.summary}`,
+        ...(startLabel ? { body: startLabel } : {}),
+        actionUrl: created.htmlLink,
+        metadata: {
+            eventId: created.id,
+            summary: created.summary,
+            start: startLabel,
+        },
+    });
+    await ingestCalendarEventContext(
+        supabase,
+        user.id,
+        calendarContextPayload(created),
+    ).catch(() => undefined);
+
+    return NextResponse.json(created, { status: 201 });
 }
 
 // ─── PATCH — update event ─────────────────────────────────────────────────────
@@ -258,7 +316,26 @@ export async function PATCH(req: Request): Promise<Response> {
         requestBody: patchBody,
     });
 
-    return NextResponse.json(mapEvent(data));
+    const updated = mapEvent(data);
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_updated',
+        sourceId: eventId,
+        category: 'data',
+        severity: 'info',
+        priority: 'low',
+        title: `Calendar event updated: ${updated.summary}`,
+        actionUrl: updated.htmlLink,
+        metadata: { eventId, summary: updated.summary },
+    });
+    await ingestCalendarEventContext(
+        supabase,
+        user.id,
+        calendarContextPayload(updated, eventId),
+    ).catch(() => undefined);
+
+    return NextResponse.json(updated);
 }
 
 // ─── DELETE — remove event ────────────────────────────────────────────────────
@@ -282,6 +359,24 @@ export async function DELETE(req: Request): Promise<Response> {
 
     const calendar = await buildCalendarClient(supabaseAdmin, user.id);
     await calendar.events.delete({ calendarId: 'primary', eventId });
+
+    await publishActivityEventSafe(supabase, {
+        userId: user.id,
+        source: 'calendar',
+        eventType: 'calendar.event_deleted',
+        sourceId: eventId,
+        category: 'data',
+        severity: 'info',
+        priority: 'low',
+        title: 'Calendar event deleted',
+        metadata: { eventId },
+    });
+    await markContextStatus(
+        supabase,
+        user.id,
+        `calendar_event:${eventId}`,
+        'deleted',
+    ).catch(() => undefined);
 
     return new Response(null, { status: 204 });
 }

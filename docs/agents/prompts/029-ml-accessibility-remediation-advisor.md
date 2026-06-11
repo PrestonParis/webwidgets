@@ -36,4 +36,3 @@ Build an accessibility remediation advisor for the Accessibility Center. It shou
 - Motion issues mention reduced-motion behavior.
 - Empty issue lists return an empty plan, not an error.
 - Accessibility Center still renders deterministic recommendations when ML is unavailable.
-

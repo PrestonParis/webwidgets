@@ -52,9 +52,7 @@ export function Toggle({
             className={cn(
                 'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
                 'disabled:cursor-not-allowed disabled:opacity-40',
-                enabled
-                    ? 'bg-emerald-500'
-                    : 'bg-zinc-300 dark:bg-zinc-700',
+                enabled ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700',
             )}
         >
             <span

@@ -33,7 +33,7 @@ const ASSET_HINTS: Record<
     real_estate: {
         placeholder: '123 Main St',
         hint: 'Enter address as display name. Paste Zillow ZPID for auto-fetch.',
-        configHint: 'Zillow property ID (zpid) — optional, enables auto-fetch',
+        configHint: 'Zillow property ID (zpid), optional, enables auto-fetch',
     },
     other: { placeholder: 'My asset', hint: 'You will log values manually' },
     custom: { placeholder: 'My metric', hint: 'You will log values manually' },

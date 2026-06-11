@@ -184,7 +184,7 @@ export default function StudyDetailPage() {
                             <h2 className="text-lg font-semibold mb-1">
                                 {activeChapter.title}
                                 <span className="ml-2 text-xs text-zinc-600 font-normal">
-                                    — double-click chapter name to rename
+                                    (double-click chapter name to rename)
                                 </span>
                             </h2>
                             <p className="text-xs text-zinc-500 mb-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/features/ui/components/Header';
 import DashboardGrid from './DashboardGrid';
 import FreeCanvas from './FreeCanvas';
@@ -17,7 +18,7 @@ import type {
 } from '@/features/dashboard/types/dashboard';
 import type { Tracker } from '@/features/recovery/types/recovery';
 import type { SnapRule } from '@/features/dashboard/types/dashboard';
-import { buildDefaultLayout } from '@/features/dashboard/lib/dashboardLayout';
+import { buildResetLayout } from '@/features/dashboard/lib/dashboardLayout';
 import { DashboardHeaderBar } from './DashboardHeaderBar';
 import { SimplifiedDashboard } from './SimplifiedDashboard';
 import type { Scene } from '@/features/dashboard/hooks/useScenes';
@@ -240,8 +241,10 @@ function GridView({
 
 export default function Dashboard() {
     const { oneDimensionalMode } = useAccessibility();
+    const searchParams = useSearchParams();
     const {
         firstName,
+        userId,
         trackers,
         layout,
         updateLayout,
@@ -306,6 +309,34 @@ export default function Dashboard() {
         document.addEventListener('fullscreenchange', handler);
         return () => document.removeEventListener('fullscreenchange', handler);
     }, []);
+
+    // Handle ?addWidget=synthesized&widgetId=<id> from widget builder
+    const addWidgetType = searchParams.get('addWidget');
+    const addWidgetId = searchParams.get('widgetId');
+    useEffect(() => {
+        if (!addWidgetType || !layout.length || !ready) return;
+        const newId = `widget-${addWidgetType}-${addWidgetId ?? Date.now()}`;
+        const alreadyAdded = layout.some((w) => w.id === newId);
+        if (alreadyAdded) return;
+        const maxOrder = layout.reduce((m, w) => Math.max(m, w.order), -1);
+        const newWidget: WidgetConfig = {
+            id: newId,
+            type: addWidgetType as WidgetType,
+            visible: true,
+            columnSpan: 1,
+            containerId: 'main',
+            order: maxOrder + 1,
+            ...(addWidgetId
+                ? { settings: { widgetDefinitionId: addWidgetId } }
+                : {}),
+        };
+        updateLayout([...layout, newWidget]);
+        // Clean up URL params
+        const url = new URL(window.location.href);
+        url.searchParams.delete('addWidget');
+        url.searchParams.delete('widgetId');
+        window.history.replaceState({}, '', url.toString());
+    }, [addWidgetType, addWidgetId, layout, ready, updateLayout]);
 
     const toggleFullscreen = useCallback(() => {
         if (!document.fullscreenElement) {
@@ -511,7 +542,10 @@ export default function Dashboard() {
                                     onRenameScene={renameScene}
                                     onResetLayout={() =>
                                         updateLayout(
-                                            buildDefaultLayout(trackers ?? []),
+                                            buildResetLayout(
+                                                userId,
+                                                trackers ?? [],
+                                            ),
                                         )
                                     }
                                     snapRule={snapRule}

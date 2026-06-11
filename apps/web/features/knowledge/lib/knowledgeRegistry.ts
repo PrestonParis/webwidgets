@@ -28,7 +28,7 @@ export const KNOWLEDGE_WIDGETS = [
         id: 'on-this-day',
         title: 'On this day',
         description: 'Archive resurfacing for dated journal and note entries.',
-        status: 'Coming soon',
+        status: 'Live',
     },
     {
         id: 'source-collector',

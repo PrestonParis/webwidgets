@@ -9,11 +9,11 @@ function dayLabel(day: ForecastDay): string {
     return DAY_ABBREVS[d.getDay()] ?? day.date.slice(5);
 }
 
-interface Props {
+interface WeatherForecastStripProps {
     days: ForecastDay[];
 }
 
-export function WeatherForecastStrip({ days }: Props) {
+export function WeatherForecastStrip({ days }: WeatherForecastStripProps) {
     if (days.length === 0) return null;
 
     return (
@@ -22,7 +22,7 @@ export function WeatherForecastStrip({ days }: Props) {
                 <div
                     key={day.date}
                     className={cn(
-                        'flex flex-col items-center min-w-[44px] shrink-0 py-1.5 px-1 rounded-lg',
+                        'flex flex-col items-center min-w-11 shrink-0 py-1.5 px-1 rounded-lg',
                         day.isToday
                             ? 'bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/60'
                             : day.isPast

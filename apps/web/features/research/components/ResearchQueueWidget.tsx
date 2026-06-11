@@ -57,8 +57,8 @@ export default function ResearchQueueWidget({
                 )}
                 {hasHydrated && !activeSource && (
                     <div className="rounded border border-dashed border-zinc-300 p-2 text-xs text-zinc-500 dark:border-zinc-700">
-                        Add a research source from the workspace before
-                        running pipelines.
+                        Add a research source from the workspace before running
+                        pipelines.
                     </div>
                 )}
                 {activeSource && status.isLoading && (
@@ -118,10 +118,10 @@ export default function ResearchQueueWidget({
                     {activeRoot &&
                         !artifacts.isLoading &&
                         artifactCount === 0 && (
-                        <p className="rounded border border-dashed border-zinc-300 p-2 text-xs text-zinc-500 dark:border-zinc-700">
-                            No matching research artifacts.
-                        </p>
-                    )}
+                            <p className="rounded border border-dashed border-zinc-300 p-2 text-xs text-zinc-500 dark:border-zinc-700">
+                                No matching research artifacts.
+                            </p>
+                        )}
                     {artifacts.data?.slice(0, 4).map((artifact) => (
                         <div
                             key={artifact.id}

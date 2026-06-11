@@ -135,9 +135,7 @@ function IntegrationCard({
                         disabled={!keyValue.trim() || saving}
                         className="px-4 py-2 rounded-xl text-sm font-medium bg-[#4f6ef7] text-white hover:bg-[#3d5ce0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
                     >
-                        {saving ? (
-                            <LoadingSpinner size="xs" />
-                        ) : null}
+                        {saving ? <LoadingSpinner size="xs" /> : null}
                         Save
                     </button>
                 </div>
@@ -149,8 +147,15 @@ function IntegrationCard({
 // ─── page ─────────────────────────────────────────────────────────────────────
 
 export default function IntegrationsPage() {
-    const { states, loading, saving, connectGoogle, connectMicrosoft, saveKey, removeKey } =
-        useIntegrations();
+    const {
+        states,
+        loading,
+        saving,
+        connectGoogle,
+        connectMicrosoft,
+        saveKey,
+        removeKey,
+    } = useIntegrations();
     const groups = groupedProviders();
 
     const handleConnect = (provider: IntegrationProvider) => {
@@ -163,9 +168,7 @@ export default function IntegrationsPage() {
     };
 
     if (loading) {
-        return (
-            <PageLoading fullscreen={false} minHeight="min-h-96" />
-        );
+        return <PageLoading fullscreen={false} minHeight="min-h-96" />;
     }
 
     return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
     MemoryDifficulty,
@@ -98,7 +99,7 @@ export function useMemorization() {
             description?: string;
             source?: string;
         }) => {
-            const res = await fetch('/api/memory/decks', {
+            const res = await apiRouteFetch('/api/memory/decks', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -114,7 +115,7 @@ export function useMemorization() {
     );
 
     const deleteDeck = useCallback(async (id: string) => {
-        await fetch(`/api/memory/decks/${id}`, { method: 'DELETE' });
+        await apiRouteFetch(`/api/memory/decks/${id}`, { method: 'DELETE' });
         clearCachedJson('/api/memory/decks');
         clearCachedJson('/api/memory/cards');
         setDecks((prev) => prev.filter((d) => d.id !== id));
@@ -124,7 +125,7 @@ export function useMemorization() {
 
     const createCard = useCallback(
         async (data: { deck_id: string; front: string; back: string }) => {
-            const res = await fetch('/api/memory/cards', {
+            const res = await apiRouteFetch('/api/memory/cards', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -140,7 +141,7 @@ export function useMemorization() {
 
     const gradeCard = useCallback(
         async (id: string, difficulty: MemoryDifficulty) => {
-            const res = await fetch(`/api/memory/cards/${id}`, {
+            const res = await apiRouteFetch(`/api/memory/cards/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ grade: difficulty }),
@@ -154,7 +155,7 @@ export function useMemorization() {
     );
 
     const deleteCard = useCallback(async (id: string) => {
-        await fetch(`/api/memory/cards/${id}`, { method: 'DELETE' });
+        await apiRouteFetch(`/api/memory/cards/${id}`, { method: 'DELETE' });
         clearCachedJson('/api/memory/cards');
         setCards((prev) => prev.filter((c) => c.id !== id));
     }, []);
@@ -164,7 +165,7 @@ export function useMemorization() {
             const created: MemoryCardRecord[] = [];
             for (const row of rows) {
                 if (!row.front.trim() || !row.back.trim()) continue;
-                const res = await fetch('/api/memory/cards', {
+                const res = await apiRouteFetch('/api/memory/cards', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     ChatConversation,
     ChatMessage,
@@ -19,7 +20,7 @@ export async function createConversation(
     model: string,
     provider: ModelProvider,
 ): Promise<ChatConversation> {
-    const res = await fetch('/api/chat/conversations', {
+    const res = await apiRouteFetch('/api/chat/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, provider }),
@@ -33,14 +34,16 @@ export async function createConversation(
 export async function listMessages(
     conversationId: string,
 ): Promise<ChatMessage[]> {
-    const res = await fetch(`/api/chat/conversations/${conversationId}`);
+    const res = await apiRouteFetch(
+        `/api/chat/conversations/${conversationId}`,
+    );
     if (!res.ok) throw new Error('Failed to fetch messages');
     const json = (await res.json()) as { messages: ChatMessage[] };
     return json.messages;
 }
 
 export async function deleteConversation(id: string): Promise<void> {
-    const res = await fetch(`/api/chat/conversations/${id}`, {
+    const res = await apiRouteFetch(`/api/chat/conversations/${id}`, {
         method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete conversation');
@@ -50,7 +53,7 @@ export async function deleteConversation(id: string): Promise<void> {
 export function sendMessageStream(
     payload: SendMessagePayload,
 ): Promise<Response> {
-    return fetch('/api/chat', {
+    return apiRouteFetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -61,7 +64,7 @@ export async function saveModelKey(
     provider: ModelProvider,
     apiKey: string,
 ): Promise<void> {
-    const res = await fetch('/api/chat/model-keys', {
+    const res = await apiRouteFetch('/api/chat/model-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider, apiKey }),
@@ -71,7 +74,7 @@ export async function saveModelKey(
 }
 
 export async function deleteModelKey(provider: ModelProvider): Promise<void> {
-    const res = await fetch(`/api/chat/model-keys/${provider}`, {
+    const res = await apiRouteFetch(`/api/chat/model-keys/${provider}`, {
         method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete model key');
@@ -85,10 +88,7 @@ export async function listModelProviderAvailability(): Promise<{
     return cachedJson<{
         providers: ModelProvider[];
         availability?: ModelProviderAvailability[];
-    }>(
-        '/api/chat/model-keys',
-        { ttlMs: 15_000 },
-    ).then((json) => ({
+    }>('/api/chat/model-keys', { ttlMs: 15_000 }).then((json) => ({
         providers: json.providers,
         availability:
             json.availability ??

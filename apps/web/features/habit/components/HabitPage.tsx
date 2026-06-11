@@ -9,7 +9,7 @@ import HabitListItem from '@/features/habit/components/HabitListItem';
 import HabitAddForm from '@/features/habit/components/HabitAddForm';
 import HabitAddButton from '@/features/habit/components/HabitAddButton';
 
-export function HabitPage() {
+export function HabitPageContent() {
     const {
         habits,
         loading,
@@ -35,14 +35,14 @@ export function HabitPage() {
     const completedToday = habits.filter((h) => isCompletedToday(h.id)).length;
 
     return (
-        <main className="max-w-2xl mx-auto px-6 py-8 lg:px-12">
-            <div className="flex items-center justify-between mb-8">
+        <div>
+            <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <Flame size={22} className="text-orange-500" />
+                    <Flame size={20} className="text-orange-500" />
                     <div>
-                        <h1 className="text-2xl font-bold text-stone-900 dark:text-zinc-100">
+                        <h2 className="text-lg font-bold text-stone-900 dark:text-zinc-100">
                             All Logging
-                        </h1>
+                        </h2>
                         {habits.length > 0 && (
                             <p className="text-sm text-stone-500 dark:text-zinc-500">
                                 {completedToday} / {habits.length} done today
@@ -93,6 +93,14 @@ export function HabitPage() {
                     )}
                 </div>
             )}
+        </div>
+    );
+}
+
+export function HabitPage() {
+    return (
+        <main className="max-w-2xl mx-auto px-6 py-8 lg:px-12">
+            <HabitPageContent />
         </main>
     );
 }

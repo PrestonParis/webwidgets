@@ -36,4 +36,3 @@ Build an ML/data-processing endpoint that understands Creative Studio canvas lay
 - Hidden layers are ignored for export readiness.
 - Canvas with all visible layers inside bounds returns `ready: true`.
 - Creative Studio remains fully functional with local deterministic state when ML is unavailable.
-

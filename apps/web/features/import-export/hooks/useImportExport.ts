@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type {
@@ -28,14 +29,20 @@ export function useImportExport() {
         try {
             const [capsRes, healthRes, importsRes, exportsRes, ctxRes] =
                 await Promise.allSettled([
-                    fetch('/api/import-export/capabilities').then((r) =>
+                    apiRouteFetch('/api/import-export/capabilities').then((r) =>
                         r.json(),
                     ),
-                    fetch('/api/import-export/health').then((r) => r.json()),
-                    fetch('/api/import-export/imports').then((r) => r.json()),
-                    fetch('/api/import-export/exports').then((r) => r.json()),
-                    fetch('/api/import-export/context-export').then((r) =>
+                    apiRouteFetch('/api/import-export/health').then((r) =>
                         r.json(),
+                    ),
+                    apiRouteFetch('/api/import-export/imports').then((r) =>
+                        r.json(),
+                    ),
+                    apiRouteFetch('/api/import-export/exports').then((r) =>
+                        r.json(),
+                    ),
+                    apiRouteFetch('/api/import-export/context-export').then(
+                        (r) => r.json(),
                     ),
                 ]);
 
@@ -77,7 +84,7 @@ export function useImportExport() {
             destination_type?: string;
             duplicate_strategy?: string;
         }) => {
-            const res = await fetch('/api/import-export/imports', {
+            const res = await apiRouteFetch('/api/import-export/imports', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -96,7 +103,7 @@ export function useImportExport() {
 
     const parseImportJob = useCallback(
         async (jobId: string, content: string, filename?: string) => {
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/import-export/imports/${jobId}/parse`,
                 {
                     method: 'POST',
@@ -123,7 +130,7 @@ export function useImportExport() {
                 rows?: Array<{ rowIndex: number; raw: Record<string, string> }>;
             },
         ) => {
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/import-export/imports/${jobId}/execute`,
                 {
                     method: 'POST',
@@ -142,7 +149,7 @@ export function useImportExport() {
                 );
             } else {
                 toast.success(
-                    `Import complete — ${json.successCount} rows imported`,
+                    `Import complete. ${json.successCount} rows imported.`,
                 );
             }
             void refresh();
@@ -157,7 +164,7 @@ export function useImportExport() {
             format: string;
             title?: string;
         }) => {
-            const res = await fetch('/api/import-export/exports', {
+            const res = await apiRouteFetch('/api/import-export/exports', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -183,7 +190,7 @@ export function useImportExport() {
     );
 
     const createContextExport = useCallback(async () => {
-        const res = await fetch('/api/import-export/context-export', {
+        const res = await apiRouteFetch('/api/import-export/context-export', {
             method: 'POST',
         });
         const json = await res.json();

@@ -98,8 +98,129 @@ export function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
     return [...base, ...recoveryWidgets];
 }
 
+export function buildEmptyLayout(): WidgetConfig[] {
+    return [];
+}
+
 export function makeSealedKey(userId: string) {
     return `webwidgets_onboarding_sealed_${userId}`;
+}
+
+export function makeOnboardingLayoutKey(userId: string) {
+    return `webwidgets_onboarding_layout_${userId}`;
+}
+
+function isKnownWidgetType(type: string): type is WidgetType {
+    return KNOWN_WIDGET_TYPES.has(type);
+}
+
+function widgetTypeFromId(id: string): WidgetType | null {
+    const withoutPrefix = id.startsWith('widget-') ? id.slice(7) : id;
+    const type = withoutPrefix.endsWith('-suggested')
+        ? withoutPrefix.slice(0, -10)
+        : withoutPrefix;
+    return isKnownWidgetType(type) ? type : null;
+}
+
+function readOnboardingResetSnapshot(
+    userId: string,
+    trackers: Tracker[],
+): WidgetConfig[] | null {
+    try {
+        const raw = localStorage.getItem(makeOnboardingLayoutKey(userId));
+        if (!raw) return null;
+        const layout = JSON.parse(raw) as WidgetConfig[];
+        return reconcileLayout(
+            layout,
+            trackers,
+            true,
+            readSeenTrackerIds(userId),
+        );
+    } catch {
+        return null;
+    }
+}
+
+function buildLayoutFromOnboardingProfile(
+    userId: string,
+): WidgetConfig[] | null {
+    try {
+        const raw = localStorage.getItem(`webwidgets_onboarding:${userId}`);
+        if (!raw) return null;
+
+        const profile = JSON.parse(raw) as {
+            completed?: boolean;
+            selectedWidgetTypes?: string[];
+            generatedWorkspace?: {
+                widgetIds?: string[];
+                bucketWidgetIds?: string[];
+            } | null;
+            preferences?: {
+                layoutMode?: 'grid' | 'free';
+            };
+        };
+
+        if (!profile.completed && !profile.generatedWorkspace) return null;
+
+        const selectedTypes = [
+            ...(profile.selectedWidgetTypes ?? []),
+            ...(profile.generatedWorkspace?.widgetIds ?? [])
+                .map(widgetTypeFromId)
+                .filter((type): type is WidgetType => type !== null),
+        ].filter(isKnownWidgetType);
+        const uniqueSelected = [...new Set(selectedTypes)];
+
+        const bucketTypes = (profile.generatedWorkspace?.bucketWidgetIds ?? [])
+            .map(widgetTypeFromId)
+            .filter(
+                (type): type is WidgetType =>
+                    type !== null && !uniqueSelected.includes(type),
+            );
+
+        const dashboardWidgets = uniqueSelected.map(
+            (type, index): WidgetConfig => ({
+                id: `widget-${type}`,
+                type,
+                visible: true,
+                columnSpan: 1,
+                containerId: 'main',
+                order: index,
+            }),
+        );
+
+        const bucketWidgets = [...new Set(bucketTypes)].map(
+            (type, index): WidgetConfig => ({
+                id: `widget-${type}-suggested`,
+                type,
+                visible: true,
+                columnSpan: 1,
+                containerId: 'bucket',
+                order: dashboardWidgets.length + index,
+            }),
+        );
+
+        return [...dashboardWidgets, ...bucketWidgets];
+    } catch {
+        return null;
+    }
+}
+
+export function buildResetLayout(userId: string | null, trackers: Tracker[]) {
+    if (!userId) return buildEmptyLayout();
+
+    const snapshot = readOnboardingResetSnapshot(userId, trackers);
+    const layout = snapshot ?? buildLayoutFromOnboardingProfile(userId);
+    const resetLayout = layout
+        ? reconcileLayout(layout, trackers, true, readSeenTrackerIds(userId))
+        : buildEmptyLayout();
+
+    localStorage.setItem(makeSealedKey(userId), '1');
+    localStorage.setItem(
+        makeOnboardingLayoutKey(userId),
+        JSON.stringify(resetLayout),
+    );
+
+    return resetLayout;
 }
 
 export function reconcileLayout(

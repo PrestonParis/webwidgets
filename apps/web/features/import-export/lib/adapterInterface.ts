@@ -8,6 +8,7 @@ import type {
     MappedRow,
     AdapterAvailability,
 } from '@/features/import-export/types/importExport';
+import type { AdapterContextMapper } from './contextMapper';
 
 export interface ImportExportAdapter {
     id: string;
@@ -22,7 +23,7 @@ export interface ImportExportAdapter {
 
     // Supported formats
     importFormats: ImportFormat[];
-    exportFormats: ('csv' | 'json')[];
+    exportFormats: ('csv' | 'json' | 'docx' | 'pdf')[];
 
     /** Check if the underlying table/service is available */
     checkAvailability(): Promise<AdapterAvailability>;
@@ -39,4 +40,17 @@ export interface ImportExportAdapter {
 
     /** Return formatted text for AI system prompt */
     provideContext?(userId: string): Promise<string>;
+
+    /**
+     * Build a rich HTML document from this adapter's data, suitable for
+     * conversion to docx/pdf via the conversion service.
+     * Only implement for adapters where a document layout makes sense (e.g. journals).
+     */
+    exportDocument?(
+        userId: string,
+        options?: ExportOptions,
+    ): Promise<{ html: string; title: string; warnings: string[] }>;
+
+    /** Optional normalized adapter row -> context graph mapper */
+    mapToContext?: AdapterContextMapper | undefined;
 }

@@ -11,8 +11,8 @@ export function fireTimerNotification(state: TimerState) {
     const body =
         state.subMode === 'pomodoro'
             ? state.pomodoroPhase === 'focus'
-                ? 'Focus session complete — take a break.'
-                : `${POMODORO_PHASE_LABELS[state.pomodoroPhase as PomodoroPhase]} over — back to focus.`
+                ? 'Focus session complete. Take a break.'
+                : `${POMODORO_PHASE_LABELS[state.pomodoroPhase as PomodoroPhase]} over. Time to focus.`
             : 'Timer complete.';
     new Notification('Time', { body });
 }

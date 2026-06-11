@@ -25,7 +25,10 @@ export function supplementDefinitionFromStored(
         supplement.scheduleEnd &&
         supplement.scheduleEnd !== supplement.scheduleStart
     ) {
-        schedule.times = [supplement.scheduleStart, supplement.scheduleEnd];
+        schedule.times = [
+            supplement.scheduleStart ?? '08:00',
+            supplement.scheduleEnd,
+        ];
     }
     return {
         id: supplement.id,

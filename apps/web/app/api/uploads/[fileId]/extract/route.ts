@@ -11,6 +11,8 @@ import {
     markExtractionProcessing,
 } from '@/features/extraction/services/extractionService';
 import { logEvent } from '@/features/events/lib/eventLogger';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestExtractionContext } from '@/features/context/services/contextProducerService';
 
 async function fetchTextFromS3(objectKey: string): Promise<string> {
     const cmd = new GetObjectCommand({
@@ -137,7 +139,7 @@ export async function POST(
                 conversionId: conv.id,
             });
 
-            // Log event
+            // Log to audit trail (existing behaviour)
             await logEvent(supabase, userId, 'file_text_extracted', {
                 entityType: 'file',
                 entityId: fileId,
@@ -148,6 +150,34 @@ export async function POST(
                 },
             });
 
+            // Publish to activity feed
+            await publishActivityEventSafe(supabase, {
+                userId,
+                source: 'file',
+                eventType: 'file.extracted',
+                sourceId: fileId,
+                sourceTable: 'file_uploads',
+                category: 'content',
+                severity: 'success',
+                priority: 'low',
+                title: `Text extracted: ${file.original_name}`,
+                body: `${extraction.characterCount.toLocaleString()} characters extracted`,
+                actionUrl: `/files`,
+                relatedEntities: [
+                    { type: 'file', id: fileId, label: file.original_name },
+                ],
+                metadata: {
+                    characterCount: extraction.characterCount,
+                    tokenEstimate: extraction.tokenEstimate,
+                    conversionId: conv.id,
+                },
+            });
+            await ingestExtractionContext(supabase, userId, {
+                fileId,
+                fileName: file.original_name,
+                extraction,
+            });
+
             return NextResponse.json({ extraction });
         } catch (s3Err) {
             const errMsg =
@@ -155,6 +185,22 @@ export async function POST(
             await markExtractionFailed(supabase, userId, fileId, errMsg).catch(
                 () => void 0,
             );
+
+            // Publish failure to activity feed
+            await publishActivityEventSafe(supabase, {
+                userId,
+                source: 'file',
+                eventType: 'file.extraction_failed',
+                sourceId: fileId,
+                sourceTable: 'file_uploads',
+                category: 'content',
+                severity: 'critical',
+                priority: 'high',
+                title: `Extraction failed: ${file.original_name}`,
+                body: errMsg,
+                metadata: { fileId, error: errMsg },
+            });
+
             return NextResponse.json(
                 { error: 'EXTRACTION_FAILED', reason: errMsg },
                 { status: 500 },

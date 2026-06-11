@@ -7,6 +7,7 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 // 30-day window for completions returned to the runtime.
 // Wide enough for streak calculations (longest realistic streak) without
@@ -16,7 +17,7 @@ const COMPLETION_WINDOW_DAYS = 30;
 export const habitAdapter: ImportExportAdapter = {
     id: 'habits',
     displayName: 'Habits',
-    description: 'Habit tracking — export your habits and completion history',
+    description: 'Habit tracking: export your habits and completion history',
     sourceType: 'habits',
     canImport: false,
     canExport: true,
@@ -93,7 +94,7 @@ export const habitAdapter: ImportExportAdapter = {
         }
         if (completionError && isMissingTableError(completionError)) {
             warnings.push(
-                'habit_completions table not configured — completion data will be empty',
+                'habit_completions table not configured, completion data will be empty',
             );
         }
 
@@ -141,4 +142,6 @@ export const habitAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings, inlinePayload };
     },
+
+    mapToContext: getContextMapper('habits'),
 };

@@ -153,8 +153,8 @@ export function MealGoalPanel({ onClose }: MealGoalPanelProps) {
                     </button>
                 </div>
                 <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                    A daily total — the amount of calories you aim to consume
-                    per day.
+                    A daily total: the amount of calories you aim to consume per
+                    day.
                 </p>
                 {enableCalories && (
                     <div className="space-y-2">
@@ -271,7 +271,7 @@ export function MealGoalPanel({ onClose }: MealGoalPanelProps) {
                     </button>
                 </div>
                 <p className="text-[10px] text-gray-400 dark:text-zinc-500">
-                    A daily minimum — the least amount of protein you aim to eat
+                    A daily minimum: the least amount of protein you aim to eat
                     per day.
                 </p>
                 {enableProtein && (

@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Shield } from 'lucide-react';
 import type { ContextPermissions } from '@/features/context/types/context';
+import {
+    fetchPermissions,
+    updatePermissions,
+} from '@/features/context/api/contextApi';
+import { DEFAULT_CONTEXT_PERMISSIONS } from '@/features/context/types/schemas';
 
 const STORAGE_KEY = 'context_permissions';
 
-const DEFAULTS: ContextPermissions = {
-    captureWidgetInteractions: true,
-    includeQueryGists: true,
-    aiPersonalization: true,
-};
+const DEFAULTS: ContextPermissions = DEFAULT_CONTEXT_PERMISSIONS;
 
 function loadPermissions(): ContextPermissions {
     try {
@@ -54,11 +55,28 @@ function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
 
 export function ContextPermissionsPanel() {
     const [perms, setPerms] = useState<ContextPermissions>(loadPermissions);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        void fetchPermissions()
+            .then((remote) => {
+                setPerms(remote);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(remote));
+            })
+            .catch(() => undefined);
+    }, []);
 
     const update = (key: keyof ContextPermissions, value: boolean) => {
         const next = { ...perms, [key]: value };
         setPerms(next);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        setSaving(true);
+        void updatePermissions({ [key]: value })
+            .then((remote) => {
+                setPerms(remote);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(remote));
+            })
+            .finally(() => setSaving(false));
     };
 
     return (
@@ -66,7 +84,7 @@ export function ContextPermissionsPanel() {
             <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#4f6ef7]" />
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
-                    Context Permissions
+                    Context Permissions{saving ? ' saving' : ''}
                 </h3>
             </div>
             <ToggleRow
@@ -78,14 +96,29 @@ export function ContextPermissionsPanel() {
             <ToggleRow
                 label="Chat memory"
                 description="Store gists of your AI conversations to provide continuity."
-                checked={perms.includeQueryGists}
-                onChange={(v) => update('includeQueryGists', v)}
+                checked={perms.captureChatMemory}
+                onChange={(v) => update('captureChatMemory', v)}
             />
             <ToggleRow
                 label="AI personalization"
                 description="Include context graph data in every AI query system prompt."
-                checked={perms.aiPersonalization}
-                onChange={(v) => update('aiPersonalization', v)}
+                checked={perms.allowAIPersonalization}
+                onChange={(v) => update('allowAIPersonalization', v)}
+            />
+            <ToggleRow
+                label="Files and documents"
+                description="Capture uploaded files and documents as context nodes."
+                checked={perms.captureFiles && perms.captureDocuments}
+                onChange={(v) => {
+                    update('captureFiles', v);
+                    update('captureDocuments', v);
+                }}
+            />
+            <ToggleRow
+                label="Cross-widget context"
+                description="Allow widgets to share relevant context with each other."
+                checked={perms.allowCrossWidgetContext}
+                onChange={(v) => update('allowCrossWidgetContext', v)}
             />
         </div>
     );

@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import type {
     Artifact,
@@ -80,7 +81,7 @@ export function useArtifact(id: string | null): UseArtifactResult {
         setIsLoading(true);
         setIsError(false);
 
-        fetch(`/api/artifacts/${id}`)
+        apiRouteFetch(`/api/artifacts/${id}`)
             .then((r) => r.json())
             .then((json: { data?: Artifact }) => {
                 if (mounted) {

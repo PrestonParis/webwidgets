@@ -5,8 +5,24 @@ import { Download } from 'lucide-react';
 import { Button } from '@/features/ui/components/Button';
 import type { ExportPanelProps } from '@/features/import-export/types/importExport';
 
-function downloadFile(content: string, filename: string, contentType: string) {
-    const blob = new Blob([content], { type: contentType });
+function downloadFile(
+    content: string,
+    filename: string,
+    contentType: string,
+    encoding?: string,
+) {
+    let blobSource: BlobPart;
+    if (encoding === 'base64') {
+        const binaryString = atob(content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        blobSource = bytes;
+    } else {
+        blobSource = content;
+    }
+    const blob = new Blob([blobSource], { type: contentType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -27,12 +43,16 @@ export function ExportPanel({
     exportJobs,
     onExport,
 }: ExportPanelProps) {
-    const [sourceType, setSourceType] = useState('tracking_entries');
+    const exportableAdapters = capabilities.filter((c) => c.canExport);
+    const [sourceType, setSourceType] = useState(
+        exportableAdapters[0]?.id ?? 'tracking_entries',
+    );
     const [format, setFormat] = useState('json');
     const [running, setRunning] = useState(false);
     const [lastWarnings, setLastWarnings] = useState<string[]>([]);
 
-    const exportableAdapters = capabilities.filter((c) => c.canExport);
+    const selectedAdapter = exportableAdapters.find((a) => a.id === sourceType);
+    const availableFormats = selectedAdapter?.exportFormats ?? ['json', 'csv'];
 
     const handleExport = async () => {
         setRunning(true);
@@ -44,6 +64,7 @@ export function ExportPanel({
                 result.download.content,
                 result.download.filename,
                 result.download.contentType,
+                result.download.encoding,
             );
         }
         setRunning(false);
@@ -64,7 +85,18 @@ export function ExportPanel({
                         <select
                             className="w-full text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-2"
                             value={sourceType}
-                            onChange={(e) => setSourceType(e.target.value)}
+                            onChange={(e) => {
+                                setSourceType(e.target.value);
+                                const adapter = exportableAdapters.find(
+                                    (a) => a.id === e.target.value,
+                                );
+                                const formats = adapter?.exportFormats ?? [
+                                    'json',
+                                ];
+                                if (!formats.includes(format as never)) {
+                                    setFormat(formats[0] ?? 'json');
+                                }
+                            }}
                         >
                             {exportableAdapters.length === 0 ? (
                                 <option value="">No adapters available</option>
@@ -86,15 +118,14 @@ export function ExportPanel({
                             value={format}
                             onChange={(e) => setFormat(e.target.value)}
                         >
-                            <option value="json">JSON</option>
-                            <option value="csv">CSV</option>
+                            {availableFormats.map((f) => (
+                                <option key={f} value={f}>
+                                    {f.toUpperCase()}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-3">
-                    XLSX and ZIP formats require additional packages (xlsx,
-                    jszip) — not currently available.
-                </p>
                 {lastWarnings.length > 0 && (
                     <ul className="mb-3 text-xs text-amber-600 space-y-1">
                         {lastWarnings.map((w, i) => (

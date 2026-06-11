@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useState } from 'react';
 import { creativeExports, creativeTools } from '../constants';
 import type { CreativeTool } from '../types/creative';
@@ -59,7 +60,7 @@ export function useCreativeStudio() {
     const fetchLayers = useCallback(async (projectId: string) => {
         if (!projectId) return;
         try {
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/creative/projects/${projectId}/layers`,
             );
             if (res.ok) {
@@ -95,7 +96,7 @@ export function useCreativeStudio() {
             description?: string;
             format?: string;
         }) => {
-            const res = await fetch('/api/creative/projects', {
+            const res = await apiRouteFetch('/api/creative/projects', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -113,7 +114,9 @@ export function useCreativeStudio() {
 
     const deleteProject = useCallback(
         async (id: string) => {
-            await fetch(`/api/creative/projects/${id}`, { method: 'DELETE' });
+            await apiRouteFetch(`/api/creative/projects/${id}`, {
+                method: 'DELETE',
+            });
             clearCachedJson('/api/creative/projects');
             setProjects((prev) => prev.filter((p) => p.id !== id));
             if (selectedProjectId === id) {
@@ -135,7 +138,7 @@ export function useCreativeStudio() {
             color?: string;
         }) => {
             if (!selectedProjectId) throw new Error('No project selected');
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/creative/projects/${selectedProjectId}/layers`,
                 {
                     method: 'POST',
@@ -159,7 +162,7 @@ export function useCreativeStudio() {
         async (id: string) => {
             const layer = layers.find((l) => l.id === id);
             if (!layer || !selectedProjectId) return;
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/creative/projects/${selectedProjectId}/layers/${id}`,
                 {
                     method: 'PATCH',
@@ -178,7 +181,7 @@ export function useCreativeStudio() {
         async (id: string) => {
             const layer = layers.find((l) => l.id === id);
             if (!layer || !selectedProjectId) return;
-            const res = await fetch(
+            const res = await apiRouteFetch(
                 `/api/creative/projects/${selectedProjectId}/layers/${id}`,
                 {
                     method: 'PATCH',
@@ -196,7 +199,7 @@ export function useCreativeStudio() {
     const deleteLayer = useCallback(
         async (id: string) => {
             if (!selectedProjectId) return;
-            await fetch(
+            await apiRouteFetch(
                 `/api/creative/projects/${selectedProjectId}/layers/${id}`,
                 { method: 'DELETE' },
             );

@@ -129,7 +129,7 @@ export const STATE_LABELS: Record<WidgetState, string> = {
 
 export const STATE_DESCRIPTIONS: Record<WidgetState, string> = {
     active: 'Fully interactive',
-    passive: 'Display only — no interaction',
+    passive: 'Display only, no interaction',
     dormant: 'Visible but paused',
     suspended: 'Shell visible, compute stopped',
     archived: 'Saved state, not loaded',

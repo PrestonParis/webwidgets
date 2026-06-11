@@ -19,9 +19,24 @@ interface EmptyStateProps {
 }
 
 const sizeMap = {
-    sm: { icon: 16, title: 'text-sm font-medium', desc: 'text-xs', btn: 'text-xs px-3 py-1.5' },
-    md: { icon: 24, title: 'text-sm font-semibold', desc: 'text-sm', btn: 'text-sm px-4 py-2' },
-    lg: { icon: 32, title: 'text-base font-semibold', desc: 'text-sm', btn: 'text-sm px-5 py-2.5' },
+    sm: {
+        icon: 16,
+        title: 'text-sm font-medium',
+        desc: 'text-xs',
+        btn: 'text-xs px-3 py-1.5',
+    },
+    md: {
+        icon: 24,
+        title: 'text-sm font-semibold',
+        desc: 'text-sm',
+        btn: 'text-sm px-4 py-2',
+    },
+    lg: {
+        icon: 32,
+        title: 'text-base font-semibold',
+        desc: 'text-sm',
+        btn: 'text-sm px-5 py-2.5',
+    },
 };
 
 export function EmptyState({
@@ -44,9 +59,16 @@ export function EmptyState({
                 <Icon size={s.icon} />
             </div>
             <div className="space-y-1">
-                <p className={cn(s.title, 'text-zinc-900 dark:text-zinc-100')}>{title}</p>
+                <p className={cn(s.title, 'text-zinc-900 dark:text-zinc-100')}>
+                    {title}
+                </p>
                 {description && (
-                    <p className={cn(s.desc, 'text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed')}>
+                    <p
+                        className={cn(
+                            s.desc,
+                            'text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed',
+                        )}
+                    >
                         {description}
                     </p>
                 )}

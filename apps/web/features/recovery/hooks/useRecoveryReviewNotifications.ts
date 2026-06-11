@@ -38,7 +38,7 @@ export function useRecoveryReviewNotifications() {
                 if (alreadyQueued) continue;
                 addNotification({
                     widgetId,
-                    title: `Review days — ${tracker.addiction}`,
+                    title: `Review days: ${tracker.addiction}`,
                     body: 'You have unreviewed days. Open your recovery tracker to log them.',
                     category: 'info',
                     href: '/recovery',

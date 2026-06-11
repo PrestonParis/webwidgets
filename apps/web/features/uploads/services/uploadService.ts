@@ -29,7 +29,9 @@ export async function insertUploadRecord(
             s3_key: data.s3Key,
             status: 'pending',
         })
-        .select('id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at')
+        .select(
+            'id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at',
+        )
         .single();
 
     if (result.error) throw result.error;
@@ -46,7 +48,9 @@ export async function confirmUpload(
         .update({ status: 'uploaded', updated_at: new Date().toISOString() })
         .eq('id', fileId)
         .eq('user_id', userId)
-        .select('id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at')
+        .select(
+            'id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at',
+        )
         .single();
 
     if (result.error) throw result.error;
@@ -73,7 +77,9 @@ export async function listUploads(
 ): Promise<FileUpload[]> {
     const { data, error } = await supabase
         .from(TABLE)
-        .select('id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at')
+        .select(
+            'id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at',
+        )
         .eq('user_id', userId)
         .eq('status', 'uploaded')
         .order('created_at', { ascending: false })
@@ -90,7 +96,9 @@ export async function getUpload(
 ): Promise<FileUpload | null> {
     const { data, error } = await supabase
         .from(TABLE)
-        .select('id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at')
+        .select(
+            'id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at',
+        )
         .eq('id', fileId)
         .eq('user_id', userId)
         .maybeSingle();

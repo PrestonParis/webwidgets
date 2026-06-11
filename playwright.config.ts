@@ -13,118 +13,112 @@ import { defineConfig, devices } from '@playwright/test';
  * - Robust webServer integration with startup modes
  */
 export default defineConfig({
-  // Test directory
-  testDir: './tests/e2e',
+    // Test directory
+    testDir: './tests/e2e',
 
-  // Timeout configuration
-  timeout: 60 * 1000, // 60 seconds per test
-  expect: {
-    timeout: 10 * 1000, // 10 seconds per assertion
-  },
-
-  // Retry flaky tests
-  retries: process.env.CI ? 2 : 0,
-
-  // Parallelization
-  workers: process.env.CI ? 2 : 4,
-
-  // Reporter configuration
-  reporter: [
-    ['html', { outputFolder: 'tests/e2e/reports/html' }],
-    ['json', { outputFile: 'tests/e2e/reports/results.json' }],
-    ['junit', { outputFile: 'tests/e2e/reports/junit.xml' }],
-    ['list'],
-  ],
-
-  // Shared settings for all tests
-  use: {
-    // Base URL - environment-aware
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
-
-    // Collect trace on first retry
-    trace: 'on-first-retry',
-
-    // Screenshot on failure only
-    screenshot: 'only-on-failure',
-
-    // Video on failure only
-    video: 'retain-on-failure',
-
-    // Browser context options
-    viewport: { width: 1280, height: 720 },
-    ignoreHTTPSErrors: true,
-
-    // Action timeout
-    actionTimeout: 10 * 1000,
-
-    // Navigation timeout
-    navigationTimeout: 30 * 1000,
-  },
-
-  // Projects for different browsers and configurations
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+    // Timeout configuration
+    timeout: 60 * 1000, // 60 seconds per test
+    expect: {
+        timeout: 10 * 1000, // 10 seconds per assertion
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+    // Retry flaky tests
+    retries: process.env.CI ? 2 : 0,
+
+    // Parallelization
+    workers: process.env.CI ? 2 : 4,
+
+    // Reporter configuration
+    reporter: [
+        ['html', { outputFolder: 'tests/e2e/reports/html' }],
+        ['json', { outputFile: 'tests/e2e/reports/results.json' }],
+        ['junit', { outputFile: 'tests/e2e/reports/junit.xml' }],
+        ['list'],
+    ],
+
+    // Shared settings for all tests
+    use: {
+        // Base URL - environment-aware
+        baseURL: process.env.BASE_URL || 'http://localhost:3000',
+
+        // Collect trace on first retry
+        trace: 'on-first-retry',
+
+        // Screenshot on failure only
+        screenshot: 'only-on-failure',
+
+        // Video on failure only
+        video: 'retain-on-failure',
+
+        // Browser context options
+        viewport: { width: 1280, height: 720 },
+        ignoreHTTPSErrors: true,
+
+        // Action timeout
+        actionTimeout: 10 * 1000,
+
+        // Navigation timeout
+        navigationTimeout: 30 * 1000,
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // Projects for different browsers and configurations
+    projects: [
+        {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+        },
 
-    // Mobile viewport
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
+        {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+        },
 
-    // Critical path tests - run first
-    {
-      name: 'critical',
-      testMatch: /.*\.critical\.spec\.ts/,
-      dependencies: ['chromium'],
-    },
+        {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+        },
 
-    // Performance tests - run sequentially
-    {
-      name: 'performance',
-      testMatch: /.*\.perf\.spec\.ts/,
-      fullyParallel: false,
-      retries: 0,
-    },
+        // Mobile viewport
+        {
+            name: 'mobile-chrome',
+            use: { ...devices['Pixel 5'] },
+        },
 
-    // Slow tests - run separately
-    {
-      name: 'slow',
-      testMatch: /.*\.slow\.spec\.ts/,
-      fullyParallel: false,
-    },
-  ],
+        // Critical path tests - run first
+        {
+            name: 'critical',
+            testMatch: /.*\.critical\.spec\.ts/,
+            dependencies: ['chromium'],
+        },
 
-  // Test organization
-  testMatch: [
-    '**/*.spec.ts',
-    '**/*.e2e.ts',
-  ],
+        // Performance tests - run sequentially
+        {
+            name: 'performance',
+            testMatch: /.*\.perf\.spec\.ts/,
+            fullyParallel: false,
+            retries: 0,
+        },
 
-  // Ignore patterns
-  testIgnore: [
-    '**/*.unit.spec.ts',
-    '**/node_modules/**',
-  ],
+        // Slow tests - run separately
+        {
+            name: 'slow',
+            testMatch: /.*\.slow\.spec\.ts/,
+            fullyParallel: false,
+        },
+    ],
 
-  // Output directory
-  outputDir: 'tests/e2e/artifacts',
+    // Test organization
+    testMatch: ['**/*.spec.ts', '**/*.e2e.ts'],
 
-  // Global setup - performs runtime diagnostics
-  globalSetup: require.resolve('./tests/e2e/helpers/global-setup'),
+    // Ignore patterns
+    testIgnore: ['**/*.unit.spec.ts', '**/node_modules/**'],
 
-  // Global teardown - cleanup resources
-  globalTeardown: require.resolve('./tests/e2e/helpers/global-teardown'),
+    // Output directory
+    outputDir: 'tests/e2e/artifacts',
+
+    // Global setup - performs runtime diagnostics
+    globalSetup: require.resolve('./tests/e2e/helpers/global-setup'),
+
+    // Global teardown - cleanup resources
+    globalTeardown: require.resolve('./tests/e2e/helpers/global-teardown'),
 });

@@ -10,12 +10,27 @@ export interface Supplement {
     id: string;
     userId: string;
     name: string;
+    brand?: string;
     dose?: string;
-    scheduleType: SupplementScheduleType;
-    scheduleStart: string; // HH:MM 24-hour
-    scheduleEnd?: string; // HH:MM 24-hour, window only
+    doseAmount?: number;
+    doseUnit?: string;
+    servingSize?: string;
     active: boolean;
     createdAt: string;
+    scheduleStart: string;
+    scheduleEnd?: string;
+    scheduleType: SupplementScheduleType;
+}
+
+export interface CreateSupplementPayload {
+    name: string;
+    brand?: string;
+    dose?: string;
+    doseAmount?: number;
+    doseUnit?: string;
+    scheduleType: SupplementScheduleType;
+    scheduleStart: string;
+    scheduleEnd?: string;
 }
 
 export interface DbSupplementRow {
@@ -23,17 +38,9 @@ export interface DbSupplementRow {
     user_id: string;
     name: string;
     dose: string | null;
-    schedule_type: string;
+    schedule_type: SupplementScheduleType;
     schedule_start: string;
     schedule_end: string | null;
     active: boolean;
     created_at: string;
-}
-
-export interface CreateSupplementPayload {
-    name: string;
-    dose?: string;
-    scheduleType: SupplementScheduleType;
-    scheduleStart: string;
-    scheduleEnd?: string;
 }

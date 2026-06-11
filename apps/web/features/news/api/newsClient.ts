@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import superjson from 'superjson';
 import type { SuperJSONResult } from 'superjson';
 import { z } from 'zod';
@@ -15,7 +16,7 @@ const responseSchema = z.object({
 });
 
 export async function fetchNewsFeed(): Promise<NewsFeedResponse> {
-    const response = await fetch('/api/news/feed');
+    const response = await apiRouteFetch('/api/news/feed');
     if (!response.ok) throw new Error('Failed to load news feed');
     const wirePayload = (await response.json()) as SuperJSONResult;
     return responseSchema.parse(superjson.deserialize(wirePayload));

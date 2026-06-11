@@ -57,7 +57,8 @@ export function SubscriptionList({
 }: SubscriptionListProps) {
     const [showModal, setShowModal] = useState(autoOpenAdd ?? false);
     const [editing, setEditing] = useState<FinanceSubscription | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<FinanceSubscription | null>(null);
+    const [deleteTarget, setDeleteTarget] =
+        useState<FinanceSubscription | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const fmt =
         formatAmount ??

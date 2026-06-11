@@ -36,4 +36,3 @@ Build a handoff risk detector for the Collaboration feature. It should identify 
 - Healthy live workspaces score low.
 - Permission templates with automation role and zero approvals are flagged.
 - Frontend falls back to existing deterministic handoff queue if ML is unavailable.
-

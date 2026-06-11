@@ -8,9 +8,13 @@ export function getConversionApiUrl(path: string) {
     return `${base.replace(/\/$/, '')}${path}`;
 }
 
-export async function proxyConversionRequest(request: NextRequest, path: string) {
+export async function proxyConversionRequest(
+    request: NextRequest,
+    path: string,
+) {
     const headers: Record<string, string> = {
-        'content-type': request.headers.get('content-type') ?? 'application/json',
+        'content-type':
+            request.headers.get('content-type') ?? 'application/json',
     };
 
     // Inject the service auth key server-side so it is never exposed to the browser.

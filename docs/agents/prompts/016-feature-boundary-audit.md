@@ -3,7 +3,7 @@
 Status: Complete  
 Assigned Agent: Claude  
 Stage: 1  
-Priority: High  
+Priority: High
 
 ## Objective
 
@@ -50,6 +50,7 @@ ls -R features/
 Audited all 42 feature directories. Findings:
 
 **Root-level files that should move (deferred — risky imports):**
+
 - `features/analytics/` — 4 root files (posthog.ts, eventNames.ts, trackEvent.ts, analyticsQueries.ts) should be in `lib/`; ~15 external imports across app/api routes would need updating.
 - `features/texteditor/types.ts`, `features/timekeeping/types.ts` — should be in `types/` subfolder.
 

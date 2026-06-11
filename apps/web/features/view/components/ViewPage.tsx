@@ -1,7 +1,9 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft } from 'lucide-react';
 import { useViewFiles } from '@/features/view/hooks/useViewFiles';
 import { useViewStore } from '@/features/view/state/viewStore';
 import { viewFileToRef } from '@/features/view/providers/uploadViewProvider';
@@ -10,6 +12,7 @@ import { ViewToolbar } from '@/features/view/components/ViewToolbar';
 import { ViewFileGrid } from '@/features/view/components/ViewFileGrid';
 import { ViewDetailsPane } from '@/features/view/components/ViewDetailsPane';
 import { ViewUploadZone } from '@/features/view/components/ViewUploadZone';
+import { ViewWorkspace } from '@/features/view/components/ViewWorkspace';
 import type {
     ViewFile,
     ViewFolder,
@@ -19,7 +22,7 @@ import type {
 } from '@/features/view/types/viewFile';
 
 async function fetchFolders(): Promise<ViewFolder[]> {
-    const res = await fetch('/api/uploads/folders');
+    const res = await apiRouteFetch('/api/uploads/folders');
     if (!res.ok) return [];
     const data = (await res.json()) as { folders?: ViewFolder[] };
     return data.folders ?? [];
@@ -35,6 +38,7 @@ export function ViewPage() {
     });
 
     const setActiveFile = useViewStore((s) => s.setActiveFile);
+    const activeViewFile = useViewStore((s) => s.activeFile);
     const uploadInputRef = useRef<HTMLInputElement>(null);
 
     // Layout state
@@ -65,7 +69,7 @@ export function ViewPage() {
     };
 
     const handleCreateFolder = async (name: string) => {
-        await fetch('/api/uploads/folders', {
+        await apiRouteFetch('/api/uploads/folders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name }),
@@ -138,7 +142,27 @@ export function ViewPage() {
                             </button>
                         </div>
                     )}
-                    {!isLoading && !isError && (
+                    {!isLoading && !isError && activeViewFile && (
+                        <div className="flex h-full min-h-0 flex-col">
+                            <div className="flex shrink-0 items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-3 py-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveFile(null)}
+                                    className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-100"
+                                >
+                                    <ArrowLeft size={14} />
+                                    Files
+                                </button>
+                                <span className="min-w-0 truncate text-xs text-zinc-500">
+                                    Editing {activeViewFile.name}
+                                </span>
+                            </div>
+                            <div className="min-h-0 flex-1">
+                                <ViewWorkspace compact />
+                            </div>
+                        </div>
+                    )}
+                    {!isLoading && !isError && !activeViewFile && (
                         <ViewUploadZone className="min-h-full">
                             {sectionFiltered.length === 0 &&
                             search === '' &&

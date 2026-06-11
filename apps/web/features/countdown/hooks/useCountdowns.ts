@@ -78,7 +78,12 @@ export function useCountdowns() {
     );
 
     const updateCountdown = useCallback(
-        async (id: string, name: string, target_date: string, emoji: string) => {
+        async (
+            id: string,
+            name: string,
+            target_date: string,
+            emoji: string,
+        ) => {
             if (!user?.id || !id || !name.trim() || !target_date) return;
             const { data, error } = await supabase
                 .from('countdowns')
@@ -115,5 +120,11 @@ export function useCountdowns() {
         setCountdowns((prev) => prev.filter((c) => c.id !== id));
     }, []);
 
-    return { countdowns, loading, addCountdown, updateCountdown, deleteCountdown };
+    return {
+        countdowns,
+        loading,
+        addCountdown,
+        updateCountdown,
+        deleteCountdown,
+    };
 }

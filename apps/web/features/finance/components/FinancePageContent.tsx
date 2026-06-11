@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff, Lock, LockOpen, Blend } from 'lucide-react';
 import Header from '@/features/ui/components/Header';
 import { useFinanceAccounts } from '@/features/finance/hooks/useFinanceAccounts';
 import { useFinanceTransactions } from '@/features/finance/hooks/useFinanceTransactions';
@@ -14,7 +15,6 @@ import { SubscriptionList } from '@/features/finance/components/SubscriptionList
 import { WatchlistTab } from '@/features/finance/components/watchlist/WatchlistTab';
 import { FinanceOverviewInsights } from '@/features/finance/components/FinanceOverviewInsights';
 import { FinanceAutomationPanel } from '@/features/finance/components/FinanceAutomationPanel';
-import { FinancePrivacyToggle } from '@/features/finance/components/FinancePrivacyToggle';
 import { useFinancePrivacy } from '@/features/finance/hooks/useFinancePrivacy';
 import { AnomalyAlertBanner } from '@/features/finance/components/AnomalyAlertBanner';
 
@@ -226,6 +226,7 @@ export function FinancePageContent() {
         <>
             <Header />
             <div className="max-w-5xl mx-auto px-4 py-8 space-y-5">
+                {/* Page header */}
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
@@ -236,21 +237,76 @@ export function FinancePageContent() {
                             automation-ready actions.
                         </p>
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest text-emerald-500 dark:text-emerald-400 rounded-full border border-emerald-500/30 px-3 py-1">
-                        Private by default
+                    <div className="flex items-center gap-2">
+                        {/* Compact privacy controls */}
+                        <button
+                            title={
+                                privacySettings.hideBalances
+                                    ? 'Show balances'
+                                    : 'Hide balances'
+                            }
+                            onClick={() =>
+                                updatePrivacy({
+                                    hideBalances: !privacySettings.hideBalances,
+                                })
+                            }
+                            className={`p-2 rounded-lg border transition-colors ${privacySettings.hideBalances ? 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-gray-200 text-gray-400 hover:border-gray-300 dark:border-zinc-800 dark:text-zinc-500 dark:hover:border-zinc-700'}`}
+                        >
+                            {privacySettings.hideBalances ? (
+                                <EyeOff size={14} />
+                            ) : (
+                                <Eye size={14} />
+                            )}
+                        </button>
+                        <button
+                            title={
+                                privacySettings.blurAmounts
+                                    ? 'Disable blur'
+                                    : 'Blur until hover'
+                            }
+                            onClick={() =>
+                                updatePrivacy({
+                                    blurAmounts: !privacySettings.blurAmounts,
+                                })
+                            }
+                            className={`p-2 rounded-lg border transition-colors ${privacySettings.blurAmounts ? 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-gray-200 text-gray-400 hover:border-gray-300 dark:border-zinc-800 dark:text-zinc-500 dark:hover:border-zinc-700'}`}
+                        >
+                            <Blend size={14} />
+                        </button>
+                        <button
+                            title={
+                                privacySettings.lowProfileMode
+                                    ? 'Disable low profile'
+                                    : 'Low profile mode'
+                            }
+                            onClick={() =>
+                                updatePrivacy({
+                                    lowProfileMode:
+                                        !privacySettings.lowProfileMode,
+                                })
+                            }
+                            className={`p-2 rounded-lg border transition-colors ${privacySettings.lowProfileMode ? 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-gray-200 text-gray-400 hover:border-gray-300 dark:border-zinc-800 dark:text-zinc-500 dark:hover:border-zinc-700'}`}
+                        >
+                            {privacySettings.lowProfileMode ? (
+                                <Lock size={14} />
+                            ) : (
+                                <LockOpen size={14} />
+                            )}
+                        </button>
+                        <div className="text-[10px] uppercase tracking-widest text-emerald-500 dark:text-emerald-400 rounded-full border border-emerald-500/30 px-3 py-1">
+                            Private by default
+                        </div>
                     </div>
                 </div>
 
-                <FinancePrivacyToggle
-                    settings={privacySettings}
-                    onChange={updatePrivacy}
-                />
-
                 <AnomalyAlertBanner transactions={transactions} />
 
+                {/* Net worth command center — always visible in Overview */}
                 {activeTab === 'Overview' && !accsLoading && (
                     <NetWorthSummary
                         accounts={accounts}
+                        transactions={transactions}
+                        subscriptions={subscriptions}
                         formatAmount={formatAmount}
                         amountClassName={amountClassName}
                     />
@@ -283,6 +339,18 @@ export function FinancePageContent() {
                                 onSeeAllSubscriptions={() =>
                                     navigateTab('Subscriptions')
                                 }
+                                onAddAccount={() => {
+                                    navigateTab('Accounts');
+                                    setPendingAction('add');
+                                }}
+                                onAddTransaction={() => {
+                                    navigateTab('Transactions');
+                                    setPendingAction('add');
+                                }}
+                                onAddSubscription={() => {
+                                    navigateTab('Subscriptions');
+                                    setPendingAction('add');
+                                }}
                             />
                             <div className="grid gap-4 md:grid-cols-2">
                                 <AccountList
