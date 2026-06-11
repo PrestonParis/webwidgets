@@ -1,18 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { isMissingTableError } from '@/lib/supabase/missingTable';
-import { listEntries } from '@/features/context/services/contextService';
-import { buildContextGraph } from '@/features/context/lib/graphBuilder';
-import { buildSystemPrompt } from '@/features/context/lib/contextPrompt';
+import { buildContextBundle } from '@/features/context/services/contextBundleService';
+import { getContextPermissions } from '@/features/context/services/contextPermissionsService';
+import { activityAdapter } from '@/features/import-export/adapters/activityAdapter';
 import type {
     ContextPayload,
     ContextSource,
 } from '@/features/chatbot/types/contextPayload';
-
-const DEFAULT_PERMISSIONS = {
-    captureWidgetInteractions: true,
-    includeQueryGists: true,
-    aiPersonalization: true,
-};
 
 export interface CollectContextOptions {
     scope?: 'personal' | 'workspace' | 'global';
@@ -34,46 +27,67 @@ export async function collectContext(
     const warnings: string[] = [];
     let systemPromptContent = '';
 
-    // ── Source 1: context_entries (context graph) ─────────────────────────────
-    let contextGraphStatus: ContextSource['status'] = 'loading';
-    let contextEntryCount = 0;
+    let permissionGranted = true;
     try {
-        const entries = await listEntries(supabase, userId);
-        contextEntryCount = entries.length;
-        contextGraphStatus = entries.length > 0 ? 'available' : 'empty';
-
-        if (entries.length > 0) {
-            const graph = buildContextGraph(entries);
-            systemPromptContent = buildSystemPrompt(graph, DEFAULT_PERMISSIONS);
-        } else {
+        const permissions = await getContextPermissions(supabase, userId);
+        permissionGranted = permissions.allowAIPersonalization;
+        const bundle = await buildContextBundle(supabase, userId, {
+            consumer: 'chat',
+            maxNodes: 40,
+            maxPromptChars: 7000,
+        });
+        systemPromptContent = bundle.promptSection;
+        warnings.push(...bundle.warnings);
+        sources.push({
+            id: 'context_graph',
+            type: 'context_graph',
+            displayName: 'Context Graph',
+            status: !permissionGranted
+                ? 'permission_denied'
+                : bundle.nodes.length > 0
+                  ? 'available'
+                  : 'empty',
+            permissionGranted,
+            lastSynced: new Date().toISOString(),
+            included: permissionGranted && bundle.nodes.length > 0,
+            itemCount: bundle.nodes.length,
+        });
+        if (bundle.nodes.length === 0 && permissionGranted) {
             warnings.push(
-                'Context graph is empty — add data through the Context page to improve AI responses.',
+                'Context graph is empty. Add data through the Context page or platform activity to improve AI responses.',
             );
+        } else {
+            sources.push({
+                id: 'context_edges',
+                type: 'context_graph',
+                displayName: 'Context Relationships',
+                status: bundle.edges.length > 0 ? 'available' : 'empty',
+                permissionGranted,
+                lastSynced: new Date().toISOString(),
+                included: permissionGranted && bundle.edges.length > 0,
+                itemCount: bundle.edges.length,
+            });
         }
     } catch (err) {
-        const isMissing = isMissingTableError(err);
-        contextGraphStatus = isMissing ? 'not_configured' : 'unavailable';
         warnings.push(
-            isMissing
-                ? 'Context storage table is not set up yet.'
-                : 'Failed to load context graph.',
+            err instanceof Error
+                ? `Failed to load context bundle: ${err.message}`
+                : 'Failed to load context bundle.',
         );
+        sources.push({
+            id: 'context_graph',
+            type: 'context_graph',
+            displayName: 'Context Graph',
+            status: 'unavailable',
+            permissionGranted,
+            lastSynced: new Date().toISOString(),
+            included: false,
+            itemCount: 0,
+        });
     }
-
-    sources.push({
-        id: 'context_graph',
-        type: 'context_graph',
-        displayName: 'Context Graph',
-        status: contextGraphStatus,
-        permissionGranted: DEFAULT_PERMISSIONS.aiPersonalization,
-        lastSynced: new Date().toISOString(),
-        included: contextGraphStatus === 'available',
-        itemCount: contextEntryCount,
-    });
 
     // ── Source 2: import/export service ───────────────────────────────────────
     if (options.includeImportExportService) {
-        // Import/export service is now integrated — mark as available
         sources.push({
             id: 'import_export_service',
             type: 'import_export_service',
@@ -98,18 +112,42 @@ export async function collectContext(
         });
     }
 
-    // ── Source 3: workspace context ───────────────────────────────────────────
-    // Future: load active workspace members/widgets
+    // ── Source 3: activity feed (recent platform events) ─────────────────────
+    // Gives Claude real-time awareness of what the user has been doing.
+    let activityContext = '';
+    let activityStatus: ContextSource['status'] = 'loading';
+    let activityEventCount = 0;
+    try {
+        if (!permissionGranted) {
+            activityStatus = 'permission_denied';
+        } else {
+            activityContext = await activityAdapter.provideContext!(userId);
+            activityEventCount = activityContext
+                ? activityContext.split('\n').filter((l) => l.startsWith('- '))
+                      .length
+                : 0;
+            activityStatus = activityEventCount > 0 ? 'available' : 'empty';
+
+            if (activityContext) {
+                systemPromptContent = systemPromptContent
+                    ? `${systemPromptContent}\n\n${activityContext}`
+                    : activityContext;
+            }
+        }
+    } catch {
+        activityStatus = 'unavailable';
+        warnings.push('Failed to load recent activity context.');
+    }
+
     sources.push({
-        id: 'workspace',
-        type: 'workspace',
-        displayName: 'Workspace Context',
-        status: 'not_configured',
-        permissionGranted: false,
-        lastSynced: null,
-        included: false,
-        itemCount: 0,
-        error: 'Workspace context collection not yet wired into AI chat.',
+        id: 'activity_feed',
+        type: 'activity_feed',
+        displayName: 'Activity Feed',
+        status: activityStatus,
+        permissionGranted,
+        lastSynced: new Date().toISOString(),
+        included: permissionGranted && activityStatus === 'available',
+        itemCount: activityEventCount,
     });
 
     const availableSources = sources.filter(

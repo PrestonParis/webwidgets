@@ -9,34 +9,7 @@ import {
     type BodyIssueHistory,
     type IssueStatus,
 } from '@/features/tracking/health/lib/bodyIssues';
-
-function SeveritySparkline({ entries }: { entries: BodyIssueHistory[] }) {
-    if (entries.length < 2) return null;
-    const values = entries.map((e) => e.severity);
-    const W = 48;
-    const H = 16;
-    const pts = values.map(
-        (v, i) => `${(i / (values.length - 1)) * W},${H - (v / 10) * H}`,
-    );
-    return (
-        <svg
-            width={W}
-            height={H}
-            viewBox={`0 0 ${W} ${H}`}
-            className="shrink-0"
-            aria-hidden
-        >
-            <polyline
-                points={pts.join(' ')}
-                fill="none"
-                stroke="#6366f1"
-                strokeWidth={1.5}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-            />
-        </svg>
-    );
-}
+import { SeveritySparkline } from '@/features/tracking/health/icons/HealthSparklines';
 
 interface IssueCardProps {
     issue: BodyIssue;

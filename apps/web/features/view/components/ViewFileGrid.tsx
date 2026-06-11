@@ -199,7 +199,7 @@ export function ViewFileGrid({
                                     </div>
                                 </td>
                                 <td className="px-4 py-2 text-xs text-zinc-500 uppercase">
-                                    {file.extension || '—'}
+                                    {file.extension || 'N/A'}
                                 </td>
                                 <td className="px-4 py-2 text-xs text-zinc-500 tabular-nums">
                                     {formatFileSize(file.sizeBytes)}

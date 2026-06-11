@@ -5,6 +5,7 @@ A high-throughput background worker service for WebWidgets, built with Go.
 ## Purpose
 
 This service handles infrastructure work that should not block Next.js page loads:
+
 - Analytics/event ingestion
 - Async cache writes (future)
 - Event normalization
@@ -20,6 +21,7 @@ This service handles infrastructure work that should not block Next.js page load
 ## Running Locally
 
 ### Prerequisites
+
 - Go 1.21+
 - Docker (optional, for containerized execution)
 
@@ -56,18 +58,23 @@ docker-compose up go_worker
 ## API Endpoints
 
 ### Health Check
+
 ```
 GET /healthz
 ```
+
 Returns service health status and uptime.
 
 ### Readiness Check
+
 ```
 GET /readyz
 ```
+
 Returns whether the service is ready to accept traffic.
 
 ### Event Ingestion
+
 ```
 POST /v1/events/ingest
 Content-Type: application/json
@@ -89,6 +96,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "accepted": 1,
@@ -105,6 +113,7 @@ Response:
 ## Integration with Next.js
 
 The Go worker is optional. Next.js will:
+
 1. Check if `GO_WORKER_ENABLED` is set
 2. If enabled, forward analytics events to Go worker
 3. If disabled or Go worker is unavailable, fall back to existing Supabase writes

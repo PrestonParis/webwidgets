@@ -55,7 +55,7 @@ function SeveritySlider({
             >
                 <span>{label}</span>
                 <span className="font-semibold text-gray-900 dark:text-zinc-100">
-                    {value ?? '—'}
+                    {value ?? 'N/A'}
                     {value !== undefined ? '/10' : ''}
                 </span>
             </label>

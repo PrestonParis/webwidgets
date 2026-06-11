@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         };
         if (error?.code === '42P01')
             return NextResponse.json(
-                { error: 'supplements table not ready — run migrations' },
+                { error: 'supplements table not ready, run migrations first' },
                 { status: 503 },
             );
         if (error)

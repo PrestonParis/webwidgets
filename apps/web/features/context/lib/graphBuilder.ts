@@ -23,7 +23,10 @@ function radialPoint(
     return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
 }
 
-export function buildContextGraph(entries: ContextEntry[]): ContextGraph {
+export function buildContextGraph(
+    entries: ContextEntry[],
+    persistedEdges: ContextEdge[] = [],
+): ContextGraph {
     const uniqueEntries = dedupeEntries(entries);
     const nodes = layoutNodes(uniqueEntries);
     const nodeMap = new Map(nodes.map((node) => [node.entityId, node]));
@@ -48,6 +51,15 @@ export function buildContextGraph(entries: ContextEntry[]): ContextGraph {
         );
         if (!duplicate && !reverseDuplicate) edges.push(edge);
     };
+
+    persistedEdges.forEach((edge) =>
+        pushEdge({
+            ...edge,
+            kind: edge.kind ?? 'explicit',
+            weight: edge.weight ?? 3,
+            confidence: edge.confidence ?? 1,
+        }),
+    );
 
     const profileId = uniqueEntries.find(
         (entry) => entry.entryType === 'profile',
@@ -89,9 +101,9 @@ export function buildContextGraph(entries: ContextEntry[]): ContextGraph {
             });
     }
 
-    inferCategoryEdges(uniqueEntries).forEach(pushEdge);
-    inferWorkflowEdges(uniqueEntries).forEach(pushEdge);
-    inferTemporalEdges(uniqueEntries).forEach(pushEdge);
+    inferLegacyEdges(uniqueEntries, persistedEdges.length > 0).forEach(
+        pushEdge,
+    );
 
     const connectionCounts = new Map<string, number>();
     edges.forEach((edge) => {
@@ -209,6 +221,29 @@ function inferCategoryEdges(entries: ContextEntry[]): ContextEdge[] {
     return edges;
 }
 
+function inferLegacyEdges(
+    entries: ContextEntry[],
+    hasPersistedEdges: boolean,
+): ContextEdge[] {
+    const edges = [
+        ...inferCategoryEdges(entries),
+        ...inferWorkflowEdges(entries),
+        ...inferTemporalEdges(entries),
+    ];
+    return edges.map((edge) => ({
+        ...edge,
+        confidence: hasPersistedEdges ? 0.25 : 0.45,
+        metadata: {
+            ...(edge.metadata ?? {}),
+            inferred: true,
+            legacyFallback: true,
+            reason: hasPersistedEdges
+                ? 'Fallback relationship shown below persisted semantic edges.'
+                : 'Fallback relationship inferred because no semantic edge exists yet.',
+        },
+    }));
+}
+
 const WORKFLOW_PATTERNS: Array<{
     from: RegExp;
     to: RegExp;
@@ -299,22 +334,45 @@ function activityScore(updatedAt: string) {
 export const NODE_COLORS: Record<string, string> = {
     profile: '#4f6ef7',
     goal: '#8b5cf6',
+    project: '#0891b2',
     widget: '#10b981',
+    widget_activity: '#22c55e',
     integration: '#f59e0b',
     query_gist: '#6b7280',
+    chat_gist: '#6b7280',
+    chat: '#6366f1',
     insight: '#ef4444',
     workflow: '#0ea5e9',
     automation: '#f97316',
+    automation_run: '#fb923c',
     file: '#64748b',
+    document: '#14b8a6',
+    artifact: '#0f766e',
+    todo: '#2563eb',
+    calendar_event: '#dc2626',
+    email: '#f59e0b',
+    journal_entry: '#be123c',
+    mood_entry: '#db2777',
+    habit_entry: '#16a34a',
+    recovery_entry: '#0284c7',
+    recommendation: '#7c3aed',
     note: '#14b8a6',
     memory: '#a855f7',
+    agent_action: '#475569',
+    import_export_object: '#64748b',
 };
 
 export const NODE_SIZES: Record<string, number> = {
     profile: 62,
     goal: 50,
     widget: 52,
+    widget_activity: 38,
     integration: 46,
     query_gist: 40,
+    chat_gist: 40,
     insight: 42,
+    todo: 42,
+    document: 44,
+    file: 42,
+    calendar_event: 42,
 };

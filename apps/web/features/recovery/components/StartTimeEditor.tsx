@@ -28,6 +28,7 @@ export default function StartTimeEditor({
                     })();
                 }}
                 onCancel={onCancel}
+                accentColor="#9333ea"
             />
         </div>
     );

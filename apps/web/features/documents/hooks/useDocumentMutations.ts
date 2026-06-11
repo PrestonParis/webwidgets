@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback } from 'react';
 
 interface CreateDocumentInput {
@@ -21,7 +22,7 @@ interface UpdateDocumentInput {
 export function useDocumentMutations(onSuccess?: () => void) {
     const createDocument = useCallback(
         async (data: CreateDocumentInput) => {
-            const res = await fetch('/api/documents', {
+            const res = await apiRouteFetch('/api/documents', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -36,7 +37,7 @@ export function useDocumentMutations(onSuccess?: () => void) {
 
     const updateDocument = useCallback(
         async (id: string, data: UpdateDocumentInput) => {
-            const res = await fetch(`/api/documents/${id}`, {
+            const res = await apiRouteFetch(`/api/documents/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -51,7 +52,7 @@ export function useDocumentMutations(onSuccess?: () => void) {
 
     const archiveDocument = useCallback(
         async (id: string) => {
-            const res = await fetch(`/api/documents/${id}`, {
+            const res = await apiRouteFetch(`/api/documents/${id}`, {
                 method: 'DELETE',
             });
             if (!res.ok && res.status !== 204)

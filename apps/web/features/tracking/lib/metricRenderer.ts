@@ -23,7 +23,7 @@ export function formatMetricValue(
         return metric.unit ? `${formatted}${metric.unit}` : formatted;
     }
     if (typeof value === 'string' && value.length > 0) return value;
-    return '—';
+    return 'N/A';
 }
 
 export function renderEntryMetrics(

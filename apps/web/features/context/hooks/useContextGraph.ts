@@ -1,9 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { apiRouteFetch } from '@/lib/api/client';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
-    fetchEntries,
+    CONTEXT_GRAPH_MUTATED_EVENT,
+    fetchGraph,
     upsertEntry,
     batchUpsertEntries,
     deleteEntry,
@@ -32,7 +34,10 @@ interface UseContextGraphReturn {
 
 export function useContextGraph(): UseContextGraphReturn {
     const { userId, status } = useAuth();
-    const [entries, setEntries] = useState<ContextEntry[]>([]);
+    const [graph, setGraph] = useState<ContextGraph>({
+        nodes: [],
+        edges: [],
+    });
     const [dataLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -43,29 +48,53 @@ export function useContextGraph(): UseContextGraphReturn {
         }
         try {
             setError(null);
-            const data = await fetchEntries();
-            if (data.length > 0) {
-                setEntries(data);
+            const remoteGraph = await fetchGraph();
+            if (remoteGraph.nodes.length > 0) {
+                setGraph(normalizeGraph(remoteGraph));
                 return;
+            }
+
+            // DB is empty, try adapter endpoint as fallback
+            console.log('Context tables empty, trying adapter endpoint...');
+            try {
+                const adapterRes = await apiRouteFetch(
+                    '/api/context/graph/from-adapters',
+                );
+                if (adapterRes.ok) {
+                    const adapterData = await adapterRes.json();
+                    if (
+                        adapterData.graph &&
+                        adapterData.graph.nodes.length > 0
+                    ) {
+                        console.log(
+                            `Loaded ${adapterData.graph.nodes.length} nodes from adapters`,
+                            adapterData.summary,
+                        );
+                        setGraph(normalizeGraph(adapterData.graph));
+                        return;
+                    }
+                }
+            } catch (adapterError) {
+                console.error('Adapter endpoint failed:', adapterError);
             }
 
             const seeded = await buildSeedEntries(userId);
             if (seeded.length > 0) {
-                setEntries(seeded);
+                setGraph(buildContextGraph(seeded));
                 void batchUpsertEntries(seeded.map(entryToPayload)).catch(
                     () => undefined,
                 );
                 return;
             }
 
-            setEntries([]);
+            setGraph({ nodes: [], edges: [] });
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Failed to load context',
             );
             const seeded = userId ? await buildSeedEntries(userId) : [];
             if (seeded.length > 0) {
-                setEntries(seeded);
+                setGraph(buildContextGraph(seeded));
                 setError(null);
             }
         } finally {
@@ -87,11 +116,14 @@ export function useContextGraph(): UseContextGraphReturn {
 
     const upsert = useCallback(async (payload: UpsertEntryPayload) => {
         const updated = await upsertEntry(payload);
-        setEntries((prev) => {
+        setGraph((prevGraph) => {
+            const prev = prevGraph.nodes;
             const idx = prev.findIndex((e) => e.entityId === updated.entityId);
-            return idx >= 0
-                ? prev.map((e, i) => (i === idx ? updated : e))
-                : [...prev, updated];
+            const nodes =
+                idx >= 0
+                    ? prev.map((e, i) => (i === idx ? updated : e))
+                    : [...prev, updated];
+            return buildContextGraph(nodes, prevGraph.edges);
         });
     }, []);
 
@@ -105,14 +137,31 @@ export function useContextGraph(): UseContextGraphReturn {
 
     const remove = useCallback(async (entityId: string) => {
         await deleteEntry(entityId);
-        setEntries((prev) => prev.filter((e) => e.entityId !== entityId));
+        setGraph((prev) => ({
+            nodes: prev.nodes.filter((e) => e.entityId !== entityId),
+            edges: prev.edges.filter(
+                (edge) => edge.from !== entityId && edge.to !== entityId,
+            ),
+        }));
     }, []);
 
-    const graph = useMemo(() => buildContextGraph(entries), [entries]);
+    useEffect(() => {
+        if (status !== 'authenticated') return;
+        const intervalId = window.setInterval(() => void refresh(), 30_000);
+        return () => window.clearTimeout(intervalId);
+    }, [status, refresh]);
+
+    useEffect(() => {
+        if (status !== 'authenticated') return;
+        const onMutation = () => void refresh();
+        window.addEventListener(CONTEXT_GRAPH_MUTATED_EVENT, onMutation);
+        return () =>
+            window.removeEventListener(CONTEXT_GRAPH_MUTATED_EVENT, onMutation);
+    }, [status, refresh]);
 
     return {
         graph,
-        entries,
+        entries: graph.nodes,
         loading: status === 'authenticated' ? dataLoading : false,
         error,
         refresh,
@@ -146,6 +195,22 @@ function hasContextSeedData(profile: OnboardingProfile) {
         profile.selectedWidgetTypes.length > 0 ||
         profile.enabledIntegrationIds.length > 0
     );
+}
+
+function normalizeGraph(graph: ContextGraph): ContextGraph {
+    const hasInvalidNode = graph.nodes.some(
+        (node) => !Number.isFinite(node.x) || !Number.isFinite(node.y),
+    );
+    const seen = new Set<string>();
+    const hasDuplicateNode = graph.nodes.some((node) => {
+        if (seen.has(node.entityId)) return true;
+        seen.add(node.entityId);
+        return false;
+    });
+
+    return hasInvalidNode || hasDuplicateNode
+        ? buildContextGraph(graph.nodes, graph.edges)
+        : graph;
 }
 
 function profileToSeedEntries(

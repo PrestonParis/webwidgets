@@ -70,10 +70,7 @@ export async function routeInference(
     } catch (err) {
         mlEnd();
         mlInferenceTotal.inc({ stage: 'ml', outcome: 'error' });
-        log.warn(
-            { err },
-            'ML service unavailable — escalating to hosted model',
-        );
+        log.warn({ err }, 'ML service unavailable, escalating to hosted model');
     }
 
     if (needsHosted.length === 0 || !options.allowHosted) return result;
@@ -100,7 +97,7 @@ export async function routeInference(
         mlInferenceTotal.inc({ stage: 'claude', outcome: 'error' });
         log.warn(
             { err },
-            'Claude inference failed — leaving unresolved as other',
+            'Claude inference failed, leaving unresolved as other',
         );
     }
 

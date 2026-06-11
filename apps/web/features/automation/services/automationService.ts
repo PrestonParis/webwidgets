@@ -11,6 +11,10 @@ import type {
     AutomationWidgetProfile,
 } from '@/features/automation/types/automation';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
+import { buildContextBundleForAutomation } from '@/features/context/services/contextBundleService';
+import { ingestAutomationRunContext } from '@/features/context/services/contextProducerService';
 
 export async function listAutomationConfigs(userId: string) {
     const result = await db
@@ -62,6 +66,12 @@ export async function logAutomationRun(
     automationConfigId: string,
     status = 'queued',
 ) {
+    const contextBundle = await buildContextBundleForAutomation(
+        supabase,
+        userId,
+        automationConfigId,
+        { maxNodes: 20, maxPromptChars: 3000 },
+    ).catch(() => null);
     const result = await supabase
         .from('automation_runs')
         .insert({
@@ -72,7 +82,58 @@ export async function logAutomationRun(
         .select()
         .single();
     if (result.error) throw result.error;
-    return result.data as unknown;
+    const run = result.data as unknown;
+    await ingestAutomationRunContext(
+        supabase,
+        userId,
+        omitUndefined({
+            automationConfigId,
+            runId:
+                typeof run === 'object' && run && 'id' in run
+                    ? String((run as { id: unknown }).id)
+                    : undefined,
+            status,
+        }),
+    ).catch(() => undefined);
+
+    // Publish activity event for terminal statuses
+    if (status === 'completed') {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'automation',
+            eventType: 'automation.executed',
+            sourceId: automationConfigId,
+            sourceTable: 'automation_configs',
+            category: 'automation',
+            severity: 'success',
+            priority: 'normal',
+            title: 'Automation executed',
+            metadata: {
+                automationConfigId,
+                runStatus: status,
+                contextNodeCount: contextBundle?.nodes.length ?? 0,
+            },
+        });
+    } else if (status === 'failed') {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'automation',
+            eventType: 'automation.failed',
+            sourceId: automationConfigId,
+            sourceTable: 'automation_configs',
+            category: 'automation',
+            severity: 'critical',
+            priority: 'high',
+            title: 'Automation failed',
+            metadata: {
+                automationConfigId,
+                runStatus: status,
+                contextNodeCount: contextBundle?.nodes.length ?? 0,
+            },
+        });
+    }
+
+    return run;
 }
 
 // ─── Automation Center service ─────────────────────────────────────────────────
@@ -87,7 +148,10 @@ export function listUserAutomations(
     return Promise.resolve([]);
 }
 
-export function toggleAutomation(_id: string, _enabled: boolean): Promise<void> {
+export function toggleAutomation(
+    _id: string,
+    _enabled: boolean,
+): Promise<void> {
     return Promise.resolve();
 }
 

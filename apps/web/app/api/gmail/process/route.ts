@@ -78,14 +78,18 @@ async function processForUser(
     for (const item of items) {
         const itemStart = performance.now();
         try {
+            // Use user's personal key first, fall back to server key so
+            // extraction runs automatically for all users without manual setup.
+            const apiKey =
+                profile?.anthropic_api_key ||
+                process.env.ANTHROPIC_API_KEY ||
+                undefined;
             await processQueueItem(item, {
                 gmail,
                 supabase,
                 userId,
-                useAI: profile?.use_ai_email ?? false,
-                ...(profile?.anthropic_api_key
-                    ? { apiKey: profile.anthropic_api_key }
-                    : {}),
+                useAI: !!(profile?.use_ai_email ?? true),
+                ...(apiKey ? { apiKey } : {}),
             });
             await markDone(supabase, item.id);
             processed++;

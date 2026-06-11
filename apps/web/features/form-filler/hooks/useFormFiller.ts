@@ -90,7 +90,7 @@ export function useFormFillerProfiles() {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Network error — changes not saved',
+                        : 'Network error. Changes not saved.',
                 );
                 return false;
             } finally {
@@ -112,7 +112,7 @@ export function useFormFillerProfiles() {
                 setError(
                     err instanceof Error
                         ? err.message
-                        : 'Network error — could not create profile',
+                        : 'Network error. Could not create profile.',
                 );
                 return null;
             } finally {

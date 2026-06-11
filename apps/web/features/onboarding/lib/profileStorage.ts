@@ -13,13 +13,22 @@ export const DEFAULT_ONBOARDING_PREFERENCES: OnboardingPreferences = {
     aiAssistance: 'balanced',
 };
 
+const VALID_STEP_IDS = [
+    'welcome',
+    'focus',
+    'integrations',
+    'recommendation',
+    'launch',
+] as const;
+
 export function createDefaultProfile(): OnboardingProfile {
     return {
         version: 1,
         status: 'not_started',
-        currentStep: 'workspace',
+        currentStep: 'welcome',
         completed: false,
         goals: [],
+        focusAreas: [],
         intent: '',
         selectedWidgetTypes: [],
         enabledIntegrationIds: [],
@@ -54,13 +63,18 @@ export function readOnboardingProfile(
 export function normalizeOnboardingProfile(
     profile: Partial<OnboardingProfile>,
 ): OnboardingProfile {
-    const parsed = { ...createDefaultProfile(), ...profile };
+    const defaults = createDefaultProfile();
+    const parsed: OnboardingProfile = {
+        ...defaults,
+        ...profile,
+        focusAreas: profile.focusAreas ?? defaults.focusAreas,
+    };
     if (
-        !['workspace', 'goals', 'integrations', 'generate'].includes(
-            parsed.currentStep,
+        !VALID_STEP_IDS.includes(
+            parsed.currentStep as (typeof VALID_STEP_IDS)[number],
         )
     ) {
-        return { ...parsed, currentStep: 'workspace' };
+        return { ...parsed, currentStep: 'welcome' };
     }
     return parsed;
 }

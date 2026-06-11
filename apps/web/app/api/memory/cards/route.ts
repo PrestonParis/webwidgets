@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function GET(req: Request) {
     try {
@@ -66,6 +67,23 @@ export async function POST(req: Request) {
             )
             .single();
         if (error) throw error;
+
+        const card = data as { id: string; deck_id: string; front: string };
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'memory',
+            eventType: 'memory.card_created',
+            sourceId: card.id,
+            sourceTable: 'memory_cards',
+            category: 'content',
+            severity: 'info',
+            priority: 'low',
+            title: `Flashcard created: ${card.front.slice(0, 60)}`,
+            actionUrl: `/memory/${card.deck_id}`,
+            relatedEntities: [{ type: 'memory_deck', id: card.deck_id }],
+            metadata: { cardId: card.id, deckId: card.deck_id },
+        });
+
         return NextResponse.json(data, { status: 201 });
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {

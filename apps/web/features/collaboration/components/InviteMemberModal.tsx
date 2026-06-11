@@ -159,10 +159,10 @@ export function InviteMemberModal({
                                 className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
                             >
                                 <option value="viewer">
-                                    Viewer — can see workspaces and handoffs
+                                    Viewer: can see workspaces and handoffs
                                 </option>
                                 <option value="editor">
-                                    Editor — can create handoffs and invite
+                                    Editor: can create handoffs and invite
                                     others
                                 </option>
                             </select>

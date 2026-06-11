@@ -38,8 +38,6 @@ export default function CurrencyWidget() {
             onSettingsChange={updateSettings}
             widgetId="currency"
             widgetType="currency"
-            footerHref="/currency"
-            footerLabel="Full converter →"
         >
             {/* Input row */}
             <div className="flex gap-2 mb-4">

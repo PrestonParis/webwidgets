@@ -1,197 +1,154 @@
 'use client';
 
-import {
-    EMAIL_CATEGORIES,
-    EmailAction,
-    EmailCardProps,
-} from '@/features/inbox/types/inbox';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { EmailAction, EmailCardProps } from '@/features/inbox/types/inbox';
 import { cn } from '@/lib/utils/utils';
 import { useEmailCard } from '@/features/inbox/hooks/useEmailCard';
+import { useCategoryColors } from '@/features/inbox/hooks/useCategoryColors';
+import { EmailKnowledgePanel } from './EmailKnowledgePanel';
 
-const ACTION_ICONS: Record<string, string> = {
-    action: '✓',
-    event: '📅',
-    deadline: '⏰',
-};
-const ACTION_DEST: Record<string, string> = {
-    action: 'To-Do',
-    deadline: 'To-Do',
-    event: 'Calendar',
-};
-const CATEGORY_STYLES: Record<string, string> = {
-    work: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-    personal:
-        'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-    finance:
-        'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-    promotions:
-        'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
-    social: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-    notifications:
-        'bg-gray-100 dark:bg-zinc-700/50 text-gray-600 dark:text-zinc-300',
-    shopping:
-        'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-    other: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
+    work: {
+        badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+        dot: 'bg-blue-400',
+    },
+    personal: {
+        badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+        dot: 'bg-green-400',
+    },
+    finance: {
+        badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+        dot: 'bg-amber-400',
+    },
+    promotions: {
+        badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+        dot: 'bg-orange-400',
+    },
+    social: {
+        badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+        dot: 'bg-purple-400',
+    },
+    notifications: {
+        badge: 'bg-gray-100 dark:bg-zinc-700/50 text-gray-600 dark:text-zinc-300',
+        dot: 'bg-gray-400',
+    },
+    shopping: {
+        badge: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+        dot: 'bg-pink-400',
+    },
+    other: {
+        badge: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
+        dot: 'bg-zinc-400',
+    },
 };
 
-const PROVIDER_STYLES: Record<string, string> = {
-    gmail: 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-300',
-    outlook: 'bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-300',
-    both: 'bg-purple-50 text-purple-600 dark:bg-purple-950/30 dark:text-purple-300',
-};
+// ── Sidetab — reads color from useCategoryColors (shared with sidebar picker) ─
 
-function formatDue(iso: string | null): string | null {
-    if (!iso) return null;
-    const date = new Date(iso);
-    const diffDays = Math.ceil((date.getTime() - Date.now()) / 86_400_000);
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays < 0) return `${Math.abs(diffDays)}d ago`;
-    if (diffDays < 7)
-        return date.toLocaleDateString('en-US', { weekday: 'short' });
+function CategorySidetab({ category }: { category: string }) {
+    const { getColor } = useCategoryColors();
+    return (
+        <div className={cn('w-2 self-stretch shrink-0', getColor(category))} />
+    );
+}
+
+// High-priority categories
+const HIGH_PRIORITY = new Set(['work', 'finance']);
+const LOW_PRIORITY = new Set(['promotions', 'notifications', 'shopping']);
+
+function getPriority(category: string): 'high' | 'normal' | 'low' {
+    if (HIGH_PRIORITY.has(category)) return 'high';
+    if (LOW_PRIORITY.has(category)) return 'low';
+    return 'normal';
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function senderInitial(sender: string): string {
+    const name = (sender.split('<')[0] ?? sender).trim();
+    return (name[0] ?? '?').toUpperCase();
+}
+
+function senderName(sender: string): string {
+    return (sender.split('<')[0] ?? sender).trim();
+}
+
+function senderDomain(sender: string): string {
+    const match = sender.match(/@([^>]+)/);
+    return match?.[1] ?? '';
+}
+
+function formatRelativeTime(dateStr: string): string {
+    let date = new Date(dateStr);
+    // ISO 8601 with +HH:MM offset sometimes parses wrong in older envs — normalise to Z
+    if (isNaN(date.getTime())) {
+        date = new Date(
+            dateStr.replace(/([+-]\d{2}):(\d{2})$/, (_, h, m) => {
+                const total =
+                    (Number(h.replace('+', '')) * 60 + Number(m)) *
+                    (h.startsWith('-') ? -1 : 1);
+                return total === 0 ? 'Z' : dateStr;
+            }),
+        );
+    }
+    if (isNaN(date.getTime())) return dateStr;
+    const diff = Date.now() - date.getTime();
+    if (diff < 0)
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+        });
+    const minutes = Math.floor(diff / 60_000);
+    const hours = Math.floor(diff / 3_600_000);
+    const days = Math.floor(diff / 86_400_000);
+    if (diff < 60_000) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return date.toLocaleDateString('en-US', { weekday: 'short' });
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function InlineActions({
-    actions,
-    onConfirm,
-    onConfirmAll,
-    onReject,
-}: {
-    actions: EmailAction[];
-    onConfirm: (id: string) => void;
-    onConfirmAll: () => void;
-    onReject: (id: string) => void;
-}) {
-    return (
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 space-y-2">
-            {actions.map((a) => {
-                const due = formatDue(a.due_date);
-                const isOverdue =
-                    !!a.due_date && new Date(a.due_date) < new Date();
-                const dest = ACTION_DEST[a.type] ?? 'Widget';
-                return (
-                    <div key={a.id} className="flex items-start gap-2 text-xs">
-                        <span className="shrink-0 mt-0.5 text-gray-400">
-                            {ACTION_ICONS[a.type] ?? '·'}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                            <span className="font-medium text-gray-800 dark:text-zinc-200 leading-snug">
-                                {a.title}
-                            </span>
-                            {a.description && (
-                                <span className="text-gray-400 dark:text-zinc-500 ml-1">
-                                    — {a.description}
-                                </span>
-                            )}
-                            {due && (
-                                <span
-                                    className={cn(
-                                        'ml-2 font-medium',
-                                        isOverdue
-                                            ? 'text-red-500'
-                                            : 'text-gray-400 dark:text-zinc-500',
-                                    )}
-                                >
-                                    {due}
-                                </span>
-                            )}
-                            <span className="ml-2 text-[10px] text-gray-300 dark:text-zinc-600">
-                                → {dest}
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                            <button
-                                onClick={() => onConfirm(a.id)}
-                                title={`Add to ${dest}`}
-                                className="w-6 h-6 flex items-center justify-center rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-[11px] font-bold"
-                            >
-                                ✓
-                            </button>
-                            <button
-                                onClick={() => onReject(a.id)}
-                                title="Dismiss"
-                                className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-colors text-[11px]"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                );
-            })}
-            {actions.length > 1 && (
-                <div className="pt-1">
-                    <button
-                        onClick={onConfirmAll}
-                        className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
-                    >
-                        Confirm all ({actions.length})
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+// Decode HTML entities from Gmail/Outlook snippets (e.g. &#39; → ', &amp; → &)
+function decodeHtml(text: string): string {
+    if (typeof document === 'undefined') return text;
+    const el = document.createElement('textarea');
+    el.innerHTML = text;
+    return el.value;
 }
 
-function EmailBodyViewer({
-    loading,
-    body,
-}: {
-    loading: boolean;
-    body: string | null;
-}) {
-    if (loading)
-        return (
-            <span className="text-gray-400 dark:text-zinc-500 italic">
-                Loading…
-            </span>
-        );
-    if (body) return <>{body}</>;
-    return (
-        <span className="text-gray-400 dark:text-zinc-500 italic">
-            Could not load email body.
-        </span>
-    );
+// When the email has no meaningful subject, derive one from the snippet
+function displaySubject(subject: string, snippet: string): string {
+    const s = subject?.trim();
+    if (s && s !== '(no subject)' && s.length > 2) return s;
+    const decoded = decodeHtml(snippet ?? '')
+        .trim()
+        .replace(/^["'“]/, '');
+    if (decoded.length > 3) return decoded.slice(0, 72);
+    return '(no subject)';
 }
 
-function CategoryPicker({
-    category,
-    badgeStyle,
-    mail,
-    onClassify,
-    onClose,
-}: Pick<EmailCardProps, 'mail' | 'onClassify'> & {
-    category: string;
-    badgeStyle: string;
-    onClose: () => void;
-}) {
-    return (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-            {EMAIL_CATEGORIES.map((cat) => (
-                <button
-                    key={cat}
-                    onClick={() => {
-                        void onClassify(
-                            mail.id,
-                            cat,
-                            mail.sender,
-                            mail.subject,
-                        );
-                        onClose();
-                    }}
-                    className={cn(
-                        'text-[10px] px-2.5 py-1 rounded-lg font-semibold border transition-all',
-                        category === cat
-                            ? cn(badgeStyle, 'border-current opacity-100')
-                            : 'bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-transparent hover:border-gray-300 dark:hover:border-zinc-600',
-                    )}
-                >
-                    {cat}
-                </button>
-            ))}
-        </div>
-    );
+// Deterministic color from string (for sender avatar)
+const AVATAR_COLORS = [
+    'bg-violet-500',
+    'bg-blue-500',
+    'bg-emerald-500',
+    'bg-rose-500',
+    'bg-amber-500',
+    'bg-cyan-500',
+    'bg-fuchsia-500',
+    'bg-teal-500',
+];
+
+function avatarColor(str: string): string {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length] ?? 'bg-zinc-500';
 }
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function EmailCard({
     mail,
@@ -220,105 +177,179 @@ export function EmailCard({
         setShowActions,
         handleReadEmail,
     } = useEmailCard(emailActions, extracting);
+
+    const [expanded, setExpanded] = useState(false);
+
     const category = mail.category ?? 'other';
-    const badgeStyle =
-        CATEGORY_STYLES[category] ?? CATEGORY_STYLES['other'] ?? '';
+    const categoryStyle =
+        CATEGORY_STYLES[category] ?? CATEGORY_STYLES['other']!;
+    const priority = getPriority(category);
+    const initial = senderInitial(mail.sender);
+    const name = senderName(mail.sender);
+    const domain = senderDomain(mail.sender);
+    const color = avatarColor(domain || name);
+
+    const unsyncedActions = emailActions.filter(
+        (a) => !a.synced && !a.completed,
+    );
+
+    const subject = displaySubject(mail.subject, mail.snippet);
+    // Short label for multi-account disambiguation (part before @)
+    const accountLabel = mail.account_email
+        ? (mail.account_email.split('@')[0] ?? mail.account_email)
+        : null;
+
     return (
-        <div className="group p-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl hover:border-gray-200 dark:hover:border-zinc-700 transition-colors">
-            <div className="flex justify-between items-start mb-2 gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                    <span
-                        className={cn(
-                            'shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg',
-                            mail.providers?.length === 2
-                                ? PROVIDER_STYLES['both']
-                                : PROVIDER_STYLES[mail.provider ?? 'gmail'],
-                        )}
-                    >
-                        {mail.providers?.length === 2
-                            ? 'Gmail + Outlook'
-                            : (mail.provider ?? 'gmail')}
-                    </span>
-                    <span
-                        className={cn(
-                            'shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg',
-                            badgeStyle,
-                        )}
-                    >
-                        {category}
-                    </span>
-                    {mail.is_manual && (
-                        <span className="shrink-0 text-[10px] text-gray-400 dark:text-zinc-500">
-                            ✎
-                        </span>
-                    )}
-                </div>
-                <span className="shrink-0 text-[10px] text-gray-400 dark:text-zinc-500">
-                    {mail.date}
-                </span>
-            </div>
-            <h4 className="font-bold truncate text-gray-900 dark:text-zinc-100">
-                {mail.subject}
-            </h4>
-            <div className="text-xs text-blue-600 dark:text-blue-400 truncate mt-0.5">
-                {mail.sender}
-            </div>
-            <p className="text-sm text-gray-500 dark:text-zinc-400 line-clamp-2 mt-2 italic">
-                &quot;{mail.snippet}&quot;
-            </p>
-            {bodyOpen && (
-                <div className="mt-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl text-xs text-gray-700 dark:text-zinc-300 whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed">
-                    <EmailBodyViewer loading={bodyLoading} body={body} />
-                </div>
+        <div
+            className={cn(
+                'group flex items-stretch',
+                priority === 'low' && 'opacity-75',
             )}
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center gap-3 flex-wrap">
-                <button
-                    onClick={() => void handleReadEmail(mail.id)}
-                    className="text-[10px] text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
+        >
+            {/* Colored sidetab */}
+            <CategorySidetab category={category} />
+
+            {/* Card body */}
+            <div className="flex-1 min-w-0">
+                {/* Dense row — always visible */}
+                <div
+                    role="button"
+                    tabIndex={0}
+                    className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    onClick={() => setExpanded((v) => !v)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ')
+                            setExpanded((v) => !v);
+                    }}
                 >
-                    {bodyOpen ? 'Hide email' : 'Read email'}
-                </button>
-                <button
-                    onClick={() => setOpen((o) => !o)}
-                    className="text-[10px] text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors"
-                >
-                    {open ? 'Cancel' : 'Change category'}
-                </button>
-                <button
-                    onClick={onExtract}
-                    disabled={extracting}
-                    className="text-[10px] font-semibold text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-wait transition-colors"
-                >
-                    {extracting ? 'Extracting…' : 'Extract actions'}
-                </button>
-                {emailActions.length > 0 && !extracting && (
-                    <button
-                        onClick={() => setShowActions((v) => !v)}
-                        className="text-[10px] text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors ml-auto"
+                    {/* Avatar */}
+                    <div
+                        className={cn(
+                            'shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold',
+                            color,
+                        )}
                     >
-                        {showActions
-                            ? 'Hide actions'
-                            : `${emailActions.length} action${emailActions.length === 1 ? '' : 's'}`}
-                    </button>
+                        {initial}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        {/* Row 1: sender + account badge + time */}
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-100 truncate">
+                                    {name}
+                                </span>
+                                {accountLabel && (
+                                    <span className="text-[9px] px-1 py-0.5 rounded border border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 shrink-0 font-mono">
+                                        {accountLabel}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                                <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                                    {formatRelativeTime(mail.date)}
+                                </span>
+                                {expanded ? (
+                                    <ChevronUp
+                                        size={11}
+                                        className="text-zinc-400"
+                                    />
+                                ) : (
+                                    <ChevronDown
+                                        size={11}
+                                        className="text-zinc-400"
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Row 2: subject · snippet + badges */}
+                        {!expanded && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate flex-1">
+                                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                                        {subject}
+                                    </span>
+                                    {mail.snippet && (
+                                        <span className="text-zinc-400 dark:text-zinc-500">
+                                            {' '}
+                                            {decodeHtml(mail.snippet)}
+                                        </span>
+                                    )}
+                                </p>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    {unsyncedActions.some(
+                                        (a) => a.type === 'action',
+                                    ) && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                                            Task
+                                        </span>
+                                    )}
+                                    {unsyncedActions.some(
+                                        (a) => a.type === 'deadline',
+                                    ) && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                                            Due
+                                        </span>
+                                    )}
+                                    {unsyncedActions.some(
+                                        (a) => a.type === 'event',
+                                    ) && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
+                                            Event
+                                        </span>
+                                    )}
+                                    {unsyncedActions.length === 0 &&
+                                        category !== 'other' && (
+                                            <span
+                                                className={cn(
+                                                    'text-[9px] font-bold px-1.5 py-0.5 rounded',
+                                                    categoryStyle.badge,
+                                                )}
+                                            >
+                                                {category}
+                                            </span>
+                                        )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Knowledge panel — fires AI summary on expand */}
+                {expanded && (
+                    <EmailKnowledgePanel
+                        emailId={mail.id}
+                        subject={mail.subject}
+                        sender={mail.sender}
+                        snippet={mail.snippet}
+                        category={category}
+                        isManual={mail.is_manual ?? false}
+                        providers={mail.providers ?? []}
+                        body={body}
+                        bodyLoading={bodyLoading}
+                        bodyOpen={bodyOpen}
+                        emailActions={emailActions}
+                        extracting={extracting ?? false}
+                        categoryPickerOpen={open}
+                        onReadEmail={() => void handleReadEmail(mail.id)}
+                        onExtract={onExtract}
+                        onConfirmAction={onConfirmAction}
+                        onConfirmAll={onConfirmAll}
+                        onRejectAction={onRejectAction}
+                        onOpenCategoryPicker={() => setOpen((v) => !v)}
+                        onClassify={(cat) => {
+                            void onClassify(
+                                mail.id,
+                                cat,
+                                mail.sender,
+                                mail.subject,
+                            );
+                            setOpen(false);
+                        }}
+                    />
                 )}
             </div>
-            {showActions && emailActions.length > 0 && (
-                <InlineActions
-                    actions={emailActions}
-                    onConfirm={onConfirmAction}
-                    onConfirmAll={onConfirmAll}
-                    onReject={onRejectAction}
-                />
-            )}
-            {open && (
-                <CategoryPicker
-                    category={category}
-                    badgeStyle={badgeStyle}
-                    mail={mail}
-                    onClassify={onClassify}
-                    onClose={() => setOpen(false)}
-                />
-            )}
         </div>
     );
 }

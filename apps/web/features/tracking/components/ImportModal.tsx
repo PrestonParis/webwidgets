@@ -138,7 +138,7 @@ export function ImportModal({ onClose, onComplete }: ImportModalProps) {
                                     {r.issues.length > 0 && (
                                         <span className="ml-2 text-red-400">
                                             {' '}
-                                            — {r.issues[0]}
+                                            ({r.issues[0]})
                                         </span>
                                     )}
                                 </div>

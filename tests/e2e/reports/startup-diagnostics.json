@@ -63,9 +63,7 @@
       "error": "The operation was aborted."
     }
   ],
-  "errors": [
-    "❌ Dashboard check failed: Unknown error"
-  ],
+  "errors": ["❌ Dashboard check failed: Unknown error"],
   "warnings": [
     "Port 3000 already in use - assuming server is running",
     "⚠️  Supabase not reachable on localhost:54321 (optional)",

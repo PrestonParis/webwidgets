@@ -29,7 +29,8 @@ export interface ContextSource {
         | 'workspace'
         | 'integration'
         | 'memory'
-        | 'import_export_service';
+        | 'import_export_service'
+        | 'activity_feed';
     displayName: string;
     status: ContextSourceStatus;
     permissionGranted: boolean;

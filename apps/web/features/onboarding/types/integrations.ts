@@ -19,6 +19,7 @@ export interface IntegrationProvider {
     id: string;
     name: string;
     summary: string;
+    outcomes: string[];
     state: IntegrationState;
     scopes: string[];
     goalHints: OnboardingGoalId[];

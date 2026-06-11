@@ -36,24 +36,37 @@ export function ContextNodeCard({
     selected,
     dimmed = false,
     onClick,
+    onPointerDown,
+    onDoubleClick,
+    lockLayout = false,
 }: ContextNodeCardProps) {
-    const size = NODE_SIZES[node.entryType] ?? 46;
     const color = NODE_COLORS[node.entryType] ?? '#6b7280';
     const Icon = TYPE_ICON[node.entryType] ?? Network;
-    const category = String(node.data.category ?? node.entryType);
+    const source = String(
+        node.sourceType ?? node.data.category ?? node.entryType,
+    );
     const connections = node.connectionCount ?? 0;
     const activity = node.activityScore ?? 0;
+    const x = Number.isFinite(node.x) ? node.x : 500;
+    const y = Number.isFinite(node.y) ? node.y : 380;
 
     return (
         <button
             type="button"
+            data-context-node="true"
             onClick={() => onClick(node.entityId)}
-            className="absolute rounded-lg border bg-white text-left shadow-sm transition hover:shadow-md dark:bg-zinc-950"
+            onDoubleClick={() => onDoubleClick?.(node.entityId)}
+            onPointerDown={(event) => onPointerDown?.(node.entityId, event)}
+            className={`absolute rounded-lg border bg-white text-left shadow-sm transition hover:shadow-md dark:bg-zinc-950 ${
+                lockLayout
+                    ? 'cursor-pointer'
+                    : 'cursor-grab active:cursor-grabbing'
+            }`}
             style={{
-                left: node.x - size,
-                top: node.y - size / 2,
-                width: 132,
-                minHeight: 74,
+                left: x - 82,
+                top: y - 46,
+                width: 164,
+                minHeight: 92,
                 borderColor: selected ? color : `${color}55`,
                 boxShadow: selected ? `0 0 0 3px ${color}30` : undefined,
                 opacity: dimmed ? 0.35 : 1,
@@ -64,17 +77,17 @@ export function ContextNodeCard({
         >
             <div className="flex items-start gap-2 p-2.5">
                 <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md"
                     style={{ backgroundColor: `${color}18`, color }}
                 >
-                    <Icon size={16} />
+                    <Icon size={17} />
                 </span>
                 <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                    <span className="line-clamp-2 block text-xs font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
                         {node.label}
                     </span>
                     <span className="mt-0.5 block truncate text-[10px] text-zinc-500">
-                        {category}
+                        {node.entryType} · {source}
                     </span>
                 </span>
             </div>

@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     Supplement,
     DbSupplementRow,
@@ -10,7 +11,7 @@ function toSupplement(row: DbSupplementRow): Supplement {
         userId: row.user_id,
         name: row.name,
         ...(row.dose != null && { dose: row.dose }),
-        scheduleType: row.schedule_type as Supplement['scheduleType'],
+        scheduleType: row.schedule_type,
         scheduleStart: row.schedule_start,
         ...(row.schedule_end != null && { scheduleEnd: row.schedule_end }),
         active: row.active,
@@ -18,8 +19,13 @@ function toSupplement(row: DbSupplementRow): Supplement {
     };
 }
 
-export async function fetchSupplements(): Promise<Supplement[]> {
-    const res = await fetch('/api/supplements');
+export async function fetchSupplements(
+    signal?: AbortSignal,
+): Promise<Supplement[]> {
+    const res = await apiRouteFetch(
+        '/api/supplements',
+        signal ? { signal } : undefined,
+    );
     if (!res.ok) return [];
     const data = (await res.json()) as { supplements: DbSupplementRow[] };
     return (data.supplements ?? []).map(toSupplement);
@@ -28,7 +34,7 @@ export async function fetchSupplements(): Promise<Supplement[]> {
 export async function createSupplement(
     payload: CreateSupplementPayload,
 ): Promise<Supplement | null> {
-    const res = await fetch('/api/supplements', {
+    const res = await apiRouteFetch('/api/supplements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -39,8 +45,11 @@ export async function createSupplement(
 }
 
 export async function removeSupplement(id: string): Promise<boolean> {
-    const res = await fetch(`/api/supplements?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-    });
+    const res = await apiRouteFetch(
+        `/api/supplements?id=${encodeURIComponent(id)}`,
+        {
+            method: 'DELETE',
+        },
+    );
     return res.ok;
 }

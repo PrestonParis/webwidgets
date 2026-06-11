@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
+import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import { WidgetSkeleton } from '@/features/widgets/components/WidgetSkeleton';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 
@@ -77,16 +79,16 @@ const TrackingWidget = lazy(
     () => import('@/features/tracking/components/TrackingWidget'),
 );
 const SleepWidget = lazy(
-    () => import('@/features/tracking/components/widgets/SleepWidget'),
+    () => import('@/features/tracking/components/SleepWidget'),
 );
 const WorkoutWidget = lazy(
-    () => import('@/features/tracking/components/widgets/WorkoutWidget'),
+    () => import('@/features/tracking/components/WorkoutWidget'),
 );
 const MealWidget = lazy(
-    () => import('@/features/tracking/components/widgets/MealWidget'),
+    () => import('@/features/tracking/components/MealWidget'),
 );
 const MoodTrackingWidget = lazy(
-    () => import('@/features/tracking/components/widgets/MoodTrackingWidget'),
+    () => import('@/features/tracking/components/MoodTrackingWidget'),
 );
 const ContextDiagramWidget = lazy(
     () => import('@/features/context/components/ContextDiagramWidget'),
@@ -95,16 +97,17 @@ const ChatWidget = lazy(
     () => import('@/features/chatbot/components/ChatWidget'),
 );
 const SupplementWidget = lazy(
-    () => import('@/features/tracking/components/widgets/SupplementWidget'),
+    () => import('@/features/tracking/components/SupplementWidget'),
 );
 const HealthWidget = lazy(
-    () => import('@/features/tracking/components/widgets/HealthWidget'),
+    () => import('@/features/tracking/components/HealthWidget'),
 );
 const FinanceWidget = lazy(
     () => import('@/features/finance/components/FinanceWidget'),
 );
 const WidgetBuilderShellWidget = lazy(
-    () => import('@/features/widgets/builder/WidgetBuilderShellWidget'),
+    () =>
+        import('@/features/widget-builder/components/WidgetBuilderShellWidget'),
 );
 const FilesWidget = lazy(
     () => import('@/features/uploads/components/FilesWidget'),
@@ -131,6 +134,11 @@ const InsightCardsWidget = lazy(
 );
 const CalculatorWidget = lazy(
     () => import('@/features/calculator/components/CalculatorWidget'),
+);
+const ActivityWidget = lazy(() =>
+    import('@/features/activity/components/ActivityWidget').then((m) => ({
+        default: m.ActivityWidget,
+    })),
 );
 
 function wrap(node: ReactNode): ReactNode {
@@ -236,6 +244,21 @@ export function renderWidgetContent(
             return wrap(<InsightCardsWidget widgetId={config.id} />);
         case 'calculator':
             return wrap(<CalculatorWidget widgetId={config.id} />);
+        case 'activity':
+            return wrap(<ActivityWidget widgetId={config.id} />);
+        case 'synthesized': {
+            const configExt = config as unknown as {
+                settings?: { definition?: SynthesizedWidgetDefinition };
+            };
+            const def = configExt.settings?.definition;
+            if (!def) return null;
+            const SynthesizedRenderer = dynamic(() =>
+                import('@/features/widget-builder/renderer/SynthesizedWidgetRenderer').then(
+                    (m) => ({ default: m.SynthesizedWidgetRenderer }),
+                ),
+            );
+            return wrap(<SynthesizedRenderer definition={def} />);
+        }
         case 'folder':
             return null;
         default:

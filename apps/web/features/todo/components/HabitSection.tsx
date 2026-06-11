@@ -30,7 +30,7 @@ function RecoveryTip({ onDismiss }: { onDismiss: () => void }) {
                         Trying to quit something serious?
                     </p>
                     <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                        The Recovery Tracker is built for that — streaks,
+                        The Recovery Tracker is built for that: streaks,
                         accountability, and full support.
                     </p>
                     <Link

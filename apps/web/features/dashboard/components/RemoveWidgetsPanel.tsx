@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Archive, Trash2, X } from 'lucide-react';
+import { Archive, Check, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { getDashboardWidgetLibrary } from '@/features/platform/lib/dashboardWidgetLibrary';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
@@ -54,9 +54,7 @@ export function RemoveWidgetsPanel({
         });
 
     const toggleAll = () =>
-        setSelected(
-            allSelected ? new Set() : new Set(active.map((w) => w.id)),
-        );
+        setSelected(allSelected ? new Set() : new Set(active.map((w) => w.id)));
 
     const ids = [...selected];
 
@@ -96,7 +94,9 @@ export function RemoveWidgetsPanel({
                     </p>
                 ) : (
                     active.map((widget) => {
-                        const entry = library.find((l) => l.type === widget.type);
+                        const entry = library.find(
+                            (l) => l.type === widget.type,
+                        );
                         const checked = selected.has(widget.id);
                         return (
                             <button
@@ -119,20 +119,7 @@ export function RemoveWidgetsPanel({
                                     )}
                                 >
                                     {checked && (
-                                        <svg
-                                            width="8"
-                                            height="8"
-                                            viewBox="0 0 10 10"
-                                            fill="none"
-                                        >
-                                            <path
-                                                d="M1.5 5L4 7.5L8.5 2"
-                                                stroke="white"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
+                                        <Check size={10} strokeWidth={2} />
                                     )}
                                 </span>
                                 <span className="text-base shrink-0">

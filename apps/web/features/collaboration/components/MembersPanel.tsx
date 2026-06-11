@@ -31,7 +31,7 @@ function RoleBadge({ role }: { role: CollaborationRole }) {
 }
 
 function formatDate(iso: string | null): string {
-    if (!iso) return '—';
+    if (!iso) return 'N/A';
     return new Date(iso).toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',

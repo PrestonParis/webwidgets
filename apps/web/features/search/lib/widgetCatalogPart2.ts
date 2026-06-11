@@ -30,7 +30,7 @@ export const WIDGET_CATALOG_PART_2: WidgetEntry[] = [
         name: 'All Logging',
         emoji: '🔥',
         description: 'Track daily routines, streaks, and habit completion',
-        href: '/habit',
+        href: '/tracking',
         keywords: [
             'habit',
             'routine',
@@ -154,23 +154,6 @@ export const WIDGET_CATALOG_PART_2: WidgetEntry[] = [
             'euro',
             'forex',
             'rates',
-        ],
-    },
-    {
-        type: 'currency',
-        name: 'Currency',
-        emoji: '💱',
-        description: 'Convert exchange rates across major world currencies',
-        href: '/currency',
-        keywords: [
-            'currency',
-            'exchange',
-            'forex',
-            'rates',
-            'money',
-            'dollar',
-            'euro',
-            'convert',
         ],
     },
     {

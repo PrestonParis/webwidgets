@@ -77,7 +77,9 @@ export function AccountList({
 }: AccountListProps) {
     const [showModal, setShowModal] = useState(autoOpenAdd ?? false);
     const [editing, setEditing] = useState<FinanceAccount | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<FinanceAccount | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<FinanceAccount | null>(
+        null,
+    );
     const [isDeleting, setIsDeleting] = useState(false);
     const fmt =
         formatAmount ??

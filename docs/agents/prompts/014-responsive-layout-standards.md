@@ -3,7 +3,7 @@
 Status: Available  
 Assigned Agent: Unassigned  
 Stage: 1  
-Priority: High  
+Priority: High
 
 ## Objective
 

@@ -3,6 +3,7 @@ import type {
     WidgetType,
 } from '@/features/dashboard/types/dashboard';
 import {
+    makeOnboardingLayoutKey,
     makePersistKey,
     makePersistTimestampKey,
     makeSealedKey,
@@ -100,6 +101,10 @@ export function persistGeneratedWorkspace(
 ) {
     const timestamp = new Date().toISOString();
     localStorage.setItem(makePersistKey(userId), JSON.stringify(layout));
+    localStorage.setItem(
+        makeOnboardingLayoutKey(userId),
+        JSON.stringify(layout),
+    );
     localStorage.setItem(makePersistTimestampKey(userId), timestamp);
     localStorage.setItem('dash_mode', preferences.layoutMode);
     localStorage.setItem('widget_density', preferences.density);
@@ -179,29 +184,33 @@ export function buildOnboardingContextPayloads(
         });
     });
 
-    selectedWidgetTypes.forEach((type) => {
-        const meta = getWidgetMeta(type);
-        const linkedGoals = goals
-            .filter((g) => {
-                const lower = meta.category.toLowerCase();
-                if (g === 'health-tracking' || g === 'recovery')
-                    return lower === 'health';
-                if (g === 'productivity')
-                    return ['productivity', 'writing'].includes(lower);
-                return false;
-            })
-            .map((g) => `goal-${g}`);
-        payloads.push({
-            entityId: `widget-${type}`,
-            entryType: 'widget',
-            label: meta.label,
-            data: { category: meta.category, description: meta.description },
-            linkedTo:
-                linkedGoals.length > 0
-                    ? linkedGoals
-                    : goals.slice(0, 1).map((g) => `goal-${g}`),
+    selectedWidgetTypes
+        .filter((type) => type !== 'context-diagram')
+        .forEach((type) => {
+            const meta = getWidgetMeta(type);
+            const linkedGoals = goals
+                .filter((g) => {
+                    const lower = meta.category.toLowerCase();
+                    if (g === 'health-fitness') return lower === 'health';
+                    if (g === 'work' || g === 'personal-productivity')
+                        return ['productivity', 'writing'].includes(lower);
+                    return false;
+                })
+                .map((g) => `goal-${g}`);
+            payloads.push({
+                entityId: `widget-${type}`,
+                entryType: 'widget',
+                label: meta.label,
+                data: {
+                    category: meta.category,
+                    description: meta.description,
+                },
+                linkedTo:
+                    linkedGoals.length > 0
+                        ? linkedGoals
+                        : goals.slice(0, 1).map((g) => `goal-${g}`),
+            });
         });
-    });
 
     connectedIntegrationIds.forEach((id) => {
         payloads.push({

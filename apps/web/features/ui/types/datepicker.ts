@@ -12,6 +12,7 @@ export interface DatePickerProps {
     showQuickActions?: boolean;
     className?: string;
     saveLabel?: string;
+    accentColor?: string;
 }
 
 export type FooterActionsProps = {

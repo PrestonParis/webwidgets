@@ -3,7 +3,7 @@
 Status: Complete  
 Assigned Agent: Claude  
 Stage: 1  
-Priority: High  
+Priority: High
 
 ## Objective
 
@@ -30,7 +30,7 @@ rg "failed to fetch"
 ## Implementation Requirements
 
 1. **Create Primitives:** If they don't exist, create `EmptyState.tsx` and `ErrorState.tsx` in `features/ui/components/`.
-2. **Design Standards:** 
+2. **Design Standards:**
    - `EmptyState`: Should include an icon, a clear title, a helpful description, and optionally a "Call to Action" button (e.g., "Add Item").
    - `ErrorState`: Should include an error icon, a "Something went wrong" message, a "Retry" button, and optionally a "Report Issue" link.
 3. **Integration:** Integrate these into the `WidgetShell` or provide a standard hook/pattern for widgets to use them.

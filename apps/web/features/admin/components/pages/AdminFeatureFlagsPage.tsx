@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { AdminPageHeader } from '../AdminPageHeader';
@@ -31,7 +32,7 @@ function ToggleCell({
 
     const toggle = useCallback(async () => {
         setLoading(true);
-        await fetch('/api/admin/feature-flags', {
+        await apiRouteFetch('/api/admin/feature-flags', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: flag.id, enabled: !flag.enabled }),
@@ -67,7 +68,7 @@ function CreateFlagForm({ onCreated }: { onCreated: () => void }) {
     const handleSubmit = useCallback(async () => {
         if (!key) return;
         setSaving(true);
-        await fetch('/api/admin/feature-flags', {
+        await apiRouteFetch('/api/admin/feature-flags', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key, description: desc }),
@@ -134,7 +135,7 @@ export function AdminFeatureFlagsPage() {
             header: 'Description',
             render: (r) => (
                 <span className="text-sm text-gray-500">
-                    {r.description || '—'}
+                    {r.description || 'N/A'}
                 </span>
             ),
         },

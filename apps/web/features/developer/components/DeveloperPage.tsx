@@ -39,6 +39,7 @@ import { DevQueueAndCron } from '@/features/developer/components/DevQueueAndCron
 import { DevDockerPanel } from '@/features/developer/components/DevDockerPanel';
 import { DevSchemaExplorer } from '@/features/developer/components/DevSchemaExplorer';
 import { DevSimpleDiagnostics } from '@/features/developer/components/DevSimpleDiagnostics';
+import { DevDeadLetterMonitor } from '@/features/developer/components/DevDeadLetterMonitor';
 
 const SIMPLE_DIAGNOSTICS_IDS: SectionId[] = [
     'realtime',
@@ -164,7 +165,13 @@ export function DeveloperPage() {
                             <DevQueueAndCron data={query.data} mode="cron" />
                         )}
                         {query.data && active === 'queues' && (
-                            <DevQueueAndCron data={query.data} mode="queues" />
+                            <div className="space-y-4">
+                                <DevQueueAndCron
+                                    data={query.data}
+                                    mode="queues"
+                                />
+                                <DevDeadLetterMonitor />
+                            </div>
                         )}
                         {query.data && active === 'docker' && (
                             <DevDockerPanel data={query.data} />

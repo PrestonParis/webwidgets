@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { MetricCard } from '../MetricCard';
 import { MetricsEmptyState } from '../MetricsEmptyState';
@@ -35,7 +36,7 @@ export function MetricsErrorsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/metrics')
+        apiRouteFetch('/api/metrics')
             .then((r) => r.text())
             .then(setMetrics)
             .catch(() => {

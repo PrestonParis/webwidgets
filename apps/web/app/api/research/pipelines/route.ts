@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { runResearchPipeline } from '@/features/research/server/researchService';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export const runtime = 'nodejs';
 
@@ -20,7 +21,7 @@ const requestSchema = z.object({
 
 export async function POST(req: Request) {
     const { supabase } = await createClients();
-    await getRequestUserId(supabase);
+    const userId = await getRequestUserId(supabase);
     const parsed = requestSchema.safeParse(await req.json());
     if (!parsed.success) {
         return NextResponse.json(
@@ -29,6 +30,55 @@ export async function POST(req: Request) {
         );
     }
 
+    // Publish started event before running (pipeline can take minutes)
+    await publishActivityEventSafe(supabase, {
+        userId,
+        source: 'research',
+        eventType: 'research.started',
+        category: 'ai',
+        severity: 'info',
+        priority: 'normal',
+        title: `Research started: ${parsed.data.topic}`,
+        body: `${parsed.data.mode} mode · ${parsed.data.webLimit} web sources`,
+        actionUrl: '/research',
+        metadata: {
+            topic: parsed.data.topic,
+            mode: parsed.data.mode,
+            webLimit: parsed.data.webLimit,
+            tags: parsed.data.tags,
+        },
+    });
+
     const result = await runResearchPipeline(parsed.data);
+
+    // Publish completion or failure event
+    if (result.ok) {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'research',
+            eventType: 'research.completed',
+            category: 'ai',
+            severity: 'success',
+            priority: 'normal',
+            title: `Research completed: ${parsed.data.topic}`,
+            actionUrl: '/research',
+            metadata: {
+                topic: parsed.data.topic,
+                mode: parsed.data.mode,
+            },
+        });
+    } else {
+        await publishActivityEventSafe(supabase, {
+            userId,
+            source: 'research',
+            eventType: 'research.failed',
+            category: 'ai',
+            severity: 'critical',
+            priority: 'high',
+            title: `Research failed: ${parsed.data.topic}`,
+            metadata: { topic: parsed.data.topic, mode: parsed.data.mode },
+        });
+    }
+
     return NextResponse.json(result, { status: result.ok ? 200 : 500 });
 }

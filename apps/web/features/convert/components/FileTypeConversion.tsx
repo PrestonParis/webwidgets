@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useMemo, useState } from 'react';
 import { Download, FileUp, Loader2 } from 'lucide-react';
 import {
@@ -85,7 +86,7 @@ export function FileTypeConversion({ compact }: FileTypeConversionProps) {
             formData.set('fromFormat', fromFormat);
             formData.set('toFormat', toFormat);
 
-            const response = await fetch('/api/files/convert', {
+            const response = await apiRouteFetch('/api/files/convert', {
                 method: 'POST',
                 body: formData,
             });

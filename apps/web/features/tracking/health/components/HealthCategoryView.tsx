@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import InjuryLogDrawer from './InjuryLogDrawer';
-import BiometricChart from './BiometricChart';
+import BiometricChart from '@/features/ui/visualizations/components/BiometricChart';
 import { BodyIssuePanel } from './BodyIssuePanel';
 import { IssueTimeline } from './IssueTimeline';
 import { HealthBodyTab } from './HealthBodyTab';
@@ -251,7 +251,7 @@ export function HealthCategoryView({
                             value={
                                 analytics.avgEnergy7d !== null
                                     ? analytics.avgEnergy7d.toFixed(1)
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi
@@ -259,7 +259,7 @@ export function HealthCategoryView({
                             value={
                                 analytics.hrvDelta !== null
                                     ? `${analytics.hrvDelta > 0 ? '+' : ''}${Math.round(analytics.hrvDelta)}ms`
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                         <TrackingKpi
@@ -267,7 +267,7 @@ export function HealthCategoryView({
                             value={
                                 analytics.rhrDelta !== null
                                     ? `${analytics.rhrDelta > 0 ? '+' : ''}${Math.round(analytics.rhrDelta)}bpm`
-                                    : '—'
+                                    : 'N/A'
                             }
                         />
                     </>
@@ -331,7 +331,7 @@ export function HealthCategoryView({
                             <p className="mt-1 text-lg font-bold text-indigo-600 dark:text-indigo-300">
                                 {analytics.hrvDelta !== null
                                     ? `${analytics.hrvDelta > 0 ? '+' : ''}${Math.round(analytics.hrvDelta)} ms`
-                                    : '—'}
+                                    : 'N/A'}
                             </p>
                         </div>
                         <div className="rounded-xl bg-gray-50 p-3 dark:bg-zinc-800/70">
@@ -341,7 +341,7 @@ export function HealthCategoryView({
                             <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-300">
                                 {analytics.rhrDelta !== null
                                     ? `${analytics.rhrDelta > 0 ? '+' : ''}${Math.round(analytics.rhrDelta)} bpm`
-                                    : '—'}
+                                    : 'N/A'}
                             </p>
                         </div>
                     </div>

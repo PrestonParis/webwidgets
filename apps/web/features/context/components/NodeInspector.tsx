@@ -26,6 +26,11 @@ export function NodeInspector({
         .map((edge) => (edge.from === node.entityId ? edge.to : edge.from))
         .map((id) => graph.nodes.find((item) => item.entityId === id))
         .filter(Boolean) as ContextNode[];
+    const uniqueConnectedNodes = [
+        ...new Map(
+            connectedNodes.map((item) => [item.entityId, item]),
+        ).values(),
+    ];
     const dataEntries = Object.entries(node.data).filter(
         ([, value]) => value !== null && value !== '',
     );
@@ -104,13 +109,13 @@ export function NodeInspector({
                 </section>
             )}
 
-            {connectedNodes.length > 0 && (
+            {uniqueConnectedNodes.length > 0 && (
                 <section>
                     <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                         Connected Widgets And Context
                     </h3>
                     <div className="space-y-1.5">
-                        {connectedNodes.slice(0, 8).map((item) => (
+                        {uniqueConnectedNodes.slice(0, 8).map((item) => (
                             <button
                                 key={item.entityId}
                                 type="button"
@@ -145,6 +150,63 @@ export function NodeInspector({
                                 </p>
                                 <p className="mt-1 wrap-break-word text-xs text-zinc-700 dark:text-zinc-300">
                                     {String(value)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            <section>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Provenance
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                    {[
+                        ['Source', node.sourceType ?? 'manual'],
+                        ['Source ID', node.sourceId ?? node.entityId],
+                        ['Created by', node.createdByType ?? 'user'],
+                        ['Confidence', String(node.confidence ?? 1)],
+                        ['Status', node.status ?? 'active'],
+                        ['Observed', node.lastObservedAt ?? node.updatedAt],
+                    ].map(([label, value]) => (
+                        <div
+                            key={label}
+                            className="rounded-lg bg-zinc-50 p-2 dark:bg-zinc-900"
+                        >
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                                {label}
+                            </p>
+                            <p className="mt-1 truncate text-zinc-700 dark:text-zinc-300">
+                                {value}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {connectedEdges.length > 0 && (
+                <section>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        Relationship Evidence
+                    </h3>
+                    <div className="space-y-1.5">
+                        {connectedEdges.slice(0, 8).map((edge, index) => (
+                            <div
+                                key={
+                                    edge.id ??
+                                    `${edge.from}-${edge.to}-${index}`
+                                }
+                                className="rounded-lg border border-zinc-100 p-2 text-xs dark:border-zinc-800"
+                            >
+                                <p className="font-medium text-zinc-700 dark:text-zinc-200">
+                                    {edge.kind ?? 'relates_to'}
+                                    {edge.label ? `: ${edge.label}` : ''}
+                                </p>
+                                <p className="mt-1 text-zinc-500">
+                                    confidence {edge.confidence ?? 1} ·{' '}
+                                    {edge.sourceType ?? 'manual'} ·{' '}
+                                    {edge.createdByType ?? 'user'}
                                 </p>
                             </div>
                         ))}

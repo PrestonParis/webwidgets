@@ -7,9 +7,10 @@ import {
     Brain,
     DollarSign,
     AlertTriangle,
+    Mail,
 } from 'lucide-react';
 import { MetricCard } from '../MetricCard';
-import { TimeSeriesChart } from '../TimeSeriesChart';
+import { TimeSeriesChart } from '@/features/ui/visualizations/components/TimeSeriesChart';
 import { MetricsErrorState } from '../MetricsErrorState';
 import { MetricsEmptyState } from '../MetricsEmptyState';
 import { useMetricsFilter } from '../../hooks/useMetricsFilter';
@@ -52,15 +53,15 @@ function StatGrid({ s }: { s: OverviewStats }) {
                 color="red"
             />
             <MetricCard
+                label="Email Processed"
+                value={s.emailProcessed}
+                icon={Mail}
+                color="blue"
+            />
+            <MetricCard
                 label="AI Cost"
                 value={`$${s.aiCostUsd.toFixed(2)}`}
                 icon={DollarSign}
-                color="yellow"
-            />
-            <MetricCard
-                label="Low-Conf ML %"
-                value={`${s.mlLowConfRate}%`}
-                icon={Brain}
                 color="yellow"
             />
         </div>

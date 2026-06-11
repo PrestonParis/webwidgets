@@ -24,9 +24,11 @@ export function useTrackingEntries(options?: FetchOptions): {
     const optionsRef = useRef(options);
     const prevCategoryRef = useRef(options?.category);
 
-    useEffect(() => {
-        optionsRef.current = options;
-    }, [options]);
+    // Keep optionsRef current without a reactive effect — direct assignment in
+    // render is safe here because optionsRef is only read inside async callbacks,
+    // never during render. This avoids running a sync effect on every render
+    // (which happened because the caller passes a new object literal each time).
+    optionsRef.current = options;
 
     const refetch = useCallback(async () => {
         if (!userId) {

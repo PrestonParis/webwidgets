@@ -31,7 +31,7 @@ export function useUrgeForm(trackerId: string) {
         replacement.trim() ? `Instead: ${replacement.trim()}` : '',
     ]
         .filter(Boolean)
-        .join(' — ');
+        .join(', ');
 
     const canSave = combinedTrigger.length > 0;
 

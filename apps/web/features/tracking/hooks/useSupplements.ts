@@ -15,18 +15,23 @@ export function useSupplements() {
     const [supplements, setSupplements] = useState<Supplement[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const load = useCallback(async () => {
+    const load = useCallback(async (signal?: AbortSignal) => {
         setLoading(true);
-        const data = await fetchSupplements();
-        setSupplements(data);
-        setLoading(false);
+        try {
+            const data = await fetchSupplements(signal);
+            if (signal?.aborted) return;
+            setSupplements(data);
+            setLoading(false);
+        } catch (e) {
+            if (e instanceof Error && e.name === 'AbortError') return;
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
-        const timeoutId = window.setTimeout(() => {
-            void load();
-        }, 0);
-        return () => window.clearTimeout(timeoutId);
+        const controller = new AbortController();
+        void load(controller.signal);
+        return () => controller.abort();
     }, [load]);
 
     const add = useCallback(

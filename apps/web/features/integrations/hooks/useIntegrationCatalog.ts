@@ -34,7 +34,8 @@ const EXTRA_PROVIDERS = [
     {
         id: 'oura',
         name: 'Oura',
-        summary: 'Sleep and recovery connector ready for provider authorization.',
+        summary:
+            'Sleep and recovery connector ready for provider authorization.',
         state: 'coming-soon',
     },
 ] as const;

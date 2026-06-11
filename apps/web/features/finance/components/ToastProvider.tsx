@@ -5,7 +5,11 @@ import { useToast, type Toast } from '@/features/finance/hooks/useToast';
 
 interface ToastContextType {
     toasts: Toast[];
-    show: (message: string, type?: 'error' | 'success' | 'info', duration?: number) => string;
+    show: (
+        message: string,
+        type?: 'error' | 'success' | 'info',
+        duration?: number,
+    ) => string;
     dismiss: (id: string) => void;
     error: (message: string, duration?: number) => string;
     success: (message: string, duration?: number) => string;

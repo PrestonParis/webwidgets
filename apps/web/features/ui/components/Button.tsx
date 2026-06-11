@@ -4,7 +4,12 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
+export type ButtonVariant =
+    | 'primary'
+    | 'secondary'
+    | 'ghost'
+    | 'danger'
+    | 'outline';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,11 +23,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-    primary: 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90',
-    secondary: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700',
+    primary:
+        'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90',
+    secondary:
+        'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700',
     ghost: 'bg-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800',
     danger: 'bg-red-600 text-white hover:bg-red-700',
-    outline: 'bg-transparent border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50',
+    outline:
+        'bg-transparent border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -32,7 +40,12 @@ const sizeStyles: Record<ButtonSize, string> = {
     lg: 'h-10 px-4 text-sm gap-2 rounded-xl',
 };
 
-const iconSizes: Record<ButtonSize, number> = { xs: 12, sm: 12, md: 14, lg: 16 };
+const iconSizes: Record<ButtonSize, number> = {
+    xs: 12,
+    sm: 12,
+    md: 14,
+    lg: 16,
+};
 
 export function Button({
     variant = 'primary',

@@ -19,7 +19,8 @@ export default function DeveloperWidget({
     const query = useDeveloperWorkspace();
     const data = query.data;
     const failing =
-        data?.overview.filter((check) => check.status !== 'healthy').length ?? 0;
+        data?.overview.filter((check) => check.status !== 'healthy').length ??
+        0;
     const queueBacklog =
         data?.queues.reduce(
             (total, queue) =>

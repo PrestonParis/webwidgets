@@ -7,6 +7,9 @@ import {
     newsQueueJobSchema,
     type NewsQueueJob,
 } from '@/features/news/schemas/ingestionSchemas';
+import { createAdminClient } from '@/lib/supabase/adminClient';
+import { publishNewsIngestedEvent } from '@/features/activity/integrations/newsActivityPublisher';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 
 const queueName = 'news-event-ingestion';
 const defaultJobOptions: JobsOptions = {
@@ -86,6 +89,23 @@ export function createNewsWorker() {
                     { rawEventCount: rawEvents.length },
                     'rss ingest complete',
                 );
+
+                // Publish platform activity event if we have a user context.
+                // Uses the service-role admin client — safe for worker context.
+                if (data.requestedBy) {
+                    const adminSupabase = createAdminClient();
+                    await publishNewsIngestedEvent(
+                        adminSupabase,
+                        data.requestedBy,
+                        omitUndefined({
+                            feedUrl: data.url,
+                            feedName: data.providerId,
+                            articleCount: rawEvents.length,
+                            jobId: job.id,
+                        }),
+                    );
+                }
+
                 return rawEvents;
             }
 

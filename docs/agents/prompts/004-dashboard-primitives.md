@@ -3,7 +3,7 @@
 Status: Complete  
 Assigned Agent: Unassigned  
 Stage: 1  
-Priority: High  
+Priority: High
 
 ## Objective
 
@@ -53,17 +53,21 @@ rg "layout" features/dashboard
 ## Completion Notes
 
 ### Snap Rules
+
 - `computeSnap` in `useFreeCanvasComputed.ts` now uses actual widget sizes from the `sizes` map instead of hardcoded `WIDGET_W`/`WIDGET_APPROX_H` constants. Both own-widget size and other-widget sizes are accurate after resize operations.
 - Added right-edge-to-right-edge and bottom-edge-to-bottom-edge snap cases (4 X snap axes, 4 Y snap axes total per widget pair).
 - Visual guide lines already rendered as blue 1px divs in `FreeCanvas.tsx`.
 
 ### Pinning
+
 - Separated `viewport` pin mode from `canvas`/`anchor` pin modes in `FreeLayer`.
 - `isViewportPinned = true` → renders widget with `position: fixed` so it stays in viewport during page scroll. Styled with emerald ring to distinguish from canvas-pinned.
 - `isCanvasPinned = true` → `canvas` or `anchor` modes; position locked (pointer events blocked on drag).
 
 ### Performance
+
 - `useFreeCanvasDrag` now throttles `pointermove` with `requestAnimationFrame`. Pending move events are collapsed so each display frame processes at most one position update. Pending rAF cancelled on `pointerup`.
 
 ### Scenes
+
 - Scene save/load/delete/rename was already fully implemented in `useScenes.ts` + `SceneSwitcher.tsx`. Scenes persist to `localStorage` under `dashboard-scenes`. Settings snapshot is stored but not captured (future work for per-scene widget settings).

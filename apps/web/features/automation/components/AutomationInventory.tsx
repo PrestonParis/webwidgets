@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { History, Search, Settings2, Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { EmptyState } from '@/features/ui/components/EmptyState';
-import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type {
     AutomationFilter,
     AutomationCenterController,
@@ -14,6 +14,7 @@ import {
     widgetEmoji,
 } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge, StatusBadge, Toggle } from './AutomationBadges';
+import { deleteAutomation } from '@/features/automation/services/automationService';
 
 const FILTERS: { value: AutomationFilter; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -30,11 +31,13 @@ function InstanceRow({
     onToggle,
     onConfigure,
     onHistory,
+    configureOpen,
 }: {
     instance: AutomationInstance;
     onToggle: (id: string) => void;
     onConfigure: () => void;
     onHistory: () => void;
+    configureOpen: boolean;
 }) {
     const { definition } = instance;
     const setupRequired =
@@ -88,7 +91,7 @@ function InstanceRow({
 
             {definition.consent.affectsExternal && (
                 <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400">
-                    Touches external services — actions require your approval.
+                    Touches external services. Actions require your approval.
                 </p>
             )}
 
@@ -96,7 +99,12 @@ function InstanceRow({
                 <button
                     type="button"
                     onClick={onConfigure}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    className={cn(
+                        'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                        configureOpen
+                            ? 'border-zinc-400 bg-zinc-100 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100'
+                            : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800',
+                    )}
                 >
                     <Settings2 size={13} />
                     Configure
@@ -110,6 +118,36 @@ function InstanceRow({
                     History
                 </button>
             </div>
+
+            {configureOpen && (
+                <div className="mt-3 border-t border-zinc-100 pt-3 space-y-2 dark:border-zinc-800">
+                    <div>
+                        <label className="text-[10px] font-medium uppercase text-zinc-400">
+                            Trigger
+                        </label>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-300">
+                            {definition.trigger.label}
+                        </p>
+                    </div>
+                    {definition.approvalPolicy.required && (
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                            This automation requires your approval before
+                            executing actions.
+                        </p>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() =>
+                            void deleteAutomation(instance.id).then(() =>
+                                window.location.reload(),
+                            )
+                        }
+                        className="text-xs text-red-500 hover:text-red-700"
+                    >
+                        Remove automation
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
@@ -129,7 +167,7 @@ export function AutomationInventory({
         toggleAutomation,
         setActiveTab,
     } = controller;
-    const toast = useToastContext();
+    const [configureId, setConfigureId] = useState<string | null>(null);
 
     return (
         <div className="space-y-4">
@@ -198,9 +236,12 @@ export function AutomationInventory({
                             instance={instance}
                             onToggle={toggleAutomation}
                             onConfigure={() =>
-                                toast.info('Configuration coming soon')
+                                setConfigureId((id) =>
+                                    id === instance.id ? null : instance.id,
+                                )
                             }
                             onHistory={() => setActiveTab('history')}
+                            configureOpen={configureId === instance.id}
                         />
                     ))}
                 </div>

@@ -1,4 +1,4 @@
-import { MetricsFunnelsPage } from '@/features/metrics/components/pages/MetricsFunnelsPage';
+import { redirect } from 'next/navigation';
 export default function Page() {
-    return <MetricsFunnelsPage />;
+    redirect('/metrics/overview');
 }

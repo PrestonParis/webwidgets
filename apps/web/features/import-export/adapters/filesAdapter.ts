@@ -7,11 +7,12 @@ import type {
     ExportResult,
     MappedRow,
 } from '@/features/import-export/types/importExport';
+import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
 export const filesAdapter: ImportExportAdapter = {
     id: 'files',
     displayName: 'Files',
-    description: 'Uploaded files — list and export file metadata from View',
+    description: 'Uploaded files: list and export file metadata from View',
     sourceType: 'files',
     canImport: false,
     canExport: true,
@@ -87,4 +88,6 @@ export const filesAdapter: ImportExportAdapter = {
 
         return { rows, totalCount: rows.length, warnings };
     },
+
+    mapToContext: getContextMapper('files'),
 };
