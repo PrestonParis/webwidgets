@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { Layers, Palette } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
@@ -14,7 +15,7 @@ export default function CreativeWidget({
     const [layerCount, setLayerCount] = useState(0);
 
     useEffect(() => {
-        void fetch('/api/creative/projects')
+        void apiRouteFetch('/api/creative/projects')
             .then((r) =>
                 r.ok
                     ? (r.json() as Promise<ProjectRecord[]>)
@@ -24,7 +25,7 @@ export default function CreativeWidget({
                 setProjects(ps);
                 if (ps.length > 0) {
                     const top = ps[0]!;
-                    const layers = await fetch(
+                    const layers = await apiRouteFetch(
                         `/api/creative/projects/${top.id}/layers`,
                     )
                         .then((r) =>

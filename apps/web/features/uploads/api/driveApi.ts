@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type { DriveFile } from '@/app/api/drive/files/route';
 
 export interface DriveFilesResult {
@@ -10,7 +11,7 @@ export async function listDriveFiles(
 ): Promise<DriveFilesResult> {
     const params = new URLSearchParams();
     if (query) params.set('q', query);
-    const res = await fetch(`/api/drive/files?${params.toString()}`);
+    const res = await apiRouteFetch(`/api/drive/files?${params.toString()}`);
     if (!res.ok) return { connected: false, files: [] };
     return res.json() as Promise<DriveFilesResult>;
 }

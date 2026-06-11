@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useRef } from 'react';
 import { useNotificationStore } from '@/features/notifications/hooks/useNotificationStore';
 import { isAllDay } from '@/features/calendar/types/calendar';
@@ -79,7 +80,7 @@ export function useCalendarEventNotifications() {
                     today.getMonth(),
                     today.getDate() + 1,
                 ).toISOString();
-                const res = await fetch(
+                const res = await apiRouteFetch(
                     `/api/calendar/events?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`,
                     { credentials: 'include', cache: 'no-store' },
                 );

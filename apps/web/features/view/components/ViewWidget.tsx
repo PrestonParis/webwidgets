@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { Eye, Loader2, Download, Trash2, ExternalLink } from 'lucide-react';
@@ -88,7 +89,7 @@ export default function ViewWidget({
 
     const handleDownload = async (file: ViewFile) => {
         try {
-            const res = await fetch(`/api/uploads/${file.id}/download`);
+            const res = await apiRouteFetch(`/api/uploads/${file.id}/download`);
             if (!res.ok) return;
             const { downloadUrl } = (await res.json()) as {
                 downloadUrl: string;

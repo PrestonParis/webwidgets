@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
@@ -265,7 +266,7 @@ export function FeedbackPage() {
         setSubmitting(true);
         setSubmitError('');
         try {
-            const res = await fetch('/api/feedback', {
+            const res = await apiRouteFetch('/api/feedback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

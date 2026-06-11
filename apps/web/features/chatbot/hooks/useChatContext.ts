@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useCallback, useEffect, useState } from 'react';
 import type {
     ContextPayload,
@@ -29,7 +30,7 @@ export function useChatContext(): UseChatContextReturn {
         setError(null);
         setErrorMessage(null);
         try {
-            const res = await fetch('/api/chat/context', {
+            const res = await apiRouteFetch('/api/chat/context', {
                 credentials: 'include',
                 cache: 'no-store',
             });

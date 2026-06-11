@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState } from 'react';
 import {
     AlertCircle,
@@ -149,16 +150,21 @@ function RunRow({
                             onClick={async () => {
                                 setRetrying((s) => new Set(s).add(run.id));
                                 try {
-                                    await fetch(`/api/command/workstreams`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
+                                    await apiRouteFetch(
+                                        `/api/command/workstreams`,
+                                        {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type':
+                                                    'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                                automationName:
+                                                    run.automationName,
+                                                widgetName: run.widgetName,
+                                            }),
                                         },
-                                        body: JSON.stringify({
-                                            automationName: run.automationName,
-                                            widgetName: run.widgetName,
-                                        }),
-                                    });
+                                    );
                                     toast.success(
                                         `Retry queued for "${run.automationName}"`,
                                     );

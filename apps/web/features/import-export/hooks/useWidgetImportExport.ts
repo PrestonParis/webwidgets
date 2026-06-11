@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useCallback } from 'react';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type { SourceDestinationType } from '@/features/import-export/types/importExport';
@@ -32,7 +33,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
         async (format: 'json' | 'csv') => {
             setExporting(true);
             try {
-                const res = await fetch('/api/import-export/exports', {
+                const res = await apiRouteFetch('/api/import-export/exports', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ source_type: sourceType, format }),
@@ -68,16 +69,19 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
             try {
                 const content = await file.text();
 
-                const jobRes = await fetch('/api/import-export/imports', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        format,
-                        destination_type: sourceType,
-                        duplicate_strategy: duplicateStrategy,
-                        title: `Import ${new Date().toLocaleDateString()}`,
-                    }),
-                });
+                const jobRes = await apiRouteFetch(
+                    '/api/import-export/imports',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            format,
+                            destination_type: sourceType,
+                            duplicate_strategy: duplicateStrategy,
+                            title: `Import ${new Date().toLocaleDateString()}`,
+                        }),
+                    },
+                );
                 const jobJson = await jobRes.json();
                 if (!jobRes.ok || !jobJson.ok) {
                     toast.error(
@@ -87,7 +91,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                 }
                 const jobId = jobJson.job.id as string;
 
-                const parseRes = await fetch(
+                const parseRes = await apiRouteFetch(
                     `/api/import-export/imports/${jobId}/parse`,
                     {
                         method: 'POST',
@@ -127,7 +131,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
         ) => {
             setExecuting(true);
             try {
-                const res = await fetch(
+                const res = await apiRouteFetch(
                     `/api/import-export/imports/${jobId}/execute`,
                     {
                         method: 'POST',

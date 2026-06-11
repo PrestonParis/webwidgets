@@ -104,6 +104,7 @@ export default function AddForm({ countdown, onSave, onCancel }: AddFormProps) {
                         showQuickActions={false}
                         saveLabel="Set date"
                         className="w-full"
+                        accentColor="#0ea5e9"
                     />
                 </div>
             )}

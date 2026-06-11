@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useQuery } from '@tanstack/react-query';
 import type { DeveloperWorkspaceSnapshot } from '@/features/developer/schemas/infrastructureSchemas';
 
@@ -7,7 +8,7 @@ export function useDeveloperWorkspace() {
     return useQuery({
         queryKey: ['developer-workspace'],
         queryFn: async () => {
-            const response = await fetch('/api/developer/workspace', {
+            const response = await apiRouteFetch('/api/developer/workspace', {
                 credentials: 'include',
             });
             if (!response.ok) {

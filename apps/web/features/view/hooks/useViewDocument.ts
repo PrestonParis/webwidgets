@@ -1,11 +1,12 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useQuery } from '@tanstack/react-query';
 import type { ViewFileRef } from '@/features/view/schemas/objectSchemas';
 import type { NormalizedViewDocument } from '@/features/view/schemas/objectSchemas';
 
 async function parseFile(file: ViewFileRef): Promise<NormalizedViewDocument> {
-    const response = await fetch('/api/view/parse', {
+    const response = await apiRouteFetch('/api/view/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file }),

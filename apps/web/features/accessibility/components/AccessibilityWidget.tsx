@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
@@ -21,7 +22,7 @@ export default function AccessibilityWidget({
     );
 
     useEffect(() => {
-        void fetch('/api/accessibility/settings')
+        void apiRouteFetch('/api/accessibility/settings')
             .then((r) =>
                 r.ok
                     ? (r.json() as Promise<AccessibilitySettings>)

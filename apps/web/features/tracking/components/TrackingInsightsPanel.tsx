@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { TrackingInsightsPanelProps } from '@/types/tracking';
@@ -32,7 +33,7 @@ export function TrackingInsightsPanel({ logs }: TrackingInsightsPanelProps) {
         void Promise.all(
             metrics.map(async ([metric, values]) => {
                 try {
-                    const res = await fetch('/api/ml/analyze-trends', {
+                    const res = await apiRouteFetch('/api/ml/analyze-trends', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ metric, values }),

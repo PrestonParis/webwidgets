@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { createElement, useState } from 'react';
 import {
     X,
@@ -66,7 +67,7 @@ export function ViewDetailsPane({
         setExtracting(true);
         setError(null);
         try {
-            const res = await fetch(`/api/uploads/${file.id}/extract`, {
+            const res = await apiRouteFetch(`/api/uploads/${file.id}/extract`, {
                 method: 'POST',
             });
             if (!res.ok) {
@@ -91,7 +92,7 @@ export function ViewDetailsPane({
         setError(null);
         try {
             // Create a cheatsheet_generation job
-            const jobRes = await fetch('/api/jobs', {
+            const jobRes = await apiRouteFetch('/api/jobs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -103,7 +104,7 @@ export function ViewDetailsPane({
             const { id: jobId } = (await jobRes.json()) as { id: string };
 
             // Run the job synchronously
-            const runRes = await fetch(`/api/jobs/${jobId}/run`, {
+            const runRes = await apiRouteFetch(`/api/jobs/${jobId}/run`, {
                 method: 'POST',
             });
             if (!runRes.ok) {
@@ -132,7 +133,7 @@ export function ViewDetailsPane({
         setRenaming(true);
         setError(null);
         try {
-            const res = await fetch(`/api/uploads/${file.id}/rename`, {
+            const res = await apiRouteFetch(`/api/uploads/${file.id}/rename`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: trimmed }),
@@ -151,7 +152,7 @@ export function ViewDetailsPane({
         setDownloading(true);
         setError(null);
         try {
-            const res = await fetch(`/api/uploads/${file.id}/download`);
+            const res = await apiRouteFetch(`/api/uploads/${file.id}/download`);
             if (!res.ok) throw new Error('Download failed');
             const { downloadUrl } = (await res.json()) as {
                 downloadUrl: string;
@@ -186,9 +187,12 @@ export function ViewDetailsPane({
     const handleFavorite = async () => {
         setFavoriteDisabled(true);
         try {
-            const res = await fetch(`/api/uploads/${file.id}/favorite`, {
-                method: 'POST',
-            });
+            const res = await apiRouteFetch(
+                `/api/uploads/${file.id}/favorite`,
+                {
+                    method: 'POST',
+                },
+            );
             const data = (await res.json()) as {
                 ok: boolean;
                 favorite?: boolean;

@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     ResearchArtifactSummary,
     ResearchPipelineRequest,
@@ -14,7 +15,7 @@ export async function getResearchStatus(
     if (rootPath?.trim()) params.set('rootPath', rootPath.trim());
     if (sourceKind) params.set('sourceKind', sourceKind);
     const suffix = params.size ? `?${params.toString()}` : '';
-    const response = await fetch(`/api/research/status${suffix}`);
+    const response = await apiRouteFetch(`/api/research/status${suffix}`);
     if (!response.ok) throw new Error('Research status unavailable');
     return (await response.json()) as ResearchStatus;
 }
@@ -28,7 +29,7 @@ export async function listResearchArtifacts(
     if (rootPath?.trim()) params.set('rootPath', rootPath.trim());
     if (sourceKind) params.set('sourceKind', sourceKind);
     if (query.trim()) params.set('q', query.trim());
-    const response = await fetch(`/api/research/artifacts?${params}`);
+    const response = await apiRouteFetch(`/api/research/artifacts?${params}`);
     if (!response.ok) throw new Error('Research artifacts unavailable');
     const json = (await response.json()) as {
         artifacts: ResearchArtifactSummary[];
@@ -39,7 +40,7 @@ export async function listResearchArtifacts(
 export async function runResearchPipeline(
     input: ResearchPipelineRequest,
 ): Promise<ResearchPipelineResult> {
-    const response = await fetch('/api/research/pipelines', {
+    const response = await apiRouteFetch('/api/research/pipelines', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),

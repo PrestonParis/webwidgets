@@ -758,7 +758,7 @@ export function ReadingPage() {
                     </div>
 
                     {/* Right: Bible + Quick Access */}
-                    <div className="hidden w-80 shrink-0 flex-col gap-5 overflow-y-auto p-6 md:flex lg:w-[360px]">
+                    <div className="hidden w-80 shrink-0 flex-col gap-5 overflow-y-auto p-6 md:flex lg:w-90">
                         <BibleSection
                             documents={documents}
                             onOpen={openDocument}
