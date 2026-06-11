@@ -1,0 +1,118 @@
+{
+  "timestamp": "2026-05-20T23:20:05.911Z",
+  "summary": {
+    "total": 2,
+    "successful": 0,
+    "failed": 2,
+    "skipped": 0,
+    "failuresByCategory": {
+      "critical": 2,
+      "degraded": 0,
+      "cosmetic": 0,
+      "performance": 0,
+      "hydration": 0,
+      "network": 0,
+      "missing-data": 0,
+      "placeholder/slop": 0
+    },
+    "averageLoadTime": 84.5,
+    "slowestRoutes": [
+      {
+        "route": "/dashboard",
+        "duration": 116
+      },
+      {
+        "route": "/",
+        "duration": 53
+      }
+    ]
+  },
+  "results": [
+    {
+      "route": "/",
+      "success": false,
+      "loadDuration": 53,
+      "telemetry": {
+        "route": "/",
+        "timestamp": 1779319205741,
+        "consoleErrors": [],
+        "failedRequests": [],
+        "hydrationWarnings": [],
+        "uncaughtExceptions": [],
+        "networkWaterfall": [],
+        "duplicateRequests": [],
+        "longTasks": [],
+        "performanceMetrics": {
+          "ttfb": 0,
+          "domContentLoaded": 0,
+          "loadComplete": 0
+        }
+      },
+      "failures": [
+        {
+          "category": "critical",
+          "message": "page.goto: NS_ERROR_CONNECTION_REFUSED\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+          "severity": "error",
+          "context": {
+            "error": {
+              "name": "Error"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "path": "/",
+        "category": "core",
+        "requiresAuth": true,
+        "requiresIntegrations": [],
+        "expectedLoadTime": 2000,
+        "testPriority": "critical",
+        "critical": true,
+        "description": "Main dashboard"
+      }
+    },
+    {
+      "route": "/dashboard",
+      "success": false,
+      "loadDuration": 116,
+      "telemetry": {
+        "route": "/dashboard",
+        "timestamp": 1779319205794,
+        "consoleErrors": [],
+        "failedRequests": [],
+        "hydrationWarnings": [],
+        "uncaughtExceptions": [],
+        "networkWaterfall": [],
+        "duplicateRequests": [],
+        "longTasks": [],
+        "performanceMetrics": {
+          "ttfb": 0,
+          "domContentLoaded": 0,
+          "loadComplete": 0
+        }
+      },
+      "failures": [
+        {
+          "category": "critical",
+          "message": "page.goto: NS_ERROR_CONNECTION_REFUSED\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/dashboard\", waiting until \"load\"\u001b[22m\n",
+          "severity": "error",
+          "context": {
+            "error": {
+              "name": "Error"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "path": "/dashboard",
+        "category": "core",
+        "requiresAuth": true,
+        "requiresIntegrations": [],
+        "expectedLoadTime": 2000,
+        "testPriority": "critical",
+        "critical": true,
+        "description": "Dashboard view"
+      }
+    }
+  ]
+}
