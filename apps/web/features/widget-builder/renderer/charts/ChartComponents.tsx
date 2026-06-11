@@ -174,7 +174,10 @@ export function PieChartComponent({
                     label
                 >
                     {data.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        <Cell
+                            key={i}
+                            fill={COLORS[i % COLORS.length] ?? '#10b981'}
+                        />
                     ))}
                 </Pie>
                 <Tooltip

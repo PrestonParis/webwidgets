@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     listGoals,
@@ -58,25 +59,28 @@ export async function POST(req: Request) {
             .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(' ');
 
-        await publishActivityEventSafe(supabase, {
-            userId,
-            source: 'tracking',
-            eventType: 'tracking.goal_created',
-            sourceId: goalId,
-            sourceTable: 'tracking_goals',
-            category: 'data',
-            severity: 'info',
-            priority: 'normal',
-            title: `Tracking goal set: ${formatted}`,
-            body: `Target: ${targetValue} (${targetType.replace(/_/g, ' ')})`,
-            actionUrl: '/tracking',
-            metadata: {
-                category,
-                targetType,
-                targetValue,
-                metricKey: body.data.metricKey,
-            },
-        });
+        await publishActivityEventSafe(
+            supabase,
+            omitUndefined({
+                userId,
+                source: 'tracking',
+                eventType: 'tracking.goal_created',
+                sourceId: goalId,
+                sourceTable: 'tracking_goals',
+                category: 'data',
+                severity: 'info',
+                priority: 'normal',
+                title: `Tracking goal set: ${formatted}`,
+                body: `Target: ${targetValue} (${targetType.replace(/_/g, ' ')})`,
+                actionUrl: '/tracking',
+                metadata: {
+                    category,
+                    targetType,
+                    targetValue,
+                    metricKey: body.data.metricKey,
+                },
+            }),
+        );
 
         return NextResponse.json({ goal });
     } catch (err) {

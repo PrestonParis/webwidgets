@@ -36,7 +36,9 @@ export function buildRecommendations(
             actionLabel: 'Review automations',
             actionUrl: '/settings',
             priority: 'high',
-            sourceEventId: failedAutomations[0]?.id,
+            ...(failedAutomations[0]?.id && {
+                sourceEventId: failedAutomations[0].id,
+            }),
         });
     }
 
@@ -52,7 +54,9 @@ export function buildRecommendations(
             actionLabel: 'Open Files',
             actionUrl: '/files',
             priority: 'high',
-            sourceEventId: failedExtractions[0]?.id,
+            ...(failedExtractions[0]?.id && {
+                sourceEventId: failedExtractions[0].id,
+            }),
         });
     }
 
@@ -83,7 +87,9 @@ export function buildRecommendations(
             actionLabel: 'View Artifacts',
             actionUrl: generatedArtifacts[0]?.actionUrl ?? '/artifacts',
             priority: 'normal',
-            sourceEventId: generatedArtifacts[0]?.id,
+            ...(generatedArtifacts[0]?.id && {
+                sourceEventId: generatedArtifacts[0].id,
+            }),
         });
     }
 
@@ -115,7 +121,9 @@ export function buildRecommendations(
             actionLabel: 'Open Inbox',
             actionUrl: '/inbox',
             priority: 'normal',
-            sourceEventId: emailActions[0]?.id,
+            ...(emailActions[0]?.id && {
+                sourceEventId: emailActions[0].id,
+            }),
         });
     }
 
@@ -131,7 +139,9 @@ export function buildRecommendations(
             actionLabel: 'Open Research',
             actionUrl: '/research',
             priority: 'high',
-            sourceEventId: failedResearch[0]?.id,
+            ...(failedResearch[0]?.id && {
+                sourceEventId: failedResearch[0].id,
+            }),
         });
     }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     listFinanceTransactionsForUser,
@@ -59,25 +60,28 @@ export async function POST(req: Request) {
         const sign = type === 'income' ? '+' : type === 'expense' ? '-' : '↕';
         const amountStr = `${sign}$${Math.abs(amount).toFixed(2)}`;
 
-        await publishActivityEventSafe(supabase, {
-            userId,
-            source: 'finance',
-            eventType: 'finance.transaction_added',
-            sourceId: (tx as { id?: string }).id,
-            sourceTable: 'finance_transactions',
-            category: 'data',
-            severity: type === 'expense' ? 'warning' : 'info',
-            priority: 'low',
-            title: `${capitalize(type)}: ${title}`,
-            body: `${amountStr} · ${category}`,
-            actionUrl: '/finance',
-            metadata: {
-                transactionType: type,
-                amount,
-                category,
-                merchant: body.data.merchant,
-            },
-        });
+        await publishActivityEventSafe(
+            supabase,
+            omitUndefined({
+                userId,
+                source: 'finance',
+                eventType: 'finance.transaction_added',
+                sourceId: (tx as { id?: string }).id,
+                sourceTable: 'finance_transactions',
+                category: 'data',
+                severity: type === 'expense' ? 'warning' : 'info',
+                priority: 'low',
+                title: `${capitalize(type)}: ${title}`,
+                body: `${amountStr} · ${category}`,
+                actionUrl: '/finance',
+                metadata: {
+                    transactionType: type,
+                    amount,
+                    category,
+                    merchant: body.data.merchant,
+                },
+            }),
+        );
 
         // Best-effort context ingestion — never throws
         void ingestFinanceTransactionContext(userId, {

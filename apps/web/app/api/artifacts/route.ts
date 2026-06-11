@@ -82,7 +82,9 @@ export async function POST(req: Request): Promise<Response> {
             severity: 'success',
             priority: 'normal',
             title: `${capitalize(artifact.type)} generated: ${artifact.title}`,
-            body: artifact.content.slice(0, 200) || undefined,
+            ...(artifact.content.slice(0, 200)
+                ? { body: artifact.content.slice(0, 200) }
+                : {}),
             actionUrl: `/artifacts/${artifact.id}`,
             relatedEntities: [
                 { type: 'artifact', id: artifact.id, label: artifact.title },
