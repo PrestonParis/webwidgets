@@ -237,7 +237,7 @@ export default function WorkoutWidget() {
                                                 name: newRoutineName.trim(),
                                                 exercises: [],
                                                 tags: latest
-                                                    ? [latest.type ?? 'workout']
+                                                    ? [latest.workoutType]
                                                     : [],
                                                 ...(latest?.durationMinutes
                                                     ? {

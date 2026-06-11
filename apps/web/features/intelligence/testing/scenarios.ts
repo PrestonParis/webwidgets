@@ -17,7 +17,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'student-productivity',
         persona: 'Student productivity user',
-        goals: ['productivity', 'learning'],
+        goals: ['personal-productivity', 'school'],
         permissions: [],
         connectedServices: ['google-calendar'],
         widgets: ['todo', 'calendar'],
@@ -29,7 +29,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'recovery-focused',
         persona: 'Recovery-focused user',
-        goals: ['recovery', 'health-tracking'],
+        goals: ['health-fitness'],
         permissions: ['health/tracking data'],
         connectedServices: [],
         widgets: ['recovery', 'tracking-mood'],
@@ -41,7 +41,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'finance-focused',
         persona: 'Finance-focused user',
-        goals: ['finance'],
+        goals: ['finances'],
         permissions: ['finance data'],
         connectedServices: [],
         widgets: ['converter'],
@@ -53,7 +53,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'developer',
         persona: 'Developer user',
-        goals: ['development'],
+        goals: ['software-development'],
         permissions: [],
         connectedServices: ['github'],
         widgets: ['timekeeping'],
@@ -65,7 +65,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'writer-researcher',
         persona: 'Writer and researcher',
-        goals: ['writing-knowledge', 'research'],
+        goals: ['research'],
         permissions: [],
         connectedServices: ['obsidian'],
         widgets: ['texteditor'],
@@ -77,7 +77,7 @@ export const SMART_LAYER_SCENARIOS: SmartLayerScenario[] = [
     {
         id: 'busy-parent',
         persona: 'Busy parent and family planner',
-        goals: ['personal-dashboard', 'productivity'],
+        goals: ['personal-productivity'],
         permissions: [],
         connectedServices: ['google-calendar'],
         widgets: ['calendar', 'todo'],

@@ -71,7 +71,7 @@ export async function POST(req: Request) {
             severity: 'info',
             priority: 'low',
             title: `Flashcard deck created: ${deck.title}`,
-            body: deck.domain !== 'General' ? deck.domain : undefined,
+            ...(deck.domain !== 'General' ? { body: deck.domain } : {}),
             actionUrl: `/memory/${deck.id}`,
             metadata: { deckId: deck.id, domain: deck.domain },
         });

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import {
     listFinanceSubscriptionsForUser,
@@ -60,26 +61,29 @@ export async function POST(req: Request) {
         const cycle = body.data.billingCycle;
         const amountStr = `$${body.data.amount.toFixed(2)}/${cycle === 'monthly' ? 'mo' : cycle === 'yearly' ? 'yr' : cycle}`;
 
-        await publishActivityEventSafe(supabase, {
-            userId,
-            source: 'finance',
-            eventType: 'finance.subscription_created',
-            sourceId: subRecord.id,
-            sourceTable: 'finance_subscriptions',
-            category: 'data',
-            severity: 'info',
-            priority: 'low',
-            title: `Subscription tracked: ${body.data.name}`,
-            body: `${amountStr} · ${body.data.category}`,
-            actionUrl: '/finance',
-            metadata: {
-                subscriptionName: body.data.name,
-                amount: body.data.amount,
-                billingCycle: cycle,
-                category: body.data.category,
-                source: body.data.source,
-            },
-        });
+        await publishActivityEventSafe(
+            supabase,
+            omitUndefined({
+                userId,
+                source: 'finance',
+                eventType: 'finance.subscription_created',
+                sourceId: subRecord.id,
+                sourceTable: 'finance_subscriptions',
+                category: 'data',
+                severity: 'info',
+                priority: 'low',
+                title: `Subscription tracked: ${body.data.name}`,
+                body: `${amountStr} · ${body.data.category}`,
+                actionUrl: '/finance',
+                metadata: {
+                    subscriptionName: body.data.name,
+                    amount: body.data.amount,
+                    billingCycle: cycle,
+                    category: body.data.category,
+                    source: body.data.source,
+                },
+            }),
+        );
 
         return NextResponse.json({ subscription: sub });
     } catch (err) {

@@ -129,7 +129,7 @@ function InstanceRow({
                             {definition.trigger.label}
                         </p>
                     </div>
-                    {definition.consent.requiresConfirmation && (
+                    {definition.approvalPolicy.required && (
                         <p className="text-[11px] text-amber-600 dark:text-amber-400">
                             This automation requires your approval before
                             executing actions.

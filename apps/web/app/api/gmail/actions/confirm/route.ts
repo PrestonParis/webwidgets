@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
@@ -223,15 +224,19 @@ export async function POST(req: Request) {
             }),
         ),
         ...createdCalendarEvents.map(({ action, event }) =>
-            ingestEmailActionCalendarContext(supabaseAdmin, user.id, {
-                actionId: action.id,
-                emailId: action.email_id,
-                eventId: event.id!,
-                title: action.title,
-                description: action.description,
-                start: action.due_date,
-                htmlLink: event.htmlLink,
-            }),
+            ingestEmailActionCalendarContext(
+                supabaseAdmin,
+                user.id,
+                omitUndefined({
+                    actionId: action.id,
+                    emailId: action.email_id,
+                    eventId: event.id!,
+                    title: action.title,
+                    description: action.description,
+                    start: action.due_date,
+                    htmlLink: event.htmlLink,
+                }),
+            ),
         ),
     ]);
     await markActionsSynced(supabaseAdmin, actionIds);
