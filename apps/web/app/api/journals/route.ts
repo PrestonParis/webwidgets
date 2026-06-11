@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
-import { ingestDocumentContext } from '@/features/context/services/contextProducerService';
+import { ingestDocumentContext } from '@/features/context/services/contextProducerServiceServer';
 
 export async function GET(): Promise<Response> {
     try {

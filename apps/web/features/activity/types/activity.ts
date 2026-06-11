@@ -37,7 +37,7 @@ export type ActivityEventType =
     | 'news.imported'
     | 'news.article_saved'
     | 'news.article_summarized'
-    // Todo lifecycle
+    // Task lifecycle
     | 'todo.created'
     | 'todo.updated'
     | 'todo.completed'

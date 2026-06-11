@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FileTextExtraction } from '@/features/extraction/types/extraction';
 
@@ -25,7 +26,7 @@ export function useExtraction(fileId: string | null): UseExtractionResult {
     const fetchExtraction = useCallback(async () => {
         if (!fileId) return;
         try {
-            const res = await fetch(`/api/uploads/${fileId}/extract`);
+            const res = await apiRouteFetch(`/api/uploads/${fileId}/extract`);
             const json = (await res.json()) as {
                 data?: FileTextExtraction;
                 available?: boolean;

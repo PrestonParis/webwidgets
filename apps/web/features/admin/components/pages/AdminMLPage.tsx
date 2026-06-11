@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useState } from 'react';
 import { AdminPageHeader } from '../AdminPageHeader';
 import { AdminMetricCard } from '../AdminMetricCard';
@@ -39,7 +40,7 @@ export function AdminMLPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/metrics')
+        apiRouteFetch('/api/metrics')
             .then((r) => r.text())
             .then((t) => setLines(parseLines(t)))
             .catch(() => {

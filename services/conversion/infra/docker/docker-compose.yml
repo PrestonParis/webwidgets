@@ -109,7 +109,7 @@ services:
     profiles: [sync]
     build:
       context: ../../../..
-      dockerfile: apps/sync-worker/Dockerfile
+      dockerfile: services/sync-worker/Dockerfile
     container_name: sync_worker
     restart: unless-stopped
     environment:

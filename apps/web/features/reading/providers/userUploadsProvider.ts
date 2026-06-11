@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     ReadingProvider,
     ReadingProviderCapabilities,
@@ -64,7 +65,7 @@ async function fetchPdfUrl(fileId: string): Promise<string> {
     const cached = urlCache.get(fileId);
     if (cached && cached.expiresAt > Date.now()) return cached.url;
 
-    const res = await fetch(
+    const res = await apiRouteFetch(
         `/api/reading/pdf-url?fileId=${encodeURIComponent(fileId)}`,
     );
     if (!res.ok) throw new Error(`Failed to get PDF URL: ${res.statusText}`);
@@ -86,7 +87,7 @@ const userUploadsProvider: ReadingProvider = {
     async listDocuments(
         options?: ReadingListOptions,
     ): Promise<ReadingDocument[]> {
-        const res = await fetch('/api/uploads');
+        const res = await apiRouteFetch('/api/uploads');
         if (!res.ok) return [];
         const data = (await res.json()) as {
             files: Array<{

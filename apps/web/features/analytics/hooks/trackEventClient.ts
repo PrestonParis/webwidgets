@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type { TrackEventOptions } from '@/features/analytics/types/analytics';
 
 const FLUSH_DELAY_MS = 1200;
@@ -55,7 +56,7 @@ function sendBatch(events: TrackEventOptions[]) {
         if (navigator.sendBeacon('/api/analytics/track', blob)) return;
     }
 
-    void fetch('/api/analytics/track', {
+    void apiRouteFetch('/api/analytics/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: payload,

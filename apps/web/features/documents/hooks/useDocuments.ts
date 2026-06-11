@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import type { Document } from '@/features/documents/types/document';
 
@@ -21,7 +22,7 @@ export function useDocuments(): UseDocumentsResult {
         setIsLoading(true);
         setIsError(false);
 
-        fetch('/api/documents')
+        apiRouteFetch('/api/documents')
             .then((r) => r.json())
             .then((json: { data?: Document[] }) => {
                 if (mounted) {
@@ -67,7 +68,7 @@ export function useDocument(id: string | null): UseDocumentResult {
         setIsLoading(true);
         setIsError(false);
 
-        fetch(`/api/documents/${id}`)
+        apiRouteFetch(`/api/documents/${id}`)
             .then((r) => r.json())
             .then((json: { data?: Document }) => {
                 if (mounted) {

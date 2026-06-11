@@ -15,7 +15,7 @@ export function FooterActions({
             </button>
             <button
                 onClick={onSave}
-                className="flex-1 py-2 text-xs rounded-xl bg-purple-600 text-white hover:bg-purple-700 font-bold transition-colors"
+                className="flex-1 py-2 text-xs rounded-xl bg-(--dp-accent) text-white hover:opacity-90 font-bold transition-opacity"
             >
                 {saveLabel}
             </button>

@@ -263,10 +263,7 @@ export default function HabitWidget() {
 
                         {/* New habit form */}
                         {panel === 'add' ? (
-                            <div className="rounded-xl border border-violet-200 dark:border-violet-900/50 bg-violet-50/50 dark:bg-violet-950/10 p-3">
-                                <p className="text-[11px] font-semibold text-violet-500 dark:text-violet-300 uppercase tracking-wide mb-2">
-                                    New trackable event
-                                </p>
+                            <div>
                                 <HabitAddForm
                                     newName={newName}
                                     newEmoji={newEmoji}

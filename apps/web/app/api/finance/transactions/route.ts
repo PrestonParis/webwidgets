@@ -8,7 +8,7 @@ import {
 } from '@/features/finance/services/financeTransactionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
-import { ingestFinanceTransactionContext } from '@/features/context/services/contextProducerService';
+import { ingestFinanceTransactionContext } from '@/features/context/services/contextProducerServiceServer';
 
 const createSchema = z.object({
     accountId: z.string().optional(),

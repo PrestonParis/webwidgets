@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 // useWidgetData: TanStack Query-based hook that resolves a widget's data requirements.
 // - Deduplicates: multiple widgets with the same sourceType share one query.
 // - Batches: all requirements start in parallel via useQueries.
@@ -76,7 +77,7 @@ async function fetchAdapterSource(
     if (params?.startDate) body['start_date'] = params.startDate;
     if (params?.endDate) body['end_date'] = params.endDate;
 
-    const res = await fetch('/api/import-export/exports', {
+    const res = await apiRouteFetch('/api/import-export/exports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -116,7 +117,7 @@ async function fetchRequirement(req: WidgetDataRequirement): Promise<unknown> {
 
     // ai_context — request a context bundle (for widgets that need AI context)
     if (req.sourceType === 'ai_context') {
-        const res = await fetch('/api/import-export/context-export', {
+        const res = await apiRouteFetch('/api/import-export/context-export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -133,7 +134,7 @@ async function fetchWidgetContextBundle(
     widgetId: string,
     widgetType: string,
 ): Promise<unknown> {
-    const res = await fetch('/api/context/bundle', {
+    const res = await apiRouteFetch('/api/context/bundle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

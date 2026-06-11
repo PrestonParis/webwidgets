@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useEffect, useMemo } from 'react';
 import { Search, X, Check, Plus, Loader2 } from 'lucide-react';
 import {
@@ -37,7 +38,7 @@ export function BibleTranslationPicker({
     const savedIds = useMemo(() => new Set(saved.map((s) => s.id)), [saved]);
 
     useEffect(() => {
-        fetch('/api/bible?path=/bibles')
+        apiRouteFetch('/api/bible?path=/bibles')
             .then(async (r) => {
                 if (!r.ok) throw new Error(`${r.status}`);
                 const data = (await r.json()) as { data: ApiBibleEntry[] };

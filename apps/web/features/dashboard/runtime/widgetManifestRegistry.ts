@@ -441,7 +441,7 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'low',
         aboveFold: false,
         dataRequirements: [
-            // TODO: Migrate to import-export adapter once developer workspace has a defined DB schema.
+            // Future: migrate to import-export adapter once developer workspace has a defined DB schema.
             // For now using direct API route - sourceType: 'api'
             {
                 sourceType: 'api',
@@ -493,7 +493,7 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'normal',
         aboveFold: false,
         dataRequirements: [
-            // TODO: Migrate to import-export adapter once uploads are managed via a dedicated files adapter
+            // Future: migrate to import-export adapter once uploads are managed via a dedicated files adapter
             // that supports storage bucket integration. For now using direct API route - sourceType: 'api'
             {
                 sourceType: 'api',
@@ -548,7 +548,7 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'low',
         aboveFold: false,
         dataRequirements: [
-            // TODO: Migrate to import-export adapter once chess games are persisted to a DB table.
+            // Future: migrate to import-export adapter once chess games are persisted to a DB table.
             // For now using direct API route - sourceType: 'api'
             {
                 sourceType: 'api',
@@ -575,7 +575,7 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'normal',
         aboveFold: false,
         dataRequirements: [
-            // TODO: Migrate to import-export adapter once creative projects have a stable DB schema.
+            // Future: migrate to import-export adapter once creative projects have a stable DB schema.
             // For now using direct API route - sourceType: 'api'
             {
                 sourceType: 'api',
@@ -602,7 +602,7 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'normal',
         aboveFold: false,
         dataRequirements: [
-            // TODO: Migrate to import-export adapter once reading documents are tracked separately
+            // Future: migrate to import-export adapter once reading documents are tracked separately
             // from the generic uploads bucket. For now using direct API route - sourceType: 'api'
             {
                 sourceType: 'api',

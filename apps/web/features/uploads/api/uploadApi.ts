@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     FileUpload,
     PresignResponse,
@@ -11,7 +12,7 @@ export async function requestPresignedUrl(
     mimeType: string,
     sizeBytes: number,
 ): Promise<PresignResponse> {
-    const res = await fetch('/api/uploads/presign', {
+    const res = await apiRouteFetch('/api/uploads/presign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originalName, mimeType, sizeBytes }),
@@ -26,7 +27,9 @@ export async function requestPresignedUrl(
 }
 
 export async function confirmUpload(fileId: string): Promise<FileUpload> {
-    const res = await fetch(`/api/uploads/${fileId}`, { method: 'PATCH' });
+    const res = await apiRouteFetch(`/api/uploads/${fileId}`, {
+        method: 'PATCH',
+    });
     if (!res.ok) throw new Error('Failed to confirm upload');
     clearCachedJson('/api/uploads');
     return res.json() as Promise<FileUpload>;
@@ -112,7 +115,9 @@ export async function uploadFileContent(
 }
 
 export async function deleteUpload(fileId: string): Promise<void> {
-    const res = await fetch(`/api/uploads/${fileId}`, { method: 'DELETE' });
+    const res = await apiRouteFetch(`/api/uploads/${fileId}`, {
+        method: 'DELETE',
+    });
     if (!res.ok) throw new Error('Failed to delete file');
     clearCachedJson('/api/uploads');
 }

@@ -1,3 +1,4 @@
+import { apiRouteFetch } from '@/lib/api/client';
 import type {
     ContextEdge,
     ContextEntry,
@@ -86,7 +87,7 @@ export async function fetchEntries(): Promise<ContextEntry[]> {
 export async function upsertEntry(
     payload: UpsertEntryPayload,
 ): Promise<ContextEntry> {
-    const res = await fetch('/api/context/entries', {
+    const res = await apiRouteFetch('/api/context/entries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -101,7 +102,7 @@ export async function upsertEntry(
 export async function batchUpsertEntries(
     payloads: UpsertEntryPayload[],
 ): Promise<void> {
-    const res = await fetch('/api/context/entries', {
+    const res = await apiRouteFetch('/api/context/entries', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ entries: payloads }),
@@ -112,7 +113,7 @@ export async function batchUpsertEntries(
 }
 
 export async function deleteEntry(entityId: string): Promise<void> {
-    const res = await fetch(
+    const res = await apiRouteFetch(
         `/api/context/entries/${encodeURIComponent(entityId)}`,
         {
             method: 'DELETE',
@@ -124,13 +125,15 @@ export async function deleteEntry(entityId: string): Promise<void> {
 }
 
 export async function fetchGraph(): Promise<ContextGraph> {
-    const res = await fetch('/api/context/graph');
+    const res = await apiRouteFetch('/api/context/graph');
     if (!res.ok) throw new Error('Failed to fetch context graph');
     return res.json() as Promise<ContextGraph>;
 }
 
 export async function runContextBackfill(): Promise<ContextBackfillSummary> {
-    const res = await fetch('/api/context/backfill', { method: 'POST' });
+    const res = await apiRouteFetch('/api/context/backfill', {
+        method: 'POST',
+    });
     if (!res.ok) throw new Error('Failed to sync context');
     clearCachedJson('/api/context/entries');
     notifyContextGraphMutated();
@@ -139,7 +142,7 @@ export async function runContextBackfill(): Promise<ContextBackfillSummary> {
 }
 
 export async function fetchContextCoverage(): Promise<ContextCoverageReport> {
-    const res = await fetch('/api/context/coverage');
+    const res = await apiRouteFetch('/api/context/coverage');
     if (!res.ok) throw new Error('Failed to fetch context coverage');
     return res.json() as Promise<ContextCoverageReport>;
 }
@@ -151,7 +154,7 @@ export async function createEdge(payload: {
     label?: string;
     metadata?: Record<string, unknown>;
 }): Promise<ContextEdge | null> {
-    const res = await fetch('/api/context/edges', {
+    const res = await apiRouteFetch('/api/context/edges', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -164,16 +167,19 @@ export async function createEdge(payload: {
 }
 
 export async function deleteEdge(id: string): Promise<void> {
-    const res = await fetch(`/api/context/edges/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-    });
+    const res = await apiRouteFetch(
+        `/api/context/edges/${encodeURIComponent(id)}`,
+        {
+            method: 'DELETE',
+        },
+    );
     if (!res.ok) throw new Error('Failed to delete context edge');
     clearCachedJson('/api/context/entries');
     notifyContextGraphMutated();
 }
 
 export async function fetchPermissions(): Promise<ContextPermissions> {
-    const res = await fetch('/api/context/permissions');
+    const res = await apiRouteFetch('/api/context/permissions');
     if (!res.ok) throw new Error('Failed to fetch context permissions');
     const json = (await res.json()) as { permissions: ContextPermissions };
     return json.permissions;
@@ -182,7 +188,7 @@ export async function fetchPermissions(): Promise<ContextPermissions> {
 export async function updatePermissions(
     permissions: Partial<ContextPermissions>,
 ): Promise<ContextPermissions> {
-    const res = await fetch('/api/context/permissions', {
+    const res = await apiRouteFetch('/api/context/permissions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(permissions),
@@ -194,7 +200,7 @@ export async function updatePermissions(
 }
 
 export async function fetchSavedViews(): Promise<ContextSavedView[]> {
-    const res = await fetch('/api/context/views');
+    const res = await apiRouteFetch('/api/context/views');
     if (!res.ok) throw new Error('Failed to fetch context views');
     const json = (await res.json()) as { views: ContextSavedView[] };
     return json.views;
@@ -203,7 +209,7 @@ export async function fetchSavedViews(): Promise<ContextSavedView[]> {
 export async function saveContextView(
     view: ContextSavedViewInput & { id?: string },
 ): Promise<ContextSavedView> {
-    const res = await fetch('/api/context/views', {
+    const res = await apiRouteFetch('/api/context/views', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(view),
@@ -214,8 +220,11 @@ export async function saveContextView(
 }
 
 export async function deleteContextView(id: string): Promise<void> {
-    const res = await fetch(`/api/context/views/${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-    });
+    const res = await apiRouteFetch(
+        `/api/context/views/${encodeURIComponent(id)}`,
+        {
+            method: 'DELETE',
+        },
+    );
     if (!res.ok) throw new Error('Failed to delete context view');
 }

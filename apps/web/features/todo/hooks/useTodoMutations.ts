@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 // Mutation-only hook for todo write operations.
 // Writes go through /api/todos so activity events are published server-side.
 // Reads are handled by the runtime adapter pipeline via useWidgetData → todosAdapter.
@@ -83,7 +84,7 @@ export function useTodoMutations() {
             const incomplete = todos.filter((t) => !t.completed);
             if (!incomplete.length) return;
             try {
-                const res = await fetch('/api/ml/rank-tasks', {
+                const res = await apiRouteFetch('/api/ml/rank-tasks', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

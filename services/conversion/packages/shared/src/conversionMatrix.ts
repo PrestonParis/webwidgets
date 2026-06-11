@@ -434,7 +434,7 @@ export const documentConversions = [
 ] as const satisfies readonly SupportedConversion[];
 
 const imageConversions = [
-    // TODO: HEIC support is a future addition - requires libheif with decoder support.
+    // Future: HEIC support requires libheif with decoder support.
     {
         kind: 'image',
         sourceExtension: 'png',

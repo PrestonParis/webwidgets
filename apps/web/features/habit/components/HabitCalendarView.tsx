@@ -127,6 +127,7 @@ export function HabitCalendarView({
                     onCancel={() => setShowCalendarPicker(false)}
                     showQuickActions={false}
                     saveLabel="Show month"
+                    accentColor="#7c3aed"
                     className="mx-auto"
                 />
             )}

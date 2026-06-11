@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Loader2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
@@ -203,7 +204,7 @@ export function EmailKnowledgePanel({
         if (!text || text.length < 40) return;
 
         setSummaryLoading(true);
-        void fetch('/api/inbox/summarize', {
+        void apiRouteFetch('/api/inbox/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailId, subject, body: text, sender }),
@@ -230,7 +231,7 @@ export function EmailKnowledgePanel({
 
         setSummaryLoading(true);
         summaryCache.delete(emailId);
-        void fetch('/api/inbox/summarize', {
+        void apiRouteFetch('/api/inbox/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailId, subject, body, sender }),

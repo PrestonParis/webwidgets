@@ -1,5 +1,6 @@
 'use client';
 
+import { apiRouteFetch } from '@/lib/api/client';
 import { useState, useCallback } from 'react';
 import { AdminPageHeader } from '../AdminPageHeader';
 import { AdminDataTable, type AdminColumn } from '../AdminDataTable';
@@ -42,7 +43,7 @@ function RoleSelect({
     const handleChange = useCallback(
         async (role: string) => {
             setSaving(true);
-            await fetch('/api/admin/users', {
+            await apiRouteFetch('/api/admin/users', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: userId, role }),
