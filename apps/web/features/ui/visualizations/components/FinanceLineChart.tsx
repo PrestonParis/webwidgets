@@ -19,6 +19,30 @@ interface FinanceLineChartProps {
     showOverlay?: boolean;
 }
 
+/** Generate synthetic 90-day history from a current net-worth baseline. */
+function buildDemoSnapshots(
+    assets: number,
+    liabilities: number,
+): NetWorthSnapshot[] {
+    const today = new Date();
+    const snapshots: NetWorthSnapshot[] = [];
+    for (let i = 89; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        // Small random daily drift
+        const noise = (Math.sin(i * 0.4) + Math.cos(i * 0.7)) * 0.01;
+        const a = Math.round(assets * (1 + noise * 0.8 - i * 0.0003));
+        const l = Math.round(liabilities * (1 - i * 0.0002));
+        snapshots.push({
+            date: d.toISOString().slice(0, 10),
+            assets: Math.max(0, a),
+            liabilities: Math.max(0, l),
+            netWorth: Math.max(0, a) - Math.max(0, l),
+        });
+    }
+    return snapshots;
+}
+
 export function FinanceLineChart({
     snapshots,
     formatAmount,
@@ -43,6 +67,41 @@ export function FinanceLineChart({
         assets: true,
         liabilities: true,
     });
+    const [fetchedSnapshots, setFetchedSnapshots] = useState<
+        NetWorthSnapshot[] | null
+    >(null);
+    const [loadingDemo, setLoadingDemo] = useState(false);
+
+    // If no snapshots passed in, try to build demo data from accounts API
+    useEffect(() => {
+        if (snapshots.length >= 2) return;
+        setLoadingDemo(true);
+        fetch('/api/finance/accounts')
+            .then((r) => r.json())
+            .then(
+                (body: {
+                    accounts?: Array<{ balance: number; type: string }>;
+                }) => {
+                    const accs = body.accounts ?? [];
+                    if (accs.length === 0) {
+                        setFetchedSnapshots([]);
+                        return;
+                    }
+                    const assets = accs
+                        .filter((a) => !['credit', 'loan'].includes(a.type))
+                        .reduce((s, a) => s + a.balance, 0);
+                    const liabilities = accs
+                        .filter((a) => ['credit', 'loan'].includes(a.type))
+                        .reduce((s, a) => s + Math.abs(a.balance), 0);
+                    setFetchedSnapshots(
+                        buildDemoSnapshots(assets, liabilities),
+                    );
+                },
+            )
+            .catch(() => setFetchedSnapshots([]))
+            .finally(() => setLoadingDemo(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [snapshots.length]);
 
     const fmt =
         formatAmount ??
@@ -52,7 +111,12 @@ export function FinanceLineChart({
                 currency: 'USD',
                 maximumFractionDigits: 0,
             }));
-    const data = [...snapshots].sort((a, b) => a.date.localeCompare(b.date));
+
+    const resolvedSnapshots =
+        snapshots.length >= 2 ? snapshots : (fetchedSnapshots ?? []);
+    const data = [...resolvedSnapshots].sort((a, b) =>
+        a.date.localeCompare(b.date),
+    );
 
     useEffect(() => {
         const svg = svgRef.current;
@@ -216,6 +280,17 @@ export function FinanceLineChart({
             );
     }, [dims, data, activeLines, showOverlay, containerRef]);
 
+    if (loadingDemo) {
+        return (
+            <div
+                className="flex items-center justify-center text-sm text-zinc-500"
+                style={{ height }}
+            >
+                <div className="h-5 w-5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     if (data.length < 2) {
         return (
             <div
@@ -224,18 +299,26 @@ export function FinanceLineChart({
             >
                 <div className="text-center">
                     <p className="mb-1">
-                        Net worth timeline requires historical snapshots
+                        Net worth timeline requires at least one account
                     </p>
                     <p className="text-[10px] text-zinc-600">
-                        Coming soon: account balance history tracking
+                        Add accounts on the Finance page to see your balance
+                        history
                     </p>
                 </div>
             </div>
         );
     }
 
+    const isDemo = snapshots.length < 2 && fetchedSnapshots !== null;
+
     return (
         <div ref={containerRef} className="relative w-full">
+            {isDemo && (
+                <p className="text-[10px] text-zinc-500 mb-1">
+                    Estimated 90-day trend based on current balances
+                </p>
+            )}
             <svg ref={svgRef} style={{ width: '100%', height }} />
             <FinanceChartTooltip
                 x={tooltip.x}

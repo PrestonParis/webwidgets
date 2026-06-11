@@ -8,6 +8,7 @@ import {
 } from '@/features/finance/services/financeTransactionService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { ingestFinanceTransactionContext } from '@/features/context/services/contextProducerService';
 
 const createSchema = z.object({
     accountId: z.string().optional(),
@@ -76,6 +77,15 @@ export async function POST(req: Request) {
                 category,
                 merchant: body.data.merchant,
             },
+        });
+
+        // Best-effort context ingestion — never throws
+        void ingestFinanceTransactionContext(userId, {
+            id: (tx as { id?: string }).id ?? '',
+            title: body.data.title,
+            amount: body.data.amount,
+            type: body.data.type,
+            category: body.data.category,
         });
 
         return NextResponse.json({ transaction: tx });

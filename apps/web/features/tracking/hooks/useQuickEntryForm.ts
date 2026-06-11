@@ -34,6 +34,8 @@ export interface QuickEntryFormState {
     carbs?: number;
     fat?: number;
     fiber?: number;
+    sugar?: number;
+    sodium?: number;
     servings?: number;
     // mood
     moodScore?: number;
@@ -123,6 +125,8 @@ function buildMetadata(form: QuickEntryFormState): Record<string, unknown> {
             ...(form.carbs !== undefined && { carbs: form.carbs }),
             ...(form.fat !== undefined && { fat: form.fat }),
             ...(form.fiber !== undefined && { fiber: form.fiber }),
+            ...(form.sugar !== undefined && { sugar: form.sugar }),
+            ...(form.sodium !== undefined && { sodium: form.sodium }),
             ...(form.servings !== undefined && { servings: form.servings }),
         };
     if (cat === 'mood') {
@@ -264,6 +268,8 @@ function makeInitial(
     if (typeof m['carbs'] === 'number') result.carbs = m['carbs'];
     if (typeof m['fat'] === 'number') result.fat = m['fat'];
     if (typeof m['fiber'] === 'number') result.fiber = m['fiber'];
+    if (typeof m['sugar'] === 'number') result.sugar = m['sugar'];
+    if (typeof m['sodium'] === 'number') result.sodium = m['sodium'];
     if (typeof m['servings'] === 'number') result.servings = m['servings'];
     if (typeof m['score'] === 'number') result.moodScore = m['score'];
     if (typeof m['energy'] === 'number') result.energy = m['energy'];

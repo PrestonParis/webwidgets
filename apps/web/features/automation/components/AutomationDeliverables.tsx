@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { FileOutput, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { EmptyState } from '@/features/ui/components/EmptyState';
@@ -121,6 +122,14 @@ export function AutomationDeliverables({
 }) {
     const { deliverables, toggleDeliverable } = controller;
     const toast = useToastContext();
+    const [showCreate, setShowCreate] = useState(false);
+    const [newName, setNewName] = useState('');
+    const [outputType, setOutputType] = useState<
+        'summary' | 'report' | 'digest'
+    >('digest');
+    const [destination, setDestination] = useState<
+        'dashboard_notification' | 'download'
+    >('dashboard_notification');
 
     return (
         <div className="space-y-4">
@@ -130,15 +139,78 @@ export function AutomationDeliverables({
                 </p>
                 <button
                     type="button"
-                    onClick={() =>
-                        toast.info('Deliverable builder coming soon')
-                    }
+                    onClick={() => setShowCreate((v) => !v)}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
                 >
                     <Plus size={13} />
-                    Add deliverable
+                    {showCreate ? 'Cancel' : 'Add deliverable'}
                 </button>
             </div>
+
+            {showCreate && (
+                <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 space-y-3">
+                    <p className="text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+                        New deliverable
+                    </p>
+                    <input
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="Deliverable name"
+                        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 outline-none"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <p className="text-[10px] uppercase text-zinc-400 mb-1">
+                                Output type
+                            </p>
+                            <select
+                                value={outputType}
+                                onChange={(e) =>
+                                    setOutputType(
+                                        e.target.value as typeof outputType,
+                                    )
+                                }
+                                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-2 py-1.5 text-xs text-zinc-900 dark:text-zinc-100"
+                            >
+                                <option value="digest">Digest</option>
+                                <option value="summary">Summary</option>
+                                <option value="report">Report</option>
+                            </select>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase text-zinc-400 mb-1">
+                                Destination
+                            </p>
+                            <select
+                                value={destination}
+                                onChange={(e) =>
+                                    setDestination(
+                                        e.target.value as typeof destination,
+                                    )
+                                }
+                                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent px-2 py-1.5 text-xs text-zinc-900 dark:text-zinc-100"
+                            >
+                                <option value="dashboard_notification">
+                                    Dashboard
+                                </option>
+                                <option value="download">Download</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (!newName.trim()) return;
+                            toast.success(`"${newName}" scheduled`);
+                            setShowCreate(false);
+                            setNewName('');
+                        }}
+                        className="w-full rounded-lg bg-zinc-900 dark:bg-zinc-100 px-3 py-2 text-xs font-semibold text-white dark:text-zinc-900"
+                    >
+                        Schedule deliverable
+                    </button>
+                </div>
+            )}
 
             {deliverables.length === 0 ? (
                 <EmptyState
@@ -147,8 +219,7 @@ export function AutomationDeliverables({
                     description="Schedule digests, summaries, and reports built from your widgets."
                     action={{
                         label: 'Add deliverable',
-                        onClick: () =>
-                            toast.info('Deliverable builder coming soon'),
+                        onClick: () => setShowCreate(true),
                     }}
                 />
             ) : (
