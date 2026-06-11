@@ -3,61 +3,9 @@ import type {
     ActivityEvent,
     ActivityEventInput,
     ActivityQueryOptions,
-    ActivityEventSeverity,
-    ActivityEventPriority,
-    ActivityEventCategory,
-    ActivityEventSource,
-    RelatedEntity,
 } from '@/features/activity/types/activity';
-
-// ── DB row shape ──────────────────────────────────────────────────────────────
-
-type ActivityEventRow = {
-    id: string;
-    user_id: string;
-    source: string;
-    event_type?: string | null;
-    source_id?: string | null;
-    source_table?: string | null;
-    severity?: string | null;
-    priority?: string | null;
-    category?: string | null;
-    title: string;
-    body?: string | null;
-    is_archived?: boolean | null;
-    read_at?: string | null;
-    occurred_at?: string | null;
-    created_at?: string | null;
-    related_entities?: unknown;
-    metadata?: Record<string, unknown> | null;
-    action_url?: string | null;
-};
-
-function mapRow(row: ActivityEventRow): ActivityEvent {
-    const now = new Date().toISOString();
-    return {
-        id: row.id,
-        userId: row.user_id,
-        source: row.source as ActivityEventSource,
-        ...(row.event_type ? { eventType: row.event_type } : {}),
-        ...(row.source_id ? { sourceId: row.source_id } : {}),
-        ...(row.source_table ? { sourceTable: row.source_table } : {}),
-        severity: (row.severity as ActivityEventSeverity) ?? 'info',
-        priority: (row.priority as ActivityEventPriority) ?? 'normal',
-        category: (row.category as ActivityEventCategory) ?? 'system',
-        title: row.title,
-        ...(row.body ? { body: row.body } : {}),
-        isArchived: row.is_archived ?? false,
-        ...(row.read_at ? { readAt: row.read_at } : {}),
-        occurredAt: row.occurred_at ?? row.created_at ?? now,
-        createdAt: row.created_at ?? now,
-        relatedEntities: Array.isArray(row.related_entities)
-            ? (row.related_entities as RelatedEntity[])
-            : [],
-        metadata: row.metadata ?? {},
-        ...(row.action_url ? { actionUrl: row.action_url } : {}),
-    };
-}
+import { bridgeUrgentActivityToNotification } from './activityNotifications';
+import { mapActivityRow, type ActivityEventRow } from './activityRows';
 
 // ── Publishing ────────────────────────────────────────────────────────────────
 
@@ -86,7 +34,7 @@ export async function publishActivityEvent(
         .select()
         .single();
     if (result.error) throw result.error;
-    return mapRow(result.data as ActivityEventRow);
+    return mapActivityRow(result.data as ActivityEventRow);
 }
 
 // Fire-and-forget variant — never throws. Use where activity publishing is
@@ -99,37 +47,7 @@ export async function publishActivityEventSafe(
 ): Promise<void> {
     try {
         const event = await publishActivityEvent(supabase, input);
-
-        // Bridge critical/urgent activity events into notifications table
-        // so they appear in any notification UI alongside the activity feed.
-        if (input.severity === 'critical' || input.priority === 'urgent') {
-            void supabase
-                .from('notifications')
-                .insert({
-                    user_id: input.userId,
-                    type: input.eventType ?? input.source,
-                    title: input.title,
-                    body: input.body ?? null,
-                    entity_type: input.sourceTable ?? null,
-                    // entity_id is uuid — only set when sourceId looks like a UUID
-                    ...(input.sourceId &&
-                    /^[0-9a-f-]{36}$/i.test(input.sourceId)
-                        ? { entity_id: input.sourceId }
-                        : {}),
-                    href: input.actionUrl ?? null,
-                    read: false,
-                })
-                .then(({ error }) => {
-                    if (error) {
-                        // Notification table may not exist — non-fatal
-                        console.error(
-                            '[activityService] notification bridge failed',
-                            error.message,
-                        );
-                    }
-                });
-        }
-
+        bridgeUrgentActivityToNotification(supabase, input);
         void event;
     } catch {
         console.error('[activityService] Failed to publish event', {
@@ -206,7 +124,7 @@ export async function listActivityEvents(
 
     const { data, error } = await query;
     if (error) throw error;
-    return ((data ?? []) as ActivityEventRow[]).map(mapRow);
+    return ((data ?? []) as ActivityEventRow[]).map(mapActivityRow);
 }
 
 export async function getActivityEvent(
@@ -222,7 +140,7 @@ export async function getActivityEvent(
         .maybeSingle();
     if (error) throw error;
     if (!data) return null;
-    return mapRow(data as ActivityEventRow);
+    return mapActivityRow(data as ActivityEventRow);
 }
 
 // ── State mutations ───────────────────────────────────────────────────────────
