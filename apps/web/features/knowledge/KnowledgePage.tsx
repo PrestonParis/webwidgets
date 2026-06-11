@@ -4,6 +4,7 @@ import Header from '@/features/ui/components/Header';
 import { FoundationCard } from '@/features/ui/components/FoundationCard';
 import { ProductPageShell } from '@/features/ui/components/ProductPageShell';
 import { useKnowledgeFoundation } from '@/features/knowledge/hooks/useKnowledgeFoundation';
+import { OnThisDayPanel } from '@/features/knowledge/components/OnThisDayPanel';
 
 export function KnowledgePage() {
     const { widgets } = useKnowledgeFoundation();
@@ -23,7 +24,11 @@ export function KnowledgePage() {
                             title={widget.title}
                             description={widget.description}
                             status={widget.status}
-                        />
+                        >
+                            {widget.id === 'on-this-day' ? (
+                                <OnThisDayPanel />
+                            ) : undefined}
+                        </FoundationCard>
                     ))}
                 </div>
             </ProductPageShell>

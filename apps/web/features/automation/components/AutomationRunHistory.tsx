@@ -59,6 +59,7 @@ function RunRow({
 }) {
     const Icon = RUN_STATUS_ICONS[run.status];
     const toast = useToastContext();
+    const [retrying, setRetrying] = useState<Set<string>>(new Set());
 
     return (
         <div className="rounded-2xl border border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -145,14 +146,39 @@ function RunRow({
                     {run.status === 'failed' && (
                         <button
                             type="button"
-                            onClick={() =>
-                                toast.info(
-                                    `Retry for "${run.automationName}" coming soon`,
-                                )
-                            }
+                            onClick={async () => {
+                                setRetrying((s) => new Set(s).add(run.id));
+                                try {
+                                    await fetch(`/api/command/workstreams`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            automationName: run.automationName,
+                                            widgetName: run.widgetName,
+                                        }),
+                                    });
+                                    toast.success(
+                                        `Retry queued for "${run.automationName}"`,
+                                    );
+                                } catch {
+                                    toast.error('Retry failed');
+                                } finally {
+                                    setRetrying((s) => {
+                                        const n = new Set(s);
+                                        n.delete(run.id);
+                                        return n;
+                                    });
+                                }
+                            }}
                             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                         >
-                            <RotateCcw size={13} />
+                            {retrying.has(run.id) ? (
+                                <Loader2 size={13} className="animate-spin" />
+                            ) : (
+                                <RotateCcw size={13} />
+                            )}
                             Retry
                         </button>
                     )}

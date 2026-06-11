@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
 import {
     sanitizeWidgetName,
@@ -63,6 +64,7 @@ export function SaveWidgetStep({
     isSaving = false,
     savedId = null,
 }: SaveWidgetStepProps) {
+    const router = useRouter();
     const [tagsInput, setTagsInput] = useState('');
     const [saveError, setSaveError] = useState<string | null>(null);
     const [localSaving, setLocalSaving] = useState(false);
@@ -113,15 +115,33 @@ export function SaveWidgetStep({
 
     if (savedId) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <span className="text-5xl">🎉</span>
-                <p className="text-lg font-semibold text-zinc-200">
-                    Widget saved!
-                </p>
-                <p className="text-sm text-zinc-500">
-                    Your widget has been saved and is ready to use.
-                </p>
-                <p className="text-[10px] text-zinc-600 font-mono">{savedId}</p>
+            <div className="flex flex-col items-center justify-center py-8 gap-4">
+                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-4 space-y-3 w-full">
+                    <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                        Widget saved successfully
+                    </p>
+                    <p className="text-[10px] text-zinc-500 font-mono">
+                        {savedId}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            router.push(
+                                `/dashboard?addWidget=synthesized&widgetId=${savedId}`,
+                            )
+                        }
+                        className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2.5 text-sm font-semibold text-white transition-colors"
+                    >
+                        Add to Dashboard
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => window.location.reload()}
+                        className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 py-2 text-xs text-zinc-600 dark:text-zinc-400"
+                    >
+                        Create another
+                    </button>
+                </div>
             </div>
         );
     }
@@ -275,7 +295,7 @@ export function SaveWidgetStep({
                     {saving
                         ? 'Saving…'
                         : canSave
-                          ? '+ Add to Dashboard'
+                          ? '+ Save Widget'
                           : 'Complete required steps first'}
                 </button>
                 {!isValid && (
