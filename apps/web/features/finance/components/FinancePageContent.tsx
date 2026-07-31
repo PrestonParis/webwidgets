@@ -8,21 +8,30 @@ import { useFinanceAccounts } from '@/features/finance/hooks/useFinanceAccounts'
 import { useFinanceTransactions } from '@/features/finance/hooks/useFinanceTransactions';
 import { useFinanceSubscriptions } from '@/features/finance/hooks/useFinanceSubscriptions';
 import { useToastContext } from '@/features/finance/components/ToastProvider';
-import { NetWorthSummary } from '@/features/finance/components/NetWorthSummary';
+import { useFinancePrivacy } from '@/features/finance/hooks/useFinancePrivacy';
+import { AnomalyAlertBanner } from '@/features/finance/components/AnomalyAlertBanner';
+import { FinanceCommandCenter } from '@/features/finance/components/FinanceCommandCenter';
 import { AccountList } from '@/features/finance/components/AccountList';
 import { TransactionList } from '@/features/finance/components/TransactionList';
 import { SubscriptionList } from '@/features/finance/components/SubscriptionList';
 import { WatchlistTab } from '@/features/finance/components/watchlist/WatchlistTab';
 import { FinanceOverviewInsights } from '@/features/finance/components/FinanceOverviewInsights';
-import { FinanceAutomationPanel } from '@/features/finance/components/FinanceAutomationPanel';
-import { useFinancePrivacy } from '@/features/finance/hooks/useFinancePrivacy';
-import { AnomalyAlertBanner } from '@/features/finance/components/AnomalyAlertBanner';
+import { SpendingAnalysis } from '@/features/finance/components/SpendingAnalysis';
+import { CashflowForecast } from '@/features/finance/components/CashflowForecast';
+import { SubscriptionIntelligence } from '@/features/finance/components/SubscriptionIntelligence';
+import { GoalsPanel } from '@/features/finance/components/GoalsPanel';
+import { FinanceTimeline } from '@/features/finance/components/FinanceTimeline';
+import {
+    calculateFinanceOverview,
+    calculateSavingsRate,
+} from '@/features/finance/lib/financeAggregations';
 
 const TABS = [
     'Overview',
     'Accounts',
-    'Transactions',
-    'Subscriptions',
+    'Spending',
+    'Forecast',
+    'Goals',
     'Watchlist',
 ] as const;
 type Tab = (typeof TABS)[number];
@@ -33,6 +42,15 @@ function coerceTab(raw: string | null): Tab {
     if (raw && VALID_TABS.has(raw)) return raw as Tab;
     return 'Overview';
 }
+
+const TAB_SUBTITLES: Record<Tab, string> = {
+    Overview: 'What is my financial position?',
+    Accounts: 'What do I own and what do I owe?',
+    Spending: 'Where is my money going?',
+    Forecast: 'What is about to happen?',
+    Goals: 'What should I change?',
+    Watchlist: 'Asset prices',
+};
 
 export function FinancePageContent() {
     const router = useRouter();
@@ -80,20 +98,19 @@ export function FinancePageContent() {
         value: number,
         currency = 'USD',
         maximumFractionDigits = 2,
-    ) => {
-        return new Intl.NumberFormat('en-US', {
+    ) =>
+        new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency,
             maximumFractionDigits,
         }).format(value);
-    };
 
     const handleAddAccount = async (
         input: Parameters<typeof createAccount>[0],
     ) => {
         try {
             await createAccount(input);
-            toast.success('Account created successfully');
+            toast.success('Account created');
             setPendingAction(null);
         } catch (err) {
             toast.error(
@@ -108,7 +125,7 @@ export function FinancePageContent() {
     ) => {
         try {
             await updateAccount(id, input);
-            toast.success('Account updated successfully');
+            toast.success('Account updated');
         } catch (err) {
             toast.error(
                 err instanceof Error ? err.message : 'Failed to update account',
@@ -121,7 +138,7 @@ export function FinancePageContent() {
     ) => {
         try {
             await createTransaction(input);
-            toast.success('Transaction created successfully');
+            toast.success('Transaction created');
             setPendingAction(null);
         } catch (err) {
             toast.error(
@@ -138,7 +155,7 @@ export function FinancePageContent() {
     ) => {
         try {
             await updateTransaction(id, input);
-            toast.success('Transaction updated successfully');
+            toast.success('Transaction updated');
         } catch (err) {
             toast.error(
                 err instanceof Error
@@ -153,7 +170,7 @@ export function FinancePageContent() {
     ) => {
         try {
             await createSubscription(input);
-            toast.success('Subscription created successfully');
+            toast.success('Subscription created');
             setPendingAction(null);
         } catch (err) {
             toast.error(
@@ -170,7 +187,7 @@ export function FinancePageContent() {
     ) => {
         try {
             await updateSubscription(id, input);
-            toast.success('Subscription updated successfully');
+            toast.success('Subscription updated');
         } catch (err) {
             toast.error(
                 err instanceof Error
@@ -183,7 +200,7 @@ export function FinancePageContent() {
     const handleDeleteAccount = async (id: string) => {
         try {
             await deleteAccount(id);
-            toast.success('Account deleted successfully');
+            toast.success('Account deleted');
         } catch (err) {
             toast.error(
                 err instanceof Error ? err.message : 'Failed to delete account',
@@ -194,7 +211,7 @@ export function FinancePageContent() {
     const handleDeleteTransaction = async (id: string) => {
         try {
             await deleteTransaction(id);
-            toast.success('Transaction deleted successfully');
+            toast.success('Transaction deleted');
         } catch (err) {
             toast.error(
                 err instanceof Error
@@ -207,7 +224,7 @@ export function FinancePageContent() {
     const handleDeleteSubscription = async (id: string) => {
         try {
             await deleteSubscription(id);
-            toast.success('Subscription deleted successfully');
+            toast.success('Subscription deleted');
         } catch (err) {
             toast.error(
                 err instanceof Error
@@ -222,6 +239,14 @@ export function FinancePageContent() {
         router.push(`/finance?tab=${tab}`, { scroll: false });
     };
 
+    const overview = calculateFinanceOverview(
+        accounts,
+        transactions,
+        subscriptions,
+    );
+    const monthlySavings = Math.max(0, overview.netMonthlyCashflow);
+    const savingsRate = calculateSavingsRate(transactions);
+
     return (
         <>
             <Header />
@@ -233,12 +258,10 @@ export function FinancePageContent() {
                             Finance
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-zinc-500 mt-1">
-                            Manual-first finance, deterministic insights, and
-                            automation-ready actions.
+                            {TAB_SUBTITLES[activeTab]}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* Compact privacy controls */}
                         <button
                             title={
                                 privacySettings.hideBalances
@@ -301,9 +324,9 @@ export function FinancePageContent() {
 
                 <AnomalyAlertBanner transactions={transactions} />
 
-                {/* Net worth command center — always visible in Overview */}
-                {activeTab === 'Overview' && !accsLoading && (
-                    <NetWorthSummary
+                {/* Command center — always visible */}
+                {!accsLoading && (
+                    <FinanceCommandCenter
                         accounts={accounts}
                         transactions={transactions}
                         subscriptions={subscriptions}
@@ -312,6 +335,7 @@ export function FinancePageContent() {
                     />
                 )}
 
+                {/* Tabs */}
                 <div className="flex gap-1 border-b border-gray-200 dark:border-zinc-800 overflow-x-auto scrollbar-none">
                     {TABS.map((t) => (
                         <button
@@ -325,6 +349,7 @@ export function FinancePageContent() {
                 </div>
 
                 <div className="pt-1">
+                    {/* Overview — intelligence layer */}
                     {activeTab === 'Overview' && (
                         <div className="space-y-4">
                             <FinanceOverviewInsights
@@ -334,63 +359,34 @@ export function FinancePageContent() {
                                 formatAmount={formatAmount}
                                 amountClassName={amountClassName}
                                 onSeeAllTransactions={() =>
-                                    navigateTab('Transactions')
+                                    navigateTab('Spending')
                                 }
                                 onSeeAllSubscriptions={() =>
-                                    navigateTab('Subscriptions')
+                                    navigateTab('Forecast')
                                 }
                                 onAddAccount={() => {
                                     navigateTab('Accounts');
                                     setPendingAction('add');
                                 }}
                                 onAddTransaction={() => {
-                                    navigateTab('Transactions');
+                                    navigateTab('Spending');
                                     setPendingAction('add');
                                 }}
                                 onAddSubscription={() => {
-                                    navigateTab('Subscriptions');
+                                    navigateTab('Forecast');
                                     setPendingAction('add');
                                 }}
                             />
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <AccountList
-                                    accounts={accounts.slice(0, 5)}
-                                    onAdd={handleAddAccount}
-                                    onUpdate={handleUpdateAccount}
-                                    onDelete={handleDeleteAccount}
-                                    formatAmount={formatAmount}
-                                    amountClassName={amountClassName}
-                                    showSeeAll={accounts.length > 5}
-                                    onSeeAll={() => navigateTab('Accounts')}
-                                    autoOpenAdd={
-                                        activeTab === 'Overview' &&
-                                        pendingAction === 'add'
-                                    }
-                                />
-                                <SubscriptionList
-                                    subscriptions={subscriptions.slice(0, 5)}
-                                    monthlyTotal={monthlyTotal}
-                                    onAdd={handleAddSubscription}
-                                    onUpdate={handleUpdateSubscription}
-                                    onDelete={handleDeleteSubscription}
-                                    formatAmount={formatAmount}
-                                    amountClassName={amountClassName}
-                                    showSeeAll={subscriptions.length > 5}
-                                    onSeeAll={() =>
-                                        navigateTab('Subscriptions')
-                                    }
-                                    autoOpenAdd={
-                                        activeTab === 'Overview' &&
-                                        pendingAction === 'add'
-                                    }
-                                />
-                            </div>
-                            <FinanceAutomationPanel
-                                accounts={accounts}
+                            <FinanceTimeline
+                                transactions={transactions}
                                 subscriptions={subscriptions}
+                                formatAmount={formatAmount}
+                                amountClassName={amountClassName}
                             />
                         </div>
                     )}
+
+                    {/* Accounts — what do I own / owe */}
                     {activeTab === 'Accounts' && (
                         <AccountList
                             accounts={accounts}
@@ -402,36 +398,88 @@ export function FinancePageContent() {
                             autoOpenAdd={pendingAction === 'add'}
                         />
                     )}
-                    {activeTab === 'Transactions' ? (
-                        loading ? (
-                            <div className="text-center py-8 text-gray-400">
-                                Loading transactions...
-                            </div>
-                        ) : (
-                            <TransactionList
+
+                    {/* Spending — where is my money going */}
+                    {activeTab === 'Spending' && (
+                        <div className="space-y-4">
+                            <SpendingAnalysis
+                                transactions={transactions}
+                                formatAmount={formatAmount}
+                                amountClassName={amountClassName}
+                            />
+                            {loading ? (
+                                <div className="text-center py-8 text-gray-400">
+                                    Loading...
+                                </div>
+                            ) : (
+                                <TransactionList
+                                    accounts={accounts}
+                                    transactions={transactions}
+                                    onAdd={handleAddTransaction}
+                                    onUpdate={handleUpdateTransaction}
+                                    onDelete={handleDeleteTransaction}
+                                    formatAmount={formatAmount}
+                                    amountClassName={amountClassName}
+                                    autoOpenAdd={pendingAction === 'add'}
+                                />
+                            )}
+                        </div>
+                    )}
+
+                    {/* Forecast — what is about to happen */}
+                    {activeTab === 'Forecast' && (
+                        <div className="space-y-4">
+                            <CashflowForecast
                                 accounts={accounts}
                                 transactions={transactions}
-                                onAdd={handleAddTransaction}
-                                onUpdate={handleUpdateTransaction}
-                                onDelete={handleDeleteTransaction}
+                                subscriptions={subscriptions}
+                                formatAmount={formatAmount}
+                                amountClassName={amountClassName}
+                            />
+                            <SubscriptionIntelligence
+                                subscriptions={subscriptions}
+                                formatAmount={formatAmount}
+                                amountClassName={amountClassName}
+                                onManage={() => navigateTab('Forecast')}
+                            />
+                            <SubscriptionList
+                                subscriptions={subscriptions}
+                                monthlyTotal={monthlyTotal}
+                                onAdd={handleAddSubscription}
+                                onUpdate={handleUpdateSubscription}
+                                onDelete={handleDeleteSubscription}
                                 formatAmount={formatAmount}
                                 amountClassName={amountClassName}
                                 autoOpenAdd={pendingAction === 'add'}
                             />
-                        )
-                    ) : null}
-                    {activeTab === 'Subscriptions' && (
-                        <SubscriptionList
-                            subscriptions={subscriptions}
-                            monthlyTotal={monthlyTotal}
-                            onAdd={handleAddSubscription}
-                            onUpdate={handleUpdateSubscription}
-                            onDelete={handleDeleteSubscription}
-                            formatAmount={formatAmount}
-                            amountClassName={amountClassName}
-                            autoOpenAdd={pendingAction === 'add'}
-                        />
+                        </div>
                     )}
+
+                    {/* Goals — what should I change */}
+                    {activeTab === 'Goals' && (
+                        <div className="space-y-4">
+                            <GoalsPanel
+                                monthlySavings={monthlySavings}
+                                formatAmount={formatAmount}
+                                amountClassName={amountClassName}
+                            />
+                            <div className="rounded-xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+                                <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-zinc-500 mb-1">
+                                    Current savings rate
+                                </p>
+                                <p
+                                    className={`text-2xl font-bold ${savingsRate >= 20 ? 'text-emerald-400' : savingsRate >= 5 ? 'text-amber-400' : 'text-red-400'}`}
+                                >
+                                    {savingsRate}%
+                                </p>
+                                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
+                                    Target 20%+ for strong long-term trajectory
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Watchlist */}
                     {activeTab === 'Watchlist' && <WatchlistTab />}
                 </div>
             </div>

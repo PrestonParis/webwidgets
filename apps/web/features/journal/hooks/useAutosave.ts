@@ -15,6 +15,15 @@ export function useAutosave(
     const [autosaved, setAutosaved] = useState(false);
     const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Keep a ref to the latest title so the autosave handler always captures
+    // the current value without needing to be re-registered on every keystroke.
+    // Re-registering on title changes cancels pending timers started by editor
+    // body updates, causing autosaves to be silently dropped while typing.
+    const latestTitleRef = useRef(title);
+    useEffect(() => {
+        latestTitleRef.current = title;
+    }, [title]);
+
     useEffect(() => {
         if (!editor || !enabled) return;
 
@@ -23,7 +32,10 @@ export function useAutosave(
             autosaveTimer.current = setTimeout(() => {
                 localStorage.setItem(
                     'journal_draft',
-                    JSON.stringify({ title, content: editor.getHTML() }),
+                    JSON.stringify({
+                        title: latestTitleRef.current,
+                        content: editor.getHTML(),
+                    }),
                 );
                 setAutosaved(true);
                 setTimeout(() => setAutosaved(false), 2000);
@@ -35,7 +47,7 @@ export function useAutosave(
             editor.off('update', handler);
             if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
         };
-    }, [editor, title, enabled]);
+    }, [editor, enabled]);
 
     const restoreDraft = (): { title: string; content: string } | null => {
         if (!editor) return null;

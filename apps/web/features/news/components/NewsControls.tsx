@@ -1,18 +1,24 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import type { EventCategory } from '@/features/news/schemas/eventEnumSchemas';
+import type { NewsCategory } from '@/features/news/types/news';
 import type { NewsFeedFilters } from '@/features/news/types/news';
 import { cn } from '@/lib/utils/utils';
 
-const categories: Array<EventCategory | 'all'> = [
-    'all',
-    'technology',
-    'markets',
-    'business',
-    'research',
-    'productivity',
-    'world',
+const CATEGORIES: { id: NewsCategory; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'politics', label: 'Politics' },
+    { id: 'government', label: 'Government' },
+    { id: 'economy', label: 'Economy' },
+    { id: 'markets', label: 'Markets' },
+    { id: 'technology', label: 'Technology' },
+    { id: 'ai', label: 'AI' },
+    { id: 'world', label: 'World' },
+    { id: 'war', label: 'War & Security' },
+    { id: 'culture', label: 'Culture' },
+    { id: 'religion', label: 'Religion' },
+    { id: 'courts', label: 'Courts' },
+    { id: 'local', label: 'Local' },
 ];
 
 export function NewsControls({
@@ -25,57 +31,67 @@ export function NewsControls({
     onChange: (filters: NewsFeedFilters) => void;
 }) {
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-                {categories.map((category) => (
+        <div className="space-y-3">
+            <div className="flex items-center gap-1 overflow-x-auto pb-1">
+                {CATEGORIES.map(({ id, label }) => (
                     <button
-                        key={category}
-                        onClick={() => onChange({ ...filters, category })}
+                        key={id}
+                        onClick={() =>
+                            onChange({
+                                ...filters,
+                                category: id === 'all' ? 'all' : id,
+                            })
+                        }
                         className={cn(
-                            'rounded-md px-2.5 py-1.5 text-xs font-semibold capitalize transition',
-                            filters.category === category
+                            'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition',
+                            filters.category === id
                                 ? 'bg-zinc-950 text-white dark:bg-zinc-50 dark:text-zinc-950'
                                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800',
                         )}
                     >
-                        {category}
+                        {label}
                     </button>
                 ))}
             </div>
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_140px]">
-                <label className="flex items-center gap-2 border-b border-zinc-300 px-1 py-2 text-sm dark:border-zinc-700">
-                    <Search size={16} className="text-zinc-400" />
+
+            <div className="flex gap-3">
+                <label className="flex flex-1 items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800">
+                    <Search size={15} className="shrink-0 text-zinc-400" />
                     <input
                         value={filters.query}
-                        onChange={(event) =>
-                            onChange({ ...filters, query: event.target.value })
+                        onChange={(e) =>
+                            onChange({ ...filters, query: e.target.value })
                         }
-                        placeholder="Search events, topics, providers"
+                        placeholder="Search stories, topics, sources…"
                         className="w-full bg-transparent outline-none placeholder:text-zinc-400"
                     />
                 </label>
-                <select
-                    value={filters.source}
-                    onChange={(event) =>
-                        onChange({ ...filters, source: event.target.value })
-                    }
-                    className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-950"
-                >
-                    {sources.map((source) => (
-                        <option key={source} value={source}>
-                            {source}
-                        </option>
-                    ))}
-                </select>
+
+                {sources.length > 1 && (
+                    <select
+                        value={filters.source}
+                        onChange={(e) =>
+                            onChange({ ...filters, source: e.target.value })
+                        }
+                        className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-950"
+                    >
+                        {sources.map((s) => (
+                            <option key={s} value={s}>
+                                {s === 'all' ? 'All sources' : s}
+                            </option>
+                        ))}
+                    </select>
+                )}
+
                 <select
                     value={filters.time}
-                    onChange={(event) =>
+                    onChange={(e) =>
                         onChange({
                             ...filters,
-                            time: event.target.value as NewsFeedFilters['time'],
+                            time: e.target.value as NewsFeedFilters['time'],
                         })
                     }
-                    className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-950"
+                    className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-950"
                 >
                     <option value="latest">Latest</option>
                     <option value="today">Today</option>

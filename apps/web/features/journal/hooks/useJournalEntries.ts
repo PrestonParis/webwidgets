@@ -98,11 +98,13 @@ export function useJournalEntries(
         [userId],
     );
 
+    const refreshEntries = useCallback(() => setRefreshKey((k) => k + 1), []);
+
     return {
         entries,
         view,
         setView,
-        refreshEntries: () => setRefreshKey((k) => k + 1),
+        refreshEntries,
         handleDelete,
         handleRestore,
     };

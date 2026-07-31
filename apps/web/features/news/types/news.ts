@@ -6,6 +6,31 @@ import type {
 
 export type NewsTimeFilter = 'latest' | 'today' | 'week';
 
+export type NewsCategory =
+    | 'all'
+    | 'politics'
+    | 'government'
+    | 'courts'
+    | 'elections'
+    | 'economy'
+    | 'markets'
+    | 'technology'
+    | 'ai'
+    | 'world'
+    | 'war'
+    | 'culture'
+    | 'religion'
+    | 'local';
+
+export type NewsTab = 'top' | 'for-you' | 'saved' | NewsCategory;
+
+export type NewsMode =
+    | 'briefing'
+    | 'comparison'
+    | 'market'
+    | 'civic'
+    | 'research';
+
 export interface NewsFeedFilters {
     category: EventCategory | 'all';
     source: string;
@@ -18,4 +43,19 @@ export interface NewsFeedResponse {
     timelines: TimelineEvent[];
     generatedAt: string;
     sourceCount: number;
+}
+
+export interface CoverageHealth {
+    sourcesChecked: number;
+    storiesClustered: number;
+    developingStories: number;
+    updatedLastHour: number;
+    conflictingReports: number;
+    lowConfidenceHidden: number;
+}
+
+export interface UserNewsPreferences {
+    topics: NewsCategory[];
+    sources: string[];
+    mode: NewsMode;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -56,64 +56,112 @@ export function WidgetNoteEditor({ noteType }: { noteType: NoteType }) {
     const [title, setTitle] = useState(activeEntry?.title ?? '');
     const titleRef = useRef(activeEntry?.title ?? '');
 
-    // Track entry ID changes so we can sync title + content without remounting
-    const prevEntryIdRef = useRef<number | null | undefined>(activeEntry?.id);
-
-    useEffect(() => {
-        if (activeEntry?.id === prevEntryIdRef.current) return;
-        prevEntryIdRef.current = activeEntry?.id;
-        const t = activeEntry?.title ?? '';
-        setTitle(t);
-        titleRef.current = t;
-    }, [activeEntry?.id, activeEntry?.title]);
+    // Memoized so TipTap v3's compareOptions sees stable references on every
+    // render and skips the setOptions → view.setProps → view.updateState cycle
+    // that fires on every keystroke when these are inline literals.
+    const extensions = useMemo(
+        () => [
+            StarterKit,
+            Placeholder.configure({ placeholder: 'Start writing…' }),
+            CharacterCount,
+        ],
+        [],
+    );
+    const editorProps = useMemo(
+        () => ({
+            attributes: {
+                class: 'te-editor outline-none text-[13px] text-stone-800 dark:text-zinc-200 leading-relaxed',
+            },
+        }),
+        [],
+    );
 
     // Stable TipTap instance — content updated imperatively when entry changes
     const editor = useEditor({
         immediatelyRender: false,
         autofocus: false,
         content: activeEntry?.content ?? '',
-        extensions: [
-            StarterKit,
-            Placeholder.configure({ placeholder: 'Start writing…' }),
-            CharacterCount,
-        ],
-        editorProps: {
-            attributes: {
-                class: 'te-editor outline-none text-[13px] text-stone-800 dark:text-zinc-200 leading-relaxed',
-            },
-        },
+        extensions,
+        editorProps,
     });
+    const activeEntryRef = useRef(activeEntry);
+    const activeEntryId = activeEntry?.id;
 
-    // Sync editor body when switching entries (imperative, no remount)
-    const prevEntryContentRef = useRef(activeEntry?.content ?? '');
     useEffect(() => {
-        if (!editor) return;
-        const incoming = activeEntry?.content ?? '';
-        if (incoming !== prevEntryContentRef.current) {
-            prevEntryContentRef.current = incoming;
-            editor.commands.setContent(incoming);
-        }
-    }, [activeEntry?.content, activeEntry?.id, editor]);
+        activeEntryRef.current = activeEntry;
+    }, [activeEntry]);
 
-    // Autosave
+    // Sync title + content whenever the active entry ID changes (switching
+    // entries or a new entry is first created).
+    //
+    // Triggering on activeEntry?.content alone (not ID) would fire on every
+    // autosave update for the same entry, calling setContent with content
+    // already in the editor — a ProseMirror transaction that silently steals
+    // focus from the title input mid-typing. Separate guards keep title sync
+    // from marking editor content synced before TipTap has mounted.
+    const titleSyncedEntryIdRef = useRef<number | null | undefined>(undefined);
+    const contentSyncedEntryIdRef = useRef<number | null | undefined>(
+        undefined,
+    );
+    const hasSyncedTitleRef = useRef(false);
+    const hasSyncedContentRef = useRef(false);
+
+    useEffect(() => {
+        const entry = activeEntryRef.current;
+        if (
+            !hasSyncedTitleRef.current ||
+            activeEntryId !== titleSyncedEntryIdRef.current
+        ) {
+            titleSyncedEntryIdRef.current = activeEntryId;
+            hasSyncedTitleRef.current = true;
+            const t = entry?.title ?? '';
+            setTitle(t);
+            titleRef.current = t;
+        }
+
+        if (
+            editor &&
+            (!hasSyncedContentRef.current ||
+                activeEntryId !== contentSyncedEntryIdRef.current)
+        ) {
+            contentSyncedEntryIdRef.current = activeEntryId;
+            hasSyncedContentRef.current = true;
+            const incoming = entry?.content ?? '';
+            editor.commands.setContent(incoming);
+            editor.commands.blur();
+        }
+    }, [editor, activeEntryId]);
+
+    // Autosave — ref-based so the effect only depends on [editor].
+    // Without this, doSave → handleSave → entryUtils (new object every render)
+    // caused scheduleAutosave to change on every keystroke, making the effect
+    // cleanup run (clearTimeout) and cancel pending saves while the user typed.
     const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
         undefined,
     );
 
-    const doSave = useCallback(async () => {
-        if (!editor) return;
-        const content = editor.getHTML();
-        const t = titleRef.current;
-        if (!t.trim() && content === '<p></p>') return;
-        await handleSave(t.trim() || 'Untitled', content);
-        setAutosaved(true);
-        setTimeout(() => setAutosaved(false), 2000);
+    // Always points to the latest save logic without re-creating the effect.
+    const doSaveRef = useRef<() => Promise<void>>(async () => {});
+    useEffect(() => {
+        doSaveRef.current = async () => {
+            if (!editor) return;
+            const content = editor.getHTML();
+            const t = titleRef.current;
+            if (!t.trim() && content === '<p></p>') return;
+            await handleSave(t.trim() || 'Untitled', content);
+            setAutosaved(true);
+            setTimeout(() => setAutosaved(false), 2000);
+        };
     }, [editor, handleSave]);
 
+    // Created once — always invokes the latest doSaveRef.current.
     const scheduleAutosave = useCallback(() => {
         clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => void doSave(), AUTOSAVE_MS);
-    }, [doSave]);
+        timerRef.current = setTimeout(
+            () => void doSaveRef.current(),
+            AUTOSAVE_MS,
+        );
+    }, []);
 
     // Autosave on body changes
     useEffect(() => {
@@ -137,7 +185,10 @@ export function WidgetNoteEditor({ noteType }: { noteType: NoteType }) {
         handleNew();
         setTitle('');
         titleRef.current = '';
-        prevEntryContentRef.current = '';
+        titleSyncedEntryIdRef.current = undefined;
+        contentSyncedEntryIdRef.current = undefined;
+        hasSyncedTitleRef.current = true;
+        hasSyncedContentRef.current = true;
         editor?.commands.clearContent();
     }, [editor, handleNew]);
 
@@ -152,7 +203,10 @@ export function WidgetNoteEditor({ noteType }: { noteType: NoteType }) {
             const newTitle = tpl.title;
             setTitle(newTitle);
             titleRef.current = newTitle;
-            prevEntryContentRef.current = tpl.content;
+            titleSyncedEntryIdRef.current = undefined;
+            contentSyncedEntryIdRef.current = undefined;
+            hasSyncedTitleRef.current = true;
+            hasSyncedContentRef.current = true;
             editor?.commands.setContent(tpl.content);
         },
         [editor, handleNew],

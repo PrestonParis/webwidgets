@@ -37,8 +37,11 @@ interface EditorStatusBarProps {
 }
 
 export function RichEditor(props: RichEditorProps) {
-    const editorKey = props.entry?.id ?? `new-${props.noteType}`;
-    return <RichEditorContent key={editorKey} {...props} />;
+    // Key on noteType only — entry changes are handled imperatively inside
+    // RichEditorContent via a content-sync effect. Keying on entry.id caused
+    // a full remount (resetting TipTap) every time the first autosave created
+    // a new entry, which stole focus from the title input mid-typing.
+    return <RichEditorContent key={props.noteType} {...props} />;
 }
 
 function EditorTitle({

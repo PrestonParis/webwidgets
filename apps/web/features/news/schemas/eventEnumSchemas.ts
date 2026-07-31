@@ -17,14 +17,26 @@ export const eventSourceSchema = z.enum([
 ]);
 
 export const eventCategorySchema = z.enum([
-    'world',
-    'business',
-    'technology',
+    // User-facing news categories
+    'politics',
+    'government',
+    'courts',
+    'elections',
+    'economy',
     'markets',
+    'technology',
+    'ai',
+    'world',
+    'war',
+    'culture',
+    'religion',
+    'local',
+    // Legacy / internal event categories
+    'business',
     'research',
+    'health',
     'personal',
     'system',
-    'health',
     'productivity',
 ]);
 

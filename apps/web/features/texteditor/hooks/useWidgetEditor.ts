@@ -64,6 +64,8 @@ export function useWidgetEditor(noteType: NoteType) {
         [noteType],
     );
 
+    const { refreshEntries } = entryUtils;
+
     const handleSave = useCallback(
         async (title: string, content: string) => {
             if (!user?.id) return;
@@ -89,14 +91,14 @@ export function useWidgetEditor(noteType: NoteType) {
                     if (newRow) {
                         const entry = newRow as unknown as JournalEntry;
                         setActiveEntry(entry);
-                        entryUtils.refreshEntries();
+                        refreshEntries();
                     }
                 }
             } finally {
                 setIsSaving(false);
             }
         },
-        [user, activeEntry, noteType, entryUtils, setActiveEntry],
+        [user, activeEntry, noteType, refreshEntries, setActiveEntry],
     );
 
     const handleNew = useCallback(() => setActiveEntryState(null), []);
@@ -106,9 +108,9 @@ export function useWidgetEditor(noteType: NoteType) {
             if (!user?.id) return;
             await journalService.deleteEntry(user.id, String(id));
             if (activeEntry?.id === id) setActiveEntryState(null);
-            entryUtils.refreshEntries();
+            refreshEntries();
         },
-        [user, activeEntry, entryUtils],
+        [user, activeEntry, refreshEntries],
     );
 
     return {

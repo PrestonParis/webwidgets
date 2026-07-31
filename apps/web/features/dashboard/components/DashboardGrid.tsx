@@ -182,7 +182,7 @@ export default function DashboardGrid(props: DashboardGridProps) {
                         maxActive={DENSE_WIDGET_BODY_BUDGET}
                     >
                         <div
-                            className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-4'}`}
+                            className={`dashboard-grid grid gap-6 items-start ${oneDimensionalMode ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-3 xl:grid-cols-4'}`}
                         >
                             {visible.map((config, index) => (
                                 <WidgetWrapper
