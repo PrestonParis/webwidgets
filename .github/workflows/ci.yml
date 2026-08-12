@@ -1,0 +1,279 @@
+name: CI
+
+# Baseline PR/main validation. See .github/workflows/README.md for the
+# philosophy (changed-files-only gating against existing debt) and which
+# job names to mark as required status checks.
+#
+# Design constraints this workflow follows (AGENTS.md / DEFINITION_OF_DONE.md):
+#   - Lint/typecheck gate only files a PR actually touches — the repo has a
+#     large pre-existing debt baseline (see reports/) that isn't any single
+#     PR's job to clear.
+#   - No persistent services are started (services/conversion's own test
+#     suite self-skips anything needing live Redis/Postgres, confirmed by
+#     reading tests/smoke/api-smoke.test.ts before wiring this up).
+#   - `npm run build` runs here, in CI, and nowhere else — agents are
+#     instructed not to run it locally (RAM constraints).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changed-files:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      web: ${{ steps.scope.outputs.web }}
+      ml: ${{ steps.scope.outputs.ml }}
+      conversion: ${{ steps.scope.outputs.conversion }}
+      sync_worker: ${{ steps.scope.outputs.sync_worker }}
+      files_list: ${{ steps.diff.outputs.files_b64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute changed files
+        id: diff
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            FILES=$(git diff --name-only "$BASE...$HEAD" || true)
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              FILES=$(git show --name-only --pretty=format: HEAD || true)
+            else
+              FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}" || true)
+            fi
+          else
+            # workflow_dispatch or anything else: treat everything as changed.
+            FILES=$(git ls-files)
+          fi
+          echo "Changed files:"
+          echo "$FILES"
+          {
+            echo "files_b64<<SHEOF"
+            echo "$FILES" | base64 -w0
+            echo "SHEOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "$FILES" > /tmp/changed_files.txt
+
+      - name: Derive per-service scope flags
+        id: scope
+        run: |
+          set -euo pipefail
+          F=/tmp/changed_files.txt
+          web=false; ml=false; conversion=false; sync_worker=false
+          if grep -qE '^(apps/web/|scripts/|tests/|tsconfig(\.base)?\.json$|eslint\.config\.mjs$|package(-lock)?\.json$)' "$F"; then web=true; fi
+          if grep -qE '^services/ml_service/' "$F"; then ml=true; fi
+          if grep -qE '^services/conversion/' "$F"; then conversion=true; fi
+          if grep -qE '^services/sync-worker/' "$F"; then sync_worker=true; fi
+          {
+            echo "web=$web"
+            echo "ml=$ml"
+            echo "conversion=$conversion"
+            echo "sync_worker=$sync_worker"
+          } >> "$GITHUB_OUTPUT"
+
+  lint-typecheck:
+    name: Lint + typecheck (changed files)
+    needs: changed-files
+    if: needs.changed-files.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Recover changed-file list
+        run: |
+          echo "${{ needs.changed-files.outputs.files_list }}" | base64 -d > /tmp/changed_files.txt
+          cat /tmp/changed_files.txt
+
+      - name: ESLint (changed .ts/.tsx files only)
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(grep -E '\.(ts|tsx)$' /tmp/changed_files.txt | grep -vE '^services/(conversion|sync-worker)/' | grep -vE '^services/ml_service/' || true)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No web/root TypeScript files changed — skipping ESLint."
+            exit 0
+          fi
+          existing=()
+          for f in "${files[@]}"; do
+            [ -f "$f" ] && existing+=("$f")
+          done
+          if [ "${#existing[@]}" -eq 0 ]; then
+            echo "All changed TS files were deleted — nothing to lint."
+            exit 0
+          fi
+          echo "Linting: ${existing[*]}"
+          NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${existing[@]}"
+
+      - name: TypeScript (root project, changed files only)
+        run: |
+          set -euo pipefail
+          if ! grep -qE '^(scripts/|tests/|tsconfig\.json$|tsconfig\.base\.json$|eslint\.config\.mjs$)' /tmp/changed_files.txt; then
+            echo "No files in the root tsconfig.json project changed — skipping."
+            exit 0
+          fi
+          npx tsc --noEmit --pretty false -p tsconfig.json > /tmp/tsc_root.txt 2>&1 || true
+          cat /tmp/tsc_root.txt
+          if grep -F "error TS" /tmp/tsc_root.txt | grep -Ff <(grep -E '\.(ts|tsx)$' /tmp/changed_files.txt) ; then
+            echo "::error::TypeScript errors in changed files (root project)"
+            exit 1
+          fi
+          echo "No TypeScript errors in changed files (root project)."
+
+      - name: TypeScript (apps/web, changed files only)
+        run: |
+          set -euo pipefail
+          if ! grep -qE '^apps/web/' /tmp/changed_files.txt; then
+            echo "No apps/web files changed — skipping."
+            exit 0
+          fi
+          npx tsc --noEmit --pretty false -p apps/web/tsconfig.json > /tmp/tsc_web.txt 2>&1 || true
+          cat /tmp/tsc_web.txt
+          if grep -F "error TS" /tmp/tsc_web.txt | grep -Ff <(grep -E '^apps/web/.*\.(ts|tsx)$' /tmp/changed_files.txt) ; then
+            echo "::error::TypeScript errors in changed files (apps/web project)"
+            exit 1
+          fi
+          echo "No TypeScript errors in changed files (apps/web project)."
+
+  unit-tests:
+    name: Unit tests (Vitest)
+    needs: changed-files
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm run test
+
+  python-checks:
+    name: Python (ML service)
+    needs: changed-files
+    if: needs.changed-files.outputs.ml == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: services/ml_service/requirements-dev.txt
+
+      - run: pip install -r services/ml_service/requirements-dev.txt
+
+      - name: Format check
+        run: python -m ruff format services/ml_service --check
+
+      - name: Lint
+        run: python -m ruff check services/ml_service
+
+      - name: Typecheck
+        run: python -m basedpyright services/ml_service
+
+      - name: Tests
+        run: python -m pytest services/ml_service/tests
+
+  conversion-service:
+    name: Conversion service
+    needs: changed-files
+    if: needs.changed-files.outputs.conversion == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/conversion
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/conversion/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Tests (infra-independent subset auto-skips live Redis/Postgres checks)
+        run: npm run test
+
+  sync-worker:
+    name: Sync worker
+    needs: changed-files
+    if: needs.changed-files.outputs.sync_worker == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/sync-worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/sync-worker/package-lock.json
+
+      - run: npm ci
+      # sync-worker has no lint/test script (ROADMAP.md §4 tracks this as a
+      # gap) — `build` runs tsc and is the closest thing to a typecheck gate.
+      - run: npm run build
+
+  build:
+    name: Production build
+    needs: [lint-typecheck, unit-tests]
+    if: always() && needs.lint-typecheck.result != 'failure' && needs.unit-tests.result != 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_DISABLE_SENTRY: '1'
+      NEXT_PUBLIC_SENTRY_DISABLE: '1'
+      NEXT_PUBLIC_SITE_URL: 'http://localhost:3000'
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321'
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'ci-placeholder-anon-key'
+      SUPABASE_SERVICE_ROLE_KEY: 'ci-placeholder-service-role-key'
+      ML_SERVICE_URL: 'http://127.0.0.1:8000'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm run build
