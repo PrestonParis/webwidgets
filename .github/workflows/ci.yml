@@ -182,7 +182,13 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - run: npm ci
-      - run: npm run test
+
+      - name: Run tests (always, even on failure — need the JSON report either way)
+        run: npx vitest run --reporter=default --reporter=json --outputFile=/tmp/vitest-results.json
+        continue-on-error: true
+
+      - name: Check for unexpected (non-allowlisted) failures
+        run: npx tsx tools/ci/checkTestResults.ts /tmp/vitest-results.json
 
   python-checks:
     name: Python (ML service)
