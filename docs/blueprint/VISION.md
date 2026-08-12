@@ -12,7 +12,9 @@ Target: Fully functional Website App V1 completed by August 25, 2026
 # Tech Stack
 
 - Next.js (TypeScript), Python (FastAPI), Supabase and Go implemented
-  - Specific specs and file structure outlined in [ARCHITECTURE.md](ARCHITECTURE.md)
+  - Specific specs and file structure outlined in
+    [/ARCHITECTURE.md](../../ARCHITECTURE.md) (the former `ARCHITECTURE.md`
+    in this directory is now just a pointer to that file)
 
 # Platforms
 
@@ -86,4 +88,10 @@ Target: Fully functional Website App V1 completed by August 25, 2026
 
 # Current State
 
-- Development is firmly in stage one of the Developement plan, according to [CURRENT_STATE.md](CURRENT_STATE.md)
+- See [/ROADMAP.md](../../ROADMAP.md) for the actual, evidence-based maturity
+  assessment. It found the codebase does not map cleanly onto a single
+  "current stage" of the plan above — some later-stage work (ML predictions,
+  personalization, production deployment) already exists, while stage 7
+  (Security) remains largely a checklist. Don't rely on a single stage
+  number to describe where the project is; use ROADMAP.md's per-system table
+  instead.
