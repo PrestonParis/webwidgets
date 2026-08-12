@@ -7,6 +7,7 @@ import { NutritionAnalyticsPanel } from './NutritionAnalyticsPanel';
 import { RecipesPanel } from './RecipesPanel';
 import { SavedMealsPanel } from './SavedMealsPanel';
 import { NutritionImportPanel } from './NutritionImportPanel';
+import { TrackingIcon } from './TrackingIcon';
 import {
     SurfaceTabs,
     TrackingHero,
@@ -141,11 +142,14 @@ function MealHistoryTab({
                             key={r.id}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group"
                         >
-                            <span className="text-base shrink-0">
-                                {r.mealType
-                                    ? MEAL_TYPE_ICONS[r.mealType]
-                                    : '🍽️'}
-                            </span>
+                            <TrackingIcon
+                                name={
+                                    r.mealType
+                                        ? MEAL_TYPE_ICONS[r.mealType]
+                                        : 'Utensils'
+                                }
+                                className="h-4 w-4 shrink-0"
+                            />
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-2 flex-wrap">
                                     <span className="text-sm font-semibold text-gray-800 dark:text-zinc-200">

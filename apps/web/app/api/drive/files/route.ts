@@ -20,17 +20,6 @@ export async function GET(req: Request) {
         const { supabase, supabaseAdmin } = await createClients();
         const user = await getUserOrThrow(supabase);
 
-        // Check if user has Drive scope
-        const { data: tokenRow } = await supabaseAdmin
-            .from('user_tokens')
-            .select('has_drive')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-        if (!tokenRow?.has_drive) {
-            return NextResponse.json({ connected: false, files: [] });
-        }
-
         const { searchParams } = new URL(req.url);
         const q = searchParams.get('q') ?? '';
         const pageSize = Math.min(
@@ -38,6 +27,9 @@ export async function GET(req: Request) {
             50,
         );
 
+        // The provider call is the source of truth for connection state. A
+        // valid Drive-scoped token can exist even when the optional has_drive
+        // bookkeeping flag was not persisted by an older OAuth callback.
         const tokens = await getGoogleTokens(supabaseAdmin, user.id);
         const auth = createGmailClient(tokens);
         const drive = google.drive({ version: 'v3', auth });

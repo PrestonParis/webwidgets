@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ChevronDown, RefreshCw, Users, Zap } from 'lucide-react';
+import {
+    ArrowLeft,
+    ChevronDown,
+    LogOut,
+    RefreshCw,
+    Users,
+    Zap,
+} from 'lucide-react';
 import { computePriorityScore } from '@/features/inbox/lib/priorityScore';
 import { useEmails } from '@/features/inbox/hooks/useEmails';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -616,7 +623,8 @@ export default function Emails() {
         emailIdsWithMeetings,
     ]);
 
-    const { connectCalendar } = useAuth();
+    const { connectCalendar, signOut } = useAuth();
+    const [signingOut, setSigningOut] = useState(false);
 
     if (isUnauthorized) return <EmailUnauthorized />;
 
@@ -746,6 +754,25 @@ export default function Emails() {
                             </button>
                         )}
                         <AccountsDropdown />
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                setSigningOut(true);
+                                const { error } = await signOut();
+                                if (error) {
+                                    console.error('Sign out failed:', error);
+                                    setSigningOut(false);
+                                    return;
+                                }
+                                window.location.assign('/');
+                            }}
+                            disabled={signingOut}
+                            title="Sign out"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-900 dark:hover:bg-red-950/30 dark:hover:text-red-400 disabled:opacity-50 transition-colors"
+                        >
+                            <LogOut size={12} />
+                            {signingOut ? 'Signing out…' : 'Sign out'}
+                        </button>
                     </div>
                 </div>
 

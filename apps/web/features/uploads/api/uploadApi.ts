@@ -30,7 +30,12 @@ export async function confirmUpload(fileId: string): Promise<FileUpload> {
     const res = await apiRouteFetch(`/api/uploads/${fileId}`, {
         method: 'PATCH',
     });
-    if (!res.ok) throw new Error('Failed to confirm upload');
+    if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as {
+            error?: string;
+        } | null;
+        throw new Error(data?.error ?? 'Failed to confirm upload');
+    }
     clearCachedJson('/api/uploads');
     return res.json() as Promise<FileUpload>;
 }
@@ -60,6 +65,51 @@ export async function uploadFileToS3(
             reject(new Error('Upload network error')),
         );
         xhr.open('PUT', presignedUrl);
+        xhr.setRequestHeader(
+            'Content-Type',
+            file.type || 'application/octet-stream',
+        );
+        xhr.send(file);
+    });
+}
+
+export async function uploadFileViaServer(
+    fileId: string,
+    file: File,
+    onProgress?: (progress: number) => void,
+): Promise<FileUpload> {
+    return new Promise<FileUpload>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+                onProgress?.(Math.round((event.loaded / event.total) * 100));
+            }
+        });
+        xhr.addEventListener('load', () => {
+            let body: { error?: string } | FileUpload | null = null;
+            try {
+                body = JSON.parse(xhr.responseText) as
+                    | { error?: string }
+                    | FileUpload;
+            } catch {
+                // Use the HTTP status fallback below.
+            }
+            if (xhr.status >= 200 && xhr.status < 300 && body) {
+                clearCachedJson('/api/uploads');
+                resolve(body as FileUpload);
+            } else {
+                reject(
+                    new Error(
+                        (body as { error?: string } | null)?.error ??
+                            `Server upload failed: ${xhr.status}`,
+                    ),
+                );
+            }
+        });
+        xhr.addEventListener('error', () =>
+            reject(new Error('Server upload network error')),
+        );
+        xhr.open('PUT', `/api/uploads/${fileId}/content`);
         xhr.setRequestHeader(
             'Content-Type',
             file.type || 'application/octet-stream',
@@ -118,7 +168,12 @@ export async function deleteUpload(fileId: string): Promise<void> {
     const res = await apiRouteFetch(`/api/uploads/${fileId}`, {
         method: 'DELETE',
     });
-    if (!res.ok) throw new Error('Failed to delete file');
+    if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as {
+            error?: string;
+        } | null;
+        throw new Error(data?.error ?? 'Failed to delete file');
+    }
     clearCachedJson('/api/uploads');
 }
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { Utensils } from 'lucide-react';
+
 export function MealEmptyState({
     onLog,
     onGoal,
@@ -9,7 +11,10 @@ export function MealEmptyState({
 }) {
     return (
         <div className="text-center py-6 space-y-3">
-            <p className="text-2xl">🍽️</p>
+            <Utensils
+                className="mx-auto h-7 w-7 text-green-500"
+                aria-hidden="true"
+            />
             <p className="text-sm text-gray-600 dark:text-zinc-400 font-medium">
                 No meals logged yet
             </p>

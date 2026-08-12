@@ -6,6 +6,7 @@ const MS_AUTH_BASE = 'https://login.microsoftonline.com';
 const SCOPES = [
     'https://graph.microsoft.com/Mail.Read',
     'https://graph.microsoft.com/User.Read',
+    'https://graph.microsoft.com/Files.ReadWrite',
     'offline_access',
 ].join(' ');
 

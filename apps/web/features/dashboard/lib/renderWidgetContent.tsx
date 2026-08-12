@@ -54,9 +54,6 @@ const PomodoroWidget = lazy(
     () => import('@/features/pomodoro/components/PomodoroWidget'),
 );
 const TodoWidget = lazy(() => import('@/features/todo/components/TodoWidget'));
-const HabitWidget = lazy(
-    () => import('@/features/habit/components/HabitWidget'),
-);
 const WeatherWidget = lazy(
     () => import('@/features/weather/components/WeatherWidget'),
 );
@@ -188,7 +185,9 @@ export function renderWidgetContent(
         case 'todo':
             return wrap(<TodoWidget />);
         case 'habit':
-            return wrap(<HabitWidget />);
+            // Habits are now a category inside the combined Tracking widget;
+            // this only exists to render legacy saved dashboard widgets.
+            return wrap(<TrackingWidget />);
         case 'weather':
             return wrap(<WeatherWidget widgetId={config.id} />);
         case 'worldclock':

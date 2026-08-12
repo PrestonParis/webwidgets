@@ -9,6 +9,7 @@ export interface DashboardWidgetLibraryEntry {
     description: string;
     emoji: string;
     adminOnly?: boolean;
+    betaOnly?: boolean;
     betaState: WidgetDefinition['betaState'];
     featureId: string;
 }
@@ -32,7 +33,6 @@ const RENDERABLE_WIDGET_TYPES: readonly WidgetType[] = [
     'stopwatch',
     'pomodoro',
     'todo',
-    'habit',
     'weather',
     'worldclock',
     'journal',
@@ -92,7 +92,6 @@ const WIDGET_COMPLEXITY_ORDER: readonly WidgetType[] = [
     'journal',
     'texteditor',
     'todo',
-    'habit',
     'calendar',
     'email',
     'files',
@@ -156,6 +155,9 @@ export function getDashboardWidgetLibrary() {
                     featureId: entry.type,
                     ...(entry.adminOnly !== undefined && {
                         adminOnly: entry.adminOnly,
+                    }),
+                    ...(entry.betaOnly !== undefined && {
+                        betaOnly: entry.betaOnly,
                     }),
                 },
             ];

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { CheckCircle2, FolderOpen, X } from 'lucide-react';
 import { useImport } from '@/features/tracking/hooks/useImport';
 
 interface ImportModalProps {
@@ -19,7 +20,10 @@ function UploadStep({ onFile }: { onFile: (f: File) => void }) {
 
     return (
         <div className="flex flex-col items-center gap-4 py-8">
-            <span className="text-4xl">📂</span>
+            <FolderOpen
+                className="h-10 w-10 text-indigo-500"
+                aria-hidden="true"
+            />
             <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                     Upload a CSV file
@@ -73,7 +77,7 @@ export function ImportModal({ onClose, onComplete }: ImportModalProps) {
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-200 text-lg leading-none"
                     >
-                        ✕
+                        <X size={18} aria-hidden="true" />
                     </button>
                 </div>
 
@@ -154,7 +158,10 @@ export function ImportModal({ onClose, onComplete }: ImportModalProps) {
 
                     {step === 'done' && (
                         <div className="flex flex-col items-center gap-3 py-8">
-                            <span className="text-4xl">✅</span>
+                            <CheckCircle2
+                                className="h-10 w-10 text-green-500"
+                                aria-hidden="true"
+                            />
                             <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                                 Import complete!
                             </p>

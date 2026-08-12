@@ -8,11 +8,16 @@ export const SignInForm = ({ onToggleMode }: SignInFormProps) => {
     const [password, setPassword] = useState('');
     const [mode, setMode] = useState<AuthMode>(AUTH_MODES.SIGN_IN);
 
-    const { handleEmailAuth, error, loading, setError } = useEmailAuth();
+    const { handleEmailAuth, handleForgotPassword, error, loading, setError } =
+        useEmailAuth();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await handleEmailAuth({ mode, email, password });
+    };
+
+    const onForgotPassword = async () => {
+        await handleForgotPassword(email);
     };
 
     const toggleMode = () => {
@@ -49,6 +54,21 @@ export const SignInForm = ({ onToggleMode }: SignInFormProps) => {
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-[#4f6ef7]/60 transition-all"
                 />
+
+                {mode === AUTH_MODES.SIGN_IN && (
+                    <div className="text-right">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                void onForgotPassword();
+                            }}
+                            disabled={loading}
+                            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50"
+                        >
+                            Forgot password?
+                        </button>
+                    </div>
+                )}
 
                 {error && (
                     <p

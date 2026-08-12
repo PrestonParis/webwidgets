@@ -1,6 +1,7 @@
 import { WidgetConfig, WidgetType } from '@/features/dashboard/types/dashboard';
 import { Tracker } from '@/features/recovery/types/recovery';
 import { base } from '@/features/dashboard/constants';
+import { isEntertainmentWidgetType } from '@/features/entertainment/constants';
 
 const KNOWN_WIDGET_TYPES = new Set<string>([
     'texteditor',
@@ -20,7 +21,6 @@ const KNOWN_WIDGET_TYPES = new Set<string>([
     'stopwatch',
     'pomodoro',
     'todo',
-    'habit',
     'weather',
     'worldclock',
     'journal',
@@ -228,6 +228,7 @@ export function reconcileLayout(
     trackers: Tracker[],
     sealed = false,
     seenTrackerIds: Set<string> = new Set(),
+    seenDefaultIds: Set<string> = new Set(),
 ): WidgetConfig[] {
     // 0. Strip widget types that no longer exist in the codebase (including folder children)
     let working = savedLayout.filter((w) => KNOWN_WIDGET_TYPES.has(w.type));
@@ -239,12 +240,15 @@ export function reconcileLayout(
     // Sealed layouts were intentionally curated — skip default injection to preserve the user's selection.
     // Recovery widgets are excluded here because step 4 handles tracker injection with proper
     // "seen" tracking to avoid re-adding widgets the user explicitly removed.
+    // Defaults the user has already seen (and possibly removed) are skipped too — only
+    // genuinely new defaults (added by an app update) get injected.
     if (!sealed) {
         const defaults = buildDefaultLayout(trackers);
         const currentIds = new Set(working.map((w) => w.id));
         const missingDefaults = defaults.filter(
             (w) =>
                 !currentIds.has(w.id) &&
+                !seenDefaultIds.has(w.id) &&
                 w.type !== 'recovery' &&
                 w.type !== 'recovery-empty',
         );
@@ -309,6 +313,23 @@ export function saveSeenTrackerIds(userId: string, ids: Set<string>): void {
     localStorage.setItem(makeSeenTrackersKey(userId), JSON.stringify([...ids]));
 }
 
+export function makeSeenDefaultsKey(userId: string) {
+    return `dashboard_seen_defaults_${userId}`;
+}
+
+export function readSeenDefaultIds(userId: string): Set<string> {
+    try {
+        const raw = localStorage.getItem(makeSeenDefaultsKey(userId));
+        return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+    } catch {
+        return new Set();
+    }
+}
+
+export function saveSeenDefaultIds(userId: string, ids: Set<string>): void {
+    localStorage.setItem(makeSeenDefaultsKey(userId), JSON.stringify([...ids]));
+}
+
 export function readCachedLayout(userId: string): WidgetConfig[] | null {
     try {
         const raw = localStorage.getItem(makePersistKey(userId));
@@ -325,4 +346,11 @@ export function readCachedLayout(userId: string): WidgetConfig[] | null {
 
 export function readCachedTimestamp(userId: string): string | null {
     return localStorage.getItem(makePersistTimestampKey(userId));
+}
+
+/** Removes entertainment widgets (chess, memorization, news, reading, creative) from a layout. */
+export function stripEntertainmentWidgets(
+    layout: WidgetConfig[],
+): WidgetConfig[] {
+    return layout.filter((w) => !isEntertainmentWidgetType(w.type));
 }

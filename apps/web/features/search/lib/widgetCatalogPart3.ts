@@ -3,9 +3,10 @@ import type { WidgetEntry } from '../types/widgetCatalog';
 export const WIDGET_CATALOG_PART_3: WidgetEntry[] = [
     {
         type: 'tracking',
-        name: 'All Tracking',
+        name: 'Logging & Tracking',
         emoji: '📊',
-        description: 'Log and visualize sleep, workouts, meals, mood, and more',
+        description:
+            'Log and visualize sleep, workouts, meals, mood, habits, and more',
         href: '/tracking',
         keywords: [
             'tracking',
@@ -16,6 +17,12 @@ export const WIDGET_CATALOG_PART_3: WidgetEntry[] = [
             'health',
             'fitness',
             'nutrition',
+            'habit',
+            'routine',
+            'streak',
+            'daily',
+            'consistency',
+            'completion',
         ],
     },
     {

@@ -6,12 +6,15 @@ import {
     formatMealTime,
 } from '@/features/tracking/lib/meal/helpers';
 import type { MealRecord } from '@/features/tracking/types/meal';
+import { TrackingIcon } from './TrackingIcon';
 
 export function MealCard({ record }: { record: MealRecord }) {
-    const icon = record.mealType ? MEAL_TYPE_ICONS[record.mealType] : '🍽️';
+    const icon = record.mealType
+        ? MEAL_TYPE_ICONS[record.mealType]
+        : 'Utensils';
     return (
         <div className="flex items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl p-2.5">
-            <span className="text-sm shrink-0 mt-0.5">{icon}</span>
+            <TrackingIcon name={icon} className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-green-800 dark:text-green-200 truncate">
                     {record.title ??

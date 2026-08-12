@@ -8,6 +8,8 @@ import {
 } from '../store/useFolderRegistry';
 import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
 import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
+import { useIsAdmin } from '@/features/admin/hooks/useIsAdmin';
+import { useEntertainmentAccess } from '@/features/entertainment/hooks/useEntertainmentAccess';
 
 export interface NlpSuggestion {
     widget: string;
@@ -27,19 +29,21 @@ const SUGGEST_API = '/api/search/suggest';
 
 export function useSearch(query: string, taskQuery: string): SearchResults {
     const folders = useFolderRegistry((s) => s.folders);
+    const { isAdmin } = useIsAdmin();
+    const { hasAccess: hasEntertainmentAccess } = useEntertainmentAccess();
     const [nlpSuggestions, setNlpSuggestions] = useState<NlpSuggestion[]>([]);
     const [suggestAi, setSuggestAi] = useState(false);
     const [nlpLoading, setNlpLoading] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const widgetMatches = searchWidgets(query);
+    const widgetMatches = searchWidgets(query, isAdmin, hasEntertainmentAccess);
 
     // Also match the task-intent field against the catalog so that typing e.g.
     // "convert" in "What are you trying to do?" surfaces the Converter widget
     // rather than falling through to synthesis.
     const taskWidgetMatches =
         taskQuery && !query
-            ? searchWidgets(taskQuery).filter(
+            ? searchWidgets(taskQuery, isAdmin, hasEntertainmentAccess).filter(
                   (w) => !widgetMatches.some((m) => m.type === w.type),
               )
             : [];

@@ -4,6 +4,7 @@ import { clientLogger } from '@/lib/observability/clientLogger';
 import { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import { Tracker } from '@/features/recovery/types/recovery';
 import { useLayoutPersistence } from './useLayoutPersistence';
+import { base } from '@/features/dashboard/constants';
 import {
     buildDefaultLayout,
     reconcileLayout,
@@ -13,9 +14,13 @@ import {
     readCachedTimestamp,
     readSeenTrackerIds,
     saveSeenTrackerIds,
+    readSeenDefaultIds,
+    saveSeenDefaultIds,
+    stripEntertainmentWidgets,
 } from '../lib/dashboardLayout';
 import { useFolderRegistry } from '@/features/search/store/useFolderRegistry';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
+import { useEntertainmentAccess } from '@/features/entertainment/hooks/useEntertainmentAccess';
 
 export function useDashboardLayout(trackers: Tracker[] | null) {
     const { user } = useAuthContext();
@@ -37,8 +42,15 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
                 if (cached) {
                     const seenIds = readSeenTrackerIds(userId!);
+                    const seenDefaultIds = readSeenDefaultIds(userId!);
                     setLayout(
-                        reconcileLayout(cached, safeTrackers, sealed, seenIds),
+                        reconcileLayout(
+                            cached,
+                            safeTrackers,
+                            sealed,
+                            seenIds,
+                            seenDefaultIds,
+                        ),
                     );
                     setReady(true);
                     showedCached = true;
@@ -60,12 +72,14 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 })();
 
                 const seenTrackerIds = readSeenTrackerIds(userId!);
+                const seenDefaultIds = readSeenDefaultIds(userId!);
                 const finalLayout = source
                     ? reconcileLayout(
                           source,
                           safeTrackers,
                           sealed,
                           seenTrackerIds,
+                          seenDefaultIds,
                       )
                     : buildDefaultLayout(safeTrackers);
 
@@ -77,6 +91,16 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
                 ]);
                 if (allTrackerIds.size > seenTrackerIds.size) {
                     saveSeenTrackerIds(userId!, allTrackerIds);
+                }
+
+                // Mark all default widgets as seen so future reconciles won't
+                // re-inject ones the user has since removed.
+                const allDefaultIds = new Set([
+                    ...seenDefaultIds,
+                    ...base.map((w) => w.id),
+                ]);
+                if (allDefaultIds.size > seenDefaultIds.size) {
+                    saveSeenDefaultIds(userId!, allDefaultIds);
                 }
 
                 setLayout(finalLayout);
@@ -95,6 +119,21 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
 
         void load();
     }, [userId, trackers, safeTrackers]);
+
+    const { hasAccess: hasEntertainmentAccess, loading: entertainmentLoading } =
+        useEntertainmentAccess();
+
+    // Backstop: while entertainment widgets are in beta, non-entitled users
+    // never see them rendered, even if a saved layout still contains an old
+    // entry (underlying `layout` state is left untouched, so access being
+    // granted later restores them immediately).
+    const visibleLayout = useMemo(
+        () =>
+            entertainmentLoading || hasEntertainmentAccess
+                ? layout
+                : stripEntertainmentWidgets(layout),
+        [layout, entertainmentLoading, hasEntertainmentAccess],
+    );
 
     const registerFolders = useFolderRegistry((s) => s.register);
 
@@ -128,5 +167,5 @@ export function useDashboardLayout(trackers: Tracker[] | null) {
         [persistLayout],
     );
 
-    return { layout, updateLayout, toggleVisibility, ready };
+    return { layout: visibleLayout, updateLayout, toggleVisibility, ready };
 }

@@ -1,16 +1,18 @@
 'use client';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-    const { user, status, signInWithGoogle } = useAuth();
+    const { user, status } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         if (status !== 'loading' && !user) {
-            void signInWithGoogle();
+            router.replace('/');
         }
-    });
+    }, [router, status, user]);
 
     if (status === 'loading') {
         return (

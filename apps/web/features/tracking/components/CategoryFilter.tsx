@@ -2,10 +2,11 @@
 
 import {
     BUILT_IN_CATEGORIES,
-    getCategoryEmoji,
     getCategoryLabel,
 } from '@/features/tracking/constants';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
+import { TrackingIcon } from './TrackingIcon';
+import { getTrackingCategoryConfig } from '@/features/tracking/lib/categoryConfig';
 
 interface CategoryFilterProps {
     active: string;
@@ -24,12 +25,12 @@ export function CategoryFilter({
         ...BUILT_IN_CATEGORIES.map((id) => ({
             id,
             label: getCategoryLabel(id),
-            emoji: getCategoryEmoji(id),
+            icon: getTrackingCategoryConfig(id).icon,
         })),
         ...customCategories.map((d) => ({
             id: d.id,
             label: d.label,
-            emoji: d.emoji,
+            icon: 'Shapes',
         })),
     ];
 
@@ -45,7 +46,7 @@ export function CategoryFilter({
                             : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
                     }`}
                 >
-                    <span>{c.emoji}</span>
+                    <TrackingIcon name={c.icon} className="h-3.5 w-3.5" />
                     <span>{c.label}</span>
                 </button>
             ))}

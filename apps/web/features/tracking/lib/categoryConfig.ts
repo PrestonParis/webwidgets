@@ -27,7 +27,7 @@ export function customCategoryToConfig(
     return {
         id: def.id,
         label: def.label,
-        icon: def.emoji,
+        icon: 'Shapes',
         color: def.color,
         metricType:
             metrics.length > 1 ? 'multi' : (metrics[0]?.type ?? 'custom'),
@@ -58,7 +58,7 @@ export function getTrackingCategoryConfig(
             customDefs.find((def) => def.id === category) ?? {
                 id: category,
                 label: category,
-                emoji: '📊',
+                emoji: '',
                 color: 'indigo',
                 fields: [],
                 createdAt: new Date().toISOString(),

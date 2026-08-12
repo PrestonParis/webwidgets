@@ -88,7 +88,6 @@ export const WIDGET_CATEGORIES: WidgetCategory[] = [
             'Habits, mood, recovery, workouts, sleep, meals, and supplements',
         icon: HeartPulse,
         types: [
-            'habit',
             'recovery-empty',
             'tracking',
             'tracking-mood',

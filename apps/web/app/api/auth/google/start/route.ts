@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 
-const GMAIL_SCOPES = [
+const GOOGLE_WORKSPACE_SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/calendar.events',
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
-].join(' ');
+];
 
 export async function GET(req: Request) {
     const { supabase } = await createClients();
@@ -24,6 +24,14 @@ export async function GET(req: Request) {
     const { searchParams, origin } = new URL(req.url);
     const redirect = searchParams.get('redirect') ?? '/inbox';
     const safeRedirect = redirect.startsWith('/') ? redirect : '/inbox';
+    const service = searchParams.get('service');
+    const isDriveConnect = service === 'drive';
+    const scopes = isDriveConnect
+        ? [
+              ...GOOGLE_WORKSPACE_SCOPES,
+              'https://www.googleapis.com/auth/drive.readonly',
+          ]
+        : GOOGLE_WORKSPACE_SCOPES;
 
     // Use Supabase's signInWithOAuth to generate the OAuth URL.
     // This uses the redirect URI that's already registered in Google Console
@@ -33,12 +41,13 @@ export async function GET(req: Request) {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            scopes: GMAIL_SCOPES,
+            scopes: scopes.join(' '),
             queryParams: {
                 access_type: 'offline',
                 prompt: 'consent select_account',
+                include_granted_scopes: 'true',
             },
-            redirectTo: `${origin}/auth/callback?ic=1&uid=${originalUserId}&next=${encodeURIComponent(safeRedirect)}`,
+            redirectTo: `${origin}/auth/callback?ic=1&uid=${originalUserId}&next=${encodeURIComponent(safeRedirect)}${isDriveConnect ? '&service=drive' : ''}`,
             skipBrowserRedirect: true,
         },
     });

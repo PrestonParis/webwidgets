@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type GraphLayoutMode = 'cluster' | 'workflow' | 'compact';
+export type GraphLayoutMode = 'cluster' | 'workflow' | 'compact' | 'galaxy';
 
 interface GraphToolbarProps {
     layoutMode: GraphLayoutMode;
@@ -50,6 +50,7 @@ export function GraphToolbar({
                 <option value="cluster">Clusters</option>
                 <option value="workflow">Workflow lanes</option>
                 <option value="compact">Compact</option>
+                <option value="galaxy">Galaxy</option>
             </select>
             <IconButton title="Zoom in" onClick={zoomIn} icon={ZoomIn} />
             <IconButton title="Zoom out" onClick={zoomOut} icon={ZoomOut} />

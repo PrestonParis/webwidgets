@@ -88,6 +88,7 @@ export const WIDGET_CATALOG_PART_1: WidgetEntry[] = [
         emoji: '♟️',
         description: 'Play chess, analyze games, and study openings',
         href: '/chess',
+        betaOnly: true,
         keywords: [
             'chess',
             'play',

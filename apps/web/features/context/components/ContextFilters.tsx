@@ -7,6 +7,16 @@ export interface ContextFilterState {
     relationship: string;
     activity: 'all' | 'active' | 'quiet';
     connectedOnly: boolean;
+    // Set by graph-mode presets (see graphModes.ts) rather than direct UI
+    // controls in this component. Additive/optional so older saved views
+    // (which never had these fields) simply behave as unrestricted.
+    edgeKindAllowlist?: string[];
+    entryTypeAllowlist?: string[];
+    entryTypeBlocklist?: string[];
+    // Set by clicking a galaxy-mode layer hub, distinct from entryType
+    // filters since a single ContextEntryType (e.g. `widget`) can span
+    // multiple layers depending on the specific widget type.
+    layerAllowlist?: string[];
 }
 
 interface ContextFiltersProps {

@@ -39,11 +39,3 @@ export const ENERGY_LABELS: Record<number, string> = {
     4: 'Energized',
     5: 'Buzzing',
 };
-
-export const MOOD_EMOJIS: Record<number, string> = {
-    1: '😣',
-    2: '😕',
-    3: '😐',
-    4: '🙂',
-    5: '😄',
-};

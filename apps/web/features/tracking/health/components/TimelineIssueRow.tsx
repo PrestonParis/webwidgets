@@ -11,6 +11,7 @@ import {
 } from '@/features/tracking/health/lib/bodyIssues';
 import { MiniSparkline } from '@/features/tracking/health/icons/HealthSparklines';
 import { BODY_REGION_MAP } from '@/features/tracking/health/lib/bodyRegions';
+import { TrackingIcon } from '@/features/tracking/components/TrackingIcon';
 
 interface TimelineIssueRowProps {
     issue: BodyIssue;
@@ -39,9 +40,10 @@ export function TimelineIssueRow({
                 onClick={onToggle}
                 className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
             >
-                <span className="text-base leading-none shrink-0">
-                    {typeInfo?.emoji ?? '•'}
-                </span>
+                <TrackingIcon
+                    name={typeInfo?.icon}
+                    className="h-4 w-4 shrink-0"
+                />
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-gray-800 dark:text-zinc-200 truncate">

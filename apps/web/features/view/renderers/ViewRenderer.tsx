@@ -126,6 +126,7 @@ export function ViewRenderer({
                 <Image
                     src={renderable.url}
                     alt={document.file.name}
+                    unoptimized
                     className="max-h-full max-w-full shadow-xl"
                     width={0}
                     height={0}

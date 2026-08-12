@@ -21,6 +21,7 @@ interface WidgetGridProps {
     onAddTracker?: (tracker: Tracker) => void;
     onAddAllTrackers?: (trackers: Tracker[]) => void;
     isAdmin: boolean;
+    hasEntertainmentAccess: boolean;
     search: string;
     selectedCategory: WidgetCategory | null;
 }
@@ -32,12 +33,14 @@ export function WidgetGrid({
     onAddTracker,
     onAddAllTrackers,
     isAdmin,
+    hasEntertainmentAccess,
     search,
     selectedCategory,
 }: WidgetGridProps) {
     const q = search.toLowerCase();
     const visible = getDashboardWidgetLibrary()
         .filter((w) => !w.adminOnly || isAdmin)
+        .filter((w) => !w.betaOnly || hasEntertainmentAccess)
         .filter((w) => w.type !== 'recovery')
         .filter(
             (w) => !selectedCategory || selectedCategory.types.includes(w.type),
@@ -132,15 +135,19 @@ export function WidgetGrid({
 interface CategoryGridProps {
     entries: DashboardWidgetLibraryEntry[];
     isAdmin: boolean;
+    hasEntertainmentAccess: boolean;
     onSelect: (category: WidgetCategory) => void;
 }
 
 export function CategoryGrid({
     entries,
     isAdmin,
+    hasEntertainmentAccess,
     onSelect,
 }: CategoryGridProps) {
-    const available = entries.filter((w) => !w.adminOnly || isAdmin);
+    const available = entries.filter(
+        (w) => (!w.adminOnly || isAdmin) && (!w.betaOnly || hasEntertainmentAccess),
+    );
     return (
         <div className="p-3 max-h-80 overflow-y-auto no-scrollbar">
             <div className="grid grid-cols-1 gap-2">

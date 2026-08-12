@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, FolderPlus, Search, X } from 'lucide-react';
 import { getDashboardWidgetLibrary } from '@/features/platform/lib/dashboardWidgetLibrary';
 import { useIsAdmin } from '@/features/admin/hooks/useIsAdmin';
+import { useEntertainmentAccess } from '@/features/entertainment/hooks/useEntertainmentAccess';
 import type { Tracker } from '@/features/recovery/types/recovery';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import { type WidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
@@ -30,6 +31,7 @@ export function AddWidgetPanel({
     onClose,
 }: AddWidgetPanelProps) {
     const { isAdmin } = useIsAdmin();
+    const { hasAccess: hasEntertainmentAccess } = useEntertainmentAccess();
     const ref = useRef<HTMLDivElement>(null);
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] =
@@ -140,6 +142,7 @@ export function AddWidgetPanel({
                 <CategoryGrid
                     entries={library}
                     isAdmin={isAdmin}
+                    hasEntertainmentAccess={hasEntertainmentAccess}
                     onSelect={setSelectedCategory}
                 />
             ) : (
@@ -152,6 +155,7 @@ export function AddWidgetPanel({
                         ? { onAddAllTrackers }
                         : {})}
                     isAdmin={isAdmin}
+                    hasEntertainmentAccess={hasEntertainmentAccess}
                     search={search}
                     selectedCategory={selectedCategory}
                 />

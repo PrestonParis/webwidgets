@@ -192,6 +192,8 @@ export interface ContextGraphCanvasProps {
     onWheel?: (e: React.WheelEvent) => void;
     onNodePointerDown?: (entityId: string, e: React.PointerEvent) => void;
     onNodeDoubleClick?: (entityId: string) => void;
+    showLayerHubs?: boolean;
+    onSelectLayer?: (layer: string) => void;
 }
 
 export interface ContextNodeCardProps {

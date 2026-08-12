@@ -70,7 +70,7 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
         name: 'Google Drive',
         summary: 'Access your files without switching tabs.',
         outcomes: [
-            'Browse and open Drive files from the dashboard',
+            'Open and work on Drive files inside webwidgets',
             'Attach documents to tasks and notes',
             'Search across files alongside your other content',
         ],

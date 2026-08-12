@@ -44,19 +44,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const loadSession = async () => {
             try {
-                // getUser() verifies the token with the auth server (secure)
-                const [
-                    {
-                        data: { user },
-                        error,
-                    },
-                    {
-                        data: { session },
-                    },
-                ] = await Promise.all([
-                    supabase.auth.getUser(),
-                    supabase.auth.getSession(),
-                ]);
+                // Read local auth state first. After sign-out there is no session,
+                // so avoid waiting on a network user check before rendering login.
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+
+                if (!session) {
+                    if (mounted) {
+                        setUser(null);
+                        setSession(null);
+                        setProfile(null);
+                        setStatus('unauthenticated');
+                    }
+                    return;
+                }
+
+                // A stored session still needs server verification.
+                const {
+                    data: { user },
+                    error,
+                } = await supabase.auth.getUser();
                 if (error) throw error;
 
                 if (mounted) {

@@ -43,6 +43,13 @@ import type {
     ContextGraph,
     ContextNode,
 } from '@/features/context/types/context';
+import { layoutGalaxy } from '@/features/context/lib/graphBuilder';
+import {
+    GRAPH_MODE_LABELS,
+    GRAPH_MODE_PRESETS,
+    type GraphMode,
+} from '@/features/context/lib/graphModes';
+import { getEntryLayer } from '@/features/context/lib/contextLayers';
 
 const DEFAULT_FILTERS: ContextFilterState = {
     type: 'all',
@@ -55,6 +62,7 @@ export default function ContextDiagramPage() {
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState<ContextFilterState>(DEFAULT_FILTERS);
     const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>('cluster');
+    const [mode, setMode] = useState<GraphMode>('architecture');
     const [focusMode, setFocusMode] = useState(false);
     const [showAddNode, setShowAddNode] = useState(false);
     const [inspectorOpen, setInspectorOpen] = useState(false);
@@ -136,7 +144,7 @@ export default function ContextDiagramPage() {
     }, []);
 
     useEffect(() => {
-        if (selectedId) setInspectorOpen(true);
+        setInspectorOpen(!!selectedId);
     }, [selectedId]);
 
     async function syncContext() {
@@ -163,6 +171,17 @@ export default function ContextDiagramPage() {
         } finally {
             setSyncing(false);
         }
+    }
+
+    function applyMode(nextMode: GraphMode) {
+        const preset = GRAPH_MODE_PRESETS[nextMode];
+        setMode(nextMode);
+        setLayoutMode(preset.layoutMode);
+        setFilters({ ...DEFAULT_FILTERS, ...preset.filters });
+    }
+
+    function handleSelectLayer(layer: string) {
+        setFilters((prev) => ({ ...prev, layerAllowlist: [layer] }));
     }
 
     async function exportGraph() {
@@ -230,6 +249,22 @@ export default function ContextDiagramPage() {
                             )}
                         </div>
                         <select
+                            value={mode}
+                            onChange={(event) =>
+                                applyMode(event.target.value as GraphMode)
+                            }
+                            className="h-9 rounded-lg border border-zinc-200 bg-white px-2 text-xs dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+                            aria-label="Graph mode"
+                        >
+                            {Object.entries(GRAPH_MODE_LABELS).map(
+                                ([value, label]) => (
+                                    <option key={value} value={value}>
+                                        {label}
+                                    </option>
+                                ),
+                            )}
+                        </select>
+                        <select
                             value={layoutMode}
                             onChange={(event) =>
                                 setLayoutMode(
@@ -242,6 +277,7 @@ export default function ContextDiagramPage() {
                             <option value="cluster">Clusters</option>
                             <option value="workflow">Workflow</option>
                             <option value="compact">Compact</option>
+                            <option value="galaxy">Galaxy</option>
                         </select>
                         <MiniIconButton
                             title={
@@ -366,6 +402,8 @@ export default function ContextDiagramPage() {
                                 onWheel={onCanvasWheel}
                                 onNodePointerDown={onNodePointerDown}
                                 onNodeDoubleClick={focusNode}
+                                showLayerHubs={layoutMode === 'galaxy'}
+                                onSelectLayer={handleSelectLayer}
                             />
                         </div>
                     )}
@@ -690,6 +728,21 @@ function countNodesByType(nodes: ContextNode[]) {
     }, {});
 }
 
+function expandByNeighbors(
+    graph: ContextGraph,
+    seedIds: Set<string>,
+    edgeKindFilter?: Set<string> | null,
+): Set<string> {
+    const expanded = new Set(seedIds);
+    graph.edges.forEach((edge) => {
+        if (edgeKindFilter && !edgeKindFilter.has(edge.kind ?? 'explicit'))
+            return;
+        if (seedIds.has(edge.from)) expanded.add(edge.to);
+        if (seedIds.has(edge.to)) expanded.add(edge.from);
+    });
+    return expanded;
+}
+
 function applyGraphView(
     graph: ContextGraph,
     options: {
@@ -718,13 +771,51 @@ function applyGraphView(
             });
     }
 
-    const focusIds = new Set<string>();
-    if (options.focusMode && options.selectedId) {
-        focusIds.add(options.selectedId);
-        graphWithUniqueNodes.edges.forEach((edge) => {
-            if (edge.from === options.selectedId) focusIds.add(edge.to);
-            if (edge.to === options.selectedId) focusIds.add(edge.from);
-        });
+    const focusIds =
+        options.focusMode && options.selectedId
+            ? expandByNeighbors(
+                  graphWithUniqueNodes,
+                  new Set([options.selectedId]),
+              )
+            : new Set<string>();
+
+    const edgeKindAllowlist = options.filters.edgeKindAllowlist?.length
+        ? new Set(options.filters.edgeKindAllowlist)
+        : null;
+
+    // Graph-mode presets (see graphModes.ts) restrict to a set of node
+    // types/layers, then expand to their immediate neighbors so the result
+    // is a legible sub-graph rather than isolated dots.
+    let modeAllowedIds: Set<string> | null = null;
+    if (options.filters.entryTypeAllowlist?.length) {
+        const seedIds = new Set(
+            graphWithUniqueNodes.nodes
+                .filter((node) =>
+                    options.filters.entryTypeAllowlist!.includes(
+                        node.entryType,
+                    ),
+                )
+                .map((node) => node.entityId),
+        );
+        modeAllowedIds = expandByNeighbors(
+            graphWithUniqueNodes,
+            seedIds,
+            edgeKindAllowlist,
+        );
+    }
+    if (options.filters.layerAllowlist?.length) {
+        const layerIds = new Set(
+            graphWithUniqueNodes.nodes
+                .filter((node) =>
+                    options.filters.layerAllowlist!.includes(
+                        getEntryLayer(node),
+                    ),
+                )
+                .map((node) => node.entityId),
+        );
+        modeAllowedIds = modeAllowedIds
+            ? new Set([...modeAllowedIds].filter((id) => layerIds.has(id)))
+            : layerIds;
     }
 
     const nodes = graphWithUniqueNodes.nodes.filter((node) => {
@@ -749,6 +840,12 @@ function applyGraphView(
             options.filters.activity === 'quiet' &&
             (node.activityScore ?? 0) >= 60
         )
+            return false;
+        if (
+            options.filters.entryTypeBlocklist?.includes(node.entryType)
+        )
+            return false;
+        if (modeAllowedIds && !modeAllowedIds.has(node.entityId))
             return false;
         if (
             options.focusMode &&
@@ -779,7 +876,9 @@ function applyGraphView(
             ids.has(edge.from) &&
             ids.has(edge.to) &&
             (options.filters.relationship === 'all' ||
-                (edge.kind ?? 'explicit') === options.filters.relationship),
+                (edge.kind ?? 'explicit') === options.filters.relationship) &&
+            (!edgeKindAllowlist ||
+                edgeKindAllowlist.has(edge.kind ?? 'explicit')),
     );
 
     return layoutVisibleGraph({ nodes, edges }, options.layoutMode);
@@ -790,6 +889,7 @@ function layoutVisibleGraph(
     mode: GraphLayoutMode,
 ): ContextGraph {
     if (mode === 'cluster') return graph;
+    if (mode === 'galaxy') return layoutGalaxy(graph);
     if (mode === 'workflow') {
         const lanes = [
             'profile',

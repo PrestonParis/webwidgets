@@ -1,10 +1,7 @@
 'use client';
 
-import {
-    MOOD_LABELS,
-    MOOD_EMOJIS,
-    ENERGY_LABELS,
-} from '@/features/tracking/labels';
+import { MOOD_LABELS, ENERGY_LABELS } from '@/features/tracking/labels';
+import { Smile } from 'lucide-react';
 import type { QuickEntryFormState } from '@/features/tracking/hooks/useQuickEntryForm';
 
 interface MoodFieldsProps {
@@ -41,7 +38,7 @@ export function MoodFields({ form, updateField }: MoodFieldsProps) {
                                     : 'border-gray-200 dark:border-zinc-700 hover:border-indigo-300'
                             }`}
                         >
-                            <span className="text-base">{MOOD_EMOJIS[s]}</span>
+                            <Smile className="h-4 w-4" aria-hidden="true" />
                             <span className="text-[10px] text-gray-500 dark:text-zinc-400">
                                 {s}
                             </span>

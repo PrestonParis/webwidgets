@@ -18,6 +18,10 @@ const TEXT_MIME_PREFIXES = [
     'application/javascript',
     'application/yaml',
 ];
+const OFFICE_MIME_TYPES = [
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+];
 
 async function fetchUploadText(url: string, mimeType: string) {
     if (!TEXT_MIME_PREFIXES.some((prefix) => mimeType.startsWith(prefix)))
@@ -25,6 +29,12 @@ async function fetchUploadText(url: string, mimeType: string) {
     const response = await fetch(url);
     if (!response.ok) return undefined;
     return response.text();
+}
+
+async function fetchUploadBytes(url: string) {
+    const response = await fetch(url);
+    if (!response.ok) return undefined;
+    return response.arrayBuffer();
 }
 
 export async function POST(request: Request) {
@@ -55,11 +65,24 @@ export async function POST(request: Request) {
                     { status: 503 },
                 );
             }
-            const command = new GetObjectCommand({
-                Bucket: S3_BUCKET,
-                Key: upload.s3Key,
-            });
-            file.url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+            const requiresServerRead =
+                TEXT_MIME_PREFIXES.some((prefix) =>
+                    file.mimeType.startsWith(prefix),
+                ) || OFFICE_MIME_TYPES.includes(file.mimeType);
+            if (requiresServerRead) {
+                const command = new GetObjectCommand({
+                    Bucket: S3_BUCKET,
+                    Key: upload.s3Key,
+                });
+                file.url = await getSignedUrl(s3, command, {
+                    expiresIn: 3600,
+                });
+            } else {
+                file.url = new URL(
+                    `/api/uploads/${upload.id}/content`,
+                    request.url,
+                ).toString();
+            }
         }
 
         const parser = getParserForMime(file.mimeType);
@@ -71,9 +94,14 @@ export async function POST(request: Request) {
         const text = file.url
             ? await fetchUploadText(file.url, file.mimeType)
             : undefined;
+        const bytes =
+            file.url && OFFICE_MIME_TYPES.includes(file.mimeType)
+                ? await fetchUploadBytes(file.url)
+                : undefined;
         const document = await parser.parse({
             file,
             ...(text !== undefined && { text }),
+            ...(bytes !== undefined && { bytes }),
         });
         getLogger({
             component: 'view-parse',

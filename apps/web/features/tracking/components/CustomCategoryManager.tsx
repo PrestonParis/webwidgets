@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { X } from 'lucide-react';
+import { TrackingIcon } from './TrackingIcon';
 import type {
     CustomCategoryDef,
     FieldDef,
@@ -26,19 +28,19 @@ const COLOR_OPTIONS = [
     'sky',
 ];
 
-const EMOJI_SUGGESTIONS = [
-    '📊',
-    '💧',
-    '🧘',
-    '💤',
-    '🚴',
-    '🎯',
-    '🧪',
-    '📝',
-    '🔬',
-    '🌡️',
-    '⚡',
-    '🏃',
+const ICON_SUGGESTIONS = [
+    'ChartNoAxesColumn',
+    'Waves',
+    'Leaf',
+    'BedDouble',
+    'Bike',
+    'Target',
+    'FlaskConical',
+    'NotebookPen',
+    'Microscope',
+    'Thermometer',
+    'Zap',
+    'Activity',
 ];
 
 interface FieldEditorProps {
@@ -101,7 +103,7 @@ function FieldEditor({ field, index, onChange, onRemove }: FieldEditorProps) {
                     onClick={() => onRemove(index)}
                     className="text-red-400 hover:text-red-600 text-xs"
                 >
-                    ✕
+                    <X size={14} aria-hidden="true" />
                 </button>
             </div>
             {(field.type === 'number' || field.type === 'range') && (
@@ -166,7 +168,7 @@ interface CreateFormProps {
 
 function CreateForm({ onSave, onCancel }: CreateFormProps) {
     const [label, setLabel] = useState('');
-    const [emoji, setEmoji] = useState('📊');
+    const [emoji, setEmoji] = useState('ChartNoAxesColumn');
     const [color, setColor] = useState('indigo');
     const [fields, setFields] = useState<FieldDef[]>([
         { key: 'value', label: 'Value', type: 'number' },
@@ -187,16 +189,16 @@ function CreateForm({ onSave, onCancel }: CreateFormProps) {
             <div className="flex gap-3">
                 <div className="space-y-1">
                     <p className="text-[10px] uppercase tracking-wide text-gray-500 dark:text-zinc-500">
-                        Emoji
+                        Icon
                     </p>
                     <div className="flex flex-wrap gap-1 w-36">
-                        {EMOJI_SUGGESTIONS.map((e) => (
+                        {ICON_SUGGESTIONS.map((e) => (
                             <button
                                 key={e}
                                 onClick={() => setEmoji(e)}
                                 className={`text-base p-1 rounded-lg transition-colors ${emoji === e ? 'bg-indigo-100 dark:bg-indigo-900/40' : 'hover:bg-gray-100 dark:hover:bg-zinc-800'}`}
                             >
-                                {e}
+                                <TrackingIcon name={e} className="h-4 w-4" />
                             </button>
                         ))}
                     </div>
@@ -305,7 +307,7 @@ export function CustomCategoryManager({
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 text-lg"
                     >
-                        ✕
+                        <X size={18} aria-hidden="true" />
                     </button>
                 </div>
 
@@ -316,7 +318,10 @@ export function CustomCategoryManager({
                                 key={cat.id}
                                 className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-zinc-800"
                             >
-                                <span className="text-xl">{cat.emoji}</span>
+                                <TrackingIcon
+                                    name={cat.emoji}
+                                    className="h-5 w-5"
+                                />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                                         {cat.label}

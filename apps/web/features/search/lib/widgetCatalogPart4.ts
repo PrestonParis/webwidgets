@@ -8,6 +8,7 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
         description:
             'Read the Bible, Quran, PDFs, and ebooks with bookmarks, highlights, and notes',
         href: '/reading',
+        betaOnly: true,
         keywords: [
             'reading',
             'bible',
@@ -35,6 +36,7 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
         emoji: '🗞️',
         description: 'Ranked news and universal event intelligence feed',
         href: '/news',
+        betaOnly: true,
         keywords: [
             'news',
             'events',
@@ -113,6 +115,7 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
         description:
             'Spaced-repetition flashcard system for mastering any subject',
         href: '/memorization',
+        betaOnly: true,
         keywords: [
             'memorization',
             'flashcard',
@@ -123,6 +126,24 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
             'recall',
             'memory',
             'anki',
+        ],
+    },
+    {
+        type: 'creative',
+        name: 'Creative Studio',
+        emoji: '🎨',
+        description: 'Draw, design, and export visual compositions',
+        href: '/creative',
+        betaOnly: true,
+        keywords: [
+            'creative',
+            'studio',
+            'draw',
+            'design',
+            'canvas',
+            'illustration',
+            'sketch',
+            'art',
         ],
     },
     {

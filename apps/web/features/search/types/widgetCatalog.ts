@@ -8,4 +8,6 @@ export interface WidgetEntry {
     href: string;
     keywords: string[];
     adminOnly?: boolean;
+    /** Hidden from search unless the viewer has entertainment beta access. */
+    betaOnly?: boolean;
 }

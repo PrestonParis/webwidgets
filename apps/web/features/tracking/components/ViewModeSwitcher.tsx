@@ -1,14 +1,22 @@
 'use client';
 
+import {
+    ChartNoAxesCombined,
+    Grid3X3,
+    ListTree,
+    Table2,
+    Timer,
+} from 'lucide-react';
+
 export type ViewMode = 'timeline' | 'graph' | 'stats' | 'heatmap' | 'table';
 
-const MODES: { value: ViewMode; label: string; icon: string }[] = [
-    { value: 'timeline', label: 'Timeline', icon: '⏱' },
-    { value: 'graph', label: 'Graph', icon: '📈' },
-    { value: 'stats', label: 'Stats', icon: '📊' },
-    { value: 'heatmap', label: 'Heatmap', icon: '🟩' },
-    { value: 'table', label: 'Table', icon: '⊞' },
-];
+const MODES = [
+    { value: 'timeline', label: 'Timeline', icon: Timer },
+    { value: 'graph', label: 'Graph', icon: ChartNoAxesCombined },
+    { value: 'stats', label: 'Stats', icon: ListTree },
+    { value: 'heatmap', label: 'Heatmap', icon: Grid3X3 },
+    { value: 'table', label: 'Table', icon: Table2 },
+] satisfies { value: ViewMode; label: string; icon: typeof Timer }[];
 
 interface ViewModeSwitcherProps {
     active: ViewMode;
@@ -28,7 +36,7 @@ export function ViewModeSwitcher({ active, onChange }: ViewModeSwitcherProps) {
                             : 'text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300'
                     }`}
                 >
-                    <span>{m.icon}</span>
+                    <m.icon className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>{m.label}</span>
                 </button>
             ))}

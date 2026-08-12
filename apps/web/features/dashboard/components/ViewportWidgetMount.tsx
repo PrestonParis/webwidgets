@@ -73,8 +73,11 @@ export function ViewportWidgetMount({
             {keepMounted && !unavailable ? (
                 // Keep widget mounted once hydrated; hide via CSS when offscreen
                 // to avoid unmount → remount cycles that re-trigger all fetch hooks.
-                // visibility:hidden keeps layout dimensions so recharts can measure its container;
-                // display:none collapses to 0x0 and breaks ResponsiveContainer.
+                // visibility:hidden keeps layout dimensions so recharts can measure its
+                // container AND so this wrapper (the IntersectionObserver's ref target)
+                // doesn't collapse — collapsing it here would shift page layout, which
+                // can flip the observer's own intersection result and re-trigger this
+                // same toggle, causing a feedback loop that jerks the scrollbar.
                 <div
                     style={
                         canHydrate
@@ -82,8 +85,6 @@ export function ViewportWidgetMount({
                             : {
                                   visibility: 'hidden',
                                   pointerEvents: 'none',
-                                  height: 0,
-                                  overflow: 'hidden',
                               }
                     }
                 >

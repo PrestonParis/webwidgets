@@ -32,7 +32,7 @@ async function refreshAccessToken(refreshToken: string): Promise<string> {
         client_secret: clientSecret,
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
-        scope: 'https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Calendars.Read https://graph.microsoft.com/Files.Read offline_access',
+        scope: 'https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Calendars.Read https://graph.microsoft.com/Files.ReadWrite https://graph.microsoft.com/User.Read offline_access',
     });
 
     const res = await fetch(GRAPH_TOKEN_URL, { method: 'POST', body });
@@ -121,7 +121,9 @@ export type MicrosoftTokens = {
     refreshToken?: string;
 };
 
-async function resolveToken(tokens: MicrosoftTokens): Promise<string> {
+export async function resolveMicrosoftAccessToken(
+    tokens: MicrosoftTokens,
+): Promise<string> {
     if (tokens.refreshToken) {
         try {
             return await refreshAccessToken(tokens.refreshToken);
@@ -136,7 +138,7 @@ export async function fetchOutlookMessages(
     tokens: MicrosoftTokens,
     limit = 10,
 ): Promise<OutlookMessage[]> {
-    const accessToken = await resolveToken(tokens);
+    const accessToken = await resolveMicrosoftAccessToken(tokens);
     const schema = z.object({ value: z.array(outlookMessageSchema) });
     const { value } = await graphFetch(
         accessToken,
@@ -150,7 +152,7 @@ export async function fetchOutlookCalendarEvents(
     tokens: MicrosoftTokens,
     daysAhead = 7,
 ): Promise<OutlookCalendarEvent[]> {
-    const accessToken = await resolveToken(tokens);
+    const accessToken = await resolveMicrosoftAccessToken(tokens);
     const startDateTime = new Date().toISOString();
     const endDateTime = new Date(
         Date.now() + daysAhead * 86_400_000,

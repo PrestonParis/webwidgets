@@ -80,11 +80,11 @@ export const MEAL_TYPE_LABELS: Record<MealType, string> = {
 };
 
 export const MEAL_TYPE_ICONS: Record<MealType, string> = {
-    breakfast: '🌅',
-    lunch: '☀️',
-    dinner: '🌙',
-    snack: '🍎',
-    other: '🍽️',
+    breakfast: 'BedDouble',
+    lunch: 'Utensils',
+    dinner: 'Utensils',
+    snack: 'Apple',
+    other: 'Utensils',
 };
 
 /** Group records by meal type, preserving MEAL_TYPE_ORDER */

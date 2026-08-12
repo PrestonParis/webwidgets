@@ -53,6 +53,70 @@ export async function markFileUploadContextDeleted(
     await markContextStatus(db, userId, `file:${fileId}`, 'deleted');
 }
 
+const DRIVE_INTEGRATION_ENTITY_ID = 'integration:google_drive';
+
+export async function ingestGoogleDriveConnectionContext(
+    db: SupabaseClient,
+    userId: string,
+): Promise<void> {
+    await ingestContextNode(db, userId, {
+        entityId: DRIVE_INTEGRATION_ENTITY_ID,
+        type: 'integration',
+        label: 'Google Drive',
+        summary: 'Files synced from your connected Google Drive account',
+        data: { provider: 'google_drive' },
+        tags: ['integration', 'google_drive'],
+        sourceType: 'google_drive',
+        sourceId: userId,
+        createdByType: 'integration',
+        permissions: ['private', 'ai', 'cross_widget'],
+    });
+}
+
+export async function ingestGoogleDriveFileContext(
+    db: SupabaseClient,
+    userId: string,
+    file: {
+        id: string;
+        name: string;
+        mimeType: string;
+        modifiedTime: string;
+        size: string;
+        webViewLink: string;
+        iconLink: string;
+    },
+): Promise<void> {
+    const entityId = `file:drive:${file.id}`;
+    await ingestContextNode(db, userId, {
+        entityId,
+        type: 'file',
+        label: file.name,
+        summary: `${file.mimeType} · modified ${file.modifiedTime}`,
+        data: {
+            mimeType: file.mimeType,
+            sizeBytes: file.size,
+            modifiedTime: file.modifiedTime,
+            webViewLink: file.webViewLink,
+            iconLink: file.iconLink,
+        },
+        tags: ['file', 'google_drive', file.mimeType].filter(Boolean),
+        sourceType: 'google_drive',
+        sourceId: file.id,
+        sourceTable: 'google_drive_files',
+        createdByType: 'integration',
+        permissions: ['private', 'ai', 'cross_widget'],
+    });
+    await ingestContextEdge(db, userId, {
+        fromEntityId: entityId,
+        toEntityId: DRIVE_INTEGRATION_ENTITY_ID,
+        kind: 'produced_by',
+        label: 'from Google Drive',
+        sourceType: 'google_drive',
+        sourceId: file.id,
+        createdByType: 'integration',
+    });
+}
+
 export async function ingestExtractionContext(
     db: SupabaseClient,
     userId: string,

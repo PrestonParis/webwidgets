@@ -93,17 +93,17 @@ export function unpackIssueNotes(raw: string | null | undefined): {
     }
 }
 
-export const ISSUE_TYPES: { id: IssueType; label: string; emoji: string }[] = [
-    { id: 'soreness', label: 'Soreness', emoji: '💢' },
-    { id: 'injury', label: 'Injury', emoji: '🤕' },
-    { id: 'rash', label: 'Rash', emoji: '🔴' },
-    { id: 'bruise', label: 'Bruise', emoji: '🟣' },
-    { id: 'swelling', label: 'Swelling', emoji: '🫧' },
-    { id: 'numbness', label: 'Numbness', emoji: '⚡' },
-    { id: 'stiffness', label: 'Stiffness', emoji: '🔒' },
-    { id: 'tightness', label: 'Tightness', emoji: '🎯' },
-    { id: 'weakness', label: 'Weakness', emoji: '📉' },
-    { id: 'custom', label: 'Custom', emoji: '✏️' },
+export const ISSUE_TYPES: { id: IssueType; label: string; icon: string }[] = [
+    { id: 'soreness', label: 'Soreness', icon: 'Activity' },
+    { id: 'injury', label: 'Injury', icon: 'Bandage' },
+    { id: 'rash', label: 'Rash', icon: 'CircleHelp' },
+    { id: 'bruise', label: 'Bruise', icon: 'CircleHelp' },
+    { id: 'swelling', label: 'Swelling', icon: 'Waves' },
+    { id: 'numbness', label: 'Numbness', icon: 'Zap' },
+    { id: 'stiffness', label: 'Stiffness', icon: 'Activity' },
+    { id: 'tightness', label: 'Tightness', icon: 'Target' },
+    { id: 'weakness', label: 'Weakness', icon: 'ChartNoAxesCombined' },
+    { id: 'custom', label: 'Custom', icon: 'Shapes' },
 ];
 
 export const ISSUE_TRIGGERS: { id: IssueTrigger; label: string }[] = [

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Lightbulb } from 'lucide-react';
 import { BarChart } from '@/features/ui/visualizations/components/BarChart';
 import { LineChart } from '@/features/ui/visualizations/components/LineChart';
 import { computeExtendedAnalytics } from '@/features/tracking/lib/meal/nutrition/analytics';
@@ -298,12 +299,10 @@ export function NutritionAnalyticsPanel({
                             key={i}
                             className="flex gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl"
                         >
-                            <span
-                                className="text-base shrink-0 mt-0.5"
-                                aria-hidden
-                            >
-                                💡
-                            </span>
+                            <Lightbulb
+                                className="mt-0.5 h-4 w-4 shrink-0 text-green-600"
+                                aria-hidden="true"
+                            />
                             <p className="text-sm text-gray-700 dark:text-zinc-300">
                                 {insight}
                             </p>

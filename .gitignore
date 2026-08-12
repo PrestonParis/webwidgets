@@ -51,6 +51,11 @@ services/go_services/worker/worker
 # Logs
 # =========================
 logs/
+reports/lint/
+reports/ts/
+reports/smells/
+reports/stats/
+reports/py-smells/
 *.log
 npm-debug.log*
 yarn-debug.log*

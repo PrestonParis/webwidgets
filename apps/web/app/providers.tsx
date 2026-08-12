@@ -8,7 +8,6 @@ import { ContextCaptureGateway } from '@/features/context/components/ContextCapt
 import { NewsQueryProvider } from '@/features/news/components/QueryProvider';
 import { ToastProvider } from '@/features/ui/components/ToastProvider';
 import { CommandPaletteProvider } from '@/features/search/components/CommandPaletteProvider';
-import { MobileNav } from '@/features/ui/components/MobileNav';
 import { InteractionTracker } from '@/features/analytics/components/InteractionTracker';
 
 export default function Providers({ children }: { children: ReactNode }) {
@@ -21,10 +20,7 @@ export default function Providers({ children }: { children: ReactNode }) {
                             <ToastProvider>
                                 <CommandPaletteProvider>
                                     <InteractionTracker />
-                                    <div className="pb-14 md:pb-0">
-                                        {children}
-                                    </div>
-                                    <MobileNav />
+                                    {children}
                                 </CommandPaletteProvider>
                             </ToastProvider>
                         </TickProvider>

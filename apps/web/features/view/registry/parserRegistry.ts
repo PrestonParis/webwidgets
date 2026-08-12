@@ -4,6 +4,7 @@ import { parseCsvFile } from '@/features/view/parsers/csvParser';
 import { parseJsonFile } from '@/features/view/parsers/jsonParser';
 import { parseImageFile } from '@/features/view/parsers/imageParser';
 import { parsePdfFile } from '@/features/view/parsers/pdfParser';
+import { parseOfficeFile } from '@/features/view/parsers/officeParser';
 
 export const VIEW_PARSERS: ViewParserContract[] = [
     {
@@ -43,6 +44,15 @@ export const VIEW_PARSERS: ViewParserContract[] = [
         label: 'JSON Parser',
         mimeTypes: ['application/json'],
         parse: parseJsonFile,
+    },
+    {
+        id: 'office',
+        label: 'Office Document Parser',
+        mimeTypes: [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ],
+        parse: parseOfficeFile,
     },
     {
         id: 'image',

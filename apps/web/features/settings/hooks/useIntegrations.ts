@@ -14,7 +14,7 @@ type UserIdentity = { provider?: string };
 type IntegrationKeyRow = { provider: string };
 
 const GOOGLE_OAUTH_IDS = ['gmail', 'google_calendar', 'google_drive'];
-const MICROSOFT_OAUTH_IDS = ['outlook', 'outlook_calendar'];
+const MICROSOFT_OAUTH_IDS = ['outlook', 'outlook_calendar', 'onedrive'];
 
 export function useIntegrations() {
     const { user, status } = useAuthContext();
@@ -36,7 +36,7 @@ export function useIntegrations() {
         const [tokensResult, keysResult] = await Promise.all([
             supabase
                 .from('user_tokens')
-                .select('has_calendar, has_microsoft')
+                .select('has_calendar, has_drive, has_microsoft')
                 .eq('user_id', user.id)
                 .maybeSingle(),
             supabase
@@ -55,7 +55,9 @@ export function useIntegrations() {
             const connected =
                 id === 'google_calendar'
                     ? (tokens?.has_calendar ?? false)
-                    : hasGoogleIdentity;
+                    : id === 'google_drive'
+                      ? (tokens?.has_drive ?? false)
+                      : hasGoogleIdentity;
             next[id] = { connected, hasKey: false };
         });
         MICROSOFT_OAUTH_IDS.forEach((id) => {

@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { HardDrive, ExternalLink, Search, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowUpRight, Eye, HardDrive, Pencil, Search, X } from 'lucide-react';
 import { useDriveFiles } from '@/features/uploads/hooks/useDriveFiles';
-import { connectAvailableProvider } from '@/features/onboarding/lib/integrationRegistry';
 import type { DriveFile } from '@/app/api/drive/files/route';
+import {
+    getDriveWorkspaceUrl,
+    isEditableGoogleFile,
+} from '@/features/uploads/lib/driveWorkspace';
 
 function formatBytes(bytes: string): string {
     const n = parseInt(bytes, 10) || 0;
@@ -32,13 +35,20 @@ function mimeLabel(mime: string): string {
     return 'File';
 }
 
-function DriveFileRow({ file }: { file: DriveFile }) {
+function DriveFileRow({
+    file,
+    onOpen,
+}: {
+    file: DriveFile;
+    onOpen: (file: DriveFile) => void;
+}) {
+    const editable = isEditableGoogleFile(file.mimeType);
+
     return (
-        <a
-            href={file.webViewLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-3 hover:border-blue-200 dark:hover:border-blue-800 transition-colors"
+        <button
+            type="button"
+            onClick={() => onOpen(file)}
+            className="group flex w-full items-center gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3 text-left transition-colors hover:border-blue-200 hover:bg-blue-50/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-800 dark:hover:bg-blue-950/10"
         >
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
                 <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
@@ -54,20 +64,91 @@ function DriveFileRow({ file }: { file: DriveFile }) {
                     {formatDate(file.modifiedTime)}
                 </p>
             </div>
-            <ExternalLink
-                size={14}
-                className="shrink-0 text-zinc-300 group-hover:text-blue-400 dark:text-zinc-600 dark:group-hover:text-blue-400 transition-colors"
-            />
-        </a>
+            <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-400 transition-colors group-hover:text-blue-500 dark:text-zinc-500">
+                {editable ? <Pencil size={13} /> : <Eye size={13} />}
+                <span className="hidden sm:inline">
+                    {editable ? 'Edit in webwidgets' : 'View in webwidgets'}
+                </span>
+            </span>
+        </button>
+    );
+}
+
+function DriveWorkspace({
+    file,
+    onClose,
+}: {
+    file: DriveFile;
+    onClose: () => void;
+}) {
+    const editable = isEditableGoogleFile(file.mimeType);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    return (
+        <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950">
+            <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-zinc-800 px-4 text-zinc-100">
+                <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">
+                        {file.name}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                        {editable
+                            ? 'Live Google editor · changes save to Drive'
+                            : 'Google Drive preview'}
+                    </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                    {file.webViewLink && (
+                        <a
+                            href={file.webViewLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+                        >
+                            Open in Google
+                            <ArrowUpRight size={14} />
+                        </a>
+                    )}
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close Drive workspace"
+                        className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+            </header>
+            <div className="min-h-0 flex-1 bg-white">
+                <iframe
+                    key={file.id}
+                    src={getDriveWorkspaceUrl(file)}
+                    title={`${editable ? 'Edit' : 'Preview'} ${file.name}`}
+                    className="h-full w-full border-0"
+                    allow="clipboard-read; clipboard-write; fullscreen"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                />
+            </div>
+        </div>
     );
 }
 
 export function DriveFileBrowser() {
     const [search, setSearch] = useState('');
+    const [selectedFile, setSelectedFile] = useState<DriveFile | null>(null);
     const { connected, files, loading } = useDriveFiles(search || undefined);
 
-    const handleConnect = async () => {
-        await connectAvailableProvider('google-drive');
+    const handleConnect = () => {
+        window.location.assign(
+            '/api/auth/google/start?redirect=/files&service=drive',
+        );
     };
 
     if (!connected && !loading) {
@@ -81,13 +162,12 @@ export function DriveFileBrowser() {
                         Connect Google Drive
                     </p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Browse and view your Drive files without leaving the
-                        dashboard.
+                        Open and work on Drive files without leaving webwidgets.
                     </p>
                 </div>
                 <button
                     onClick={() => {
-                        void handleConnect();
+                        handleConnect();
                     }}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
                 >
@@ -136,9 +216,20 @@ export function DriveFileBrowser() {
             ) : (
                 <div className="space-y-2">
                     {files.map((f) => (
-                        <DriveFileRow key={f.id} file={f} />
+                        <DriveFileRow
+                            key={f.id}
+                            file={f}
+                            onOpen={setSelectedFile}
+                        />
                     ))}
                 </div>
+            )}
+
+            {selectedFile && (
+                <DriveWorkspace
+                    file={selectedFile}
+                    onClose={() => setSelectedFile(null)}
+                />
             )}
         </div>
     );

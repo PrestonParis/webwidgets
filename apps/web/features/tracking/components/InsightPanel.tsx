@@ -1,5 +1,7 @@
 'use client';
 
+import { LockKeyhole, Ruler, Sparkles } from 'lucide-react';
+
 import { useInsightConsent } from '@/features/tracking/hooks/useInsightConsent';
 import { useTrackingInsights } from '@/features/tracking/hooks/useTrackingInsights';
 import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
@@ -11,7 +13,10 @@ interface InsightPanelProps {
 function ConsentGate({ onEnable }: { onEnable: () => void }) {
     return (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-            <span className="text-3xl">🔒</span>
+            <LockKeyhole
+                className="h-8 w-8 text-indigo-500"
+                aria-hidden="true"
+            />
             <div>
                 <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                     Insights are off
@@ -55,7 +60,14 @@ function InsightCard({
                             : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
                     }`}
                 >
-                    {source === 'ai' ? '✨ AI' : '📐 Rule'}
+                    <span className="inline-flex items-center gap-1">
+                        {source === 'ai' ? (
+                            <Sparkles size={10} aria-hidden="true" />
+                        ) : (
+                            <Ruler size={10} aria-hidden="true" />
+                        )}
+                        {source === 'ai' ? 'AI' : 'Rule'}
+                    </span>
                 </span>
             </div>
             <p className="text-xs text-gray-600 dark:text-zinc-400 mt-1">

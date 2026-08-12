@@ -13,13 +13,18 @@ export const WIDGET_CATALOG: WidgetEntry[] = [
     ...WIDGET_CATALOG_PART_4,
 ];
 
-export function searchWidgets(query: string, isAdmin = false): WidgetEntry[] {
+export function searchWidgets(
+    query: string,
+    isAdmin = false,
+    hasEntertainmentAccess = false,
+): WidgetEntry[] {
     const q = query.toLowerCase().trim();
     if (!q) return [];
 
     return WIDGET_CATALOG.filter(
         (w) =>
             (!w.adminOnly || isAdmin) &&
+            (!w.betaOnly || isAdmin || hasEntertainmentAccess) &&
             (w.name.toLowerCase().includes(q) ||
                 w.description.toLowerCase().includes(q) ||
                 w.keywords.some((k) => k.includes(q))),

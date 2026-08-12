@@ -234,6 +234,9 @@ export function ViewDetailsPane({
                         <Image
                             src={`/api/uploads/${file.id}/content`}
                             alt={file.name}
+                            width={240}
+                            height={160}
+                            unoptimized
                             className="max-h-30 max-w-full rounded object-contain"
                             onError={(e) => {
                                 (e.target as HTMLImageElement).style.display =

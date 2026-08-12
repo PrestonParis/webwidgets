@@ -13,7 +13,7 @@ import {
     calcTrend,
     extractMetricSeries,
 } from '@/features/tracking/lib/analyticsEngine';
-import { MOOD_EMOJIS, MOOD_LABELS } from '@/features/tracking/labels';
+import { MOOD_LABELS } from '@/features/tracking/labels';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { MiniHistoryChart } from '@/features/tracking/components/MiniHistoryChart';
 
@@ -117,7 +117,7 @@ export default function MoodTrackingWidget() {
                                         >
                                             <p className="text-xs font-medium text-gray-800 dark:text-zinc-100">
                                                 {score !== null
-                                                    ? `${MOOD_EMOJIS[score]} ${MOOD_LABELS[score]}`
+                                                    ? MOOD_LABELS[score]
                                                     : 'Mood entry'}
                                             </p>
                                             <p className="text-[10px] text-gray-500 dark:text-zinc-400">

@@ -11,6 +11,35 @@ export interface ConnectedAccount {
     display_name: string | null;
 }
 
+interface LegacyConnectionFlags {
+    has_gmail: boolean | null;
+    has_microsoft: boolean | null;
+}
+
+function legacyAccounts(
+    userId: string,
+    flags: LegacyConnectionFlags | null,
+): ConnectedAccount[] {
+    const accounts: ConnectedAccount[] = [];
+    if (flags?.has_gmail) {
+        accounts.push({
+            id: `legacy-google-${userId}`,
+            provider: 'google',
+            email: '',
+            display_name: null,
+        });
+    }
+    if (flags?.has_microsoft) {
+        accounts.push({
+            id: `legacy-microsoft-${userId}`,
+            provider: 'microsoft',
+            email: '',
+            display_name: null,
+        });
+    }
+    return accounts;
+}
+
 export function useEmailConnection() {
     const { user } = useAuth();
     const [accounts, setAccounts] = useState<ConnectedAccount[]>([]);
@@ -23,25 +52,47 @@ export function useEmailConnection() {
                 setLoading(false);
                 return;
             }
-            const db = supabase as unknown as {
-                from: (table: string) => {
+            const accountDb = supabase as unknown as {
+                from: (table: 'user_email_accounts') => {
                     select: (cols: string) => {
                         eq: (
-                            col: string,
+                            col: 'user_id',
                             val: string,
                         ) => Promise<{ data: ConnectedAccount[] | null }>;
                     };
                 };
             };
-            void db
-                .from('user_email_accounts')
-                .select('id, provider, email, display_name')
-                .eq('user_id', user.id)
-                .then(({ data }) => {
-                    if (!cancelled) {
-                        setAccounts(data ?? []);
-                        setLoading(false);
-                    }
+            void Promise.all([
+                accountDb
+                    .from('user_email_accounts')
+                    .select('id, provider, email, display_name')
+                    .eq('user_id', user.id),
+                supabase
+                    .from('user_tokens')
+                    .select('has_gmail, has_microsoft')
+                    .eq('user_id', user.id)
+                    .maybeSingle(),
+            ])
+                .then(([accountResult, tokenResult]) => {
+                    if (cancelled) return;
+
+                    const currentAccounts =
+                        (accountResult.data as ConnectedAccount[] | null) ?? [];
+                    const providers = new Set(
+                        currentAccounts.map((account) => account.provider),
+                    );
+                    const fallbackAccounts = legacyAccounts(
+                        user.id,
+                        tokenResult.data as LegacyConnectionFlags | null,
+                    ).filter((account) => !providers.has(account.provider));
+
+                    setAccounts([...currentAccounts, ...fallbackAccounts]);
+                })
+                .catch(() => {
+                    if (!cancelled) setAccounts([]);
+                })
+                .finally(() => {
+                    if (!cancelled) setLoading(false);
                 });
         }, 0);
         return () => {

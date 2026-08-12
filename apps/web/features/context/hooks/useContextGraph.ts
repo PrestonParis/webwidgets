@@ -1,7 +1,7 @@
 'use client';
 
 import { apiRouteFetch } from '@/lib/api/client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
     CONTEXT_GRAPH_MUTATED_EVENT,
@@ -40,12 +40,16 @@ export function useContextGraph(): UseContextGraphReturn {
     });
     const [dataLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const refreshingRef = useRef(false);
+    const suppressNextMutationRef = useRef(false);
 
     const refresh = useCallback(async () => {
         if (!userId) {
             setLoading(false);
             return;
         }
+        if (refreshingRef.current) return;
+        refreshingRef.current = true;
         try {
             setError(null);
             const remoteGraph = await fetchGraph();
@@ -81,6 +85,7 @@ export function useContextGraph(): UseContextGraphReturn {
             const seeded = await buildSeedEntries(userId);
             if (seeded.length > 0) {
                 setGraph(buildContextGraph(seeded));
+                suppressNextMutationRef.current = true;
                 void batchUpsertEntries(seeded.map(entryToPayload)).catch(
                     () => undefined,
                 );
@@ -99,6 +104,7 @@ export function useContextGraph(): UseContextGraphReturn {
             }
         } finally {
             setLoading(false);
+            refreshingRef.current = false;
         }
     }, [userId]);
 
@@ -148,12 +154,18 @@ export function useContextGraph(): UseContextGraphReturn {
     useEffect(() => {
         if (status !== 'authenticated') return;
         const intervalId = window.setInterval(() => void refresh(), 30_000);
-        return () => window.clearTimeout(intervalId);
+        return () => window.clearInterval(intervalId);
     }, [status, refresh]);
 
     useEffect(() => {
         if (status !== 'authenticated') return;
-        const onMutation = () => void refresh();
+        const onMutation = () => {
+            if (suppressNextMutationRef.current) {
+                suppressNextMutationRef.current = false;
+                return;
+            }
+            void refresh();
+        };
         window.addEventListener(CONTEXT_GRAPH_MUTATED_EVENT, onMutation);
         return () =>
             window.removeEventListener(CONTEXT_GRAPH_MUTATED_EVENT, onMutation);

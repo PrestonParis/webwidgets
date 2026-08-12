@@ -2,28 +2,24 @@
 
 import type { ContextEdgeLayerProps } from '@/features/context/types/context';
 
-const EDGE_STYLE: Record<string, { stroke: string; dash?: string }> = {
-    explicit: { stroke: '#4f6ef7' },
-    mentions: { stroke: '#64748b', dash: '3 4' },
-    relates_to: { stroke: '#8b5cf6', dash: '4 4' },
-    belongs_to: { stroke: '#14b8a6' },
-    created_from: { stroke: '#f59e0b' },
-    derived_from: { stroke: '#0ea5e9' },
-    summarizes: { stroke: '#22c55e', dash: '5 3' },
-    depends_on: { stroke: '#ef4444' },
-    supports_goal: { stroke: '#10b981' },
-    scheduled_for: { stroke: '#06b6d4', dash: '4 3' },
-    assigned_to: { stroke: '#a855f7' },
+// Six primary relationship kinds get a distinct, saturated style so the
+// graph reads at a glance. Everything else (explicit user-drawn links
+// aside) shares one muted secondary style — kind name still shows on
+// hover/selection via the edge label, it just isn't color-coded.
+const PRIMARY_EDGE_STYLE: Record<string, { stroke: string; dash?: string }> = {
     produced_by: { stroke: '#6366f1' },
     consumed_by: { stroke: '#7c3aed', dash: '4 3' },
+    depends_on: { stroke: '#ef4444' },
     triggered_by: { stroke: '#f97316' },
-    used_by: { stroke: '#84cc16', dash: '3 3' },
-    temporal_next: { stroke: '#94a3b8', dash: '2 5' },
-    workflow: { stroke: '#0ea5e9' },
-    category: { stroke: '#10b981', dash: '5 4' },
-    semantic: { stroke: '#8b5cf6', dash: '3 3' },
-    temporal: { stroke: '#94a3b8', dash: '2 5' },
+    belongs_to: { stroke: '#14b8a6' },
+    relates_to: { stroke: '#8b5cf6', dash: '4 4' },
+    explicit: { stroke: '#4f6ef7' },
 };
+const SECONDARY_EDGE_STYLE = { stroke: '#94a3b8', dash: '2 3' };
+
+function getEdgeStyle(kind: string) {
+    return PRIMARY_EDGE_STYLE[kind] ?? SECONDARY_EDGE_STYLE;
+}
 
 export function ContextEdgeLayerSvg({
     graph,
@@ -38,7 +34,10 @@ export function ContextEdgeLayerSvg({
             aria-hidden
         >
             <defs>
-                {Object.entries(EDGE_STYLE).map(([kind, style]) => (
+                {[
+                    ...Object.entries(PRIMARY_EDGE_STYLE),
+                    ['secondary', SECONDARY_EDGE_STYLE] as const,
+                ].map(([kind, style]) => (
                     <marker
                         key={kind}
                         id={`arrowhead-${kind}`}
@@ -68,7 +67,10 @@ export function ContextEdgeLayerSvg({
                 )
                     return null;
                 const kind = edge.kind ?? 'explicit';
-                const style = EDGE_STYLE[kind] ?? { stroke: '#4f6ef7' };
+                const style = getEdgeStyle(kind);
+                const markerKind = PRIMARY_EDGE_STYLE[kind]
+                    ? kind
+                    : 'secondary';
                 const isHighlighted =
                     edge.from === selectedId || edge.to === selectedId;
                 const opacity = isHighlighted ? 0.95 : 0.42;
@@ -89,7 +91,7 @@ export function ContextEdgeLayerSvg({
                             strokeWidth={width}
                             strokeDasharray={style.dash}
                             opacity={opacity}
-                            markerEnd={`url(#arrowhead-${kind})`}
+                            markerEnd={`url(#arrowhead-${markerKind})`}
                         />
                         {isHighlighted && edge.label && (
                             <text

@@ -20,7 +20,7 @@ import {
     formatDate,
     formatMetadataDisplay,
 } from '@/features/tracking/lib/trackingUtils';
-import { MOOD_EMOJIS, MOOD_LABELS } from '@/features/tracking/labels';
+import { MOOD_LABELS } from '@/features/tracking/labels';
 import type { TrackingEntry } from '@/features/tracking/types/trackingEntries';
 
 type MoodTab = 'history' | 'trends' | 'stats' | 'goals';
@@ -75,7 +75,7 @@ export function MoodCategoryView({
                 eyebrow="Mood dashboard"
                 title={
                     latestScore
-                        ? `${MOOD_EMOJIS[latestScore]} ${MOOD_LABELS[latestScore]}`
+                        ? (MOOD_LABELS[latestScore] ?? 'Mood')
                         : 'Ready for your first mood log'
                 }
                 subtitle={
@@ -170,7 +170,7 @@ export function MoodCategoryView({
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-semibold text-gray-900 dark:text-zinc-100">
                                                 {score
-                                                    ? `${MOOD_EMOJIS[score]} ${MOOD_LABELS[score]}`
+                                                    ? MOOD_LABELS[score]
                                                     : formatMetadataDisplay(
                                                           'mood',
                                                           entry.metadata,

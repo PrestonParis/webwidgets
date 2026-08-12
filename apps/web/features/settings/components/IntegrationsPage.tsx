@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, ChevronDown, ChevronUp, Link2Off } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Link2Off, Waypoints } from 'lucide-react';
 import { PageLoading, LoadingSpinner } from '@/features/ui/loading';
 import { groupedProviders } from '@/features/settings/lib/integrationCatalog';
 import type { IntegrationProvider } from '@/features/settings/lib/integrationCatalog';
 import { useIntegrations } from '@/features/settings/hooks/useIntegrations';
+import { useToastContext } from '@/features/ui/components/ToastProvider';
 import { cn } from '@/lib/utils/utils';
+
+const CONTEXT_SYNCABLE_PROVIDERS: Record<string, string> = {
+    google_drive: '/api/context/sync/drive',
+};
 
 // ─── integration card ─────────────────────────────────────────────────────────
 
@@ -15,21 +20,26 @@ interface CardProps {
     connected: boolean;
     hasKey: boolean;
     saving: boolean;
+    syncingContext: boolean;
     onConnect: (p: IntegrationProvider) => void;
     onSaveKey: (id: string, key: string) => void;
     onRemoveKey: (id: string) => void;
+    onSyncContext: (p: IntegrationProvider) => void;
 }
 
 function IntegrationCard({
     provider,
     connected,
     saving,
+    syncingContext,
     onConnect,
     onSaveKey,
     onRemoveKey,
+    onSyncContext,
 }: CardProps) {
     const [expanded, setExpanded] = useState(false);
     const [keyValue, setKeyValue] = useState('');
+    const contextSyncEndpoint = CONTEXT_SYNCABLE_PROVIDERS[provider.id];
 
     const statusDot = connected ? (
         <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
@@ -75,8 +85,25 @@ function IntegrationCard({
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
                         {provider.description}
                     </p>
+                    {connected && contextSyncEndpoint && (
+                        <p className="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+                            <Waypoints size={11} />
+                            Synced to your context diagram automatically
+                        </p>
+                    )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                    {connected && contextSyncEndpoint && (
+                        <button
+                            onClick={() => onSyncContext(provider)}
+                            disabled={syncingContext}
+                            title="Re-sync now to pick up new files"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                        >
+                            <Waypoints size={12} />
+                            {syncingContext ? 'Syncing…' : 'Re-sync'}
+                        </button>
+                    )}
                     {connected && provider.connectMethod === 'api_key' && (
                         <button
                             onClick={() => onRemoveKey(provider.id)}
@@ -157,6 +184,10 @@ export default function IntegrationsPage() {
         removeKey,
     } = useIntegrations();
     const groups = groupedProviders();
+    const toast = useToastContext();
+    const [syncingContextId, setSyncingContextId] = useState<string | null>(
+        null,
+    );
 
     const handleConnect = (provider: IntegrationProvider) => {
         if (provider.connectMethod !== 'oauth') return;
@@ -164,6 +195,29 @@ export default function IntegrationsPage() {
             void connectGoogle(provider.oauthScopes ?? []);
         } else if (provider.group === 'microsoft') {
             connectMicrosoft();
+        }
+    };
+
+    const handleSyncContext = async (provider: IntegrationProvider) => {
+        const endpoint = CONTEXT_SYNCABLE_PROVIDERS[provider.id];
+        if (!endpoint) return;
+        setSyncingContextId(provider.id);
+        try {
+            const res = await fetch(endpoint, { method: 'POST' });
+            const body = (await res.json()) as {
+                synced?: number;
+                error?: string;
+            };
+            if (!res.ok) throw new Error(body.error ?? 'Sync failed');
+            toast.success(
+                `Added ${body.synced ?? 0} ${provider.name} items to the context diagram`,
+            );
+        } catch (err) {
+            toast.error(
+                err instanceof Error ? err.message : 'Failed to sync context',
+            );
+        } finally {
+            setSyncingContextId(null);
         }
     };
 
@@ -197,11 +251,17 @@ export default function IntegrationsPage() {
                                     connected={state.connected}
                                     hasKey={state.hasKey}
                                     saving={saving === provider.id}
+                                    syncingContext={
+                                        syncingContextId === provider.id
+                                    }
                                     onConnect={handleConnect}
                                     onSaveKey={(id, key) =>
                                         void saveKey(id, key)
                                     }
                                     onRemoveKey={(id) => void removeKey(id)}
+                                    onSyncContext={(p) =>
+                                        void handleSyncContext(p)
+                                    }
                                 />
                             );
                         })}

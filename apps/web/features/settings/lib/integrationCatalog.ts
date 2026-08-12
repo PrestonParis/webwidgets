@@ -56,7 +56,11 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
         groupLabel: 'Google Workspace',
         connectMethod: 'oauth',
         tokenFlag: 'drive',
-        comingSoon: true,
+        oauthScopes: [
+            'https://www.googleapis.com/auth/gmail.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/drive.readonly',
+        ],
     },
     // Microsoft
     {
@@ -77,6 +81,19 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
         connectMethod: 'oauth',
         tokenFlag: 'microsoft',
         comingSoon: true,
+    },
+    {
+        id: 'onedrive',
+        name: 'OneDrive',
+        description: 'Browse, preview, and edit Microsoft 365 files.',
+        group: 'microsoft',
+        groupLabel: 'Microsoft 365',
+        connectMethod: 'oauth',
+        tokenFlag: 'microsoft',
+        oauthScopes: [
+            'https://graph.microsoft.com/Files.ReadWrite',
+            'https://graph.microsoft.com/User.Read',
+        ],
     },
     // Developer
     {

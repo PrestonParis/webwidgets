@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import DatePicker from '@/features/ui/datepicker/DatePicker';
 import { useQuickEntryForm } from '@/features/tracking/hooks/useQuickEntryForm';
 import {
     BUILT_IN_CATEGORIES,
-    getCategoryEmoji,
     getCategoryLabel,
 } from '@/features/tracking/constants';
 import type { BaseTrackingEntry } from '@/features/tracking/types/trackingEntries';
 import type { CustomCategoryDef } from '@/features/tracking/types/customCategories';
+import { TrackingIcon } from './TrackingIcon';
+import { getTrackingCategoryConfig } from '@/features/tracking/lib/categoryConfig';
 import { SleepFields } from './QuickEntryFormSleepFields';
 import { WorkoutFields } from './QuickEntryFormWorkoutFields';
 import { MealFields } from './QuickEntryFormMealFields';
@@ -47,12 +49,12 @@ function CategoryTabs({
         ...BUILT_IN_CATEGORIES.map((id) => ({
             id,
             label: getCategoryLabel(id),
-            emoji: getCategoryEmoji(id),
+            icon: getTrackingCategoryConfig(id).icon,
         })),
         ...(customCategories ?? []).map((d) => ({
             id: d.id,
             label: d.label,
-            emoji: d.emoji,
+            icon: 'Shapes',
         })),
     ];
     return (
@@ -64,7 +66,10 @@ function CategoryTabs({
                     onClick={() => onChange(c.id)}
                     className={`${btnCls} ${active === c.id ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700'}`}
                 >
-                    {c.emoji} {c.label}
+                    <span className="inline-flex items-center gap-1.5">
+                        <TrackingIcon name={c.icon} className="h-3.5 w-3.5" />
+                        {c.label}
+                    </span>
                 </button>
             ))}
         </div>
@@ -157,7 +162,10 @@ export function QuickEntryForm({
                     onClick={() => setShowDatePicker((v) => !v)}
                     className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:border-indigo-400 transition-colors"
                 >
-                    📅 {dateLabel}
+                    <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays size={13} aria-hidden="true" />
+                        {dateLabel}
+                    </span>
                 </button>
                 {showDatePicker && (
                     // fixed positioning escapes the widget's overflow:hidden so the

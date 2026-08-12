@@ -29,8 +29,38 @@ export const useEmailAuth = () => {
                     password,
                 });
                 if (error) throw error;
-                window.location.reload();
+                const requestedPath = new URLSearchParams(
+                    window.location.search,
+                ).get('next');
+                const safeNext =
+                    requestedPath?.startsWith('/') &&
+                    !requestedPath.startsWith('//')
+                        ? requestedPath
+                        : '/';
+                window.location.assign(safeNext);
             }
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : AUTH_ERRORS.GENERIC);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async (email: string) => {
+        if (!email) {
+            setError(AUTH_ERRORS.PASSWORD_RESET_NEEDS_EMAIL);
+            return;
+        }
+
+        setError(null);
+        setLoading(true);
+
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+            });
+            if (error) throw error;
+            setError(AUTH_ERRORS.PASSWORD_RESET_SENT);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : AUTH_ERRORS.GENERIC);
         } finally {
@@ -40,6 +70,7 @@ export const useEmailAuth = () => {
 
     return {
         handleEmailAuth,
+        handleForgotPassword,
         error,
         loading,
         setError,

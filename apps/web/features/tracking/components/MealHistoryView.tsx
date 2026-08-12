@@ -6,6 +6,7 @@ import {
 } from '@/features/tracking/lib/meal/helpers';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import type { MealRecord } from '@/features/tracking/types/meal';
+import { TrackingIcon } from './TrackingIcon';
 
 interface MealHistoryViewProps {
     records: MealRecord[];
@@ -46,11 +47,14 @@ export function MealHistoryView({
                                 key={r.id}
                                 className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors group"
                             >
-                                <span className="text-sm shrink-0">
-                                    {r.mealType
-                                        ? MEAL_TYPE_ICONS[r.mealType]
-                                        : '🍽️'}
-                                </span>
+                                <TrackingIcon
+                                    name={
+                                        r.mealType
+                                            ? MEAL_TYPE_ICONS[r.mealType]
+                                            : 'Utensils'
+                                    }
+                                    className="h-4 w-4 shrink-0"
+                                />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-medium text-gray-800 dark:text-zinc-200 truncate">
                                         {r.title ??

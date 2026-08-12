@@ -3,6 +3,7 @@
 import type { ContextGraphCanvasProps } from '@/features/context/types/context';
 import { ContextEdgeLayer } from './ContextEdgeLayer';
 import { ContextNodeCard } from './ContextNodeCard';
+import { GalaxyLayerHubs } from './GalaxyLayerHubs';
 
 export function ContextGraphCanvas({
     graph,
@@ -17,6 +18,8 @@ export function ContextGraphCanvas({
     onWheel,
     onNodePointerDown,
     onNodeDoubleClick,
+    showLayerHubs = false,
+    onSelectLayer,
 }: ContextGraphCanvasProps) {
     const nodes = [
         ...new Map(graph.nodes.map((node) => [node.entityId, node])).values(),
@@ -71,6 +74,9 @@ export function ContextGraphCanvas({
                     height: 1000,
                 }}
             >
+                {showLayerHubs && onSelectLayer && (
+                    <GalaxyLayerHubs onSelectLayer={onSelectLayer} />
+                )}
                 <ContextEdgeLayer graph={graph} selectedId={selectedId} />
                 {nodes.map((node) => {
                     const dragHandlers = {

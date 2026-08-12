@@ -8,7 +8,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     sleep: {
         id: 'sleep',
         label: 'Sleep',
-        icon: '😴',
+        icon: 'BedDouble',
         color: 'blue',
         metricType: 'multi',
         supports: [
@@ -43,7 +43,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     workout: {
         id: 'workout',
         label: 'Workouts',
-        icon: '🏋️',
+        icon: 'Dumbbell',
         color: 'orange',
         metricType: 'multi',
         supports: [
@@ -75,7 +75,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     meal: {
         id: 'meal',
         label: 'Meals',
-        icon: '🍽️',
+        icon: 'Utensils',
         color: 'green',
         metricType: 'multi',
         supports: [
@@ -106,7 +106,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     mood: {
         id: 'mood',
         label: 'Mood',
-        icon: '🧠',
+        icon: 'Brain',
         color: 'pink',
         metricType: 'rating',
         supports: [
@@ -127,7 +127,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     supplement: {
         id: 'supplement',
         label: 'Supplements',
-        icon: '💊',
+        icon: 'Pill',
         color: 'purple',
         metricType: 'boolean',
         supports: [
@@ -145,7 +145,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     symptom: {
         id: 'symptom',
         label: 'Symptoms',
-        icon: '🤒',
+        icon: 'Thermometer',
         color: 'amber',
         metricType: 'rating',
         supports: [
@@ -170,7 +170,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     injury: {
         id: 'injury',
         label: 'Injuries',
-        icon: '🩹',
+        icon: 'Bandage',
         color: 'red',
         metricType: 'multi',
         supports: [
@@ -198,7 +198,7 @@ const TRACKING_CATEGORY_CONFIGS: Record<
     health: {
         id: 'health',
         label: 'Health Tracker',
-        icon: '❤️‍🩹',
+        icon: 'HeartPulse',
         color: 'pink',
         metricType: 'multi',
         supports: [

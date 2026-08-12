@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { resolveClassifications } from '@/features/inbox/lib/dbClassifications';
+import { fetchGmailSummary } from '@/lib/connectors/google/gmailConnector';
 import { triggerUserSync } from '@/lib/syncQueue';
 import { getLogger, runWithContext } from '@/lib/observability/logger';
 
@@ -21,6 +22,41 @@ function buildSender(row: Snapshot): string {
     return row.sender_name
         ? `${row.sender_name} <${row.sender_email}>`
         : row.sender_email;
+}
+
+async function fetchLiveInbox(
+    supabase: SupabaseClient,
+    supabaseAdmin: SupabaseClient,
+    userId: string,
+) {
+    const summary = await fetchGmailSummary(supabaseAdmin, userId, 50);
+    const parsed = summary.messages.map((message) => ({
+        id: message.id,
+        sender: message.from,
+        subject: message.subject,
+    }));
+    const categoryMap = await resolveClassifications(supabase, userId, parsed);
+    const emails = summary.messages.map((message) => {
+        const classification = categoryMap.get(message.id);
+        return {
+            id: message.id,
+            provider: 'gmail' as const,
+            subject: message.subject,
+            sender: message.from,
+            snippet: message.snippet,
+            date: message.date,
+            category: classification?.category ?? 'other',
+            is_manual: classification?.is_manual ?? false,
+        };
+    });
+
+    return NextResponse.json({
+        emails,
+        // Snapshot pagination uses a timestamp cursor, which is not compatible
+        // with Gmail's opaque page token. The live fallback returns one batch.
+        nextPageToken: null,
+        syncing: false,
+    });
 }
 
 async function handleRequest(
@@ -56,6 +92,13 @@ async function handleRequest(
     const { data, error } = await query;
     if (error) {
         log.error({ err: error }, 'email_snapshots query failed');
+        if (!pageToken) {
+            try {
+                return await fetchLiveInbox(supabase, supabaseAdmin, userId);
+            } catch (liveError) {
+                log.error({ err: liveError }, 'Live Gmail fallback failed');
+            }
+        }
         return NextResponse.json(
             { error: 'Failed to load emails' },
             { status: 500 },
@@ -68,11 +111,15 @@ async function handleRequest(
     if (snapshots.length === 0 && !pageToken) {
         const triggered = await triggerUserSync(userId);
         log.info({ triggered }, 'No gmail snapshots found, triggering sync');
-        return NextResponse.json({
-            emails: [],
-            nextPageToken: null,
-            syncing: true,
-        });
+        try {
+            return await fetchLiveInbox(supabase, supabaseAdmin, userId);
+        } catch (err) {
+            log.error({ err, triggered }, 'Live Gmail fallback failed');
+            return NextResponse.json(
+                { error: 'Failed to load Gmail inbox' },
+                { status: 502 },
+            );
+        }
     }
 
     // Map to the Email shape the client expects.

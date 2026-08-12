@@ -90,14 +90,6 @@ export const base: WidgetConfig[] = [
         order: 11,
     },
     {
-        id: 'widget-habit',
-        type: 'habit',
-        visible: true,
-        columnSpan: 1,
-        containerId: 'main',
-        order: 12,
-    },
-    {
         id: 'widget-weather',
         type: 'weather',
         visible: true,

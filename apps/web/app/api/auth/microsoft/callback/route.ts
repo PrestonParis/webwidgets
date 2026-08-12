@@ -9,6 +9,7 @@ const MS_TOKEN_URL =
 const SCOPES = [
     'https://graph.microsoft.com/Mail.Read',
     'https://graph.microsoft.com/User.Read',
+    'https://graph.microsoft.com/Files.ReadWrite',
     'offline_access',
 ].join(' ');
 
@@ -91,18 +92,39 @@ export async function GET(req: Request) {
         return NextResponse.redirect(`${origin}/auth/auth-code-error`);
     }
 
-    await supabaseAdmin.from('user_tokens').upsert(
-        {
+    // `user_tokens` is a single row per user shared with the Google flow,
+    // which stores its own token under the generic access_token/refresh_token/
+    // expires_at columns (see getGoogleTokens). Never touch those columns here
+    // — doing so previously clobbered a connected Google Drive/Gmail token
+    // whenever Microsoft was connected afterwards. Microsoft's own tokens live
+    // exclusively in the microsoft_* columns.
+    const { data: existingRow } = await supabaseAdmin
+        .from('user_tokens')
+        .select('user_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (existingRow) {
+        await supabaseAdmin
+            .from('user_tokens')
+            .update({
+                has_microsoft: true,
+                microsoft_access_token: tokens.access_token,
+                microsoft_refresh_token: tokens.refresh_token ?? null,
+            })
+            .eq('user_id', userId);
+    } else {
+        // First-ever row for this user (no Google connection yet). access_token
+        // is NOT NULL, so seed it with an empty string — getGoogleTokens treats
+        // a falsy access_token as "not connected", which is correct here.
+        await supabaseAdmin.from('user_tokens').insert({
             user_id: userId,
-            access_token: tokens.access_token,
-            refresh_token: tokens.refresh_token ?? null,
-            expires_at: Date.now() + tokens.expires_in * 1000,
+            access_token: '',
             has_microsoft: true,
             microsoft_access_token: tokens.access_token,
             microsoft_refresh_token: tokens.refresh_token ?? null,
-        },
-        { onConflict: 'user_id' },
-    );
+        });
+    }
 
     // Also track in user_email_accounts for multi-account support.
     let msEmail = '';

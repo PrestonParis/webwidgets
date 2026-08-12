@@ -14,6 +14,7 @@ import { RemoveWidgetContext } from '@/features/dashboard/lib/RemoveWidgetContex
 import { BucketWidgetContext } from '@/features/dashboard/lib/BucketWidgetContext';
 import { UnpresentWidgetContext } from '@/features/dashboard/lib/UnpresentWidgetContext';
 import { StatusDot } from '@/features/notifications/components/StatusDot';
+import { WidgetContextChip } from '@/features/dashboard/components/WidgetContextChip';
 import { useWidgetSettings } from '@/features/widgets/hooks/useWidgetSettings';
 import { useWidgetResize } from '@/features/dashboard/hooks/useWidgetResize';
 
@@ -209,6 +210,12 @@ export default function WidgetWrapper({
                 <StatusDot
                     widgetId={config.id}
                     className="absolute top-3 right-3 z-20"
+                />
+            )}
+            {config.type !== 'folder' && (
+                <WidgetContextChip
+                    widgetType={config.type}
+                    className="absolute top-3 left-3 z-20"
                 />
             )}
             <HideWidgetContext.Provider

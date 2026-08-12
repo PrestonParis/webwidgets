@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { getLogger } from '@/lib/observability/logger';
 import { authFailures } from '@/lib/observability/metrics';
+import { syncGoogleDriveContext } from '@/features/context/services/googleDriveContextSync';
 
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url);
@@ -22,6 +23,7 @@ export async function GET(request: Request) {
     // account's tokens under the original user.
     const inboxConnect = searchParams.get('ic');
     const originalUid = searchParams.get('uid');
+    const googleService = searchParams.get('service');
 
     if (inboxConnect === '1' && originalUid) {
         const log = getLogger({ operation: 'auth.callback.inbox-connect' });
@@ -108,6 +110,9 @@ export async function GET(request: Request) {
             has_gmail: true,
             has_calendar: true,
         };
+        if (googleService === 'drive') {
+            tokenPayload.has_drive = true;
+        }
         if (connectSession.provider_refresh_token) {
             tokenPayload.refresh_token = connectSession.provider_refresh_token;
         }
@@ -230,6 +235,22 @@ export async function GET(request: Request) {
                 { err: tokenUpsertError, userId: session.user.id },
                 'Failed to persist Google tokens to user_tokens',
             );
+        }
+
+        // Integrations sync to the context diagram by default as soon as they're
+        // connected — no separate manual step required.
+        if (hasDrive) {
+            try {
+                await syncGoogleDriveContext(admin, session.user.id);
+            } catch (err) {
+                const log = getLogger({
+                    operation: 'auth.callback.drive-context-sync',
+                });
+                log.error(
+                    { err, userId: session.user.id },
+                    'Failed to sync Google Drive context on connect',
+                );
+            }
         }
 
         // Also track this account in user_email_accounts for multi-account support.

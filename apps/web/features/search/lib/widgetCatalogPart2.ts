@@ -26,21 +26,6 @@ export const WIDGET_CATALOG_PART_2: WidgetEntry[] = [
         keywords: ['todo', 'tasks', 'list', 'checklist', 'reminder', 'done'],
     },
     {
-        type: 'habit',
-        name: 'All Logging',
-        emoji: '🔥',
-        description: 'Track daily routines, streaks, and habit completion',
-        href: '/tracking',
-        keywords: [
-            'habit',
-            'routine',
-            'streak',
-            'daily',
-            'consistency',
-            'completion',
-        ],
-    },
-    {
         type: 'weather',
         name: 'Weather',
         emoji: '🌤️',

@@ -23,7 +23,13 @@ export async function PATCH(req: Request, ctx: RouteContext) {
         const userId = await getRequestUserId(supabase);
         const { fileId } = await ctx.params;
         const updated = await confirmUpload(supabase, userId, fileId);
-        await ingestFileUploadContext(supabase, updated);
+        await ingestFileUploadContext(supabase, updated).catch((error) => {
+            console.error('file-context-ingest-failed', {
+                fileId,
+                userId,
+                error: error instanceof Error ? error.message : String(error),
+            });
+        });
         return NextResponse.json(updated);
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
@@ -52,7 +58,16 @@ export async function DELETE(_req: Request, ctx: RouteContext) {
             new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: upload.s3Key }),
         );
         await markUploadDeleted(supabase, userId, fileId);
-        await markFileUploadContextDeleted(supabase, userId, fileId);
+        await markFileUploadContextDeleted(supabase, userId, fileId).catch(
+            (error) => {
+                console.error('file-context-delete-failed', {
+                    fileId,
+                    userId,
+                    error:
+                        error instanceof Error ? error.message : String(error),
+                });
+            },
+        );
 
         return NextResponse.json({ success: true });
     } catch (err) {

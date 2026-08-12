@@ -146,7 +146,7 @@ const sections = [
             'Connect Gmail, Google Calendar, and Google Drive from Settings → Integrations.',
             'Connected Gmail surfaces email actions, summaries, and inbox intelligence.',
             'Connected Calendar enables event creation, reminders, and scheduling from automation.',
-            'Connected Drive makes your documents available in Files and Reading.',
+            'Connected Drive lets you open and work on Google files directly in Files.',
             'Each integration can be disconnected at any time without deleting your data.',
         ],
     },

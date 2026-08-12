@@ -19,10 +19,19 @@ const GOOGLE_SCOPES = [
 ].join(' ');
 
 async function signInWithGoogle() {
+    const requestedPath = new URLSearchParams(window.location.search).get(
+        'next',
+    );
+    const safeNext =
+        requestedPath?.startsWith('/') && !requestedPath.startsWith('//')
+            ? requestedPath
+            : '/';
+    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    callbackUrl.searchParams.set('next', safeNext);
     return supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
+            redirectTo: callbackUrl.toString(),
             scopes: GOOGLE_SCOPES,
             queryParams: { access_type: 'offline', prompt: 'consent' },
         },

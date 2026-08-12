@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Link2 } from 'lucide-react';
 import { useInsightConsent } from '@/features/tracking/hooks/useInsightConsent';
 import { findCorrelations } from '@/features/tracking/lib/correlationEngine';
 import { getCategoryLabel } from '@/features/tracking/constants';
@@ -47,7 +48,7 @@ export function CorrelationPanel({ entries }: CorrelationPanelProps) {
     if (!consent.crossCategoryCorrelations) {
         return (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <span className="text-3xl">🔗</span>
+                <Link2 className="h-8 w-8 text-indigo-500" aria-hidden="true" />
                 <div>
                     <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">
                         Cross-category correlations

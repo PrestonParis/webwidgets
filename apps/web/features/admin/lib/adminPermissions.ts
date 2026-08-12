@@ -29,7 +29,7 @@ export interface AdminUser {
 }
 
 /** Resolves the effective admin role for a user, combining DB role + owner email fallback. */
-async function resolveAdminRole(
+export async function resolveAdminRole(
     userId: string,
     email: string,
 ): Promise<AdminRole | null> {

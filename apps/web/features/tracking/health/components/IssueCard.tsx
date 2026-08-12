@@ -10,6 +10,7 @@ import {
     type IssueStatus,
 } from '@/features/tracking/health/lib/bodyIssues';
 import { SeveritySparkline } from '@/features/tracking/health/icons/HealthSparklines';
+import { TrackingIcon } from '@/features/tracking/components/TrackingIcon';
 
 interface IssueCardProps {
     issue: BodyIssue;
@@ -53,9 +54,10 @@ export function IssueCard({
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                         {typeInfo && (
-                            <span className="text-base leading-none">
-                                {typeInfo.emoji}
-                            </span>
+                            <TrackingIcon
+                                name={typeInfo.icon}
+                                className="h-4 w-4"
+                            />
                         )}
                         <span className="text-sm font-semibold text-gray-800 dark:text-zinc-200 capitalize">
                             {typeInfo?.label ?? issue.issueType}
