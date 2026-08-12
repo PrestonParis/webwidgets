@@ -67,7 +67,14 @@ jobs:
           echo "$FILES"
           {
             echo "files_b64<<SHEOF"
+            # GNU base64 -w0 (this runner) prints no trailing newline, unlike
+            # BSD/macOS base64 — without the bare `echo` below, the closing
+            # SHEOF delimiter lands on the same line as the encoded blob and
+            # GitHub's multiline-output parser fails with "matching
+            # delimiter not found". Confirmed by reproducing with gbase64
+            # locally before pushing this fix.
             echo "$FILES" | base64 -w0
+            echo
             echo "SHEOF"
           } >> "$GITHUB_OUTPUT"
           echo "$FILES" > /tmp/changed_files.txt
