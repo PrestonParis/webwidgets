@@ -1,12 +1,16 @@
 # Definition of Done
 
 What must be true before an agent-created task (Claude, Codex, or Copilot)
-is considered complete and ready for human review. This is the bar automated
-CI and human or peer-agent reviewers check PRs against. CI does not exist
-yet in this repository (see ROADMAP.md §3, "CI from scratch") — until it
-does, this document is the checklist a reviewer applies manually.
+is considered complete and ready for human review. This is the bar
+`.github/workflows/ci.yml` and human or peer-agent reviewers check PRs
+against.
 
-The repo currently has **no CI** and a non-trivial existing lint/type debt
+CI (`.github/workflows/ci.yml`, documented in
+`.github/workflows/README.md`) gates lint/typecheck/tests/build for the
+files a PR actually touches — it does not require the whole repo to be
+clean, and as of writing isn't yet configured as a required branch-protection
+check (see ROADMAP.md §3), so treat it as authoritative but not yet
+merge-blocking. The repo also has a non-trivial existing lint/type debt
 (1,603 lint errors, 54 TypeScript errors as of the 2026-08-09 snapshot in
 `reports/`) and **no working commit-time hooks** (Husky is installed but
 `.husky/pre-commit` doesn't exist). None of that is the fault of any single
@@ -134,5 +138,6 @@ the gaps that made that baseline possible in the first place.
 - It does not require `npm run build` to be run by the agent — AGENTS.md §7
   explicitly avoids it locally due to RAM constraints (a convention
   inherited from this repo's earlier `docs/agents/workflow/GEMINI.md`
-  workflow); CI, once it exists, is where the build gets verified.
+  workflow); `.github/workflows/ci.yml`'s `build` job is where that gets
+  verified.
 - It does not require inventing E2E coverage for non-critical journeys.

@@ -15,9 +15,10 @@ summary that sits above them.
 
 **Stated target:** "Fully functional Website App V1" by **August 25, 2026**
 (`VISION.md`). Today is 2026-08-12 — under two weeks out. Given the gaps
-below (no CI, an untracked schema, unverified RLS, ~1,600 existing lint
-errors, half the e2e test scripts pointing at nonexistent directories), this
-date should be treated as **at risk**, not a firm commitment, unless the
+below (an untracked schema, unverified RLS, ~1,600 existing lint errors,
+half the e2e test scripts still pointing at nonexistent directories, and CI
+that gates changed files but not the existing debt baseline), this date
+should be treated as **at risk**, not a firm commitment, unless the
 V1-required items in §3 are triaged first.
 
 ---
@@ -87,7 +88,7 @@ it.
 | Security (stage 7) | partial/unknown | SECURITY.md is an unimplemented checklist. Only verified concrete control: service-role key confined to server routes (ADR-005). RLS presence is unverifiable from tracked migrations. |
 | Deployment (stage 8) | working (partially) | `apps/web` already auto-deploys to Vercel on push to main — ahead of its own stage. Conversion/sync-worker/go-worker have no production path. |
 | Schema/migration tracking | broken | Only 1 of what's clearly a large schema is tracked in `supabase/migrations/`. |
-| CI | missing | No `.github/` directory exists at all — this bootstrap is what introduces it. |
+| CI | working (baseline) | `.github/workflows/ci.yml` gates changed files only (lint/typecheck/tests/build); see `.github/workflows/README.md`. Branch-protection required-checks still need repo-owner configuration — not something a workflow file alone can do. |
 | Automated test coverage | partial | 52 unit test files (shallow, one per domain); e2e has heavy scaffolding but only 3 real spec files; 4 of 8 `test:*` e2e npm scripts point at nonexistent directories. |
 | Local commit-time quality gates | broken | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today. |
 
@@ -98,9 +99,11 @@ it.
 Work that blocks calling WebWidgets a shippable V1, or blocks the agentic
 workflow this bootstrap sets up from being trustworthy.
 
-- **CI from scratch** — no `.github/` exists; without it, "agent opens a PR"
-  has no automated gate at all. Not yet implemented — tracked here as the
-  next concrete piece of work once this documentation bootstrap merges.
+- **Configure branch protection to require the CI checks** — the workflow
+  (`.github/workflows/ci.yml`) exists and gates changed files on every PR,
+  but marking its jobs as required status checks on `main` is a repository
+  settings change only the repo owner can make (Settings → Branches). Until
+  that's done, CI runs and reports but doesn't actually block a merge.
 - **Reconcile the migration/schema gap** — only one migration is tracked
   against what is clearly a much larger live schema. Any agent making a
   schema change needs a real baseline to diff against, and RLS coverage
