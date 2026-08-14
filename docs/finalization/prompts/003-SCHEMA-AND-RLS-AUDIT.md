@@ -4,6 +4,19 @@ Status: Blocked
 Priority: Critical  
 Depends on: Authenticated access to the intended Supabase project
 
+## Current blocker (2026-08-13)
+
+The authenticated Supabase account lists `webwidgets-dev`
+(`cvroudtyxsgllivlrayu`) and `worldview` (`dvttvcwyrqaclumppgaz`), but no
+project named `ai-dash`. The web app's local/cloud environment currently
+points to `webwidgets-dev`.
+
+The project owner previously identified `ai-dash` as the intended surviving
+project. Before any live metadata or type generation, confirm whether
+`worldview` is the renamed `ai-dash` project or provide the intended project
+reference. Do not link, inspect, or mutate either cloud database until this is
+resolved.
+
 ## Objective
 
 Create a safe, evidence-based baseline of the live schema and determine the
