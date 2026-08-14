@@ -19,6 +19,7 @@ import { WidgetSettingsPanel } from './WidgetSettingsPanel';
 import { WidgetFooter } from './WidgetFooter';
 import { WidgetSizeContext } from '@/features/widgets/context/WidgetSizeContext';
 import { useAccessibility } from '@/features/accessibility/components/AccessibilityContext';
+import { V1WidgetReleaseBadge } from '@/lib/product/V1ReleaseBadge';
 const WIDGET_INFO: [string, string][] = [
     ['Rename', 'Double-click the title'],
     ['Style', 'Gear icon → color, state, opacity'],
@@ -294,7 +295,12 @@ export default function WidgetShell({
                     icon={icon}
                     title={settings.customTitle ?? title}
                     badge={badge}
-                    headerActionsSlot={headerActionsSlot}
+                    headerActionsSlot={
+                        <>
+                            {headerActionsSlot}
+                            <V1WidgetReleaseBadge widgetType={widgetType} />
+                        </>
+                    }
                     settings={settings}
                     settingsOpen={settingsOpen}
                     showSettings={showSettings}

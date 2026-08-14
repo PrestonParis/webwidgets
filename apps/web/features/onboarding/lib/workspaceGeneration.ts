@@ -17,6 +17,7 @@ import type { WorkspaceRecommendation } from '@/features/onboarding/types/recomm
 import type { UpsertEntryPayload } from '@/features/context/types/context';
 import { getWidgetMeta } from '@/features/context/lib/widgetContextMap';
 import type { OnboardingGoalId } from '@/features/onboarding/types/goals';
+import { isV1DefaultWidget } from '@/lib/product/v1FeaturePolicy';
 
 const WIDGET_WIDTH: Partial<Record<WidgetType, number>> = {
     texteditor: 2,
@@ -91,6 +92,7 @@ export function buildSuggestedBucketWidgets(
     ];
     return [...new Set(candidates)]
         .filter((type) => !input.selectedWidgetTypes.includes(type))
+        .filter(isV1DefaultWidget)
         .slice(0, 3);
 }
 

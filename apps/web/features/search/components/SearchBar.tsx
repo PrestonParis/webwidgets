@@ -11,6 +11,7 @@ import type { FolderEntry } from '../store/useFolderRegistry';
 import { cn } from '@/lib/utils/utils';
 import { getWidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
 import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
+import { V1ReleaseBadge } from '@/lib/product/V1ReleaseBadge';
 
 function widgetEmoji(type: string): string {
     return WIDGET_CATALOG.find((w) => w.type === type)?.emoji ?? '🧩';
@@ -131,6 +132,7 @@ function WidgetMatches({
                                         {category.label}
                                     </span>
                                 )}
+                                <V1ReleaseBadge state={w.betaState} />
                             </div>
                             <p className="text-xs text-zinc-400 truncate">
                                 {w.description}
@@ -200,6 +202,9 @@ function NlpMatchRow({
     onSelect: () => void;
 }) {
     const category = getWidgetCategory(suggestion.widget);
+    const widget = WIDGET_CATALOG.find(
+        (entry) => entry.type === suggestion.widget,
+    );
     return (
         <Link
             href={widgetHref(suggestion.widget)}
@@ -224,6 +229,7 @@ function NlpMatchRow({
                             {category.label}
                         </span>
                     )}
+                    <V1ReleaseBadge state={widget?.betaState} />
                 </div>
             </div>
             <span className="text-[10px] text-zinc-400 shrink-0">

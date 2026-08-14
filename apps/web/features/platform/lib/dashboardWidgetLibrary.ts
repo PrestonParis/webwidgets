@@ -2,6 +2,10 @@ import type { WidgetType } from '@/features/dashboard/types/dashboard';
 import { WIDGET_CATALOG } from '@/features/search/lib/widgetCatalog';
 import { WIDGET_REGISTRY } from '@/features/platform/registry/widgetRegistry';
 import type { WidgetDefinition } from '@/features/platform/types/widget';
+import {
+    getV1ReleaseState,
+    isV1DefaultWidget,
+} from '@/lib/product/v1FeaturePolicy';
 
 export interface DashboardWidgetLibraryEntry {
     type: WidgetType;
@@ -152,7 +156,7 @@ export function getDashboardWidgetLibrary() {
                     name: entry.name,
                     description: entry.description,
                     emoji: entry.emoji,
-                    betaState: 'stable',
+                    betaState: entry.betaState ?? 'stable',
                     featureId: entry.type,
                     ...(entry.adminOnly !== undefined && {
                         adminOnly: entry.adminOnly,
@@ -173,16 +177,18 @@ export function getDashboardWidgetTypesForGoals(goals: string[]) {
         widget.goals.some((goal) => goals.includes(goal)),
     )
         .map((widget) => widget.type)
-        .filter(isRenderableWidgetType);
+        .filter(isRenderableWidgetType)
+        .filter(isV1DefaultWidget);
 }
 
 function toLibraryEntry(widget: WidgetDefinition): DashboardWidgetLibraryEntry {
+    const releaseState = getV1ReleaseState(widget.type);
     return {
         type: isRenderableWidgetType(widget.type) ? widget.type : 'texteditor',
         name: widget.name,
         description: widget.description,
         emoji: EMOJI_BY_FEATURE[widget.featureId] ?? '🧩',
-        betaState: widget.betaState,
+        betaState: releaseState === 'beta' ? releaseState : widget.betaState,
         featureId: widget.featureId,
     };
 }
