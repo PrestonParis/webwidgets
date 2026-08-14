@@ -1,6 +1,6 @@
 # 004 — Implement the Canonical V1 Timeline and Action Schema
 
-Status: Blocked  
+Status: Complete
 Priority: Critical  
 Depends on: 002 and 003 complete with accepted decisions
 
@@ -65,3 +65,23 @@ Each relevant record must support, directly or through an owned relation:
   table.
 - Derived records cannot outlive or lose their required provenance silently.
 - Prompt 005 has stable persistence contracts to consume.
+
+## Completion evidence
+
+Completed on 2026-08-14. The implementation and migration/rollback handoff are
+documented in [`../CANONICAL_V1_SCHEMA.md`](../CANONICAL_V1_SCHEMA.md).
+
+- The full recovered baseline plus six ordered local successors replayed from
+  an empty isolated Supabase database.
+- A real pgTAP run passed 20 lifecycle, idempotency, cascade, grant, and
+  two-user RLS assertions.
+- Shared typed contracts live in `apps/web/lib/lifecycle/`; no feature imports
+  another feature.
+- Existing action, result, job, automation, integration, activity, context,
+  knowledge, and domain ownership was preserved.
+- No remote migration or provider action was performed.
+
+Supabase types were generated and reviewed from the verified ephemeral schema
+but not committed: `webwidgets-dev` does not have these migrations yet and the
+output exposed unrelated historical Chess drift. The deployment handoff
+requires remote migration approval followed by direct live type generation.

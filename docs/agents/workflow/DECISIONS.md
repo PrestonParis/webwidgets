@@ -228,3 +228,29 @@ approved migrations begin. Recovered SQL requires manual security and privacy
 review, and sanitized files may intentionally differ from remote checksums with
 that difference documented. Type generation happens only after migration
 history, live context state, and critical RLS remediation agree.
+
+---
+
+## ADR-013: One Canonical Lifecycle With Existing Execution Ledgers
+
+**Status:** Active
+
+**Decision:** Add only the missing observation, timeline, evidence-linked
+insight, and candidate-action records. Evolve `integration_connections`,
+`jobs`, `automation_runs`, `action_requests`, and `action_results` in place.
+Every derived record has an owner-matched foreign key to required provenance.
+Approval is an authenticated atomic transition for one exact payload, version,
+permission snapshot, and policy; an action is complete only after a verified
+result. Shared persistence contracts live in `apps/web/lib/lifecycle/`.
+
+**Why:** Prompt 003 confirmed the existing execution and operational ledgers
+have viable ownership and RLS. Parallel tables would split approval,
+idempotency, retry, and provider outcome truth. Composite owner foreign keys
+make cross-user provenance invalid even when a record UUID is known.
+
+**Consequences:** Prompt 005 processors persist canonical IDs before queue
+acknowledgement and treat BullMQ as delivery only. Activity and context remain
+one-way projections. Source-data removal cascades through timeline, insights,
+and candidates while content-minimized approval/outcome receipts remain under
+the 365-day retention policy. The verified migration bundle still requires a
+reviewed remote deployment and live type regeneration.

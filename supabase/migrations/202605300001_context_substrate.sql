@@ -15,6 +15,27 @@ alter table if exists public.context_entries
     add column if not exists last_verified_at timestamptz,
     add column if not exists metadata jsonb not null default '{}'::jsonb;
 
+alter table public.context_entries
+    drop constraint if exists context_entries_entry_type_check;
+
+alter table public.context_entries
+    add constraint context_entries_entry_type_check check (
+        entry_type in (
+            'profile', 'goal', 'project', 'widget', 'widget_activity',
+            'file', 'document', 'artifact', 'chat', 'chat_gist', 'email',
+            'calendar_event', 'todo', 'automation', 'automation_run',
+            'integration', 'journal_entry', 'mood_entry', 'habit_entry',
+            'recovery_entry', 'recommendation', 'insight', 'memory',
+            'agent_action', 'import_export_object', 'query_gist'
+        )
+    ),
+    add constraint context_entries_confidence_check
+        check (confidence >= 0 and confidence <= 1) not valid,
+    add constraint context_entries_status_check
+        check (status in ('active', 'archived', 'stale', 'deleted')) not valid,
+    add constraint context_entries_created_by_type_check
+        check (created_by_type in ('user', 'system', 'agent', 'integration')) not valid;
+
 create unique index if not exists context_entries_user_source_unique
     on public.context_entries(user_id, source_type, source_id)
     where source_id is not null;
@@ -83,6 +104,21 @@ create table if not exists public.context_saved_views (
 create index if not exists context_saved_views_user_updated_idx
     on public.context_saved_views(user_id, updated_at desc);
 
+drop trigger if exists context_edges_set_updated_at on public.context_edges;
+create trigger context_edges_set_updated_at
+    before update on public.context_edges
+    for each row execute function public.set_updated_at();
+
+drop trigger if exists context_permissions_set_updated_at on public.context_permissions;
+create trigger context_permissions_set_updated_at
+    before update on public.context_permissions
+    for each row execute function public.set_updated_at();
+
+drop trigger if exists context_saved_views_set_updated_at on public.context_saved_views;
+create trigger context_saved_views_set_updated_at
+    before update on public.context_saved_views
+    for each row execute function public.set_updated_at();
+
 alter table if exists public.context_entries enable row level security;
 alter table public.context_edges enable row level security;
 alter table public.context_permissions enable row level security;
@@ -90,16 +126,20 @@ alter table public.context_saved_views enable row level security;
 
 drop policy if exists "context_entries_user_isolation" on public.context_entries;
 create policy "context_entries_user_isolation" on public.context_entries
-    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+    for all to authenticated
+    using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "context_edges_user_isolation" on public.context_edges;
 create policy "context_edges_user_isolation" on public.context_edges
-    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+    for all to authenticated
+    using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "context_permissions_user_isolation" on public.context_permissions;
 create policy "context_permissions_user_isolation" on public.context_permissions
-    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+    for all to authenticated
+    using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "context_saved_views_user_isolation" on public.context_saved_views;
 create policy "context_saved_views_user_isolation" on public.context_saved_views
-    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+    for all to authenticated
+    using (auth.uid() = user_id) with check (auth.uid() = user_id);

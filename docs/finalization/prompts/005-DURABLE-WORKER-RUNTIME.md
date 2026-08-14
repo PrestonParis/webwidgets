@@ -1,6 +1,6 @@
 # 005 — Deploy One Durable V1 Worker Runtime
 
-Status: Blocked  
+Status: Available
 Priority: Critical  
 Depends on: 002 and 004
 
