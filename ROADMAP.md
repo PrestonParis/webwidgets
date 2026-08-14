@@ -106,15 +106,14 @@ workflow this bootstrap sets up from being trustworthy.
   but marking its jobs as required status checks on `main` is a repository
   settings change only the repo owner can make (Settings → Branches). Until
   that's done, CI runs and reports but doesn't actually block a merge.
-- **Reconcile the local-only context migration and generated types** — the
-  recovered baseline now matches all 46 remote versions, but the context
-  successor is not deployed and committed types still drift.
-- **Fix the audited P0 access-control gaps** — enable parent-owned RLS on
-  `export_job_logs`/`import_job_logs` and move provider credentials behind a
-  server-only boundary. The ordered plan is under `docs/finalization/audits/`.
-- **Reconcile context and generated types** — the sole local migration is not
-  live, current context writes target missing fields/tables, and generated
-  types cannot safely be refreshed until schema truth converges.
+- **Deploy the verified canonical schema bundle** — Prompt 004's empty-database
+  replay and 20-assertion RLS fixture pass, but the context, job-log security,
+  and canonical lifecycle migrations have not been applied to
+  `webwidgets-dev`. Apply them only through a reviewed deployment and then
+  regenerate types from live.
+- **Finish the remaining audited P0 credential boundary** — import/export log
+  RLS is implemented in the Prompt 004 bundle; provider credentials still
+  need a server-only store/projection and rotation plan.
 - **Fix the unsanitized-HTML-input gap** in the conversion pipeline
   (self-flagged in 3 files) — a live security TODO, not speculative.
 - **Prune or fix the broken e2e npm scripts** (`test:dashboard`,

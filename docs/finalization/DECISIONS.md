@@ -91,10 +91,24 @@ knowledge and domain records retain their own source truth.
 record concepts prevent dependable ingestion, replay, approval, and verified
 task completion.
 
+## FIN-008: Reuse the existing action and job ledgers
+
+**Status:** Accepted and implemented in the repository
+
+**Decision:** Add raw observation, canonical timeline, insight evidence, and
+candidate action records, then evolve `integration_connections`, `jobs`,
+`automation_runs`, `action_requests`, and `action_results` in place. Approval
+binds one exact payload/version atomically; completion requires a verified
+outcome. Activity and context remain projections.
+
+**Reason:** The audited existing ledgers have viable ownership and RLS. A
+parallel approval, execution, or job database would split idempotency and make
+the user-visible result impossible to trace reliably.
+
 ## Pending implementation decisions
 
 - Select the concrete worker hosting provider during Prompt 005.
-- Execute ADR-012's approved recovered-history Supabase baseline procedure,
-  then the audited P0 RLS and credential-isolation remediations.
+- Deploy the reviewed Prompt 004 migration bundle, regenerate live Supabase
+  types, and complete the separate provider credential-isolation remediation.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.

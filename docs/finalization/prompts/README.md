@@ -35,8 +35,8 @@ Supabase, timeline, action, and automation files.
 | 001    | Enforce breadth freeze and suspended beta        | Complete   | —                 |
 | 002    | Decide runtime and information ownership         | Complete   | —                 |
 | 003    | Audit live schema and RLS                        | Complete   | Supabase access   |
-| 004    | Add canonical timeline/action schema             | Blocked    | 002, 003          |
-| 005    | Deploy one durable worker runtime                | Blocked    | 002, 004          |
+| 004    | Add canonical timeline/action schema             | Complete   | 002, 003          |
+| 005    | Deploy one durable worker runtime                | Available  | 002, 004          |
 | 006    | Persist RSS/Atom source ingestion                | Blocked    | 004, 005          |
 | 007    | Ingest email and calendar timeline events        | Blocked    | 004, 005          |
 | 008    | Ingest task, note, document, and activity events | Blocked    | 004, 005          |

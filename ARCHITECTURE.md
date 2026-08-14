@@ -441,6 +441,16 @@ types, and six shared tables have column drift. Code also queries seven table
 names absent from live. Do not regenerate/commit types until context/security
 remediation is reconciled with deployed schema.
 
+Prompt 004 now defines the repository target in six ordered local successors.
+The new canonical chain is `raw_observations` -> `timeline_events` ->
+`insights`/`insight_timeline_events` -> `candidate_actions` -> the existing
+`action_requests`/`action_results` ledgers. Composite owner foreign keys and
+RLS protect every new relation. `jobs`, `automation_runs`, and
+`integration_connections` are evolved in place. See
+`docs/finalization/CANONICAL_V1_SCHEMA.md`. These migrations replay cleanly
+locally but are not deployed, so the committed generated type file still
+describes the pre-deployment live contract.
+
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
 ADR-008). Worker operations must carry explicit user scope and validate the
@@ -452,9 +462,9 @@ policies.
 Supabase is the accepted durable truth for source cursors/health, timeline,
 jobs, approvals, action outcomes, automation state, and audit. BullMQ/Redis is
 at-least-once delivery only; every queue job references a canonical record and
-deterministic idempotency key (ADR-010). This target data model is not yet
-implemented and remains blocked on approval/execution of the audited schema
-baseline and critical remediation plan.
+deterministic idempotency key (ADR-010). The target data model is implemented
+and verified in the repository; production use remains blocked on reviewed
+remote migration execution, live type regeneration, and credential isolation.
 
 Credential isolation is also unresolved: owner-readable policies protect
 cross-user access but allow authenticated browser sessions to select raw
