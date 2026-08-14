@@ -88,7 +88,7 @@
 
 ## ADR-008: One Durable TypeScript Worker for V1 Background Work
 
-**Status:** Proposed
+**Status:** Active
 
 **Decision:** Extend `services/sync-worker` into the one continuously running
 V1 TypeScript/BullMQ worker. It owns source polling, normalization, analysis
@@ -118,7 +118,7 @@ becomes a reviewed server-runtime exception, not a general shared library.
 
 ## ADR-009: Separate Source Truth, Timeline, Activity, Knowledge, and Context
 
-**Status:** Proposed
+**Status:** Active
 
 **Decision:** Provider/domain records and `knowledge_items` remain source truth
 for current domain state and user-authored content. A normalized, user-scoped
@@ -148,7 +148,7 @@ in place during migration.
 
 ## ADR-010: Supabase Is Durable Truth; BullMQ Provides At-Least-Once Delivery
 
-**Status:** Proposed
+**Status:** Active
 
 **Decision:** Supabase Postgres owns canonical lifecycle state, provenance,
 user scope, approvals, and verified outcomes. BullMQ/Redis owns delivery,
@@ -181,7 +181,7 @@ retention defaults require human approval and later operational enforcement.
 
 ## ADR-011: Bound Python, n8n, Go, Conversion, and Dashboard Runtime Roles
 
-**Status:** Proposed
+**Status:** Active
 
 **Decision:** Python serves versioned, bounded, stateless inference requests
 and owns no schedules, authorization policy, queues, or product state. n8n is

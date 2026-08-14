@@ -74,16 +74,16 @@ it.
 | Reading platform | working, suspended beta | Bible/Quran/PDF via provider abstraction, annotations, and plans remain available to existing users but are outside V1 defaults and completion claims. |
 | Creative Studio / Memorization | working, suspended beta | Existing widgets and data paths remain intact; both are excluded from V1 onboarding, generated workspaces, and automatic recommendations. |
 | Timeline Intelligence (`news`) | partial | The stable V1 surface remains discoverable outside Entertainment; the broader personal-event timeline and durable ingestion loop are still finalization work. |
-| Context graph (`features/context/`) | partial | Newest major subsystem. Only Supabase migration in the repo backs it; that migration has no RLS statements. |
-| Knowledge registry (`features/knowledge/`) | unknown | Boundary vs. `context` is undocumented — see ARCHITECTURE.md §11. |
+| Context graph (`features/context/`) | partial | Rebuildable retrieval/entity projection under ADR-009. Only tracked migration backs it and contains no RLS statements. |
+| Knowledge registry (`features/knowledge/`) | unknown | Owns user-authored durable content under ADR-009; functional depth remains unverified. |
 | ML service | working | FastAPI, model registry, drift monitor, 4-file pytest suite, 10 training scripts. |
 | Go worker (cache/snapshot/events) | broken | All 3 subsystems are stub no-ops (identical `// TODO: In future phases` markers). Nothing depends on it persisting data safely today. |
 | Conversion service | partial | Functional locally via docker-compose; no production deploy path found; self-documented unsanitized-HTML-input gap (security). |
-| Sync worker | unknown | No test coverage at all; not deeply audited. |
+| Sync worker | partial | Real BullMQ email polling entrypoint, token refresh, recurring scheduling, and graceful shutdown exist locally. ADR-008 selects it as the V1 worker foundation, but it has no confirmed production host or tests and does not start news/action processors. |
 | Onboarding | working | Goal discovery, intent capture, widget selection, workspace generation — described as a finished pass. |
 | Admin panel | unknown | Feature-complete per FEATURE_LIST.md scope (users/flags/audit/metrics/ML/jobs); functional depth not verified. |
 | Billing (Stripe) | working | Checkout, webhooks, customer portal present. |
-| Automation (stage 5) | partial | Evaluator + registry exist; `docs/blueprint/AUTOMATION_GUIDE.md` (the stage's own scope doc) is empty. |
+| Automation (stage 5) | partial | Evaluator + registry exist, but user-facing persistence paths include empty/no-op behavior. ADR-008/011 assigns durable schedules to the V1 worker and keeps n8n as an optional executor only. |
 | Personalization (stage 6) | partial | Cross-widget intelligence goals documented in PERSONALIZE.md; onboarding-time personalization exists; full cross-widget adaptation (e.g. "workout tracked → nutrition adjusts") not verified as implemented. |
 | ML predictions beyond email (stage 3) | partial | Multiple training scripts exist server-side; whether each is wired into a live prediction surface in the UI is unverified per-model. |
 | Widget-based actions (stage 4) | partial | Email/calendar action-confirm flow exists; other items in WIDGET_ACTIONS.md (generate document, export data, summarize file, trigger workflow) not individually verified. |
@@ -117,8 +117,9 @@ workflow this bootstrap sets up from being trustworthy.
 - **Prune or fix the broken e2e npm scripts** (`test:dashboard`,
   `test:performance`, `test:hydration` target directories that don't exist)
   — a DEFINITION_OF_DONE that references these as gates would be lying.
-- **Resolve the ML service deploy target** (Vercel Python vs. Procfile) —
-  ambiguous infra is a bad foundation for agents wiring new ML endpoints.
+- **Deploy the accepted worker and inference topology** — ADR-008 through
+  ADR-011 resolve ownership, but the TypeScript worker and bounded Python
+  inference container still need concrete production hosts and rollout plans.
 - **Wire or formally drop Husky commit-time gating** — currently a dead
   no-op that looks like protection but isn't.
 
@@ -135,9 +136,9 @@ Should happen before or shortly after V1, not hard-blocking.
 - **Document the widget-catalog part-file sharding convention** — 4 sharded
   catalog files with no stated rule for which one a new entry belongs in.
 - **Sync-worker test coverage** — currently zero.
-- **Production deploy path for conversion service, sync-worker, and Go
-  worker** — none currently exists; confirm whether these are meant to ship
-  for V1 or are post-V1 infrastructure.
+- **Production deploy path for the conversion service** — it remains a
+  specialized adapter whose V1 hosting requirement is not yet proven. The
+  sync worker is V1-required; Go is explicitly deferred by ADR-011.
 - **Existing lint/type debt** — 1,603 lint errors and 54 TypeScript errors
   across the repo as of the last `npm run check` snapshot (2026-08-09; see
   DEFINITION_OF_DONE.md for how new agent work should avoid adding to this

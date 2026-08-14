@@ -85,6 +85,27 @@ config** — they run only via `infra/docker-compose.yml` for local dev. Do not
 assume any of the three are live in production; verify before writing code
 that depends on their availability at runtime.
 
+### Accepted V1 ownership target
+
+ADR-008 through ADR-011 define the accepted target; this is not a claim that
+the cutover is deployed yet:
+
+- `services/sync-worker` becomes the one continuously running V1
+  TypeScript/BullMQ worker for polling, normalization, analysis schedules,
+  actions, retries, dead letters, and health.
+- Supabase Postgres owns durable lifecycle truth. BullMQ/Redis owns delivery,
+  concurrency, retry timing, and delayed schedules only.
+- Next.js owns authenticated UI/API, webhook validation, source configuration,
+  queries, and exact-payload approval boundaries.
+- Python performs bounded stateless inference. n8n is an optional approved
+  workflow executor. The Go worker is disabled and deferred for V1.
+- Vercel crons remain temporary cutover fallbacks and must not run a schedule
+  also owned by the worker.
+
+The complete lifecycle, responsibility matrices, retention policy, and
+migration sequence are in
+[`docs/finalization/OWNERSHIP_PROPOSAL.md`](docs/finalization/OWNERSHIP_PROPOSAL.md).
+
 ---
 
 ## 3. Frontend structure and feature catalog
@@ -325,10 +346,17 @@ in the repo, `202605300001_context_substrate.sql`. This is the newest major
 subsystem and the one most likely to still be evolving; treat changes here as
 higher-risk/needs-care by default.
 
-`features/knowledge/` is a separate, smaller "knowledge item registry"
-feature — do not conflate it with the context graph; if the boundary is
-unclear when you're working in either, that ambiguity is real (§11) and worth
-raising rather than guessing.
+`features/knowledge/` is a separate, smaller knowledge item registry and owns
+user-authored notes, journals, drafts, transcripts, and research content.
+The context graph is a rebuildable entity/retrieval projection for search,
+widgets, and models. It is not source truth and cannot outlive its referenced
+domain or knowledge record (ADR-009).
+
+The normalized V1 timeline owns meaningful user-scoped facts and provenance.
+`activity_events` remains a recent-activity/notification projection. Domain,
+knowledge, timeline, and verified outcome records may project one way into
+activity and context; those projections must not republish themselves as new
+timeline facts.
 
 ---
 
@@ -369,6 +397,11 @@ Email intelligence specifically is a 3-tier hybrid chain: deterministic rules
 (`features/inbox/lib/rules.ts`) → internal ML service (`mlService.ts`) →
 optional Anthropic fallback (`modelRouter.ts`).
 
+For V1 deployment ownership, Python exposes bounded, versioned, stateless
+inference only. It does not own schedules, queues, authorization policy,
+canonical product state, or provider actions (ADR-011). The concrete supported
+container host remains a Prompt 005/010 deployment decision.
+
 ---
 
 ## 8. Persistence
@@ -399,18 +432,31 @@ Key tables: `profiles`, `dashboard_layouts`, `widget_settings`,
 `reading_positions`, `reading_bookmarks`, `reading_highlights`,
 `reading_notes`, `reading_plans`.
 
-Admin/service-role Supabase client is restricted to `/app/api/**` server
-routes only (ADR-005) — the service role bypasses RLS entirely, so any
-client-side exposure of it is a full data-access-control failure, not a bug.
-All client-side reads go through the anon key and RLS policies.
+Admin/service-role Supabase access is restricted to `/app/api/**` server
+routes and the dedicated server-only V1 worker (ADR-005 as amended by
+ADR-008). Worker operations must carry explicit user scope and validate the
+owning connection or record. The service role bypasses RLS entirely, so any
+client-side or shared client-safe exposure is a full data-access-control
+failure, not a bug. All client-side reads go through the anon key and RLS
+policies.
+
+Supabase is the accepted durable truth for source cursors/health, timeline,
+jobs, approvals, action outcomes, automation state, and audit. BullMQ/Redis is
+at-least-once delivery only; every queue job references a canonical record and
+deterministic idempotency key (ADR-010). This target data model is not yet
+implemented and remains blocked on the live-schema/RLS audit.
 
 ---
 
 ## 9. Background jobs / infrastructure
 
-- **n8n** — scheduled syncs, webhooks, async ingestion, notifications,
-  long-running automation. Owns everything that doesn't need to run inside a
-  Next.js request. `N8N_BASE_URL` is server-only.
+- **Current state:** Vercel cron routes, the sync worker, generic synchronous
+  jobs, n8n callbacks, and undispatched news/action worker factories overlap.
+  No continuously running production worker deployment is confirmed.
+- **Accepted V1 owner:** extend `services/sync-worker` into the one durable
+  TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
+  configured, validated, approved workflows; it is not the ingestion owner,
+  scheduler of record, approval state machine, or canonical run database.
 - **Go worker** (`services/go_services/worker/`) — cache, snapshot, and event
   subsystems. **All three are currently stub implementations**: `cache.go`,
   `snapshot.go`, and `events.go` each carry an identical `// TODO: In future
@@ -481,15 +527,13 @@ These are unresolved boundary questions flagged by prior agent work
 silently pick an interpretation when working in these areas — ask, or scope
 the task narrower to avoid guessing:
 
-- **Widget vs. Go worker vs. import-export vs. runtime manager** — not
-  clearly defined which of these owns what responsibility when they overlap
-  (e.g. snapshot caching, data refresh scheduling). Flagged directly in
-  `docs/agents/issues/PROBLEMS.md`.
-- **`features/context/` vs. `features/knowledge/`** — two similarly-named
-  systems (context graph vs. knowledge item registry) with no documented
-  boundary.
-- **ML service deploy target** — Vercel Python serverless vs. Procfile host,
-  not reconciled in the repo.
+- **Concrete worker and Python container hosts** — runtime ownership is
+  resolved by ADR-008 through ADR-011, but the production hosting providers
+  and rollout/rollback procedures remain Prompt 005/010 decisions.
+- **Legacy runtime cutover** — widget hydration remains client-side, the Go
+  worker is deferred, n8n is an adapter, and the TypeScript worker owns V1
+  background work. The source-by-source order for retiring duplicate Vercel
+  cron and provider-processing paths still requires implementation evidence.
 - **`docs/blueprint/CURRENT_STATE.md`, `docs/blueprint/DEPLOYMENT.md`, and
   `docs/blueprint/AUTOMATION_GUIDE.md` are empty files.** Treat any claim
   that depends on them as unverified — `docs/blueprint/CURRENT_STATE.md` now

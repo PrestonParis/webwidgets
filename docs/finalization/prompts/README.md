@@ -33,7 +33,7 @@ Supabase, timeline, action, and automation files.
 | Prompt | Outcome                                          | Status     | Depends on        |
 | ------ | ------------------------------------------------ | ---------- | ----------------- |
 | 001    | Enforce breadth freeze and suspended beta        | Complete   | —                 |
-| 002    | Decide runtime and information ownership         | Awaiting approval | —              |
+| 002    | Decide runtime and information ownership         | Complete   | —                 |
 | 003    | Audit live schema and RLS                        | Blocked    | Supabase access   |
 | 004    | Add canonical timeline/action schema             | Blocked    | 002, 003          |
 | 005    | Deploy one durable worker runtime                | Blocked    | 002, 004          |
