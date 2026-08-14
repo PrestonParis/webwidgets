@@ -407,19 +407,23 @@ container host remains a Prompt 005/010 deployment decision.
 ## 8. Persistence
 
 Supabase Postgres, with Row-Level Security intended on all user-owned tables.
-**Only one migration file exists in the repo**
-(`supabase/migrations/202605300001_context_substrate.sql`, and it contains no
-RLS policy statements). Given the schema implied by the 3,316-line generated
-`apps/web/types/supabase.ts`, most of the schema was almost certainly created
-directly against a cloud/dashboard Supabase project, outside migration
-tracking. **Do not assume `supabase/migrations/` is an accurate or complete
-picture of the schema.** Any task that needs the real current schema should
-generate/inspect types (`supabase gen types typescript`) against the live
-project. Any new schema change an agent makes MUST land as a tracked
-migration file regardless of how the rest of the schema got there — see
-AGENTS.md.
+The read-only 2026-08-13 audit of confirmed project `webwidgets-dev` found 107
+live `public` tables, 105 with RLS enabled, and 153 policies. Two child-log
+tables (`export_job_logs`, `import_job_logs`) have RLS disabled despite grants
+to anonymous/authenticated roles; `user_feedback` has RLS enabled with no
+policy. See the
+[full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
-Key tables: `profiles`, `dashboard_layouts`, `widget_settings`,
+**Only one migration file exists in the repo.** Remote migration history has
+46 different versions absent locally, while local
+`202605300001_context_substrate.sql` is absent remotely. That local migration
+does contain RLS policies, but its richer context columns and three new
+context tables are not live. Do not assume either the migration directory or
+committed generated types represents deployed schema. ADR-012 proposes
+recovering and sanitizing remote history rather than committing a squashed
+live dump; it remains awaiting approval.
+
+Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `widget_folders`, `email_actions`, `email_queue`, `todos`, `habits`,
 `chess_positions`, `chess_study_chapters`, `recovery_trackers`,
 `recovery_events`, `mood_logs`, `journal_entries`, `tracking_entries`,
@@ -430,7 +434,14 @@ Key tables: `profiles`, `dashboard_layouts`, `widget_settings`,
 `user_integration_keys`, `billing_subscriptions`, `audit_logs`,
 `feature_flags`, `background_jobs`, `consent_records`, `reading_documents`,
 `reading_positions`, `reading_bookmarks`, `reading_highlights`,
-`reading_notes`, `reading_plans`.
+`reading_notes`, `reading_plans`. This historical list is not exhaustive; the
+audit inventory is the canonical dated snapshot for planning Prompt 004.
+
+Committed Supabase types describe 84 of the 107 live tables. Twenty-six live
+tables are absent from the file, three context tables exist only in committed
+types, and six shared tables have column drift. Code also queries seven table
+names absent from live. Do not regenerate/commit types until migration history
+and context/security remediation are reconciled.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
@@ -444,7 +455,14 @@ Supabase is the accepted durable truth for source cursors/health, timeline,
 jobs, approvals, action outcomes, automation state, and audit. BullMQ/Redis is
 at-least-once delivery only; every queue job references a canonical record and
 deterministic idempotency key (ADR-010). This target data model is not yet
-implemented and remains blocked on the live-schema/RLS audit.
+implemented and remains blocked on approval/execution of the audited schema
+baseline and critical remediation plan.
+
+Credential isolation is also unresolved: owner-readable policies protect
+cross-user access but allow authenticated browser sessions to select raw
+credential columns from `profiles`, `user_tokens`, `user_email_accounts`, and
+`user_integration_keys`. V1 must move these behind a server-only credential
+boundary before connector automation is considered secure.
 
 ---
 

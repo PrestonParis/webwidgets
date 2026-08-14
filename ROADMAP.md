@@ -74,7 +74,7 @@ it.
 | Reading platform | working, suspended beta | Bible/Quran/PDF via provider abstraction, annotations, and plans remain available to existing users but are outside V1 defaults and completion claims. |
 | Creative Studio / Memorization | working, suspended beta | Existing widgets and data paths remain intact; both are excluded from V1 onboarding, generated workspaces, and automatic recommendations. |
 | Timeline Intelligence (`news`) | partial | The stable V1 surface remains discoverable outside Entertainment; the broader personal-event timeline and durable ingestion loop are still finalization work. |
-| Context graph (`features/context/`) | partial | Rebuildable retrieval/entity projection under ADR-009. Only tracked migration backs it and contains no RLS statements. |
+| Context graph (`features/context/`) | broken/partial | ADR-009 defines it as a projection, but the tracked context migration is not applied remotely. Live has only legacy `context_entries`; three expected tables and rich write columns are missing. |
 | Knowledge registry (`features/knowledge/`) | unknown | Owns user-authored durable content under ADR-009; functional depth remains unverified. |
 | ML service | working | FastAPI, model registry, drift monitor, 4-file pytest suite, 10 training scripts. |
 | Go worker (cache/snapshot/events) | broken | All 3 subsystems are stub no-ops (identical `// TODO: In future phases` markers). Nothing depends on it persisting data safely today. |
@@ -87,9 +87,9 @@ it.
 | Personalization (stage 6) | partial | Cross-widget intelligence goals documented in PERSONALIZE.md; onboarding-time personalization exists; full cross-widget adaptation (e.g. "workout tracked → nutrition adjusts") not verified as implemented. |
 | ML predictions beyond email (stage 3) | partial | Multiple training scripts exist server-side; whether each is wired into a live prediction surface in the UI is unverified per-model. |
 | Widget-based actions (stage 4) | partial | Email/calendar action-confirm flow exists; other items in WIDGET_ACTIONS.md (generate document, export data, summarize file, trigger workflow) not individually verified. |
-| Security (stage 7) | partial/unknown | SECURITY.md is an unimplemented checklist. Only verified concrete control: service-role key confined to server routes (ADR-005). RLS presence is unverifiable from tracked migrations. |
+| Security (stage 7) | partial, critical gaps | Live audit verified 105/107 public tables have RLS and 153 policies. Two user-linked log tables have no RLS, and four owner-readable tables expose raw credential columns to authenticated browser sessions. |
 | Deployment (stage 8) | working (partially) | `apps/web` already auto-deploys to Vercel on push to main — ahead of its own stage. Conversion/sync-worker/go-worker have no production path. |
-| Schema/migration tracking | broken | Only 1 of what's clearly a large schema is tracked in `supabase/migrations/`. |
+| Schema/migration tracking | broken, audited | Live has 107 public tables and 46 recoverable remote migrations absent locally. The sole local migration is absent remotely; committed types also materially drift. ADR-012 baseline strategy awaits approval. |
 | CI | working (baseline) | `.github/workflows/ci.yml` gates changed files only (lint/typecheck/tests/build); see `.github/workflows/README.md`. Branch-protection required-checks still need repo-owner configuration — not something a workflow file alone can do. |
 | Automated test coverage | partial | 52 unit test files (shallow, one per domain); e2e has heavy scaffolding but only 3 real spec files; 4 of 8 `test:*` e2e npm scripts point at nonexistent directories. |
 | Local commit-time quality gates | broken | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today. |
@@ -106,12 +106,15 @@ workflow this bootstrap sets up from being trustworthy.
   but marking its jobs as required status checks on `main` is a repository
   settings change only the repo owner can make (Settings → Branches). Until
   that's done, CI runs and reports but doesn't actually block a merge.
-- **Reconcile the migration/schema gap** — only one migration is tracked
-  against what is clearly a much larger live schema. Any agent making a
-  schema change needs a real baseline to diff against, and RLS coverage
-  can't be verified without it.
-- **RLS audit** — confirm policies actually exist and are correct on
-  user-owned tables; currently unverifiable from the repo alone.
+- **Approve and execute the migration baseline strategy** — the live audit is
+  complete and the 46 remote migrations are recoverable, but ADR-012 must be
+  approved before reviewed/sanitized history is committed.
+- **Fix the audited P0 access-control gaps** — enable parent-owned RLS on
+  `export_job_logs`/`import_job_logs` and move provider credentials behind a
+  server-only boundary. The ordered plan is under `docs/finalization/audits/`.
+- **Reconcile context and generated types** — the sole local migration is not
+  live, current context writes target missing fields/tables, and generated
+  types cannot safely be refreshed until schema truth converges.
 - **Fix the unsanitized-HTML-input gap** in the conversion pipeline
   (self-flagged in 3 files) — a live security TODO, not speculative.
 - **Prune or fix the broken e2e npm scripts** (`test:dashboard`,

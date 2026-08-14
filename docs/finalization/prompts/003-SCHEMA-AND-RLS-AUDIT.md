@@ -1,21 +1,18 @@
 # 003 — Establish the Live Schema Baseline and RLS Audit
 
-Status: Blocked  
+Status: Awaiting approval
+
 Priority: Critical  
 Depends on: Authenticated access to the intended Supabase project
 
-## Current blocker (2026-08-13)
+## Project identity confirmed (2026-08-13)
 
-The authenticated Supabase account lists `webwidgets-dev`
-(`cvroudtyxsgllivlrayu`) and `worldview` (`dvttvcwyrqaclumppgaz`), but no
-project named `ai-dash`. The web app's local/cloud environment currently
-points to `webwidgets-dev`.
+The project owner confirmed `webwidgets-dev` (`cvroudtyxsgllivlrayu`) is the
+intended WebWidgets database. The former `ai-dash` project no longer exists.
+`worldview` is a separate future integration and was not inspected.
 
-The project owner previously identified `ai-dash` as the intended surviving
-project. Before any live metadata or type generation, confirm whether
-`worldview` is the renamed `ai-dash` project or provide the intended project
-reference. Do not link, inspect, or mutate either cloud database until this is
-resolved.
+The read-only audit used the confirmed project ref without linking, pushing,
+applying migrations, or reading table rows.
 
 ## Objective
 
@@ -65,3 +62,20 @@ task, not authorization for destructive reconciliation.
 - The baseline approach has rollback/recovery notes and human approval.
 - No production data or schema was mutated during the audit.
 - `ARCHITECTURE.md` and `ROADMAP.md` reflect verified facts, not assumptions.
+
+## Audit deliverables
+
+- Dated report:
+  `docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md`
+- Complete structured inventory:
+  `docs/finalization/audits/2026-08-13-webwidgets-dev-schema-inventory.json`
+- Remote migration checksum/privacy manifest:
+  `docs/finalization/audits/2026-08-13-webwidgets-dev-remote-migration-manifest.json`
+- Ordered remediation tasks:
+  `docs/finalization/audits/2026-08-13-webwidgets-dev-schema-remediation-plan.md`
+- Proposed baseline decision: ADR-012
+
+The audit and remediation plan are complete. Prompt 003 remains Awaiting
+approval until the project owner accepts or revises ADR-012's recovered-history
+baseline strategy. No generated types were committed because doing so before
+schema reconciliation would remove context contracts used by current code.
