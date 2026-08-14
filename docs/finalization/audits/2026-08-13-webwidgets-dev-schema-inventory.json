@@ -17,7 +17,10 @@
       "fitness_workout_routines",
       "journal_entries",
       "user_files"
-    ]
+    ],
+    "repository_migration_count": 47,
+    "remote_aligned_migration_count": 46,
+    "local_only_migrations": ["202605300001_context_substrate.sql"]
   },
   "tables": [
     {
@@ -35,7 +38,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/accessibility/settings/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -57,7 +60,7 @@
         "apps/web/features/actions/lib/timeline/actionPersistence.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -77,7 +80,7 @@
       "v1_consumer": "actions",
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -104,7 +107,7 @@
         "apps/web/features/intelligence/services/smartContextService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "Live columns do not satisfy current V1 application contracts.",
       "proposed_remediation": "Choose additive compatibility migration or narrow callers; current code expects columns absent from live schema."
@@ -128,7 +131,7 @@
         "apps/web/features/admin/lib/auditAdminAction.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -148,7 +151,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -171,7 +174,7 @@
         "apps/web/features/analytics/lib/analyticsQueries.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -194,7 +197,7 @@
         "apps/web/features/artifacts/services/artifactService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -221,7 +224,7 @@
         "apps/web/features/import-export/lib/auditService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -243,7 +246,7 @@
         "apps/web/features/automation/services/automationService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -265,7 +268,7 @@
         "apps/web/features/automation/services/automationService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -285,7 +288,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -305,7 +308,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/features/billing/hooks/useBilling.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -327,7 +330,7 @@
         "apps/web/features/tracking/health/hooks/useBodyIssues.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -349,7 +352,7 @@
         "apps/web/features/tracking/health/hooks/useBodyIssues.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -369,7 +372,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/features/chatbot/services/chatService.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -389,7 +392,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/features/chatbot/services/chatService.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -428,7 +431,7 @@
         "apps/web/features/chess/review/hooks/useChessGame.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -467,7 +470,7 @@
         "apps/web/features/chess/studies/hooks/useStudies.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -506,7 +509,7 @@
         "apps/web/features/chess/studies/api/studyService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -535,7 +538,7 @@
         "apps/web/features/import-export/adapters/collaborationHandoffsAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -573,7 +576,7 @@
         "apps/web/app/api/collaboration/workspaces/route.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -596,7 +599,7 @@
         "apps/web/app/api/command/workstreams/route.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -633,7 +636,7 @@
         "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -675,7 +678,7 @@
         "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -707,7 +710,7 @@
         "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -730,7 +733,7 @@
         "apps/web/features/security/services/consentService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -772,7 +775,7 @@
         "apps/web/features/import-export/adapters/contextEntriesAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "local migration exists but is not applied remotely",
+      "migration_coverage": "base history recovered; local context expansion migration remains unapplied remotely",
       "risk_severity": "high",
       "risk": "Live columns do not satisfy current V1 application contracts.",
       "proposed_remediation": "Reconcile the unapplied context migration against live state before Prompt 004; do not blindly push it."
@@ -794,7 +797,7 @@
         "apps/web/features/import-export/services/importExportService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -846,7 +849,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/uploads/[fileId]/extract/route.ts"],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -866,7 +869,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/metrics-data/costs/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -890,7 +893,7 @@
         "apps/web/features/import-export/adapters/countdownAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -913,7 +916,7 @@
         "apps/web/app/api/creative/projects/[id]/layers/route.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -936,7 +939,7 @@
         "apps/web/app/api/creative/projects/route.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -958,7 +961,7 @@
         "apps/web/features/currency/server/currencyService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1011,7 +1014,7 @@
         "apps/web/features/settings/components/WidgetManagerCard.tsx"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1035,7 +1038,7 @@
         "apps/web/features/import-export/adapters/documentsAdapter.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1063,7 +1066,7 @@
         "apps/web/features/inbox/server/emailExtractionService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1088,7 +1091,7 @@
         "apps/web/features/inbox/server/emailExtractionService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1113,7 +1116,7 @@
         "apps/web/features/inbox/server/emailExtractionService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1139,7 +1142,7 @@
         "apps/web/features/inbox/lib/queueManager.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1167,7 +1170,7 @@
         "services/sync-worker/src/lib/supabase.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "medium",
       "risk": "User isolation exists, but stored message body content needs explicit minimization and retention.",
       "proposed_remediation": "Set a body minimization and deletion window before V1 email ingestion cutover."
@@ -1183,7 +1186,7 @@
         "apps/web/app/api/import-export/exports/[id]/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "RLS is disabled while anon/authenticated roles have table privileges.",
       "proposed_remediation": "Enable RLS and add parent-job ownership policies in the first security remediation migration; reduce anon/authenticated grants."
@@ -1205,7 +1208,7 @@
         "apps/web/features/import-export/services/importExportService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1229,7 +1232,7 @@
         "apps/web/features/developer/server/infraObservability.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1251,7 +1254,7 @@
         "apps/web/features/platform/services/platformPersistenceService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1271,7 +1274,7 @@
       "v1_consumer": "documents/files",
       "code_references": ["apps/web/app/api/uploads/folders/route.ts"],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1293,7 +1296,7 @@
         "apps/web/app/api/uploads/[fileId]/favorite/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1315,7 +1318,7 @@
         "apps/web/features/extraction/services/extractionService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1341,7 +1344,7 @@
         "apps/web/features/import-export/adapters/filesAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1365,7 +1368,7 @@
         "apps/web/features/import-export/adapters/financeAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1388,7 +1391,7 @@
         "apps/web/features/finance/services/financeSubscriptionService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1411,7 +1414,7 @@
         "apps/web/features/import-export/adapters/financeAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1448,7 +1451,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/form-filler/fill/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1471,7 +1474,7 @@
         "apps/web/app/api/form-filler/profiles/route.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1497,7 +1500,7 @@
         "apps/web/features/import-export/adapters/habitAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1523,7 +1526,7 @@
         "apps/web/features/import-export/adapters/habitAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1545,7 +1548,7 @@
         "apps/web/features/import-export/services/importExportService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1561,7 +1564,7 @@
         "apps/web/features/import-export/services/importExportService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "RLS is disabled while anon/authenticated roles have table privileges.",
       "proposed_remediation": "Enable RLS and add parent-job ownership policies in the first security remediation migration; reduce anon/authenticated grants."
@@ -1584,7 +1587,7 @@
         "apps/web/features/import-export/services/importExportService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1604,7 +1607,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1627,7 +1630,7 @@
         "apps/web/features/intelligence/services/smartContextService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1647,7 +1650,7 @@
       "v1_consumer": "jobs",
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1669,7 +1672,7 @@
         "apps/web/features/jobs/lib/documentParsingRunner.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1689,7 +1692,7 @@
       "v1_consumer": "jobs",
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1713,7 +1716,7 @@
         "apps/web/features/jobs/services/jobService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1768,7 +1771,7 @@
         "apps/web/features/texteditor/hooks/useLatestEntry.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1790,7 +1793,7 @@
         "apps/web/features/knowledge/services/knowledgeService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1814,7 +1817,7 @@
         "apps/web/features/import-export/adapters/memoryDecksAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1838,7 +1841,7 @@
         "apps/web/features/import-export/adapters/memoryDecksAdapter.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1858,7 +1861,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/memory/routines/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1878,7 +1881,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1903,7 +1906,7 @@
         "apps/web/features/tracking/api/moodMigrationApi.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -1926,7 +1929,7 @@
         "apps/web/features/notifications/services/notificationService.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "high",
       "risk": "V1 table is absent from committed generated types.",
       "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
@@ -1948,7 +1951,7 @@
         "apps/web/features/intelligence/services/smartContextService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -1968,7 +1971,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/metrics-data/performance/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2016,7 +2019,7 @@
         "apps/web/lib/supabase/requireAdmin.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "A user-selectable table contains credential material or a plaintext provider key.",
       "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
@@ -2036,7 +2039,7 @@
       "v1_consumer": "notes/knowledge",
       "code_references": ["apps/web/features/scratchpad/hooks/useQuickNote.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2056,7 +2059,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/reading/bookmarks/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2081,7 +2084,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2101,7 +2104,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/reading/highlights/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2121,7 +2124,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/reading/notes/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2141,7 +2144,7 @@
       "v1_consumer": null,
       "code_references": [],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2161,7 +2164,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/reading/progress/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2204,7 +2207,7 @@
         "apps/web/features/recovery/server/recoveryResolvers.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2242,7 +2245,7 @@
         "apps/web/features/recovery/lib/relapses.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2279,7 +2282,7 @@
         "apps/web/features/chess/studies/api/studyService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2299,7 +2302,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/app/api/supplements/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2327,7 +2330,7 @@
         "apps/web/features/todo/server/todoResolvers.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2354,7 +2357,7 @@
         "apps/web/features/tracking/server/trackingResolvers.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2374,7 +2377,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/features/tracking/services/goalService.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2404,7 +2407,7 @@
       "v1_consumer": null,
       "code_references": ["apps/web/features/recovery/api/logUrge.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2429,7 +2432,7 @@
         "services/sync-worker/src/lib/supabase.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "A user-selectable table contains credential material or a plaintext provider key.",
       "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
@@ -2443,7 +2446,7 @@
       "v1_consumer": "feedback",
       "code_references": ["apps/web/app/api/feedback/route.ts"],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "medium",
       "risk": "RLS is enabled with no policy, so non-service clients cannot use the table.",
       "proposed_remediation": "Confirm API-only or direct-user intent, then add an explicit insert/owner policy or service-only false policy."
@@ -2480,7 +2483,7 @@
         "apps/web/lib/integrations/serverIntegrationKeys.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "A user-selectable table contains credential material or a plaintext provider key.",
       "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
@@ -2503,7 +2506,7 @@
         "apps/web/features/jobs/lib/modelKeyHelper.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2525,7 +2528,7 @@
         "apps/web/features/personalization/services/personalizationService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2566,7 +2569,7 @@
         "apps/web/lib/supabase/getMicrosoftTokens.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "critical",
       "risk": "A user-selectable table contains credential material or a plaintext provider key.",
       "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
@@ -2588,7 +2591,7 @@
         "apps/web/features/finance/services/watchlistService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2610,7 +2613,7 @@
         "apps/web/features/finance/services/watchlistService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2634,7 +2637,7 @@
         "apps/web/features/platform/services/platformPersistenceService.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2673,7 +2676,7 @@
         "apps/web/features/widgets/hooks/useWidgetSettingsStore.ts"
       ],
       "repository_type_present": true,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "low",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
@@ -2701,7 +2704,7 @@
         "apps/web/features/collaboration/lib/activityLogger.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2729,7 +2732,7 @@
         "apps/web/app/api/collaboration/workspaces/[id]/approvals/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2767,7 +2770,7 @@
         "apps/web/app/api/collaboration/workspaces/[id]/comments/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2792,7 +2795,7 @@
         "apps/web/app/api/collaboration/workspaces/[id]/invites/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
@@ -2827,10 +2830,11 @@
         "apps/web/app/api/collaboration/workspaces/[id]/members/route.ts"
       ],
       "repository_type_present": false,
-      "migration_coverage": "remote migration history is absent from repository",
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
       "risk_severity": "informational",
       "risk": "No structural RLS gap found in this schema-only audit.",
       "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
     }
-  ]
+  ],
+  "baseline_recovered_at": "2026-08-14"
 }

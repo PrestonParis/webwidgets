@@ -94,7 +94,7 @@ task completion.
 ## Pending implementation decisions
 
 - Select the concrete worker hosting provider during Prompt 005.
-- Approve or revise ADR-012's recovered-history Supabase baseline procedure,
-  then execute the audited P0 RLS and credential-isolation remediations.
+- Execute ADR-012's approved recovered-history Supabase baseline procedure,
+  then the audited P0 RLS and credential-isolation remediations.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.

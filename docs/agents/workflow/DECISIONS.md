@@ -207,7 +207,7 @@ only return after a measured requirement and separate decision.
 
 ## ADR-012: Recover Remote Migration History Without a Squashed Live Dump
 
-**Status:** Proposed
+**Status:** Active
 
 **Decision:** Establish the WebWidgets schema baseline by recovering and
 reviewing the 46 migrations already recorded by `webwidgets-dev`, committing
