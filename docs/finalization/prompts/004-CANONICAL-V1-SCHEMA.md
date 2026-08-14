@@ -17,6 +17,12 @@ backward-compatible migrations and projections over destructive table
 replacement. Define how existing activity, context, action, automation, and
 job records connect to the new lifecycle.
 
+Pending Prompt 002 approval, treat timeline as a new canonical fact model;
+keep activity and context as projections and knowledge/domain objects as their
+own source truth. Reuse or evolve existing `action_requests`,
+`action_results`, `jobs`, and automation records when Prompt 003 confirms they
+are viable; do not create parallel ledgers merely to match proposed names.
+
 Each relevant record must support, directly or through an owned relation:
 
 - user ownership and RLS;

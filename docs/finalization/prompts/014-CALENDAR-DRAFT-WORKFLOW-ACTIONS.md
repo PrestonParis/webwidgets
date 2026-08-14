@@ -10,6 +10,10 @@ Replace the remaining V1 provider placeholders with real, verified calendar
 event creation, email-draft preparation, and explicitly configured workflow
 triggering. Email sending is not permitted.
 
+Pending Prompt 002 approval, n8n remains an optional executor adapter. Its
+dispatches and callbacks must correlate idempotently to canonical
+action/job records; n8n is not the schedule, approval, or run-history owner.
+
 ## Required implementation
 
 ### Calendar

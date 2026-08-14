@@ -10,6 +10,12 @@ Project existing Gmail/Outlook and calendar sync data into canonical timeline
 events without creating another provider sync system. Preserve provider
 identity, authorization boundaries, cursor state, and source deletion rules.
 
+Pending Prompt 002 approval, converge the webhook, polling, Vercel-cron, and
+sync-worker paths instead of preserving multiple schedule owners. Next.js
+validates provider webhooks; the V1 worker owns scheduled sync, normalization,
+retry, and source health. Cut over account by account before retiring a legacy
+processor.
+
 ## Required investigation
 
 - Trace Gmail and Outlook webhook/cron/sync-worker flows, token refresh,

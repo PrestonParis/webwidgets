@@ -11,6 +11,10 @@ A user can add a feed, the worker fetches it on schedule, normalizes and
 deduplicates items, persists provenance and source health, and stops fetching
 after removal or disconnection.
 
+Pending Prompt 002 approval, the V1 worker owns fetch schedules and processing;
+Next.js owns authenticated source configuration. RSS writes raw observations
+and canonical timeline facts, with activity/context produced only downstream.
+
 ## Required implementation
 
 - Add authenticated source-management APIs and a minimal user-facing source

@@ -16,6 +16,10 @@ Use canonical action and outcome records. An automation run coordinates typed
 actions; it must not duplicate the action engine’s provider logic or maintain
 a competing audit history.
 
+Pending Prompt 002 approval, automation schedules run through the single V1
+worker, configurations/runs own orchestration state, and every provider result
+remains owned by the referenced `action_request`/`action_result` lifecycle.
+
 Required states should cover at least:
 
 - configuration: draft, dry-run, enabled, paused, disabled;

@@ -79,9 +79,9 @@ verification are the current bottlenecks; MCP does not solve them.
 
 ## Pending implementation decisions
 
-- Select and document the production durable-worker deployment target.
-- Resolve ownership between context entries, knowledge items, activity
-  events, and normalized timeline events.
+- Review and accept or revise the runtime and information boundaries proposed
+  in `OWNERSHIP_PROPOSAL.md` and ADR-008 through ADR-011. The concrete worker
+  hosting provider remains a Prompt 005 deployment choice after approval.
 - Define the tracked Supabase schema-baseline procedure.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.

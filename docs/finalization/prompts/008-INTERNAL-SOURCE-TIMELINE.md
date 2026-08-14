@@ -10,6 +10,11 @@ Make user-created WebWidgets state part of the same timeline used by external
 signals. Capture meaningful task, note/document, and activity changes without
 turning every UI interaction into noise.
 
+Pending Prompt 002 approval, domain and knowledge records remain source truth.
+Timeline receives meaningful lifecycle facts, while activity and context are
+origin-marked, one-way projections that cannot republish themselves into the
+timeline.
+
 ## Required investigation
 
 - Identify canonical task/todo tables and services, including completion and
