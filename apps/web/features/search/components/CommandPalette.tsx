@@ -28,6 +28,7 @@ import {
 import type { NlpSuggestion } from '../hooks/useSearch';
 import { cn } from '@/lib/utils/utils';
 import { getWidgetCategory } from '@/features/dashboard/lib/addWidgetConstants';
+import { V1ReleaseBadge } from '@/lib/product/V1ReleaseBadge';
 
 interface QuickAction {
     id: string;
@@ -81,20 +82,6 @@ const QUICK_ACTIONS: QuickAction[] = [
         description: 'Calendar and tasks',
         icon: () => <span>📅</span>,
         href: '/planning',
-    },
-    {
-        id: 'reading',
-        label: 'Reading',
-        description: 'Bible, PDFs, ebooks',
-        icon: () => <span>📖</span>,
-        href: '/reading',
-    },
-    {
-        id: 'chess',
-        label: 'Chess',
-        description: 'Play and study chess',
-        icon: () => <span>♟️</span>,
-        href: '/chess',
     },
     {
         id: 'settings',
@@ -386,6 +373,9 @@ export function CommandPalette() {
                                                             {category.label}
                                                         </span>
                                                     )}
+                                                    <V1ReleaseBadge
+                                                        state={w.betaState}
+                                                    />
                                                 </div>
                                                 <p className="text-xs text-zinc-400 truncate">
                                                     {w.description}
@@ -494,6 +484,9 @@ export function CommandPalette() {
                                                         {category.label}
                                                     </span>
                                                 )}
+                                                <V1ReleaseBadge
+                                                    state={widget?.betaState}
+                                                />
                                             </div>
                                             <span className="text-[10px] text-zinc-400 shrink-0">
                                                 {Math.round(s.confidence * 100)}

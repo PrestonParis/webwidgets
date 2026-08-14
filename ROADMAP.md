@@ -70,8 +70,10 @@ it.
 | Calendar | working | Google Calendar integration, all-day date bug fixed (ADR-003). |
 | Finance | working | Live quotes (Finnhub, CoinGecko); real-estate watchlist is a stub. |
 | Health tracking / recovery / habit | working | Actively developed — these are the highest-churn feature areas in git history. |
-| Chess | working | Lichess sync, PGN import, studies, move trainer. |
-| Reading platform | working | Bible/Quran/PDF via provider abstraction, annotations, plans. |
+| Chess | working, suspended beta | Lichess sync, PGN import, studies, and move trainer remain available to existing users but are outside V1 defaults and completion claims. |
+| Reading platform | working, suspended beta | Bible/Quran/PDF via provider abstraction, annotations, and plans remain available to existing users but are outside V1 defaults and completion claims. |
+| Creative Studio / Memorization | working, suspended beta | Existing widgets and data paths remain intact; both are excluded from V1 onboarding, generated workspaces, and automatic recommendations. |
+| Timeline Intelligence (`news`) | partial | The stable V1 surface remains discoverable outside Entertainment; the broader personal-event timeline and durable ingestion loop are still finalization work. |
 | Context graph (`features/context/`) | partial | Newest major subsystem. Only Supabase migration in the repo backs it; that migration has no RLS statements. |
 | Knowledge registry (`features/knowledge/`) | unknown | Boundary vs. `context` is undocumented — see ARCHITECTURE.md §11. |
 | ML service | working | FastAPI, model registry, drift monitor, 4-file pytest suite, 10 training scripts. |

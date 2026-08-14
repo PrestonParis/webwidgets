@@ -30,7 +30,28 @@ describe('WIDGET_CATALOG', () => {
             expect(w.description).toBeTruthy();
             expect(w.href).toBeTruthy();
             expect(w.keywords.length).toBeGreaterThan(0);
+            expect(w.betaState).toMatch(/^(stable|beta)$/);
         }
+    });
+
+    it('labels suspended experiences as beta and the timeline as stable', () => {
+        expect(
+            WIDGET_CATALOG.find((widget) => widget.type === 'chess')?.betaState,
+        ).toBe('beta');
+        expect(
+            WIDGET_CATALOG.find((widget) => widget.type === 'reading')
+                ?.betaState,
+        ).toBe('beta');
+        expect(
+            WIDGET_CATALOG.find((widget) => widget.type === 'memorization')
+                ?.betaState,
+        ).toBe('beta');
+        expect(
+            WIDGET_CATALOG.find((widget) => widget.type === 'news'),
+        ).toMatchObject({
+            name: 'Timeline Intelligence',
+            betaState: 'stable',
+        });
     });
 });
 

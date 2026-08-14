@@ -1,6 +1,7 @@
 import { WidgetConfig, WidgetType } from '@/features/dashboard/types/dashboard';
 import { Tracker } from '@/features/recovery/types/recovery';
 import { base } from '@/features/dashboard/constants';
+import { isV1DefaultWidget } from '@/lib/product/v1FeaturePolicy';
 
 const KNOWN_WIDGET_TYPES = new Set<string>([
     'texteditor',
@@ -71,16 +72,20 @@ export function hydrateTrackers(
 }
 
 export function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
+    const defaultWidgets = base.filter((widget) =>
+        isV1DefaultWidget(widget.type),
+    );
+
     if (trackers.length === 0) {
         return [
-            ...base,
+            ...defaultWidgets,
             {
                 id: 'widget-recovery-none',
                 type: 'recovery-empty',
                 visible: true,
                 columnSpan: 1,
                 containerId: 'main',
-                order: base.length,
+                order: defaultWidgets.length,
             },
         ];
     }
@@ -91,11 +96,11 @@ export function buildDefaultLayout(trackers: Tracker[]): WidgetConfig[] {
         visible: true,
         columnSpan: 1,
         containerId: 'main',
-        order: base.length + i,
+        order: defaultWidgets.length + i,
         props: { tracker: t },
     }));
 
-    return [...base, ...recoveryWidgets];
+    return [...defaultWidgets, ...recoveryWidgets];
 }
 
 export function buildEmptyLayout(): WidgetConfig[] {

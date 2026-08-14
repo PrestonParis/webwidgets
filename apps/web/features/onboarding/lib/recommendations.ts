@@ -3,6 +3,7 @@ import { AUTOMATION_DEFINITIONS } from '@/features/onboarding/lib/automationRegi
 import { INTEGRATION_PROVIDERS } from '@/features/onboarding/lib/integrationRegistry';
 import { getDashboardWidgetTypesForGoals } from '@/features/platform/lib/dashboardWidgetLibrary';
 import type { OnboardingGoalId } from '@/features/onboarding/types/goals';
+import { isV1DefaultWidget } from '@/lib/product/v1FeaturePolicy';
 import type {
     WorkspaceRecommendation,
     WidgetRecommendation,
@@ -230,6 +231,7 @@ function rankWidgets(goals: OnboardingGoalId[]): WidgetRecommendation[] {
     });
 
     return [...merged.values()]
+        .filter((widget) => isV1DefaultWidget(widget.widgetType))
         .sort((a, b) => b.priority - a.priority)
         .slice(0, 8);
 }
