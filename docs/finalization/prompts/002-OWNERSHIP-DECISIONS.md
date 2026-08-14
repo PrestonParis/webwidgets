@@ -1,6 +1,6 @@
 # 002 — Decide V1 Runtime and Information Ownership
 
-Status: Awaiting approval
+Status: Complete
 
 Priority: Critical  
 Depends on: None
@@ -67,9 +67,9 @@ replay/retention/deletion rules, rejected alternatives, and migration strategy
 are in `docs/finalization/OWNERSHIP_PROPOSAL.md`. ADR-008 through ADR-011 are
 recorded as Proposed in `docs/agents/workflow/DECISIONS.md`.
 
-No target implementation or `ARCHITECTURE.md` update has been made. Prompt 002
-remains open until a human accepts or revises the five decisions listed in the
-proposal and the accepted ADRs are marked Active.
+The project owner accepted all five decisions on 2026-08-13. ADR-008 through
+ADR-011 are Active, `ARCHITECTURE.md` records the accepted boundaries, and no
+target implementation was included in this checkpoint.
 
 ## Acceptance criteria
 

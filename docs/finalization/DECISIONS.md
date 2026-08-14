@@ -77,11 +77,23 @@ boundary. Do not build a general MCP layer as prerequisite infrastructure.
 **Reason:** Durable state, worker ownership, permissions, and action
 verification are the current bottlenecks; MCP does not solve them.
 
+## FIN-007: Adopt one durable worker and a canonical timeline
+
+**Status:** Accepted
+
+**Decision:** Adopt the runtime and information boundaries in
+`OWNERSHIP_PROPOSAL.md` and Active ADR-008 through ADR-011. The existing sync
+worker is the foundation for one durable V1 worker; Supabase owns durable
+state; timeline owns normalized facts; activity and context are projections;
+knowledge and domain records retain their own source truth.
+
+**Reason:** Competing schedules, undispatched worker factories, and overlapping
+record concepts prevent dependable ingestion, replay, approval, and verified
+task completion.
+
 ## Pending implementation decisions
 
-- Review and accept or revise the runtime and information boundaries proposed
-  in `OWNERSHIP_PROPOSAL.md` and ADR-008 through ADR-011. The concrete worker
-  hosting provider remains a Prompt 005 deployment choice after approval.
+- Select the concrete worker hosting provider during Prompt 005.
 - Define the tracked Supabase schema-baseline procedure.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.

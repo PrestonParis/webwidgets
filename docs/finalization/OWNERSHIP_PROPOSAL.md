@@ -1,16 +1,19 @@
 # V1 Runtime and Information Ownership Proposal
 
-Status: Proposed — awaiting human approval
+Status: Accepted
 
 Prompt: 002
 
 Last audited: 2026-08-13
 
+Accepted by the project owner on 2026-08-13. ADR-008 through ADR-011 are
+Active. This records ownership; it does not claim the target runtime or data
+model has been implemented.
+
 This document is the decision package for Prompt 002. It describes the
 current conflicts, proposes one owner for every V1 runtime and record type,
-and defines the migration boundary for later prompts. Nothing here is an
-implemented or accepted architecture until ADR-008 through ADR-011 are made
-Active by a human.
+and defines the migration boundary for later prompts. The target remains
+implementation work for Prompts 003 onward.
 
 ## Executive decision
 
@@ -290,9 +293,9 @@ These are proposed V1 defaults and require human acceptance with the ADRs.
    factories, legacy callback behavior, and obsolete tables only in later,
    reversible changes with measured parity and rollback notes.
 
-## Approval requested
+## Approval record
 
-A human should explicitly accept or revise these five points:
+The project owner accepted these five points on 2026-08-13:
 
 1. `services/sync-worker` becomes the one continuous V1 worker foundation.
 2. Supabase is truth and BullMQ/Redis is delivery; Next.js, Python, n8n, Go,
@@ -304,5 +307,5 @@ A human should explicitly accept or revise these five points:
 5. The replay, 30/90/365-day retention, disconnect, and cascading deletion
    defaults are acceptable for V1.
 
-Prompt 002 remains awaiting approval. Prompt 004 must not begin and the
-proposed ADRs must not become Active until that approval is recorded.
+Prompt 002 is complete and ADR-008 through ADR-011 are Active. Prompt 004
+remains blocked on Prompt 003's live-schema and RLS audit.
