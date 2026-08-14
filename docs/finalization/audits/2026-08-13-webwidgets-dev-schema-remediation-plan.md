@@ -52,7 +52,7 @@ Rollback: retain encrypted old columns temporarily with server-only access
 until provider refresh and rollback tests pass; never restore browser reads as
 the rollback mechanism.
 
-## 3. P0 — Recover and sanitize remote migration history
+## 3. Complete — Recover and sanitize remote migration history
 
 Repository task: `recover_remote_migration_history`
 
@@ -72,6 +72,10 @@ Dependency: ADR-012 approval.
 
 Rollback: repository revert only; this task must not mutate remote schema or
 migration history.
+
+Completion evidence: all 46 versions align locally/remotely; the two
+identity-bearing files were sanitized and reviewed. See
+`2026-08-14-webwidgets-dev-baseline-recovery.md`.
 
 ## 4. P1 — Reconcile the context substrate migration
 
@@ -159,7 +163,25 @@ Dependency: task 3.
 
 Rollback: restore the prior policy set from the schema-only pre-change dump.
 
-## 9. Regenerate canonical types
+## 9. P1 — Harden SECURITY DEFINER helper search paths
+
+Migration task: `harden_security_definer_search_paths`
+
+- Set an immutable empty search path and schema-qualify relations/functions in
+  collaboration membership helpers and any later helper found by the same
+  audit.
+- Revoke default execution and grant only the roles required by RLS/provider
+  paths.
+- Test direct invocation, RLS membership checks, and hostile object-name
+  shadowing in an ephemeral database.
+
+Dependency: recovered history. This does not block Prompt 004's isolated
+timeline schema, but it blocks collaboration/security launch claims.
+
+Rollback: restore the prior function definitions only from the pre-change
+schema dump; do not broaden grants as a convenience.
+
+## 10. Regenerate canonical types
 
 Repository task: `regenerate_supabase_types`
 

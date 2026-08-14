@@ -1,6 +1,6 @@
 # 003 — Establish the Live Schema Baseline and RLS Audit
 
-Status: Awaiting approval
+Status: Complete
 
 Priority: Critical  
 Depends on: Authenticated access to the intended Supabase project
@@ -73,9 +73,9 @@ task, not authorization for destructive reconciliation.
   `docs/finalization/audits/2026-08-13-webwidgets-dev-remote-migration-manifest.json`
 - Ordered remediation tasks:
   `docs/finalization/audits/2026-08-13-webwidgets-dev-schema-remediation-plan.md`
-- Proposed baseline decision: ADR-012
+- Accepted baseline decision: ADR-012
 
-The audit and remediation plan are complete. Prompt 003 remains Awaiting
-approval until the project owner accepts or revises ADR-012's recovered-history
-baseline strategy. No generated types were committed because doing so before
-schema reconciliation would remove context contracts used by current code.
+The project owner approved ADR-012's recovered-history baseline strategy on
+2026-08-14. The audit and remediation plan are complete. No generated types
+were committed because doing so before schema reconciliation would remove
+context contracts used by current code.

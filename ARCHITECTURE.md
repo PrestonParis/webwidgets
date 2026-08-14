@@ -414,14 +414,12 @@ to anonymous/authenticated roles; `user_feedback` has RLS enabled with no
 policy. See the
 [full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
-**Only one migration file exists in the repo.** Remote migration history has
-46 different versions absent locally, while local
-`202605300001_context_substrate.sql` is absent remotely. That local migration
-does contain RLS policies, but its richer context columns and three new
-context tables are not live. Do not assume either the migration directory or
-committed generated types represents deployed schema. ADR-012 proposes
-recovering and sanitizing remote history rather than committing a squashed
-live dump; it remains awaiting approval.
+The repository now contains the 46 reviewed historical migrations recorded by
+remote history plus local-only `202605300001_context_substrate.sql`. ADR-012's
+recovered-history baseline completed on 2026-08-14 without remote mutation;
+two identity-bearing historical files were sanitized intentionally. The local
+context migration contains RLS policies, but its richer columns and three new
+tables are not live. Do not mistake migration presence for deployment state.
 
 Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `widget_folders`, `email_actions`, `email_queue`, `todos`, `habits`,
@@ -440,8 +438,8 @@ audit inventory is the canonical dated snapshot for planning Prompt 004.
 Committed Supabase types describe 84 of the 107 live tables. Twenty-six live
 tables are absent from the file, three context tables exist only in committed
 types, and six shared tables have column drift. Code also queries seven table
-names absent from live. Do not regenerate/commit types until migration history
-and context/security remediation are reconciled.
+names absent from live. Do not regenerate/commit types until context/security
+remediation is reconciled with deployed schema.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by

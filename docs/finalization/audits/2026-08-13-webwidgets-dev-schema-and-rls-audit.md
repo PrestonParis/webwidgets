@@ -1,6 +1,6 @@
 # webwidgets-dev Live Schema and RLS Audit
 
-Status: Complete audit — baseline strategy awaiting human approval
+Status: Complete — baseline strategy approved 2026-08-14
 
 Date: 2026-08-13
 
@@ -25,9 +25,10 @@ safe to treat as migration-backed or type-synchronized yet:
   `profiles`, `user_tokens`, `user_email_accounts`, and
   `user_integration_keys`. RLS isolates users from each other, but does not
   prevent the user's browser session from selecting its own raw credentials.
-- The remote migration history contains 46 migrations absent from the
-  repository. The repository's only migration, `202605300001`, is absent from
-  remote history and its context schema is not present live.
+- At audit time, remote history contained 46 migrations absent from the
+  repository. They were recovered and privacy-reviewed on 2026-08-14 after
+  ADR-012 approval. `202605300001` remains the sole local-only successor and
+  its context schema is not present live.
 - Current code contains literal queries to seven tables absent from live:
   `context_edges`, `context_permissions`, `context_saved_views`,
   `custom_widgets`, `fitness_workout_routines`, `journal_entries`, and
@@ -82,7 +83,7 @@ the 48 tables currently relevant to V1 planning.
 | V1 area                    | Live records                                                                                                | Ownership / RLS                         | Finding                                                                                                                                |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Auth and profile           | `profiles`, `onboarding_profiles`                                                                           | `profiles.id` or `user_id`; RLS on      | `profiles` contains a provider API-key column and duplicate select policies; live has two columns absent from committed types          |
-| Dashboard / command center | `dashboard_layouts`, `widget_settings`, `widget_instances`, `user_preferences`, `feature_settings`          | `user_id`; RLS owner policies           | Structurally isolated; still absent from tracked migration history                                                                     |
+| Dashboard / command center | `dashboard_layouts`, `widget_settings`, `widget_instances`, `user_preferences`, `feature_settings`          | `user_id`; RLS owner policies           | Structurally isolated; historical migration coverage was recovered on 2026-08-14                                                      |
 | Integrations / tokens      | `integration_connections`, `user_tokens`, `user_email_accounts`, `user_integration_keys`, `user_model_keys` | `user_id`; RLS owner policies           | Three tables expose raw credential columns to an owner's authenticated session; `user_email_accounts` is missing from committed types  |
 | Email ingestion            | `email_queue`, `email_snapshots`, `email_processing_log`, `email_classifications`                           | `user_id`; RLS on                       | Queue is explicit service-only; snapshots are owner-selectable and include body text; three tables are missing from committed types    |
 | Legacy email candidates    | `email_actions`                                                                                             | `user_id`; owner policy                 | Live and used but absent from committed types; must converge with canonical candidates/actions rather than remain a separate lifecycle |
@@ -224,8 +225,9 @@ the database. Any later remote migration needs a pre-change schema dump,
 Supabase backup/PITR confirmation, additive forward repair, and a separately
 approved deployment window.
 
-This strategy is Proposed as ADR-012 and requires project-owner approval before
-Prompt 003 is marked Complete or Prompt 004 begins.
+The project owner approved this strategy on 2026-08-14. ADR-012 is Active, and
+steps 1–4 completed without remote mutation. The recovery evidence is in
+[`2026-08-14-webwidgets-dev-baseline-recovery.md`](2026-08-14-webwidgets-dev-baseline-recovery.md).
 
 ## Remediation handoff
 

@@ -89,7 +89,7 @@ it.
 | Widget-based actions (stage 4) | partial | Email/calendar action-confirm flow exists; other items in WIDGET_ACTIONS.md (generate document, export data, summarize file, trigger workflow) not individually verified. |
 | Security (stage 7) | partial, critical gaps | Live audit verified 105/107 public tables have RLS and 153 policies. Two user-linked log tables have no RLS, and four owner-readable tables expose raw credential columns to authenticated browser sessions. |
 | Deployment (stage 8) | working (partially) | `apps/web` already auto-deploys to Vercel on push to main — ahead of its own stage. Conversion/sync-worker/go-worker have no production path. |
-| Schema/migration tracking | broken, audited | Live has 107 public tables and 46 recoverable remote migrations absent locally. The sole local migration is absent remotely; committed types also materially drift. ADR-012 baseline strategy awaits approval. |
+| Schema/migration tracking | partial, audited | All 46 remote migration versions were recovered and reviewed under ADR-012. The context successor remains local-only and committed types materially drift from live. |
 | CI | working (baseline) | `.github/workflows/ci.yml` gates changed files only (lint/typecheck/tests/build); see `.github/workflows/README.md`. Branch-protection required-checks still need repo-owner configuration — not something a workflow file alone can do. |
 | Automated test coverage | partial | 52 unit test files (shallow, one per domain); e2e has heavy scaffolding but only 3 real spec files; 4 of 8 `test:*` e2e npm scripts point at nonexistent directories. |
 | Local commit-time quality gates | broken | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today. |
@@ -106,9 +106,9 @@ workflow this bootstrap sets up from being trustworthy.
   but marking its jobs as required status checks on `main` is a repository
   settings change only the repo owner can make (Settings → Branches). Until
   that's done, CI runs and reports but doesn't actually block a merge.
-- **Approve and execute the migration baseline strategy** — the live audit is
-  complete and the 46 remote migrations are recoverable, but ADR-012 must be
-  approved before reviewed/sanitized history is committed.
+- **Reconcile the local-only context migration and generated types** — the
+  recovered baseline now matches all 46 remote versions, but the context
+  successor is not deployed and committed types still drift.
 - **Fix the audited P0 access-control gaps** — enable parent-owned RLS on
   `export_job_logs`/`import_job_logs` and move provider credentials behind a
   server-only boundary. The ordered plan is under `docs/finalization/audits/`.
