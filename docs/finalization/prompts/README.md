@@ -19,6 +19,8 @@ Before executing any prompt, read:
 - `Available`: prerequisites are satisfied and implementation may begin.
 - `Blocked`: a prerequisite or human decision is outstanding.
 - `Checkpoint`: produces a decision or audit rather than product code.
+- `Awaiting approval`: the checkpoint deliverable exists, but its required
+  human decision has not been recorded.
 - `Complete`: acceptance criteria were verified and completion evidence was
   added to the source issue/PR.
 
@@ -31,7 +33,7 @@ Supabase, timeline, action, and automation files.
 | Prompt | Outcome                                          | Status     | Depends on        |
 | ------ | ------------------------------------------------ | ---------- | ----------------- |
 | 001    | Enforce breadth freeze and suspended beta        | Complete   | —                 |
-| 002    | Decide runtime and information ownership         | Checkpoint | —                 |
+| 002    | Decide runtime and information ownership         | Awaiting approval | —              |
 | 003    | Audit live schema and RLS                        | Blocked    | Supabase access   |
 | 004    | Add canonical timeline/action schema             | Blocked    | 002, 003          |
 | 005    | Deploy one durable worker runtime                | Blocked    | 002, 004          |

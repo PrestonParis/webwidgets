@@ -10,6 +10,11 @@ Provide one production-deployable worker runtime that actually starts and
 processes V1 ingestion, analysis, schedule, and action queues with durable
 state, health reporting, retries, and graceful shutdown.
 
+Pending Prompt 002 approval, extend `services/sync-worker` as that runtime.
+Supabase persists lifecycle truth and BullMQ/Redis provides at-least-once
+delivery. Do not create another worker package unless the ownership decision
+is explicitly revised.
+
 ## Required investigation
 
 - Inspect the existing sync-worker, news worker factory, action worker

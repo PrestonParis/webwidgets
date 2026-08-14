@@ -10,6 +10,11 @@ Make the existing intelligence provider registry capable of real bounded
 summarization and structured reasoning without allowing external models to
 control permissions, policy, or execution.
 
+Pending Prompt 002 approval, Python is a bounded, stateless inference service
+behind one authenticated container deployment. It owns no schedules, queues,
+authorization policy, canonical state, or action execution; existing Python
+Vercel manifests are not automatically the supported production path.
+
 ## Required investigation
 
 - Inspect existing chatbot provider clients and reuse secure server-only SDK

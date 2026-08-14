@@ -1,6 +1,7 @@
 # 002 — Decide V1 Runtime and Information Ownership
 
-Status: Checkpoint  
+Status: Awaiting approval
+
 Priority: Critical  
 Depends on: None
 
@@ -58,6 +59,17 @@ deferred until a measured requirement exists.
 Do not implement the target architecture or mark this prompt complete until a
 human accepts the ownership decisions. If the decision differs from the
 starting proposal, revise Prompts 004–018 before handoff.
+
+## Decision package produced
+
+The repository audit, current and target diagrams, responsibility matrices,
+replay/retention/deletion rules, rejected alternatives, and migration strategy
+are in `docs/finalization/OWNERSHIP_PROPOSAL.md`. ADR-008 through ADR-011 are
+recorded as Proposed in `docs/agents/workflow/DECISIONS.md`.
+
+No target implementation or `ARCHITECTURE.md` update has been made. Prompt 002
+remains open until a human accepts or revises the five decisions listed in the
+proposal and the accepted ADRs are marked Active.
 
 ## Acceptance criteria
 

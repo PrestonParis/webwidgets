@@ -83,3 +83,122 @@
 **Why:** Initial threshold of 0.45 dropped legitimate payment emails (Klarna-style) that scored ~0.37. The `ignore` class acts as a safety net — lowering the threshold to 0.35 doesn't increase false positives meaningfully because genuinely irrelevant emails are still classified as `ignore`.
 
 **Consequences:** As training data grows, the threshold may need revisiting. Monitor false positive rate for new email types.
+
+---
+
+## ADR-008: One Durable TypeScript Worker for V1 Background Work
+
+**Status:** Proposed
+
+**Decision:** Extend `services/sync-worker` into the one continuously running
+V1 TypeScript/BullMQ worker. It owns source polling, normalization, analysis
+jobs, recurring schedules, provider action execution, retries, dead letters,
+and worker health. Next.js owns authenticated UI/API, webhook validation,
+source configuration, and exact-payload approval. Vercel crons are temporary
+cutover fallbacks and must not schedule work also owned by the worker.
+
+If activated, this ADR narrowly amends ADR-005: the Supabase service-role
+client may also run inside the dedicated server-only worker. Every operation
+must carry an explicit user scope, validate the owning connection or record,
+and remain unavailable to browser and shared client-safe modules.
+
+**Why:** The repository has working pieces split across Vercel cron routes,
+the sync worker, and undispatched news/action worker factories. A single boot
+owner and lifecycle contract prevents duplicate schedules, missing consumers,
+and provider work tied to request duration. The existing sync worker has the
+strongest reusable BullMQ, token refresh, and shutdown foundation.
+
+**Consequences:** Prompt 005 must select and document a production container
+host, add all V1 processors to one explicit entrypoint, implement health and
+dead-letter behavior, and cut over schedules one source at a time. The worker
+name may remain temporarily even as its role broadens. Service-role access
+becomes a reviewed server-runtime exception, not a general shared library.
+
+---
+
+## ADR-009: Separate Source Truth, Timeline, Activity, Knowledge, and Context
+
+**Status:** Proposed
+
+**Decision:** Provider/domain records and `knowledge_items` remain source truth
+for current domain state and user-authored content. A normalized, user-scoped
+timeline becomes the canonical history of meaningful facts. `activity_events`
+is a recent-activity/notification projection, while `context_entries` and
+edges are rebuildable entity/retrieval projections. Projections flow one way
+from domain, timeline, knowledge, and verified outcomes and cannot republish
+themselves as new timeline facts.
+
+Derived insights and candidate actions must reference their evidence and
+model/policy version. Existing `action_requests`, `action_results`, `jobs`,
+and automation records should be reused or evolved after the live-schema audit
+rather than duplicated solely to match new terminology.
+
+**Why:** Activity is mutable and pruned, context is rewritten by backfills and
+entity upserts, and knowledge represents authored content rather than provider
+or action events. Treating any one of them as all three roles loses provenance,
+creates feedback loops, or duplicates private source bodies.
+
+**Consequences:** Prompt 004 adds only the missing canonical concepts and
+relations after Prompt 003 verifies the live schema. Timeline rows minimize
+content and reference knowledge/domain bodies. Activity and context can be
+rebuilt and must never outlive their source. Existing compatibility reads stay
+in place during migration.
+
+---
+
+## ADR-010: Supabase Is Durable Truth; BullMQ Provides At-Least-Once Delivery
+
+**Status:** Proposed
+
+**Decision:** Supabase Postgres owns canonical lifecycle state, provenance,
+user scope, approvals, and verified outcomes. BullMQ/Redis owns delivery,
+concurrency, retry timing, and delayed schedules only. Queue jobs reference a
+canonical record and deterministic idempotency key. Duplicate delivery is
+expected; externally visible effects must remain once from the product's
+perspective.
+
+Use proposed V1 defaults of 30 days for raw private payload after successful
+normalization, 365 days for normalized timeline events and content-minimized
+approval/action/automation history, 30 days for successful job diagnostics,
+and 90 days for failed/dead-letter diagnostics. Existing activity archive and
+90-day deletion behavior remains a projection policy. Disconnect stops work
+and revokes credentials but preserves normalized history by default; removing
+imported source data cascades through dependent projections and derived work.
+
+**Why:** Redis retention or restart cannot erase product history. Stable source
+identity and persisted state are required to coalesce webhook redelivery,
+cursor replay, polling overlap, worker restart, and provider retry safely.
+Explicit retention and deletion rules prevent context or derived records from
+silently outliving private source data.
+
+**Consequences:** Every processor persists state before acknowledging work,
+checks permission immediately before external effects, and records a verified
+result rather than treating queue acceptance as success. Prompt 004 must add
+constraints, RLS, retention metadata, and cascade/invalidation behavior. The
+retention defaults require human approval and later operational enforcement.
+
+---
+
+## ADR-011: Bound Python, n8n, Go, Conversion, and Dashboard Runtime Roles
+
+**Status:** Proposed
+
+**Decision:** Python serves versioned, bounded, stateless inference requests
+and owns no schedules, authorization policy, queues, or product state. n8n is
+an optional executor for explicitly configured, validated, approved workflows
+and is not an ingestion owner or approval/run database. The Go worker is
+disabled and deferred for V1. The conversion service remains a specialized
+file-conversion boundary. The dashboard runtime owns rendering and local UI
+state only.
+
+**Why:** These components have useful bounded capabilities, but promoting any
+of them to general orchestration would create another state machine or depend
+on incomplete infrastructure. The Go paths are in-memory stubs, current n8n
+callbacks do not reliably transition the originating job, and client runtime
+cannot provide durable background execution.
+
+**Consequences:** Prompt 010 must expose Python through one authenticated
+container deployment path and exclude fabricated fallbacks from decisions.
+Prompt 014 must correlate n8n callbacks to canonical action/job records with
+idempotency. Go cannot be a dependency of a V1 acceptance journey and should
+only return after a measured requirement and separate decision.
