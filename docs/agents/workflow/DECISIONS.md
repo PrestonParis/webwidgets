@@ -202,3 +202,29 @@ container deployment path and exclude fabricated fallbacks from decisions.
 Prompt 014 must correlate n8n callbacks to canonical action/job records with
 idempotency. Go cannot be a dependency of a V1 acceptance journey and should
 only return after a measured requirement and separate decision.
+
+---
+
+## ADR-012: Recover Remote Migration History Without a Squashed Live Dump
+
+**Status:** Proposed
+
+**Decision:** Establish the WebWidgets schema baseline by recovering and
+reviewing the 46 migrations already recorded by `webwidgets-dev`, committing
+sanitized historical files under their original versions, and keeping a
+schema inventory plus checksum manifest as non-executable evidence. Do not
+commit the raw live schema dump as a migration and do not mark historical
+objects for recreation. Reconcile the local-only context migration as the next
+reviewed successor, then use new additive migrations for remediation.
+
+**Why:** Remote history is recoverable through supported Supabase tooling, but
+is absent from the repository. A squashed schema dump would be easy to apply
+accidentally, would obscure migration order, and contains environment-specific
+function/policy detail. Two recovered historical files also contain email
+literals that must not be copied into source control verbatim.
+
+**Consequences:** Baseline recovery is a repository-only task until separately
+approved migrations begin. Recovered SQL requires manual security and privacy
+review, and sanitized files may intentionally differ from remote checksums with
+that difference documented. Type generation happens only after migration
+history, live context state, and critical RLS remediation agree.

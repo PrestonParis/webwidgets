@@ -94,6 +94,7 @@ task completion.
 ## Pending implementation decisions
 
 - Select the concrete worker hosting provider during Prompt 005.
-- Define the tracked Supabase schema-baseline procedure.
+- Approve or revise ADR-012's recovered-history Supabase baseline procedure,
+  then execute the audited P0 RLS and credential-isolation remediations.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.
