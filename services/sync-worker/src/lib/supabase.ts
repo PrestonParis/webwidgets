@@ -1,23 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import ws from 'ws';
-import { env } from '../env.js';
+import type { WorkerEnv } from '../env.js';
 
-// Service-role client — bypasses RLS. Used only in the worker process,
-// never in the browser or Next.js request handlers.
-// ws is provided explicitly because Node 20 has no native WebSocket.
-export const supabase = createClient(
-    env.SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    {
+export function createWorkerSupabase(env: WorkerEnv): SupabaseClient {
+    return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
         auth: { persistSession: false, autoRefreshToken: false },
         realtime: { transport: ws as unknown as typeof WebSocket },
-    },
-);
+    });
+}
 
-export interface EmailAccount {
+export interface EmailAccountReference {
     id: string;
     user_id: string;
     provider: 'google' | 'microsoft';
+}
+
+export interface EmailAccount extends EmailAccountReference {
     email: string;
     access_token: string;
     refresh_token: string | null;
@@ -33,47 +31,77 @@ export interface EmailSnapshot {
     sender_email: string;
     sender_name: string;
     snippet: string;
-    received_at: string; // ISO timestamp
+    received_at: string;
     raw_date: string;
-    /** Full decoded body text. Stored when fetched during ingest. */
     body_text?: string;
 }
 
-export async function getAllActiveAccounts(): Promise<EmailAccount[]> {
-    const { data, error } = await supabase
+export async function getActiveAccountReferences(
+    client: SupabaseClient,
+    userId?: string,
+): Promise<EmailAccountReference[]> {
+    let query = client
+        .from('user_email_accounts')
+        .select('id, user_id, provider');
+    if (userId) query = query.eq('user_id', userId);
+    const { data, error } = await query;
+    if (error) throw new Error('Failed to fetch account references');
+    return (data ?? []) as EmailAccountReference[];
+}
+
+export async function getAccountForUser(
+    client: SupabaseClient,
+    userId: string,
+    accountId: string,
+): Promise<EmailAccount | null> {
+    const { data, error } = await client
         .from('user_email_accounts')
         .select(
             'id, user_id, provider, email, access_token, refresh_token, expires_at',
-        );
-    if (error) throw new Error(`Failed to fetch accounts: ${error.message}`);
-    return (data ?? []) as EmailAccount[];
+        )
+        .eq('id', accountId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (error) throw new Error('Failed to fetch scoped email account');
+    return data as EmailAccount | null;
 }
 
 export async function upsertSnapshots(
+    client: SupabaseClient,
     snapshots: EmailSnapshot[],
 ): Promise<void> {
     if (snapshots.length === 0) return;
-    const { error } = await supabase.from('email_snapshots').upsert(snapshots, {
+    const { error } = await client.from('email_snapshots').upsert(snapshots, {
         onConflict: 'user_id,id',
         ignoreDuplicates: false,
     });
-    if (error) throw new Error(`Failed to upsert snapshots: ${error.message}`);
+    if (error) throw new Error('Failed to persist email snapshots');
 }
 
-export async function markAccountSynced(accountId: string): Promise<void> {
-    await supabase
+export async function markAccountSynced(
+    client: SupabaseClient,
+    userId: string,
+    accountId: string,
+): Promise<void> {
+    const { error } = await client
         .from('user_email_accounts')
         .update({ last_synced_at: new Date().toISOString() })
-        .eq('id', accountId);
+        .eq('id', accountId)
+        .eq('user_id', userId);
+    if (error) throw new Error('Failed to mark email account synced');
 }
 
 export async function updateAccountTokens(
+    client: SupabaseClient,
+    userId: string,
     accountId: string,
     accessToken: string,
     expiresAt: number,
 ): Promise<void> {
-    await supabase
+    const { error } = await client
         .from('user_email_accounts')
         .update({ access_token: accessToken, expires_at: expiresAt })
-        .eq('id', accountId);
+        .eq('id', accountId)
+        .eq('user_id', userId);
+    if (error) throw new Error('Failed to update scoped account token');
 }

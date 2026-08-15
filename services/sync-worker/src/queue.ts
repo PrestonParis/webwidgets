@@ -1,63 +1,44 @@
-import { Queue, Worker, type ConnectionOptions } from 'bullmq';
-import { env } from './env.js';
+import { Queue, type ConnectionOptions } from 'bullmq';
+import type { WorkerEnv } from './env.js';
 
 export const QUEUE_ACCOUNT = 'email-sync-account';
 export const QUEUE_ALL = 'email-sync-all';
 
-// Shared connection options — used by both this worker and the Next.js producer.
-// The Next.js app reads REDIS_URL from its own env (same value).
-export function makeConnection(): ConnectionOptions {
-    return {
-        url: env.REDIS_URL,
-        maxRetriesPerRequest: null,
-    } as ConnectionOptions;
+export function makeConnection(env: WorkerEnv): ConnectionOptions {
+    return { url: env.REDIS_URL, maxRetriesPerRequest: null };
 }
 
 export interface SyncAccountPayload {
     userId: string;
     accountId: string;
     provider: 'google' | 'microsoft';
-    email: string;
 }
 
 export interface SyncAllPayload {
     triggeredBy: 'cron' | 'manual' | 'user-connect';
-    userId?: string; // If set, only sync this user
+    userId?: string;
 }
 
-// Producer used both here and re-exported for Next.js to enqueue on-demand syncs.
-let _accountQueue: Queue<SyncAccountPayload> | null = null;
-let _allQueue: Queue<SyncAllPayload> | null = null;
-
-export function getAccountQueue(): Queue<SyncAccountPayload> {
-    _accountQueue ??= new Queue<SyncAccountPayload>(QUEUE_ACCOUNT, {
-        connection: makeConnection(),
+export function createAccountQueue(env: WorkerEnv) {
+    return new Queue<SyncAccountPayload>(QUEUE_ACCOUNT, {
+        connection: makeConnection(env),
         defaultJobOptions: {
             attempts: 3,
             backoff: { type: 'exponential', delay: 5_000 },
-            removeOnComplete: 200,
-            removeOnFail: 100,
+            removeOnComplete: { age: 30 * 24 * 60 * 60, count: 200 },
+            removeOnFail: { age: 90 * 24 * 60 * 60, count: 500 },
         },
     });
-    return _accountQueue;
 }
 
-export function getAllQueue(): Queue<SyncAllPayload> {
-    _allQueue ??= new Queue<SyncAllPayload>(QUEUE_ALL, {
-        connection: makeConnection(),
+export function createAllQueue(env: WorkerEnv) {
+    return new Queue<SyncAllPayload>(QUEUE_ALL, {
+        connection: makeConnection(env),
         defaultJobOptions: {
             attempts: 2,
-            removeOnComplete: 10,
-            removeOnFail: 20,
+            backoff: { type: 'exponential', delay: 5_000 },
+            removeOnComplete: { age: 30 * 24 * 60 * 60, count: 50 },
+            removeOnFail: { age: 90 * 24 * 60 * 60, count: 100 },
         },
     });
-    return _allQueue;
-}
-
-export async function enqueueUserSync(userId: string): Promise<void> {
-    await getAllQueue().add(
-        'sync-all',
-        { triggeredBy: 'user-connect', userId },
-        { priority: 1, jobId: `user-sync-${userId}` },
-    );
 }

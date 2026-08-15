@@ -5,8 +5,10 @@ export type JobStatus =
     | 'running'
     | 'waiting_for_permission'
     | 'waiting_for_approval'
+    | 'waiting'
     | 'completed'
     | 'failed'
+    | 'dead_lettered'
     | 'cancelled';
 
 export type JobType =
@@ -18,7 +20,8 @@ export type JobType =
     | 'finance_categorization'
     | 'document_parsing'
     | 'transcription'
-    | 'automation_run';
+    | 'automation_run'
+    | 'runtime.probe';
 
 export interface JobRecord {
     id: string;

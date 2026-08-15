@@ -30,27 +30,27 @@ Supabase, timeline, action, and automation files.
 
 ## Ordered queue
 
-| Prompt | Outcome                                          | Status     | Depends on        |
-| ------ | ------------------------------------------------ | ---------- | ----------------- |
-| 001    | Enforce breadth freeze and suspended beta        | Complete   | —                 |
-| 002    | Decide runtime and information ownership         | Complete   | —                 |
-| 003    | Audit live schema and RLS                        | Complete   | Supabase access   |
-| 004    | Add canonical timeline/action schema             | Complete   | 002, 003          |
-| 005    | Deploy one durable worker runtime                | Available  | 002, 004          |
-| 006    | Persist RSS/Atom source ingestion                | Blocked    | 004, 005          |
-| 007    | Ingest email and calendar timeline events        | Blocked    | 004, 005          |
-| 008    | Ingest task, note, document, and activity events | Blocked    | 004, 005          |
-| 009    | Deliver timeline query and source-health UI      | Blocked    | 006–008           |
-| 010    | Implement governed LLM provider adapters         | Blocked    | 002, 004          |
-| 011    | Generate evidence-backed briefings               | Blocked    | 009, 010          |
-| 012    | Produce commitment candidate actions             | Blocked    | 007, 010          |
-| 013    | Execute and verify task actions                  | Blocked    | 004, 005, 012     |
-| 014    | Execute calendar, draft, and workflow actions    | Blocked    | 005, 012          |
-| 015    | Persist the automation state machine             | Blocked    | 004, 013, 014     |
-| 016    | Ship bounded automation templates                | Blocked    | 011, 015          |
-| 017    | Integrate the V1 command center                  | Blocked    | 009, 011, 013–016 |
-| 018    | Complete security and operational hardening      | Blocked    | 005–017           |
-| 019    | Prove V1 journeys and release readiness          | Blocked    | 001–018           |
+| Prompt | Outcome                                          | Status            | Depends on        |
+| ------ | ------------------------------------------------ | ----------------- | ----------------- |
+| 001    | Enforce breadth freeze and suspended beta        | Complete          | —                 |
+| 002    | Decide runtime and information ownership         | Complete          | —                 |
+| 003    | Audit live schema and RLS                        | Complete          | Supabase access   |
+| 004    | Add canonical timeline/action schema             | Complete          | 002, 003          |
+| 005    | Deploy one durable worker runtime                | Awaiting approval | 002, 004          |
+| 006    | Persist RSS/Atom source ingestion                | Blocked           | 004, 005          |
+| 007    | Ingest email and calendar timeline events        | Blocked           | 004, 005          |
+| 008    | Ingest task, note, document, and activity events | Blocked           | 004, 005          |
+| 009    | Deliver timeline query and source-health UI      | Blocked           | 006–008           |
+| 010    | Implement governed LLM provider adapters         | Blocked           | 002, 004          |
+| 011    | Generate evidence-backed briefings               | Blocked           | 009, 010          |
+| 012    | Produce commitment candidate actions             | Blocked           | 007, 010          |
+| 013    | Execute and verify task actions                  | Blocked           | 004, 005, 012     |
+| 014    | Execute calendar, draft, and workflow actions    | Blocked           | 005, 012          |
+| 015    | Persist the automation state machine             | Blocked           | 004, 013, 014     |
+| 016    | Ship bounded automation templates                | Blocked           | 011, 015          |
+| 017    | Integrate the V1 command center                  | Blocked           | 009, 011, 013–016 |
+| 018    | Complete security and operational hardening      | Blocked           | 005–017           |
+| 019    | Prove V1 journeys and release readiness          | Blocked           | 001–018           |
 
 Prompts 006, 007, and 008 may run in parallel only when they do not edit the
 same canonical schema or shared worker registry. Prompts 013 and 014 may run

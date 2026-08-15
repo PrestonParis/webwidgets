@@ -254,3 +254,32 @@ one-way projections. Source-data removal cascades through timeline, insights,
 and candidates while content-minimized approval/outcome receipts remain under
 the 365-day retention policy. The reviewed bundle was deployed to
 `webwidgets-dev` and types were regenerated from live on 2026-08-14.
+
+---
+
+## ADR-014: Render Hosts the Single V1 Worker and Persistent BullMQ Queue
+
+**Status:** Active
+
+**Decision:** Deploy `services/sync-worker` as one Docker background worker on
+Render with one paid, persistent Render Key Value instance configured with
+`noeviction`. The worker starts the four owned V1 BullMQ consumers from one
+entrypoint, exposes container-local liveness/readiness, emits dependency
+heartbeats, and receives up to 120 seconds for graceful shutdown. Supabase
+`jobs` remains durable truth; Render Key Value holds delivery state only.
+
+The initial deployment is dark: V1 queues and the content-free runtime probe
+are enabled, while provider email work is disabled, dry-run is enabled, and
+Vercel remains the temporary schedule owner. Source cutover changes both
+schedule owners atomically after parity evidence; they never run together.
+
+**Why:** Render directly supports Docker background workers, BullMQ, managed
+private Redis-compatible Key Value, infrastructure-as-code Blueprints, and
+bounded SIGTERM handling. It gives this monorepo one reproducible worker path
+without promoting Vercel requests, n8n, Go, or Redis into orchestration truth.
+
+**Consequences:** `render.yaml` is the supported worker deployment manifest.
+Background workers require paid Render resources, so provisioning remains an
+explicit owner billing action. Provider credentials remain disabled until the
+separate server-only credential remediation lands. Prompt 006 and later source
+processors extend the worker registry rather than starting another runtime.

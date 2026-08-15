@@ -1,6 +1,6 @@
 # 005 — Deploy One Durable V1 Worker Runtime
 
-Status: Available
+Status: Awaiting approval
 Priority: Critical  
 Depends on: 002 and 004
 
@@ -56,3 +56,51 @@ is explicitly revised.
 - Repeated failures enter a visible dead-letter state.
 - Readiness fails when required infrastructure is unavailable.
 - Deployment and rollback steps are documented and reproducible.
+
+## Implementation handoff
+
+Repository implementation completed on 2026-08-15. The runtime and operations
+contract is documented in
+[`../V1_WORKER_DEPLOYMENT.md`](../V1_WORKER_DEPLOYMENT.md).
+
+### Outcome delivered
+
+- One explicit entrypoint starts the four owned V1 BullMQ consumers.
+- Queue deliveries must match a user-scoped canonical `jobs` receipt before
+  processing.
+- Running, retry, completion, safe failure, and dead-letter state persist in
+  Supabase rather than relying on Redis retention.
+- Readiness requires Redis and Supabase; liveness, dependency heartbeat,
+  structured content-minimized logs, processor timeouts, and bounded graceful
+  shutdown are implemented.
+- Existing email workers now load provider credentials only after a scoped
+  `(user_id, account_id)` lookup and no longer place email addresses in queue
+  payloads or logs.
+- The two undispatched web-bundle news/action worker factories were removed;
+  their legacy producers fail closed until their canonical processors land.
+- `render.yaml` selects one Render Docker background worker and persistent
+  `noeviction` Render Key Value instance. The default deployment is dark.
+
+### Verification
+
+- `npm run typecheck` in `services/sync-worker`: passed.
+- `npm test` in `services/sync-worker`: 9 tests passed. The processor harness
+  covers success, restart/duplicate coalescing, retry, poison jobs,
+  max-attempt dead letter, dependency readiness, queue registration, and
+  schedule-owner validation.
+- `npm run format:check` in `services/sync-worker`: required before commit.
+- Temporary local Supabase + Redis runtime smoke: four consumers started;
+  readiness returned 200; one canonical probe completed; the same idempotency
+  key left exactly one completed `jobs` row; Redis loss changed readiness to
+  503; Redis restoration recovered readiness to 200; SIGINT closed the health
+  server and all consumers cleanly. Both temporary services were stopped.
+
+### Deployment gate
+
+The repository does not contain Render account credentials and background
+workers have no free plan. Creating the paid Blueprint resources is an
+external billing action that requires explicit owner approval. Prompt 005
+must remain `Awaiting approval` until the Blueprint is provisioned, two
+healthy heartbeats are observed, and the canonical runtime probe completes.
+
+Prompt 006 remains blocked until that deployment evidence is added here.
