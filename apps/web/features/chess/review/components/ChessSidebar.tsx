@@ -16,11 +16,10 @@ export function ChessSidebar(props: TrainerSidebarProps) {
         onUpdateAnnotation,
         activeVariation,
         setActiveVariation,
-        gameId,
     } = props;
 
     if (tab === 'studies') {
-        return <StudiesSidebar gameId={gameId} />;
+        return <StudiesSidebar />;
     }
 
     if (tab === 'trainer') {

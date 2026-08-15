@@ -41,8 +41,8 @@ The codebase contradicts this in both directions:
   onboarding flow with personalization steps (stage 6 territory); and a live
   Vercel production deploy with cron jobs (stage 8, "last").
 - **Behind stage 1 in other places:** `docs/blueprint/SECURITY.md` (stage 7)
-  is an unimplemented checklist, and the schema/migration story (§3) is not
-  something any later stage has cleaned up.
+  is an unimplemented checklist. Migration tracking is now reconciled, but
+  credential isolation and several audited schema hardening tasks remain.
 
 **Conclusion: the 8-stage sequential framing doesn't match how the codebase
 actually developed** (breadth-first across stages, not strictly sequential).
@@ -74,7 +74,7 @@ it.
 | Reading platform | working, suspended beta | Bible/Quran/PDF via provider abstraction, annotations, and plans remain available to existing users but are outside V1 defaults and completion claims. |
 | Creative Studio / Memorization | working, suspended beta | Existing widgets and data paths remain intact; both are excluded from V1 onboarding, generated workspaces, and automatic recommendations. |
 | Timeline Intelligence (`news`) | partial | The stable V1 surface remains discoverable outside Entertainment; the broader personal-event timeline and durable ingestion loop are still finalization work. |
-| Context graph (`features/context/`) | broken/partial | ADR-009 defines it as a projection, but the tracked context migration is not applied remotely. Live has only legacy `context_entries`; three expected tables and rich write columns are missing. |
+| Context graph (`features/context/`) | partial | ADR-009 defines it as a projection. The context substrate is now deployed, but rich-write behavior and projection integration still require end-to-end verification. |
 | Knowledge registry (`features/knowledge/`) | unknown | Owns user-authored durable content under ADR-009; functional depth remains unverified. |
 | ML service | working | FastAPI, model registry, drift monitor, 4-file pytest suite, 10 training scripts. |
 | Go worker (cache/snapshot/events) | broken | All 3 subsystems are stub no-ops (identical `// TODO: In future phases` markers). Nothing depends on it persisting data safely today. |
@@ -87,9 +87,9 @@ it.
 | Personalization (stage 6) | partial | Cross-widget intelligence goals documented in PERSONALIZE.md; onboarding-time personalization exists; full cross-widget adaptation (e.g. "workout tracked → nutrition adjusts") not verified as implemented. |
 | ML predictions beyond email (stage 3) | partial | Multiple training scripts exist server-side; whether each is wired into a live prediction surface in the UI is unverified per-model. |
 | Widget-based actions (stage 4) | partial | Email/calendar action-confirm flow exists; other items in WIDGET_ACTIONS.md (generate document, export data, summarize file, trigger workflow) not individually verified. |
-| Security (stage 7) | partial, critical gaps | Live audit verified 105/107 public tables have RLS and 153 policies. Two user-linked log tables have no RLS, and four owner-readable tables expose raw credential columns to authenticated browser sessions. |
+| Security (stage 7) | partial, critical gaps | Import/export log RLS is deployed. Four owner-readable tables still expose raw credential columns to authenticated browser sessions, and the audited SECURITY DEFINER hardening remains open. |
 | Deployment (stage 8) | working (partially) | `apps/web` already auto-deploys to Vercel on push to main — ahead of its own stage. Conversion/sync-worker/go-worker have no production path. |
-| Schema/migration tracking | partial, audited | All 46 remote migration versions were recovered and reviewed under ADR-012. The context successor remains local-only and committed types materially drift from live. |
+| Schema/migration tracking | working, audited | All 52 local and remote migration versions align. The six reviewed V1 successors are deployed and committed types were regenerated directly from live. |
 | CI | working (baseline) | `.github/workflows/ci.yml` gates changed files only (lint/typecheck/tests/build); see `.github/workflows/README.md`. Branch-protection required-checks still need repo-owner configuration — not something a workflow file alone can do. |
 | Automated test coverage | partial | 52 unit test files (shallow, one per domain); e2e has heavy scaffolding but only 3 real spec files; 4 of 8 `test:*` e2e npm scripts point at nonexistent directories. |
 | Local commit-time quality gates | broken | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today. |
@@ -106,11 +106,6 @@ workflow this bootstrap sets up from being trustworthy.
   but marking its jobs as required status checks on `main` is a repository
   settings change only the repo owner can make (Settings → Branches). Until
   that's done, CI runs and reports but doesn't actually block a merge.
-- **Deploy the verified canonical schema bundle** — Prompt 004's empty-database
-  replay and 20-assertion RLS fixture pass, but the context, job-log security,
-  and canonical lifecycle migrations have not been applied to
-  `webwidgets-dev`. Apply them only through a reviewed deployment and then
-  regenerate types from live.
 - **Finish the remaining audited P0 credential boundary** — import/export log
   RLS is implemented in the Prompt 004 bundle; provider credentials still
   need a server-only store/projection and rotation plan.

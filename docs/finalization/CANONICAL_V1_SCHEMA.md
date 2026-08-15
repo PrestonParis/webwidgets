@@ -1,6 +1,6 @@
 # Canonical V1 Lifecycle Schema
 
-Status: Repository implementation complete; remote deployment not performed
+Status: Deployed to `webwidgets-dev`
 
 Implemented: 2026-08-14
 
@@ -78,7 +78,9 @@ Apply only after review in this order:
 6. `202608140005_canonical_approval_transition.sql` — exact-payload approval.
 
 The complete 52-migration chain replayed successfully from an empty local
-Supabase database. No migration was pushed to `webwidgets-dev` in this task.
+Supabase database. After an owner-approved CLI dry run identified exactly the
+six successors above, they were applied to `webwidgets-dev` on 2026-08-14.
+Local and remote migration history now align at all 52 versions.
 
 The action migration performs two bounded compatibility backfills: legacy
 requests receive `requested_at = created_at` and payload version `1`; legacy
@@ -118,12 +120,9 @@ request keys, exact approval, verified outcome tracing, and source deletion
 cascades. Unit tests cover schema defaults, deterministic hashes, approval
 receipts, and verified timestamps.
 
-Types were regenerated from the verified ephemeral schema and reviewed. The
-formatted output SHA-256 was
-`8be28c064501959fdaf6fc70c280fa20d8322bbbd961446d43146e21a2c25097`.
-It was intentionally not committed because the migrations are not deployed
-and regeneration exposed unrelated live/history drift in the suspended Chess
-schema. Committing it now would make browser types claim undeployed tables.
-After the migration bundle is approved and applied, regenerate directly from
-`webwidgets-dev`, reconcile that drift in its own task, and replace
-`apps/web/types/supabase.ts` as a mechanical artifact.
+Types were regenerated directly from the deployed `webwidgets-dev` schemas
+and committed as a mechanical artifact. The formatted output SHA-256 is
+`921f10e42fa7ac3ae99ebd844f63b11c500896ec3a52e1f634efc8f2b342e4fd`.
+Live generation exposed a suspended-Chess caller that referenced a nonexistent
+`chess_studies.game_id`; that caller now follows the existing user-owned study
+contract instead of inventing a new database column.
