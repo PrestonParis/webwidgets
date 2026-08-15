@@ -1,0 +1,41 @@
+services:
+  - type: keyvalue
+    name: webwidgets-v1-queue
+    plan: starter
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+    persistenceMode: journal-snapshot
+
+  - type: worker
+    name: webwidgets-v1-worker
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./services/sync-worker/Dockerfile
+    dockerContext: ./services/sync-worker
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: webwidgets-v1-queue
+          property: connectionString
+      - key: V1_QUEUES_ENABLED
+        value: 'true'
+      - key: WORKER_DRY_RUN
+        value: 'true'
+      - key: EMAIL_SYNC_ENABLED
+        value: 'false'
+      - key: SCHEDULE_OWNER
+        value: vercel
+      - key: HEALTH_PORT
+        value: '10000'
+      - key: HEARTBEAT_INTERVAL_MS
+        value: '30000'
+      - key: JOB_TIMEOUT_MS
+        value: '120000'
+      - key: SHUTDOWN_TIMEOUT_MS
+        value: '110000'

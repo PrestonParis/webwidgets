@@ -107,7 +107,20 @@ the user-visible result impossible to trace reliably.
 
 ## Pending implementation decisions
 
-- Select the concrete worker hosting provider during Prompt 005.
 - Complete the separate provider credential-isolation remediation.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.
+
+## FIN-009: Use Render for the dark V1 worker deployment
+
+**Status:** Accepted in repository; provisioning pending
+
+**Decision:** Use the repository Dockerfile and `render.yaml` to provision one
+Render background worker plus persistent Render Key Value. Deploy first with
+provider processing disabled, dry-run enabled, and Vercel retaining temporary
+schedule ownership. Source prompts cut over one schedule at a time.
+
+**Reason:** This is the smallest concrete path that supports the accepted
+continuous TypeScript/BullMQ owner, persistent queue delivery, private Redis
+connectivity, graceful shutdown, and reproducible infrastructure without
+creating another runtime or state machine.

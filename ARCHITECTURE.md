@@ -25,7 +25,7 @@ definitions, no remote caching configured).
 ```
 apps/web/             Next.js 16 App Router app (`next: ^16.2.3` in package.json) — the product surface
 services/ml_service/  Python FastAPI — classification, suggestions, extraction
-services/sync-worker/ Node/TS worker — background sync (BullMQ + Redis), no tests
+services/sync-worker/ Node/TS V1 worker — BullMQ runtime, health, persisted jobs
 services/conversion/  Standalone file-conversion pipeline (own npm workspace:
                        fastify API + BullMQ worker + Postgres + Redis + MinIO)
 services/go_services/worker/  Go worker — cache/snapshot/event infra (STUBBED, §9)
@@ -79,16 +79,16 @@ for Gmail/Outlook processing — see `vercel.json`).
 service-level `vercel.json`), **or** a Procfile-based host
 (`infra/Procfile`) — the two deploy targets are not reconciled in the repo;
 confirm which is authoritative before relying on either.
-`services/conversion`, `services/sync-worker`, and
-`services/go_services/worker` have **no discovered production deployment
-config** — they run only via `infra/docker-compose.yml` for local dev. Do not
-assume any of the three are live in production; verify before writing code
-that depends on their availability at runtime.
+`services/sync-worker` now has one supported Render deployment path in
+`render.yaml`, but the paid worker and Key Value resources are not provisioned
+until the owner approves the external billing action. `services/conversion`
+and `services/go_services/worker` still have no supported production path. Do
+not assume any of the three is live until deployment evidence exists.
 
 ### Accepted V1 ownership target
 
-ADR-008 through ADR-011 define the accepted target; this is not a claim that
-the cutover is deployed yet:
+ADR-008 through ADR-014 define the accepted target. The worker runtime and
+manifest are implemented, but this is not a claim that Render is provisioned:
 
 - `services/sync-worker` becomes the one continuously running V1
   TypeScript/BullMQ worker for polling, normalization, analysis schedules,
@@ -101,6 +101,8 @@ the cutover is deployed yet:
   workflow executor. The Go worker is disabled and deferred for V1.
 - Vercel crons remain temporary cutover fallbacks and must not run a schedule
   also owned by the worker.
+- Render is the selected worker host, with one persistent `noeviction` Key
+  Value queue. The first deployment is dark and provider work remains off.
 
 The complete lifecycle, responsibility matrices, retention policy, and
 migration sequence are in
@@ -151,73 +153,73 @@ tracks ~90 named product-feature domains, including 4 explicitly tagged
 `#future-feature` and not yet started: `food-delivery`, `screen-viewer`,
 `live-resume`, `personal-documents`.)
 
-| Feature | Purpose |
-|---|---|
-| `accessibility` | Accessibility center widget + settings page |
-| `actions` | Action engine — extract, queue, execute email/calendar actions |
-| `activity` | Activity feed |
-| `admin` | Admin panel (users, flags, audit, metrics, ML, jobs) |
-| `analytics` | PostHog event tracking |
-| `artifacts` | Artifact storage (DB table + API + components intact; standalone route removed, now a tab in `/files`) |
-| `auth` | Supabase Auth, Google OAuth, sign-in form |
-| `automation` | Automation evaluator + registry |
-| `backend` | Shared request utilities (requestUser, service registry) |
-| `billing` | Stripe plans, checkout, PricingCard, BillingCard |
-| `calculator` | Multi-mode calculator (basic, scientific, programmer, financial, datetime) |
-| `calendar` | Google Calendar integration (events, EventFormModal) |
-| `chatbot` | Multi-model AI chat (Claude, GPT-4o, Gemini) |
-| `chess` | Games library, analysis board, studies, move trainer |
-| `collaboration` | Collaborative workspace widget and page |
-| `context` | Context graph — knowledge nodes, AI memory, permissions (§6) |
-| `convert` | Unit + currency converter widget |
-| `countdown` | Event countdown widget |
-| `creative` | Creative studio widget and page |
-| `currency` | Exchange rate widget (Open Exchange Rates) |
-| `dashboard` | Widget grid, free canvas, drag-and-drop, scenes, folders, runtime scheduler |
-| `developer` | Developer tools page |
-| `feedback` | In-product user feedback |
-| `files` | File format conversion registry and service |
-| `finance` | Net worth, accounts, subscriptions, transactions, watchlist |
-| `form-filler` | Playwright-powered form autofill |
-| `habit` | Habit tracker with streaks |
-| `help` | In-product help system |
-| `import-export` | Data import/export pipeline |
-| `inbox` | Gmail integration, ML email classification, action extraction |
-| `integrations` | Integration catalog cards |
-| `intelligence` | ML inference service, smart recommendations |
-| `jobs` | Background job runner + service |
-| `journal` | TipTap rich-text journal (autosave, transcription) |
-| `knowledge` | Knowledge item registry (distinct from `context` — see §11) |
-| `memorization` | Memorization widget and page |
-| `metrics` | Internal metrics dashboard |
-| `mood` | Mood logging widget |
-| `news` | News Intel — RSS/NewsAPI ingestion, ranking, search |
-| `notifications` | Notification bell, status dot |
-| `onboarding` | Multi-step onboarding flow (goals, integrations, workspace gen) |
-| `personalization` | Personalization service |
-| `platform` | Widget registry, dashboard library, platform persistence |
-| `pomodoro` | Pomodoro / focus timer |
-| `privacy` | Privacy policy, terms pages |
-| `reading` | Reading platform — Bible, Quran, PDFs, provider abstraction |
-| `recovery` | Addiction recovery trackers (heatmap, milestones, review) |
-| `research` | Research queue widget and workspace (Obsidian vault, academic pipeline) |
-| `scratchpad` | Quick-note scratchpad |
-| `search` | Global search bar + widget catalog |
-| `security` | Consent records + security page |
-| `settings` | General, profile, appearance, integrations, plan & billing |
-| `texteditor` | TipTap-based text editor + note manager |
-| `timekeeping` | Timer / stopwatch / event countdown widget |
-| `todo` | To-do list + habit section |
-| `tracking` | Health tracking — sleep, workout, meal, mood, supplements |
-| `tutorials` | In-product tutorials widget |
-| `ui` | Shared UI (Header, Footer, DatePicker, LoadingState) |
-| `uploads` | S3 file uploads + Google Drive browser |
-| `view` | File viewer (CSV, PDF, image, JSON parsers) |
-| `weather` | Open-Meteo weather widget |
-| `widget-builder` | Widget builder UI |
-| `widgets` | Widget shell, settings panel, synthesis engine (§4) |
-| `workflows` | n8n workflow trigger service |
-| `worldclock` | World clock (analog + digital) widget |
+| Feature           | Purpose                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `accessibility`   | Accessibility center widget + settings page                                                            |
+| `actions`         | Action engine — extract, queue, execute email/calendar actions                                         |
+| `activity`        | Activity feed                                                                                          |
+| `admin`           | Admin panel (users, flags, audit, metrics, ML, jobs)                                                   |
+| `analytics`       | PostHog event tracking                                                                                 |
+| `artifacts`       | Artifact storage (DB table + API + components intact; standalone route removed, now a tab in `/files`) |
+| `auth`            | Supabase Auth, Google OAuth, sign-in form                                                              |
+| `automation`      | Automation evaluator + registry                                                                        |
+| `backend`         | Shared request utilities (requestUser, service registry)                                               |
+| `billing`         | Stripe plans, checkout, PricingCard, BillingCard                                                       |
+| `calculator`      | Multi-mode calculator (basic, scientific, programmer, financial, datetime)                             |
+| `calendar`        | Google Calendar integration (events, EventFormModal)                                                   |
+| `chatbot`         | Multi-model AI chat (Claude, GPT-4o, Gemini)                                                           |
+| `chess`           | Games library, analysis board, studies, move trainer                                                   |
+| `collaboration`   | Collaborative workspace widget and page                                                                |
+| `context`         | Context graph — knowledge nodes, AI memory, permissions (§6)                                           |
+| `convert`         | Unit + currency converter widget                                                                       |
+| `countdown`       | Event countdown widget                                                                                 |
+| `creative`        | Creative studio widget and page                                                                        |
+| `currency`        | Exchange rate widget (Open Exchange Rates)                                                             |
+| `dashboard`       | Widget grid, free canvas, drag-and-drop, scenes, folders, runtime scheduler                            |
+| `developer`       | Developer tools page                                                                                   |
+| `feedback`        | In-product user feedback                                                                               |
+| `files`           | File format conversion registry and service                                                            |
+| `finance`         | Net worth, accounts, subscriptions, transactions, watchlist                                            |
+| `form-filler`     | Playwright-powered form autofill                                                                       |
+| `habit`           | Habit tracker with streaks                                                                             |
+| `help`            | In-product help system                                                                                 |
+| `import-export`   | Data import/export pipeline                                                                            |
+| `inbox`           | Gmail integration, ML email classification, action extraction                                          |
+| `integrations`    | Integration catalog cards                                                                              |
+| `intelligence`    | ML inference service, smart recommendations                                                            |
+| `jobs`            | Background job runner + service                                                                        |
+| `journal`         | TipTap rich-text journal (autosave, transcription)                                                     |
+| `knowledge`       | Knowledge item registry (distinct from `context` — see §11)                                            |
+| `memorization`    | Memorization widget and page                                                                           |
+| `metrics`         | Internal metrics dashboard                                                                             |
+| `mood`            | Mood logging widget                                                                                    |
+| `news`            | News Intel — RSS/NewsAPI ingestion, ranking, search                                                    |
+| `notifications`   | Notification bell, status dot                                                                          |
+| `onboarding`      | Multi-step onboarding flow (goals, integrations, workspace gen)                                        |
+| `personalization` | Personalization service                                                                                |
+| `platform`        | Widget registry, dashboard library, platform persistence                                               |
+| `pomodoro`        | Pomodoro / focus timer                                                                                 |
+| `privacy`         | Privacy policy, terms pages                                                                            |
+| `reading`         | Reading platform — Bible, Quran, PDFs, provider abstraction                                            |
+| `recovery`        | Addiction recovery trackers (heatmap, milestones, review)                                              |
+| `research`        | Research queue widget and workspace (Obsidian vault, academic pipeline)                                |
+| `scratchpad`      | Quick-note scratchpad                                                                                  |
+| `search`          | Global search bar + widget catalog                                                                     |
+| `security`        | Consent records + security page                                                                        |
+| `settings`        | General, profile, appearance, integrations, plan & billing                                             |
+| `texteditor`      | TipTap-based text editor + note manager                                                                |
+| `timekeeping`     | Timer / stopwatch / event countdown widget                                                             |
+| `todo`            | To-do list + habit section                                                                             |
+| `tracking`        | Health tracking — sleep, workout, meal, mood, supplements                                              |
+| `tutorials`       | In-product tutorials widget                                                                            |
+| `ui`              | Shared UI (Header, Footer, DatePicker, LoadingState)                                                   |
+| `uploads`         | S3 file uploads + Google Drive browser                                                                 |
+| `view`            | File viewer (CSV, PDF, image, JSON parsers)                                                            |
+| `weather`         | Open-Meteo weather widget                                                                              |
+| `widget-builder`  | Widget builder UI                                                                                      |
+| `widgets`         | Widget shell, settings panel, synthesis engine (§4)                                                    |
+| `workflows`       | n8n workflow trigger service                                                                           |
+| `worldclock`      | World clock (analog + digital) widget                                                                  |
 
 **10 pages currently have zero internal navigation links pointing to them**
 (per `docs/PAGE_REFERENCES.md`): `/personalization`, `/documents`,
@@ -310,16 +312,19 @@ feature before assuming snapshot-based fetching is in place.
 ### Confirmed data flows
 
 **Email actions:**
+
 ```
 Gmail API → /api/gmail/inbox (fetch + classify via ML service)
   → /api/gmail/extract-actions (extract actions via ML service)
   → email_actions table (store results)
   → /api/gmail/actions/confirm (create Calendar events / Todos)
 ```
+
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
 
 **Reading platform:**
+
 ```
 Client (ReadingWidget) → bootstrapProviders() (register mock + real providers)
   → provider.listDocuments() → provider.getContent(pos)
@@ -329,6 +334,7 @@ Client (ReadingWidget) → bootstrapProviders() (register mock + real providers)
 ```
 
 **Finance:**
+
 ```
 Client (FinanceWidget) → /api/finance/accounts (manual balances, Supabase)
   → /api/finance/watchlist/[id]/fetch (live quotes: Finnhub stocks,
@@ -477,9 +483,11 @@ boundary before connector automation is considered secure.
 
 ## 9. Background jobs / infrastructure
 
-- **Current state:** Vercel cron routes, the sync worker, generic synchronous
-  jobs, n8n callbacks, and undispatched news/action worker factories overlap.
-  No continuously running production worker deployment is confirmed.
+- **Current state:** `services/sync-worker` now starts four V1 consumers from
+  one entrypoint, persists canonical `jobs` transitions, provides readiness,
+  heartbeat, retry/dead-letter, timeout, and graceful shutdown behavior, and
+  has processor-harness tests plus a Render Blueprint. Provider processors are
+  dark and no continuously running production deployment is confirmed.
 - **Accepted V1 owner:** extend `services/sync-worker` into the one durable
   TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
   configured, validated, approved workflows; it is not the ingestion owner,
@@ -487,7 +495,7 @@ boundary before connector automation is considered secure.
 - **Go worker** (`services/go_services/worker/`) — cache, snapshot, and event
   subsystems. **All three are currently stub implementations**: `cache.go`,
   `snapshot.go`, and `events.go` each carry an identical `// TODO: In future
-  phases, this will...` marker at the same line — cache writes, snapshot
+phases, this will...` marker at the same line — cache writes, snapshot
   persistence, and event durability are all effectively no-ops today. Do not
   build features that depend on the Go worker actually persisting anything
   without first verifying (or implementing) the backing store.
@@ -525,25 +533,25 @@ boundary before connector automation is considered secure.
 
 ### Integrations
 
-| Provider | Method | Notes |
-|---|---|---|
-| Google | OAuth | Gmail, Calendar, Drive |
-| Microsoft | OAuth | Outlook, OneDrive via Graph API |
-| GitHub | OAuth | `lib/connectors/github/githubConnector.ts` |
-| Linear | API key | `lib/connectors/linear/linearConnector.ts` |
-| Slack | OAuth | `lib/connectors/slack/slackConnector.ts` |
-| Stripe | Webhook | Billing, checkout, portal |
-| AWS S3 | SDK | File uploads, PDF presigned URLs |
-| n8n | Webhook | Workflow automation triggers |
-| Lichess | API key | Chess game import |
-| Finnhub | API key | Stock quotes |
-| CoinGecko | API key | Crypto quotes |
-| Anthropic | API key | Claude (chat + email fallback) |
-| OpenAI | API key | GPT-4o (chat) |
-| Gemini | API key | Gemini (chat) |
-| scripture.api.bible | API key | Religious text provider (server proxy) |
-| Sentry | DSN | Error tracking (client + server + edge) |
-| PostHog | API key | Product analytics |
+| Provider            | Method  | Notes                                      |
+| ------------------- | ------- | ------------------------------------------ |
+| Google              | OAuth   | Gmail, Calendar, Drive                     |
+| Microsoft           | OAuth   | Outlook, OneDrive via Graph API            |
+| GitHub              | OAuth   | `lib/connectors/github/githubConnector.ts` |
+| Linear              | API key | `lib/connectors/linear/linearConnector.ts` |
+| Slack               | OAuth   | `lib/connectors/slack/slackConnector.ts`   |
+| Stripe              | Webhook | Billing, checkout, portal                  |
+| AWS S3              | SDK     | File uploads, PDF presigned URLs           |
+| n8n                 | Webhook | Workflow automation triggers               |
+| Lichess             | API key | Chess game import                          |
+| Finnhub             | API key | Stock quotes                               |
+| CoinGecko           | API key | Crypto quotes                              |
+| Anthropic           | API key | Claude (chat + email fallback)             |
+| OpenAI              | API key | GPT-4o (chat)                              |
+| Gemini              | API key | Gemini (chat)                              |
+| scripture.api.bible | API key | Religious text provider (server proxy)     |
+| Sentry              | DSN     | Error tracking (client + server + edge)    |
+| PostHog             | API key | Product analytics                          |
 
 ---
 
@@ -554,9 +562,8 @@ These are unresolved boundary questions flagged by prior agent work
 silently pick an interpretation when working in these areas — ask, or scope
 the task narrower to avoid guessing:
 
-- **Concrete worker and Python container hosts** — runtime ownership is
-  resolved by ADR-008 through ADR-011, but the production hosting providers
-  and rollout/rollback procedures remain Prompt 005/010 decisions.
+- **Concrete Python container host** — worker hosting is resolved by ADR-014,
+  but the bounded Python inference host remains a Prompt 010 decision.
 - **Legacy runtime cutover** — widget hydration remains client-side, the Go
   worker is deferred, n8n is an adapter, and the TypeScript worker owns V1
   background work. The source-by-source order for retiring duplicate Vercel

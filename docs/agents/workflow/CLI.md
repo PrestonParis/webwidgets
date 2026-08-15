@@ -210,6 +210,22 @@ The project link and authentication session stay machine-local under
 separate Worldview project. Regenerate and review types after every deployed
 schema change.
 
+## V1 worker
+
+```sh
+cd services/sync-worker
+npm install                    # Install this independently managed service
+npm run typecheck              # Type-check worker source without a production build
+npm test                       # Run processor/restart/dead-letter/readiness tests
+npm run format:check           # Verify worker formatting
+npm run smoke                  # Run the canonical probe with SMOKE_* env configured
+```
+
+The supported production manifest is `render.yaml`. Deploy dark with
+`WORKER_DRY_RUN=true`, `EMAIL_SYNC_ENABLED=false`, and
+`SCHEDULE_OWNER=vercel`; see `docs/finalization/V1_WORKER_DEPLOYMENT.md` before
+changing schedule ownership.
+
 ---
 
 ## General one-liners

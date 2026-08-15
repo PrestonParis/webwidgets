@@ -151,18 +151,18 @@ action type, account, target, parameters, and payload version or hash.
 
 ## Runtime responsibility matrix
 
-| Runtime | V1 ownership | Explicitly does not own |
-| --- | --- | --- |
-| Next.js | Authenticated UI/API, source configuration, webhook validation, short domain writes, timeline queries, exact-payload approval | Long loops, recurring schedules, retry orchestration, provider action processing |
-| V1 TypeScript worker | Polling, normalization, analysis jobs, schedules, action execution, retries/dead letters, heartbeat | UI, interactive authentication, canonical data outside Supabase |
-| BullMQ/Redis | Work delivery, delayed jobs, concurrency, retry timing | Product truth, final run status, approval, provider outcomes |
-| Supabase Postgres | User scope, source cursors/health, canonical records, lifecycle state, provenance, audit | Running background loops |
-| Python ML service | Versioned, bounded classification/extraction/inference requests | Scheduling, queues, authorization policy, durable state, provider actions |
-| n8n | Optional execution adapter for an explicitly configured and approved workflow | Ingestion owner, scheduler of record, approval state machine, canonical job history |
-| Go worker | Deferred and disabled for V1 | Any required ingestion, analytics, snapshot, event, or action path |
-| Conversion service | Specialized file conversion behind its existing contract | General V1 orchestration or timeline ownership |
-| Vercel cron | Temporary migration fallback only | A schedule also owned by the worker after cutover |
-| Dashboard runtime | Hydration, rendering, local UI state | Durable ingestion, analysis, scheduling, or execution |
+| Runtime              | V1 ownership                                                                                                                  | Explicitly does not own                                                             |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Next.js              | Authenticated UI/API, source configuration, webhook validation, short domain writes, timeline queries, exact-payload approval | Long loops, recurring schedules, retry orchestration, provider action processing    |
+| V1 TypeScript worker | Polling, normalization, analysis jobs, schedules, action execution, retries/dead letters, heartbeat                           | UI, interactive authentication, canonical data outside Supabase                     |
+| BullMQ/Redis         | Work delivery, delayed jobs, concurrency, retry timing                                                                        | Product truth, final run status, approval, provider outcomes                        |
+| Supabase Postgres    | User scope, source cursors/health, canonical records, lifecycle state, provenance, audit                                      | Running background loops                                                            |
+| Python ML service    | Versioned, bounded classification/extraction/inference requests                                                               | Scheduling, queues, authorization policy, durable state, provider actions           |
+| n8n                  | Optional execution adapter for an explicitly configured and approved workflow                                                 | Ingestion owner, scheduler of record, approval state machine, canonical job history |
+| Go worker            | Deferred and disabled for V1                                                                                                  | Any required ingestion, analytics, snapshot, event, or action path                  |
+| Conversion service   | Specialized file conversion behind its existing contract                                                                      | General V1 orchestration or timeline ownership                                      |
+| Vercel cron          | Temporary migration fallback only                                                                                             | A schedule also owned by the worker after cutover                                   |
+| Dashboard runtime    | Hydration, rendering, local UI state                                                                                          | Durable ingestion, analysis, scheduling, or execution                               |
 
 ### Production deployment responsibility
 
@@ -179,36 +179,36 @@ action type, account, target, parameters, and payload version or hash.
 
 ## Information responsibility matrix
 
-| Concept | V1 role and owner | Source of truth? | Important boundary |
-| --- | --- | --- | --- |
-| Provider/domain records | Current provider or WebWidgets domain state | Yes | Keep existing task, calendar, document, note, and provider identity rather than copying whole objects |
-| Source connection | Authorization reference, cursor, consent, and health | Yes | Adapt existing integration/account tables after Prompt 003 verifies the live schema |
-| Raw observation | Minimal immutable ingestion evidence, provider reference, hash, and receive metadata | Yes, for ingestion/replay window | New canonical concept; private payload is minimized and short-lived |
-| Timeline event | Normalized, user-scoped fact with occurrence time and provenance | Yes, for V1 event history | New canonical concept; activity cannot substitute for it |
-| `activity_events` | Notification and recent-activity UI projection | No | May be archived/pruned and must never feed the timeline back into itself |
-| `knowledge_items` | User-authored notes, journals, drafts, transcripts, and research content | Yes, for authored content | Timeline stores lifecycle facts/references, not duplicated bodies |
-| `context_entries` / edges | Entity and retrieval projection for search, widgets, and models | No | Rebuildable; cannot be the event log or outlive its source |
-| Insight/briefing | Evidence-linked, expiring derived interpretation | No | Must identify source timeline events, model/policy version, confidence or abstention |
-| Candidate action | Evidence-linked proposal before approval | No | Replace/converge legacy email-only candidates; it cannot execute itself |
-| Approval | Immutable decision for one exact action payload/version | Yes | Invalidated by payload, permission, account, or policy changes |
-| `action_requests` | Durable command and execution lifecycle | Yes | Reuse/evolve after Prompt 003; do not create a parallel request ledger |
-| `action_results` | Verified provider receipt, failure, and compensation state | Yes | Reuse/evolve after Prompt 003; a queued acknowledgement is not success |
-| `jobs` / steps | Operational correlation and persisted worker status | Yes, for operations | BullMQ ID references the job; Redis history does not replace it |
-| Automation config/run | Policy configuration and orchestration of typed actions | Yes, for automation | Runs reference action requests/results rather than copying provider outcome truth |
-| Audit/security record | Content-minimized consent, permission, and security evidence | Yes | Not a user timeline or model-context source |
+| Concept                   | V1 role and owner                                                                    | Source of truth?                 | Important boundary                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Provider/domain records   | Current provider or WebWidgets domain state                                          | Yes                              | Keep existing task, calendar, document, note, and provider identity rather than copying whole objects |
+| Source connection         | Authorization reference, cursor, consent, and health                                 | Yes                              | Adapt existing integration/account tables after Prompt 003 verifies the live schema                   |
+| Raw observation           | Minimal immutable ingestion evidence, provider reference, hash, and receive metadata | Yes, for ingestion/replay window | New canonical concept; private payload is minimized and short-lived                                   |
+| Timeline event            | Normalized, user-scoped fact with occurrence time and provenance                     | Yes, for V1 event history        | New canonical concept; activity cannot substitute for it                                              |
+| `activity_events`         | Notification and recent-activity UI projection                                       | No                               | May be archived/pruned and must never feed the timeline back into itself                              |
+| `knowledge_items`         | User-authored notes, journals, drafts, transcripts, and research content             | Yes, for authored content        | Timeline stores lifecycle facts/references, not duplicated bodies                                     |
+| `context_entries` / edges | Entity and retrieval projection for search, widgets, and models                      | No                               | Rebuildable; cannot be the event log or outlive its source                                            |
+| Insight/briefing          | Evidence-linked, expiring derived interpretation                                     | No                               | Must identify source timeline events, model/policy version, confidence or abstention                  |
+| Candidate action          | Evidence-linked proposal before approval                                             | No                               | Replace/converge legacy email-only candidates; it cannot execute itself                               |
+| Approval                  | Immutable decision for one exact action payload/version                              | Yes                              | Invalidated by payload, permission, account, or policy changes                                        |
+| `action_requests`         | Durable command and execution lifecycle                                              | Yes                              | Reuse/evolve after Prompt 003; do not create a parallel request ledger                                |
+| `action_results`          | Verified provider receipt, failure, and compensation state                           | Yes                              | Reuse/evolve after Prompt 003; a queued acknowledgement is not success                                |
+| `jobs` / steps            | Operational correlation and persisted worker status                                  | Yes, for operations              | BullMQ ID references the job; Redis history does not replace it                                       |
+| Automation config/run     | Policy configuration and orchestration of typed actions                              | Yes, for automation              | Runs reference action requests/results rather than copying provider outcome truth                     |
+| Audit/security record     | Content-minimized consent, permission, and security evidence                         | Yes                              | Not a user timeline or model-context source                                                           |
 
 ## Why the competing candidates cannot be canonical
 
-| Candidate | What breaks if it becomes the owner |
-| --- | --- |
-| `activity_events` as timeline | Existing pruning loses history; read/archive mutations change truth; notification publishers can create feedback loops; provenance and idempotency are incomplete |
-| Context as timeline or knowledge | Backfills and entity upserts rewrite history; deletion/rebuild behavior becomes unsafe; retrieval summaries can be mistaken for source content |
-| Knowledge as timeline | It represents authored content, not provider changes, task transitions, action receipts, or source health |
-| Next.js/Vercel cron as worker | Request time limits, overlapping schedules, and deploy restarts make durable retries and continuous work unreliable |
-| n8n as orchestrator of record | Current callbacks do not reliably transition the originating job; user scope, approval, policy, and replay become split across systems |
-| Go as worker | Current state is in-memory and stubbed, so restart loses work and required processors do not exist |
-| BullMQ as product truth | Queue cleanup, Redis loss, or retry changes erase the only record of intent and outcome |
-| Multiple source-specific workers | Email, RSS, actions, and automation acquire different lifecycle rules, deployment health, and duplicate schedules |
+| Candidate                        | What breaks if it becomes the owner                                                                                                                               |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `activity_events` as timeline    | Existing pruning loses history; read/archive mutations change truth; notification publishers can create feedback loops; provenance and idempotency are incomplete |
+| Context as timeline or knowledge | Backfills and entity upserts rewrite history; deletion/rebuild behavior becomes unsafe; retrieval summaries can be mistaken for source content                    |
+| Knowledge as timeline            | It represents authored content, not provider changes, task transitions, action receipts, or source health                                                         |
+| Next.js/Vercel cron as worker    | Request time limits, overlapping schedules, and deploy restarts make durable retries and continuous work unreliable                                               |
+| n8n as orchestrator of record    | Current callbacks do not reliably transition the originating job; user scope, approval, policy, and replay become split across systems                            |
+| Go as worker                     | Current state is in-memory and stubbed, so restart loses work and required processors do not exist                                                                |
+| BullMQ as product truth          | Queue cleanup, Redis loss, or retry changes erase the only record of intent and outcome                                                                           |
+| Multiple source-specific workers | Email, RSS, actions, and automation acquire different lifecycle rules, deployment health, and duplicate schedules                                                 |
 
 Selecting the existing sync worker still requires substantial work: its name
 is narrower than its target role, it currently knows only email polling, its
@@ -236,16 +236,16 @@ These are proposed V1 defaults and require human acceptance with the ADRs.
 
 ### Proposed retention defaults
 
-| Record | Default V1 retention |
-| --- | --- |
-| Raw private payload | Delete within 30 days after successful normalization; retain only minimized reference/hash metadata needed for provenance and dedupe |
-| Timeline event | 365 days unless the user deletes it or removes imported source data |
-| Activity projection | Archive read events after 30 days and delete archived events after 90 days, matching current behavior |
-| Context projection | Never longer than its source; rebuild or delete when the source changes or is removed |
-| Knowledge/domain content | Until user deletion or the owning feature's explicit retention rule |
-| Insight/candidate | Until expiry or dismissal, then delete content within 30 days while retaining a minimized status receipt |
-| Job logs and successful operational detail | 30 days; failed/dead-letter diagnostic metadata up to 90 days |
-| Approval, action request/result, automation outcome | Content-minimized record for 365 days, subject to account deletion |
+| Record                                              | Default V1 retention                                                                                                                 |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Raw private payload                                 | Delete within 30 days after successful normalization; retain only minimized reference/hash metadata needed for provenance and dedupe |
+| Timeline event                                      | 365 days unless the user deletes it or removes imported source data                                                                  |
+| Activity projection                                 | Archive read events after 30 days and delete archived events after 90 days, matching current behavior                                |
+| Context projection                                  | Never longer than its source; rebuild or delete when the source changes or is removed                                                |
+| Knowledge/domain content                            | Until user deletion or the owning feature's explicit retention rule                                                                  |
+| Insight/candidate                                   | Until expiry or dismissal, then delete content within 30 days while retaining a minimized status receipt                             |
+| Job logs and successful operational detail          | 30 days; failed/dead-letter diagnostic metadata up to 90 days                                                                        |
+| Approval, action request/result, automation outcome | Content-minimized record for 365 days, subject to account deletion                                                                   |
 
 ### Disconnect and deletion
 
@@ -307,5 +307,6 @@ The project owner accepted these five points on 2026-08-13:
 5. The replay, 30/90/365-day retention, disconnect, and cascading deletion
    defaults are acceptable for V1.
 
-Prompt 002 is complete and ADR-008 through ADR-011 are Active. Prompt 004
-remains blocked on Prompt 003's live-schema and RLS audit.
+Prompt 002 and Prompt 004 are complete. ADR-008 through ADR-014 are Active.
+Prompt 005 implements the worker runtime and Render deployment path; external
+Render provisioning remains the final deployment gate.
