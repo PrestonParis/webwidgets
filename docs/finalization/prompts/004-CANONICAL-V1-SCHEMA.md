@@ -66,23 +66,106 @@ Each relevant record must support, directly or through an owned relation:
 - Derived records cannot outlive or lose their required provenance silently.
 - Prompt 005 has stable persistence contracts to consume.
 
-## Completion evidence
+## Completion handoff
 
-Completed on 2026-08-14. The implementation and migration/rollback handoff are
-documented in [`../CANONICAL_V1_SCHEMA.md`](../CANONICAL_V1_SCHEMA.md).
+Implementation completed on 2026-08-14 and the CLI-backed handoff was
+reverified on 2026-08-15. The detailed data model and migration/rollback
+contract are documented in
+[`../CANONICAL_V1_SCHEMA.md`](../CANONICAL_V1_SCHEMA.md).
 
-- The full recovered baseline plus six ordered local successors replayed from
-  an empty isolated Supabase database.
-- A real pgTAP run passed 20 lifecycle, idempotency, cascade, grant, and
-  two-user RLS assertions.
-- Shared typed contracts live in `apps/web/lib/lifecycle/`; no feature imports
-  another feature.
-- Existing action, result, job, automation, integration, activity, context,
-  knowledge, and domain ownership was preserved.
-- After explicit owner approval, the six reviewed migrations were deployed to
-  `webwidgets-dev`; no provider action was performed.
+### Outcome delivered
 
-Supabase types were generated directly from the deployed live schema and
-committed. The unrelated historical Chess drift exposed by generation was
-reconciled by removing the invalid `game_id` assumption from the suspended
-beta caller.
+WebWidgets has one persisted, user-scoped chain from an authorized source
+observation through timeline fact, evidence-backed insight, candidate action,
+exact-payload approval, execution attempt, and verified outcome. Shared typed
+contracts live in `apps/web/lib/lifecycle/`; no feature imports another
+feature. Existing action, result, job, automation, integration, activity,
+context, knowledge, and domain ownership remains intact.
+
+### Files and migrations
+
+The implementation landed in commits `6659348d` and `0839aea7`. It added or
+reconciled:
+
+- six ordered migrations from `202605300001_context_substrate.sql` through
+  `202608140005_canonical_approval_transition.sql`;
+- the pgTAP fixture in
+  `supabase/tests/004_canonical_lifecycle.test.sql`;
+- shared lifecycle schemas, repositories, mappings, hashes, and transitions
+  in `apps/web/lib/lifecycle/`;
+- live-generated `apps/web/types/supabase.ts`; and
+- the repository-pinned Supabase CLI and `supabase/config.toml`.
+
+The unrelated suspended-Chess caller exposed by live type generation was
+reconciled to the existing user-owned `chess_studies` contract instead of
+adding a nonexistent `game_id` column.
+
+### Verification actually run
+
+Fresh 2026-08-15 handoff verification with Supabase CLI `2.114.0` produced:
+
+- `npx supabase migration list --linked`: 52 local versions, 52 matching
+  remote versions, zero mismatches;
+- `npx supabase db push --linked --dry-run`: remote up to date, with zero
+  migrations, seeds, or roles pending;
+- live `public,graphql_public` type generation: repository-formatted output
+  exactly matched the committed file at SHA-256
+  `921f10e42fa7ac3ae99ebd844f63b11c500896ec3a52e1f634efc8f2b342e4fd`;
+- `npx supabase start`: all 52 migrations replayed from an empty local
+  database;
+- `npx supabase test db`: one pgTAP file, 20 assertions, all successful; and
+- `npx supabase stop`: the temporary local stack was stopped after testing.
+
+Repository verification also passed TypeScript compilation, focused ESLint,
+and 17 lifecycle/context unit tests. No remote mutation was made during the
+2026-08-15 handoff verification.
+
+### Acceptance criteria demonstrated
+
+- The fixture traces observation -> event -> insight -> candidate -> request
+  -> result and verifies the completed outcome.
+- Duplicate source and request idempotency keys are rejected.
+- Two authenticated users are isolated across every new user-owned relation;
+  anonymous access and cross-owner writes fail.
+- Composite owner/provenance foreign keys and deletion cascades prevent
+  derived records from silently losing required evidence.
+- Prompt 005 can consume canonical IDs, repositories, job correlation,
+  retention, and exact approval transitions without introducing another
+  ledger.
+
+### Security and data notes
+
+All new user data has RLS and owner-matched provenance. Import/export child
+logs now authorize through their parent job. Approval is an atomic transition
+bound to the reviewed payload hash/version and permission snapshot. Retention
+purging remains service-role-only, and service-role use stays confined to
+server API routes and the dedicated server-only worker boundary.
+
+The migrations are additive. Their only compatibility backfills populate
+bounded request/result lifecycle metadata; they do not create historical
+candidates or rewrite historical payloads. Provider credential isolation is
+still an audited P0 blocker and is not made safe by the lifecycle schema.
+
+### Deployment and rollback
+
+After explicit owner approval, all six migrations were deployed to confirmed
+project `webwidgets-dev` (`cvroudtyxsgllivlrayu`). The separate Worldview
+project was not linked or changed. The CLI login and link state remain local
+and ignored; no credentials are committed.
+
+Rollback after writes begin is forward repair: stop the affected processors,
+preserve lifecycle/audit rows, and apply a corrective migration. Dropping
+populated lifecycle tables or the new action/job columns would destroy
+provenance and idempotency evidence and requires separate approval.
+
+### Remaining blockers and next prompt
+
+ROADMAP maturity now records schema/migration tracking as working and audited,
+context as partial pending end-to-end projection proof, and security as
+partial with critical credential isolation still open. Worker hosting and
+credential isolation remain the material follow-ups.
+
+Prompt 005, **Deploy One Durable V1 Worker Runtime**, is the next available
+prompt and all of its Prompt 002/004 prerequisites are satisfied. Prompts
+006-008 remain blocked until Prompt 005 provides the real durable processor
+runtime.
