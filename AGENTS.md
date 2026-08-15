@@ -30,7 +30,7 @@ services/sync-worker/ Node/TS background sync worker
 services/conversion/  File-conversion pipeline (own npm workspace)
 services/go_services/worker/  Go worker — cache/snapshot/event infra (currently stubbed)
 packages/{config,shared,ui}/  Empty placeholders — see §8
-supabase/migrations/  Schema migrations (currently only 1 tracked file — see §6)
+supabase/migrations/  Reviewed migration history aligned with webwidgets-dev
 ```
 
 ---
@@ -149,11 +149,9 @@ if (val !== prev) { setPrev(val); setDerived(...); }
   it client-side, never import it into a component or a shared client-safe
   module.
 - All client-side reads go through the anon key and RLS policies.
-- **Only one migration is currently tracked** in `supabase/migrations/`;
-  most of the live schema predates migration tracking (ARCHITECTURE.md §8).
-  Do not treat the migrations directory as ground truth for what exists —
-  verify against generated types (`supabase gen types typescript`) when you
-  need the real current schema.
+- The 52 tracked migrations align with `webwidgets-dev` as of 2026-08-14.
+  Treat live-generated types as the current client contract and use
+  `npx supabase migration list --linked` before planning any deployment.
 - **Any schema change you make must land as a new tracked migration**
   (`supabase/migrations/YYYYMMDDHHMM_description.sql`), regardless of how
   the rest of the schema got there.

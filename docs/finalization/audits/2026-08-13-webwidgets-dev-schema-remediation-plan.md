@@ -1,6 +1,6 @@
 # webwidgets-dev Schema Remediation Plan
 
-Status: Proposed — no migration authorized or applied
+Status: Active — canonical V1 migrations deployed; remaining remediation open
 
 Source audit:
 [`2026-08-13-webwidgets-dev-schema-and-rls-audit.md`](2026-08-13-webwidgets-dev-schema-and-rls-audit.md)
@@ -29,7 +29,7 @@ Completion evidence: `202608140001_secure_import_export_job_logs.sql` enables
 parent-owner RLS, removes anonymous access, and limits authenticated access to
 append/select. The Prompt 004 pgTAP fixture proves owner insert/select,
 cross-user denial, anonymous denial, and authenticated update/delete denial.
-Remote deployment remains separately reviewable.
+The reviewed migration was deployed to `webwidgets-dev` on 2026-08-14.
 
 Prompt impact: security remediation can precede the baseline if urgently
 approved, but its SQL must be captured as a new tracked migration.
@@ -83,7 +83,7 @@ Completion evidence: all 46 versions align locally/remotely; the two
 identity-bearing files were sanitized and reviewed. See
 `2026-08-14-webwidgets-dev-baseline-recovery.md`.
 
-## 4. Complete in repository — Reconcile the context substrate migration
+## 4. Complete and deployed — Reconcile the context substrate migration
 
 Migration task: review existing `202605300001_context_substrate.sql`
 
@@ -104,8 +104,8 @@ ephemeral copy; do not drop populated context columns remotely.
 Completion evidence: the migration now aligns its entry-type constraint with
 the application schema, adds bounded checks and update triggers, and scopes
 all four policies to authenticated owners. It replayed after all 46 recovered
-remote migrations and the existing context unit suite passes. It is not yet
-deployed remotely.
+remote migrations and the existing context unit suite passes. It was deployed
+to `webwidgets-dev` on 2026-08-14.
 
 ## 5. P1 — Reconcile activity projection schema
 
@@ -142,7 +142,7 @@ confirmed.
 
 Rollback: revert each isolated application change.
 
-## 7. Complete in repository — Implement canonical V1 lifecycle schema
+## 7. Complete and deployed — Implement canonical V1 lifecycle schema
 
 Migration task: Prompt 004
 
@@ -162,7 +162,8 @@ approval.
 Completion evidence: migrations `202608140002` through `202608140005`, shared
 typed repositories, and a 20-assertion real-RLS fixture implement the full
 observation-to-verified-outcome chain. See
-`../CANONICAL_V1_SCHEMA.md`. Remote deployment remains separately reviewable.
+`../CANONICAL_V1_SCHEMA.md`. The reviewed bundle was deployed to
+`webwidgets-dev` on 2026-08-14.
 
 ## 8. P2 — Clarify feedback and duplicate policies
 
@@ -198,7 +199,7 @@ timeline schema, but it blocks collaboration/security launch claims.
 Rollback: restore the prior function definitions only from the pre-change
 schema dump; do not broaden grants as a convenience.
 
-## 10. Verified locally; live generation pending deployment
+## 10. Complete — Regenerate Supabase types from live
 
 Repository task: `regenerate_supabase_types`
 
@@ -216,8 +217,8 @@ same release.
 Rollback: repository revert; never hand-edit generated types to disguise live
 drift.
 
-Current evidence: types were regenerated from the fully replayed ephemeral
-schema and reviewed. They were not committed because the six successors are
-not deployed and the output exposed unrelated Chess live/history drift. After
-remote migration approval, generate from `webwidgets-dev` and reconcile that
-separate drift rather than hand-editing the generated file.
+Completion evidence: types were regenerated directly from the deployed
+`webwidgets-dev` `public,graphql_public` schemas and committed. The output
+exposed an unrelated suspended-Chess caller for nonexistent
+`chess_studies.game_id`; the caller was reconciled to the existing user-owned
+study contract rather than hand-editing generated types.

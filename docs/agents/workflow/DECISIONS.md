@@ -252,5 +252,5 @@ make cross-user provenance invalid even when a record UUID is known.
 acknowledgement and treat BullMQ as delivery only. Activity and context remain
 one-way projections. Source-data removal cascades through timeline, insights,
 and candidates while content-minimized approval/outcome receipts remain under
-the 365-day retention policy. The verified migration bundle still requires a
-reviewed remote deployment and live type regeneration.
+the 365-day retention policy. The reviewed bundle was deployed to
+`webwidgets-dev` and types were regenerated from live on 2026-08-14.

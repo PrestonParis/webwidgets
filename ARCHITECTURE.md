@@ -32,7 +32,7 @@ services/go_services/worker/  Go worker — cache/snapshot/event infra (STUBBED,
 packages/{config,shared,ui}/  Empty placeholder packages (package.json only,
                        no source, not wired into any build — do not assume
                        code here compiles or is imported by anything)
-supabase/migrations/  Schema migrations (currently 1 file — see §8)
+supabase/migrations/  52 reviewed migrations aligned with webwidgets-dev
 infra/                Vercel/Docker/Procfile deployment config
 scripts/linting/      Custom lint/typecheck/smell/stats orchestrator (`npm run check`)
 ```
@@ -414,12 +414,12 @@ to anonymous/authenticated roles; `user_feedback` has RLS enabled with no
 policy. See the
 [full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
-The repository now contains the 46 reviewed historical migrations recorded by
-remote history plus local-only `202605300001_context_substrate.sql`. ADR-012's
-recovered-history baseline completed on 2026-08-14 without remote mutation;
-two identity-bearing historical files were sanitized intentionally. The local
-context migration contains RLS policies, but its richer columns and three new
-tables are not live. Do not mistake migration presence for deployment state.
+The repository contains the 46 reviewed historical migrations recorded by
+remote history plus six reviewed successors. ADR-012's recovered-history
+baseline completed on 2026-08-14; two identity-bearing historical files were
+sanitized intentionally. On 2026-08-14, an owner-approved CLI deployment
+applied the context, job-log security, lifecycle, retention, and approval
+successors to `webwidgets-dev`. Local and remote history align at 52 versions.
 
 Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `widget_folders`, `email_actions`, `email_queue`, `todos`, `habits`,
@@ -435,11 +435,11 @@ Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `reading_notes`, `reading_plans`. This historical list is not exhaustive; the
 audit inventory is the canonical dated snapshot for planning Prompt 004.
 
-Committed Supabase types describe 84 of the 107 live tables. Twenty-six live
-tables are absent from the file, three context tables exist only in committed
-types, and six shared tables have column drift. Code also queries seven table
-names absent from live. Do not regenerate/commit types until context/security
-remediation is reconciled with deployed schema.
+The committed Supabase types were regenerated directly from the deployed
+`public,graphql_public` schemas after the 52 migrations aligned. Historical
+application drift remains a feature-level concern where callers reference
+tables that do not exist live; generated types must remain mechanical and
+must not be hand-edited to disguise such drift.
 
 Prompt 004 now defines the repository target in six ordered local successors.
 The new canonical chain is `raw_observations` -> `timeline_events` ->
@@ -448,8 +448,8 @@ The new canonical chain is `raw_observations` -> `timeline_events` ->
 RLS protect every new relation. `jobs`, `automation_runs`, and
 `integration_connections` are evolved in place. See
 `docs/finalization/CANONICAL_V1_SCHEMA.md`. These migrations replay cleanly
-locally but are not deployed, so the committed generated type file still
-describes the pre-deployment live contract.
+locally, are deployed to `webwidgets-dev`, and are represented by the
+committed live-generated type file.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
@@ -462,9 +462,10 @@ policies.
 Supabase is the accepted durable truth for source cursors/health, timeline,
 jobs, approvals, action outcomes, automation state, and audit. BullMQ/Redis is
 at-least-once delivery only; every queue job references a canonical record and
-deterministic idempotency key (ADR-010). The target data model is implemented
-and verified in the repository; production use remains blocked on reviewed
-remote migration execution, live type regeneration, and credential isolation.
+deterministic idempotency key (ADR-010). The target data model is implemented,
+verified, deployed, and represented in generated types. Production connector
+automation remains blocked on credential isolation and a reviewed worker
+deployment.
 
 Credential isolation is also unresolved: owner-readable policies protect
 cross-user access but allow authenticated browser sessions to select raw

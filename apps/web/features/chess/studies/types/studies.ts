@@ -20,7 +20,3 @@ export interface StudyCardProps {
     study: ChessStudy;
     onDelete: (id: string) => void;
 }
-
-export interface StudiesSidebarProps {
-    gameId: string;
-}

@@ -10,7 +10,7 @@ export type Database = {
     // Allows to automatically instantiate createClient with right options
     // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
     __InternalSupabase: {
-        PostgrestVersion: '14.4';
+        PostgrestVersion: '14.5';
     };
     graphql_public: {
         Tables: {
@@ -82,11 +82,32 @@ export type Database = {
                 Row: {
                     action_id: string;
                     approval_state: string;
+                    approved_at: string | null;
+                    approved_payload: Json | null;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    automation_run_id: string | null;
+                    candidate_action_id: string | null;
                     confidence: number | null;
                     created_at: string;
+                    decided_at: string | null;
+                    denied_at: string | null;
+                    execution_completed_at: string | null;
+                    execution_started_at: string | null;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
                     id: string;
+                    idempotency_key: string | null;
+                    job_id: string | null;
                     payload: Json;
+                    payload_hash: string | null;
+                    payload_version: number;
+                    permission_snapshot_hash: string | null;
+                    policy_version: string | null;
+                    requested_at: string;
                     source_widget_id: string | null;
+                    state_version: number;
                     status: string;
                     updated_at: string;
                     user_id: string;
@@ -94,11 +115,32 @@ export type Database = {
                 Insert: {
                     action_id: string;
                     approval_state?: string;
+                    approved_at?: string | null;
+                    approved_payload?: Json | null;
+                    approved_payload_hash?: string | null;
+                    approved_payload_version?: number | null;
+                    automation_run_id?: string | null;
+                    candidate_action_id?: string | null;
                     confidence?: number | null;
                     created_at?: string;
+                    decided_at?: string | null;
+                    denied_at?: string | null;
+                    execution_completed_at?: string | null;
+                    execution_started_at?: string | null;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
                     payload?: Json;
+                    payload_hash?: string | null;
+                    payload_version?: number;
+                    permission_snapshot_hash?: string | null;
+                    policy_version?: string | null;
+                    requested_at?: string;
                     source_widget_id?: string | null;
+                    state_version?: number;
                     status?: string;
                     updated_at?: string;
                     user_id: string;
@@ -106,44 +148,144 @@ export type Database = {
                 Update: {
                     action_id?: string;
                     approval_state?: string;
+                    approved_at?: string | null;
+                    approved_payload?: Json | null;
+                    approved_payload_hash?: string | null;
+                    approved_payload_version?: number | null;
+                    automation_run_id?: string | null;
+                    candidate_action_id?: string | null;
                     confidence?: number | null;
                     created_at?: string;
+                    decided_at?: string | null;
+                    denied_at?: string | null;
+                    execution_completed_at?: string | null;
+                    execution_started_at?: string | null;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
                     payload?: Json;
+                    payload_hash?: string | null;
+                    payload_version?: number;
+                    permission_snapshot_hash?: string | null;
+                    policy_version?: string | null;
+                    requested_at?: string;
                     source_widget_id?: string | null;
+                    state_version?: number;
                     status?: string;
                     updated_at?: string;
                     user_id?: string;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'action_requests_automation_owner_fk';
+                        columns: ['automation_run_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'automation_runs';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'action_requests_candidate_owner_fk';
+                        columns: ['candidate_action_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'candidate_actions';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'action_requests_job_owner_fk';
+                        columns: ['job_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'jobs';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
             };
             action_results: {
                 Row: {
                     action_request_id: string;
+                    attempt: number;
+                    compensation_metadata: Json;
+                    completed_at: string | null;
                     created_at: string;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
                     id: string;
+                    idempotency_key: string | null;
+                    job_id: string | null;
                     message: string;
                     metadata: Json;
                     ok: boolean;
+                    output: Json | null;
+                    provider_execution_id: string | null;
+                    provider_id: string | null;
+                    result_hash: string | null;
                     rollback_token: string | null;
+                    started_at: string | null;
+                    status: string;
+                    undo_status: string | null;
+                    updated_at: string;
+                    user_id: string;
+                    verification_status: string | null;
+                    verified_at: string | null;
                 };
                 Insert: {
                     action_request_id: string;
+                    attempt?: number;
+                    compensation_metadata?: Json;
+                    completed_at?: string | null;
                     created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
                     message: string;
                     metadata?: Json;
                     ok?: boolean;
+                    output?: Json | null;
+                    provider_execution_id?: string | null;
+                    provider_id?: string | null;
+                    result_hash?: string | null;
                     rollback_token?: string | null;
+                    started_at?: string | null;
+                    status: string;
+                    undo_status?: string | null;
+                    updated_at?: string;
+                    user_id: string;
+                    verification_status?: string | null;
+                    verified_at?: string | null;
                 };
                 Update: {
                     action_request_id?: string;
+                    attempt?: number;
+                    compensation_metadata?: Json;
+                    completed_at?: string | null;
                     created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
                     message?: string;
                     metadata?: Json;
                     ok?: boolean;
+                    output?: Json | null;
+                    provider_execution_id?: string | null;
+                    provider_id?: string | null;
+                    result_hash?: string | null;
                     rollback_token?: string | null;
+                    started_at?: string | null;
+                    status?: string;
+                    undo_status?: string | null;
+                    updated_at?: string;
+                    user_id?: string;
+                    verification_status?: string | null;
+                    verified_at?: string | null;
                 };
                 Relationships: [
                     {
@@ -152,6 +294,20 @@ export type Database = {
                         isOneToOne: false;
                         referencedRelation: 'action_requests';
                         referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'action_results_job_owner_fk';
+                        columns: ['job_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'jobs';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'action_results_request_owner_fk';
+                        columns: ['action_request_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'action_requests';
+                        referencedColumns: ['id', 'user_id'];
                     },
                 ];
             };
@@ -284,6 +440,92 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            artifacts: {
+                Row: {
+                    archived_at: string | null;
+                    content: string;
+                    content_format: string;
+                    created_at: string;
+                    deleted_at: string | null;
+                    id: string;
+                    metadata: Json;
+                    parent_artifact_id: string | null;
+                    source_document_id: string | null;
+                    source_file_id: string | null;
+                    source_job_id: string | null;
+                    tags: string[];
+                    title: string;
+                    type: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    archived_at?: string | null;
+                    content?: string;
+                    content_format?: string;
+                    created_at?: string;
+                    deleted_at?: string | null;
+                    id?: string;
+                    metadata?: Json;
+                    parent_artifact_id?: string | null;
+                    source_document_id?: string | null;
+                    source_file_id?: string | null;
+                    source_job_id?: string | null;
+                    tags?: string[];
+                    title?: string;
+                    type?: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    archived_at?: string | null;
+                    content?: string;
+                    content_format?: string;
+                    created_at?: string;
+                    deleted_at?: string | null;
+                    id?: string;
+                    metadata?: Json;
+                    parent_artifact_id?: string | null;
+                    source_document_id?: string | null;
+                    source_file_id?: string | null;
+                    source_job_id?: string | null;
+                    tags?: string[];
+                    title?: string;
+                    type?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'artifacts_parent_artifact_id_fkey';
+                        columns: ['parent_artifact_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'artifacts';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'artifacts_source_document_id_fkey';
+                        columns: ['source_document_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'documents';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'artifacts_source_file_id_fkey';
+                        columns: ['source_file_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_uploads';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'artifacts_source_job_id_fkey';
+                        columns: ['source_job_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'jobs';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
             audit_events: {
                 Row: {
                     created_at: string;
@@ -379,30 +621,54 @@ export type Database = {
                     automation_config_id: string | null;
                     completed_at: string | null;
                     created_at: string;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
                     id: string;
+                    idempotency_key: string | null;
+                    job_id: string | null;
+                    policy_version: string | null;
                     result: Json | null;
                     started_at: string | null;
                     status: string;
+                    trigger_timeline_event_id: string | null;
+                    updated_at: string;
                     user_id: string;
                 };
                 Insert: {
                     automation_config_id?: string | null;
                     completed_at?: string | null;
                     created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
+                    policy_version?: string | null;
                     result?: Json | null;
                     started_at?: string | null;
                     status?: string;
+                    trigger_timeline_event_id?: string | null;
+                    updated_at?: string;
                     user_id: string;
                 };
                 Update: {
                     automation_config_id?: string | null;
                     completed_at?: string | null;
                     created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    job_id?: string | null;
+                    policy_version?: string | null;
                     result?: Json | null;
                     started_at?: string | null;
                     status?: string;
+                    trigger_timeline_event_id?: string | null;
+                    updated_at?: string;
                     user_id?: string;
                 };
                 Relationships: [
@@ -412,6 +678,20 @@ export type Database = {
                         isOneToOne: false;
                         referencedRelation: 'automation_configs';
                         referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'automation_runs_job_owner_fk';
+                        columns: ['job_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'jobs';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'automation_runs_trigger_event_owner_fk';
+                        columns: ['trigger_timeline_event_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'timeline_events';
+                        referencedColumns: ['id', 'user_id'];
                     },
                 ];
             };
@@ -477,6 +757,169 @@ export type Database = {
                     user_id?: string;
                 };
                 Relationships: [];
+            };
+            body_issue_history: {
+                Row: {
+                    id: string;
+                    issue_id: string;
+                    notes: string | null;
+                    recorded_at: string;
+                    severity: number;
+                    status: string;
+                };
+                Insert: {
+                    id?: string;
+                    issue_id: string;
+                    notes?: string | null;
+                    recorded_at?: string;
+                    severity: number;
+                    status: string;
+                };
+                Update: {
+                    id?: string;
+                    issue_id?: string;
+                    notes?: string | null;
+                    recorded_at?: string;
+                    severity?: number;
+                    status?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'body_issue_history_issue_id_fkey';
+                        columns: ['issue_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'body_issues';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            body_issues: {
+                Row: {
+                    created_at: string;
+                    duration_type: string;
+                    id: string;
+                    issue_type: string;
+                    notes: string | null;
+                    onset_date: string;
+                    region_id: string;
+                    region_type: string;
+                    severity: number;
+                    skin_x: number | null;
+                    skin_y: number | null;
+                    status: string;
+                    tooth_number: number | null;
+                    triggers: string[];
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    duration_type?: string;
+                    id?: string;
+                    issue_type?: string;
+                    notes?: string | null;
+                    onset_date?: string;
+                    region_id: string;
+                    region_type?: string;
+                    severity: number;
+                    skin_x?: number | null;
+                    skin_y?: number | null;
+                    status?: string;
+                    tooth_number?: number | null;
+                    triggers?: string[];
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    created_at?: string;
+                    duration_type?: string;
+                    id?: string;
+                    issue_type?: string;
+                    notes?: string | null;
+                    onset_date?: string;
+                    region_id?: string;
+                    region_type?: string;
+                    severity?: number;
+                    skin_x?: number | null;
+                    skin_y?: number | null;
+                    status?: string;
+                    tooth_number?: number | null;
+                    triggers?: string[];
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
+            candidate_actions: {
+                Row: {
+                    action_id: string;
+                    confidence: number;
+                    content_cleared_at: string | null;
+                    created_at: string;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    insight_id: string;
+                    metadata: Json;
+                    payload: Json;
+                    payload_hash: string;
+                    payload_version: number;
+                    policy_version: string;
+                    state: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    action_id: string;
+                    confidence: number;
+                    content_cleared_at?: string | null;
+                    created_at?: string;
+                    expires_at: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key: string;
+                    insight_id: string;
+                    metadata?: Json;
+                    payload?: Json;
+                    payload_hash: string;
+                    payload_version?: number;
+                    policy_version: string;
+                    state?: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    action_id?: string;
+                    confidence?: number;
+                    content_cleared_at?: string | null;
+                    created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key?: string;
+                    insight_id?: string;
+                    metadata?: Json;
+                    payload?: Json;
+                    payload_hash?: string;
+                    payload_version?: number;
+                    policy_version?: string;
+                    state?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'candidate_actions_insight_owner_fk';
+                        columns: ['insight_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'insights';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
             };
             chat_conversations: {
                 Row: {
@@ -601,7 +1044,6 @@ export type Database = {
                 Row: {
                     created_at: string;
                     description: string | null;
-                    game_id: string | null;
                     id: string;
                     title: string;
                     updated_at: string;
@@ -610,7 +1052,6 @@ export type Database = {
                 Insert: {
                     created_at?: string;
                     description?: string | null;
-                    game_id?: string | null;
                     id?: string;
                     title: string;
                     updated_at?: string;
@@ -619,7 +1060,6 @@ export type Database = {
                 Update: {
                     created_at?: string;
                     description?: string | null;
-                    game_id?: string | null;
                     id?: string;
                     title?: string;
                     updated_at?: string;
@@ -818,6 +1258,112 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            companies: {
+                Row: {
+                    created_at: string;
+                    id: string;
+                    name: string;
+                    owner_id: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    id?: string;
+                    name: string;
+                    owner_id: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    created_at?: string;
+                    id?: string;
+                    name?: string;
+                    owner_id?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
+            company_memberships: {
+                Row: {
+                    company_id: string;
+                    created_at: string;
+                    email: string | null;
+                    id: string;
+                    role: string;
+                    status: string;
+                    updated_at: string;
+                    user_id: string | null;
+                };
+                Insert: {
+                    company_id: string;
+                    created_at?: string;
+                    email?: string | null;
+                    id?: string;
+                    role?: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id?: string | null;
+                };
+                Update: {
+                    company_id?: string;
+                    created_at?: string;
+                    email?: string | null;
+                    id?: string;
+                    role?: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id?: string | null;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'company_memberships_company_id_fkey';
+                        columns: ['company_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'companies';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            company_timeclock_entries: {
+                Row: {
+                    clock_in_at: string;
+                    clock_out_at: string | null;
+                    company_id: string;
+                    created_at: string;
+                    id: string;
+                    notes: string | null;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    clock_in_at?: string;
+                    clock_out_at?: string | null;
+                    company_id: string;
+                    created_at?: string;
+                    id?: string;
+                    notes?: string | null;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    clock_in_at?: string;
+                    clock_out_at?: string | null;
+                    company_id?: string;
+                    created_at?: string;
+                    id?: string;
+                    notes?: string | null;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'company_timeclock_entries_company_id_fkey';
+                        columns: ['company_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'companies';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
             consent_records: {
                 Row: {
                     category: string;
@@ -851,6 +1397,60 @@ export type Database = {
                     state?: string;
                     updated_at?: string;
                     user_id?: string;
+                };
+                Relationships: [];
+            };
+            context_edges: {
+                Row: {
+                    confidence: number;
+                    created_at: string;
+                    created_by: string | null;
+                    created_by_type: string;
+                    from_entity_id: string;
+                    id: string;
+                    kind: string;
+                    label: string | null;
+                    metadata: Json;
+                    source_id: string | null;
+                    source_type: string;
+                    to_entity_id: string;
+                    updated_at: string;
+                    user_id: string;
+                    weight: number;
+                };
+                Insert: {
+                    confidence?: number;
+                    created_at?: string;
+                    created_by?: string | null;
+                    created_by_type?: string;
+                    from_entity_id: string;
+                    id?: string;
+                    kind: string;
+                    label?: string | null;
+                    metadata?: Json;
+                    source_id?: string | null;
+                    source_type?: string;
+                    to_entity_id: string;
+                    updated_at?: string;
+                    user_id: string;
+                    weight?: number;
+                };
+                Update: {
+                    confidence?: number;
+                    created_at?: string;
+                    created_by?: string | null;
+                    created_by_type?: string;
+                    from_entity_id?: string;
+                    id?: string;
+                    kind?: string;
+                    label?: string | null;
+                    metadata?: Json;
+                    source_id?: string | null;
+                    source_type?: string;
+                    to_entity_id?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                    weight?: number;
                 };
                 Relationships: [];
             };
@@ -935,57 +1535,48 @@ export type Database = {
                 };
                 Relationships: [];
             };
-            context_edges: {
+            context_exports: {
                 Row: {
-                    confidence: number;
+                    available_sources: number;
                     created_at: string;
-                    created_by: string | null;
-                    created_by_type: string;
-                    from_entity_id: string;
+                    errors: string[];
+                    expires_at: string;
                     id: string;
-                    kind: string;
-                    label: string | null;
-                    metadata: Json;
-                    source_id: string | null;
-                    source_type: string;
-                    to_entity_id: string;
-                    updated_at: string;
+                    scope: string;
+                    sources: Json;
+                    status: string;
+                    system_prompt_content: string | null;
+                    unavailable_sources: number;
                     user_id: string;
-                    weight: number;
+                    warnings: string[];
                 };
                 Insert: {
-                    confidence?: number;
+                    available_sources?: number;
                     created_at?: string;
-                    created_by?: string | null;
-                    created_by_type?: string;
-                    from_entity_id: string;
+                    errors?: string[];
+                    expires_at?: string;
                     id?: string;
-                    kind: string;
-                    label?: string | null;
-                    metadata?: Json;
-                    source_id?: string | null;
-                    source_type?: string;
-                    to_entity_id: string;
-                    updated_at?: string;
+                    scope?: string;
+                    sources?: Json;
+                    status?: string;
+                    system_prompt_content?: string | null;
+                    unavailable_sources?: number;
                     user_id: string;
-                    weight?: number;
+                    warnings?: string[];
                 };
                 Update: {
-                    confidence?: number;
+                    available_sources?: number;
                     created_at?: string;
-                    created_by?: string | null;
-                    created_by_type?: string;
-                    from_entity_id?: string;
+                    errors?: string[];
+                    expires_at?: string;
                     id?: string;
-                    kind?: string;
-                    label?: string | null;
-                    metadata?: Json;
-                    source_id?: string | null;
-                    source_type?: string;
-                    to_entity_id?: string;
-                    updated_at?: string;
+                    scope?: string;
+                    sources?: Json;
+                    status?: string;
+                    system_prompt_content?: string | null;
+                    unavailable_sources?: number;
                     user_id?: string;
-                    weight?: number;
+                    warnings?: string[];
                 };
                 Relationships: [];
             };
@@ -1073,6 +1664,57 @@ export type Database = {
                     viewport?: Json;
                     visible_edge_kinds?: string[];
                     visible_node_types?: string[];
+                };
+                Relationships: [];
+            };
+            conversion_jobs: {
+                Row: {
+                    created_at: string;
+                    error_message: string | null;
+                    file_size_bytes: number;
+                    id: string;
+                    input_object_key: string;
+                    kind: string;
+                    original_file_name: string;
+                    output_object_key: string | null;
+                    source_extension: string;
+                    source_mime: string;
+                    status: string;
+                    target_extension: string;
+                    updated_at: string;
+                    user_id: string | null;
+                };
+                Insert: {
+                    created_at?: string;
+                    error_message?: string | null;
+                    file_size_bytes: number;
+                    id?: string;
+                    input_object_key: string;
+                    kind?: string;
+                    original_file_name: string;
+                    output_object_key?: string | null;
+                    source_extension: string;
+                    source_mime: string;
+                    status?: string;
+                    target_extension: string;
+                    updated_at?: string;
+                    user_id?: string | null;
+                };
+                Update: {
+                    created_at?: string;
+                    error_message?: string | null;
+                    file_size_bytes?: number;
+                    id?: string;
+                    input_object_key?: string;
+                    kind?: string;
+                    original_file_name?: string;
+                    output_object_key?: string | null;
+                    source_extension?: string;
+                    source_mime?: string;
+                    status?: string;
+                    target_extension?: string;
+                    updated_at?: string;
+                    user_id?: string | null;
                 };
                 Relationships: [];
             };
@@ -1264,6 +1906,107 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            documents: {
+                Row: {
+                    archived_at: string | null;
+                    content: string;
+                    created_at: string;
+                    deleted_at: string | null;
+                    folder_id: string | null;
+                    format: string;
+                    id: string;
+                    metadata: Json;
+                    source_artifact_id: string | null;
+                    source_file_id: string | null;
+                    tags: string[];
+                    title: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    archived_at?: string | null;
+                    content?: string;
+                    created_at?: string;
+                    deleted_at?: string | null;
+                    folder_id?: string | null;
+                    format?: string;
+                    id?: string;
+                    metadata?: Json;
+                    source_artifact_id?: string | null;
+                    source_file_id?: string | null;
+                    tags?: string[];
+                    title?: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    archived_at?: string | null;
+                    content?: string;
+                    created_at?: string;
+                    deleted_at?: string | null;
+                    folder_id?: string | null;
+                    format?: string;
+                    id?: string;
+                    metadata?: Json;
+                    source_artifact_id?: string | null;
+                    source_file_id?: string | null;
+                    tags?: string[];
+                    title?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'documents_source_file_id_fkey';
+                        columns: ['source_file_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_uploads';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            email_actions: {
+                Row: {
+                    action_url: string | null;
+                    completed: boolean;
+                    created_at: string;
+                    description: string | null;
+                    due_date: string | null;
+                    email_id: string;
+                    id: string;
+                    synced: boolean;
+                    title: string;
+                    type: string;
+                    user_id: string;
+                };
+                Insert: {
+                    action_url?: string | null;
+                    completed?: boolean;
+                    created_at?: string;
+                    description?: string | null;
+                    due_date?: string | null;
+                    email_id: string;
+                    id?: string;
+                    synced?: boolean;
+                    title: string;
+                    type: string;
+                    user_id: string;
+                };
+                Update: {
+                    action_url?: string | null;
+                    completed?: boolean;
+                    created_at?: string;
+                    description?: string | null;
+                    due_date?: string | null;
+                    email_id?: string;
+                    id?: string;
+                    synced?: boolean;
+                    title?: string;
+                    type?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
             email_classifications: {
                 Row: {
                     category: string;
@@ -1293,6 +2036,24 @@ export type Database = {
                     is_manual?: boolean;
                     sender?: string;
                     subject?: string | null;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
+            email_processing_log: {
+                Row: {
+                    email_id: string;
+                    processed_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    email_id: string;
+                    processed_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    email_id?: string;
+                    processed_at?: string;
                     user_id?: string;
                 };
                 Relationships: [];
@@ -1340,6 +2101,140 @@ export type Database = {
                     stage?: string;
                     status?: string;
                     thread_id?: string | null;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
+            email_snapshots: {
+                Row: {
+                    account_email: string;
+                    body_text: string | null;
+                    id: string;
+                    provider: string;
+                    raw_date: string;
+                    received_at: string;
+                    sender_email: string;
+                    sender_name: string;
+                    snippet: string;
+                    subject: string;
+                    synced_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    account_email: string;
+                    body_text?: string | null;
+                    id: string;
+                    provider: string;
+                    raw_date?: string;
+                    received_at: string;
+                    sender_email?: string;
+                    sender_name?: string;
+                    snippet?: string;
+                    subject?: string;
+                    synced_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    account_email?: string;
+                    body_text?: string | null;
+                    id?: string;
+                    provider?: string;
+                    raw_date?: string;
+                    received_at?: string;
+                    sender_email?: string;
+                    sender_name?: string;
+                    snippet?: string;
+                    subject?: string;
+                    synced_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
+            export_job_logs: {
+                Row: {
+                    created_at: string;
+                    export_job_id: string;
+                    id: string;
+                    level: string;
+                    message: string;
+                    metadata: Json;
+                };
+                Insert: {
+                    created_at?: string;
+                    export_job_id: string;
+                    id?: string;
+                    level?: string;
+                    message: string;
+                    metadata?: Json;
+                };
+                Update: {
+                    created_at?: string;
+                    export_job_id?: string;
+                    id?: string;
+                    level?: string;
+                    message?: string;
+                    metadata?: Json;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'export_job_logs_export_job_id_fkey';
+                        columns: ['export_job_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'export_jobs';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            export_jobs: {
+                Row: {
+                    completed_at: string | null;
+                    created_at: string;
+                    error: string | null;
+                    format: string;
+                    id: string;
+                    metadata: Json;
+                    output_expires_at: string | null;
+                    output_size_bytes: number | null;
+                    output_url: string | null;
+                    row_count: number | null;
+                    source_type: string;
+                    status: string;
+                    title: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    completed_at?: string | null;
+                    created_at?: string;
+                    error?: string | null;
+                    format: string;
+                    id?: string;
+                    metadata?: Json;
+                    output_expires_at?: string | null;
+                    output_size_bytes?: number | null;
+                    output_url?: string | null;
+                    row_count?: number | null;
+                    source_type: string;
+                    status?: string;
+                    title: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    completed_at?: string | null;
+                    created_at?: string;
+                    error?: string | null;
+                    format?: string;
+                    id?: string;
+                    metadata?: Json;
+                    output_expires_at?: string | null;
+                    output_size_bytes?: number | null;
+                    output_url?: string | null;
+                    row_count?: number | null;
+                    source_type?: string;
+                    status?: string;
+                    title?: string;
                     updated_at?: string;
                     user_id?: string;
                 };
@@ -1405,9 +2300,142 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            file_folders: {
+                Row: {
+                    created_at: string;
+                    id: string;
+                    name: string;
+                    parent_id: string | null;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    id?: string;
+                    name: string;
+                    parent_id?: string | null;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    created_at?: string;
+                    id?: string;
+                    name?: string;
+                    parent_id?: string | null;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'file_folders_parent_id_fkey';
+                        columns: ['parent_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_folders';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            file_metadata: {
+                Row: {
+                    archived: boolean;
+                    favorite: boolean;
+                    file_id: string;
+                    id: string;
+                    notes: string | null;
+                    tags: string[];
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    archived?: boolean;
+                    favorite?: boolean;
+                    file_id: string;
+                    id?: string;
+                    notes?: string | null;
+                    tags?: string[];
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    archived?: boolean;
+                    favorite?: boolean;
+                    file_id?: string;
+                    id?: string;
+                    notes?: string | null;
+                    tags?: string[];
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'file_metadata_file_id_fkey';
+                        columns: ['file_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_uploads';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            file_text_extractions: {
+                Row: {
+                    character_count: number;
+                    conversion_id: string | null;
+                    created_at: string;
+                    extracted_text: string;
+                    extraction_error: string | null;
+                    extraction_status: string;
+                    file_id: string;
+                    id: string;
+                    source_storage_path: string;
+                    text_format: string;
+                    token_estimate: number | null;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    character_count?: number;
+                    conversion_id?: string | null;
+                    created_at?: string;
+                    extracted_text?: string;
+                    extraction_error?: string | null;
+                    extraction_status?: string;
+                    file_id: string;
+                    id?: string;
+                    source_storage_path: string;
+                    text_format?: string;
+                    token_estimate?: number | null;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    character_count?: number;
+                    conversion_id?: string | null;
+                    created_at?: string;
+                    extracted_text?: string;
+                    extraction_error?: string | null;
+                    extraction_status?: string;
+                    file_id?: string;
+                    id?: string;
+                    source_storage_path?: string;
+                    text_format?: string;
+                    token_estimate?: number | null;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'file_text_extractions_file_id_fkey';
+                        columns: ['file_id'];
+                        isOneToOne: true;
+                        referencedRelation: 'file_uploads';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
             file_uploads: {
                 Row: {
                     created_at: string;
+                    folder_id: string | null;
                     id: string;
                     mime_type: string;
                     original_name: string;
@@ -1419,6 +2447,7 @@ export type Database = {
                 };
                 Insert: {
                     created_at?: string;
+                    folder_id?: string | null;
                     id?: string;
                     mime_type?: string;
                     original_name: string;
@@ -1430,6 +2459,7 @@ export type Database = {
                 };
                 Update: {
                     created_at?: string;
+                    folder_id?: string | null;
                     id?: string;
                     mime_type?: string;
                     original_name?: string;
@@ -1439,7 +2469,15 @@ export type Database = {
                     updated_at?: string;
                     user_id?: string;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'file_uploads_folder_id_fkey';
+                        columns: ['folder_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_folders';
+                        referencedColumns: ['id'];
+                    },
+                ];
             };
             finance_accounts: {
                 Row: {
@@ -1711,41 +2749,147 @@ export type Database = {
                 };
                 Relationships: [];
             };
-            import_jobs: {
+            import_export_audit_events: {
+                Row: {
+                    action: string;
+                    created_at: string;
+                    id: string;
+                    metadata: Json;
+                    resource_id: string | null;
+                    resource_type: string;
+                    user_id: string;
+                };
+                Insert: {
+                    action: string;
+                    created_at?: string;
+                    id?: string;
+                    metadata?: Json;
+                    resource_id?: string | null;
+                    resource_type: string;
+                    user_id: string;
+                };
+                Update: {
+                    action?: string;
+                    created_at?: string;
+                    id?: string;
+                    metadata?: Json;
+                    resource_id?: string | null;
+                    resource_type?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
+            import_job_logs: {
                 Row: {
                     created_at: string;
-                    duplicate_strategy: string;
-                    format: string;
                     id: string;
-                    mappings: Json;
-                    status: string;
-                    updated_at: string;
-                    user_id: string;
-                    validation_results: Json;
+                    import_job_id: string;
+                    level: string;
+                    message: string;
+                    metadata: Json;
+                    row_number: number | null;
                 };
                 Insert: {
                     created_at?: string;
-                    duplicate_strategy: string;
-                    format: string;
                     id?: string;
-                    mappings?: Json;
-                    status?: string;
-                    updated_at?: string;
-                    user_id: string;
-                    validation_results?: Json;
+                    import_job_id: string;
+                    level?: string;
+                    message: string;
+                    metadata?: Json;
+                    row_number?: number | null;
                 };
                 Update: {
                     created_at?: string;
+                    id?: string;
+                    import_job_id?: string;
+                    level?: string;
+                    message?: string;
+                    metadata?: Json;
+                    row_number?: number | null;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'import_job_logs_import_job_id_fkey';
+                        columns: ['import_job_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'import_jobs';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            import_jobs: {
+                Row: {
+                    completed_at: string | null;
+                    created_at: string;
+                    destination_type: string | null;
+                    duplicate_strategy: string;
+                    error: string | null;
+                    error_count: number | null;
+                    file_upload_id: string | null;
+                    format: string;
+                    id: string;
+                    mappings: Json;
+                    row_count: number | null;
+                    source_type: string | null;
+                    status: string;
+                    success_count: number | null;
+                    title: string | null;
+                    updated_at: string;
+                    user_id: string;
+                    validation_results: Json;
+                    warning_count: number | null;
+                };
+                Insert: {
+                    completed_at?: string | null;
+                    created_at?: string;
+                    destination_type?: string | null;
+                    duplicate_strategy: string;
+                    error?: string | null;
+                    error_count?: number | null;
+                    file_upload_id?: string | null;
+                    format: string;
+                    id?: string;
+                    mappings?: Json;
+                    row_count?: number | null;
+                    source_type?: string | null;
+                    status?: string;
+                    success_count?: number | null;
+                    title?: string | null;
+                    updated_at?: string;
+                    user_id: string;
+                    validation_results?: Json;
+                    warning_count?: number | null;
+                };
+                Update: {
+                    completed_at?: string | null;
+                    created_at?: string;
+                    destination_type?: string | null;
                     duplicate_strategy?: string;
+                    error?: string | null;
+                    error_count?: number | null;
+                    file_upload_id?: string | null;
                     format?: string;
                     id?: string;
                     mappings?: Json;
+                    row_count?: number | null;
+                    source_type?: string | null;
                     status?: string;
+                    success_count?: number | null;
+                    title?: string | null;
                     updated_at?: string;
                     user_id?: string;
                     validation_results?: Json;
+                    warning_count?: number | null;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'import_jobs_file_upload_id_fkey';
+                        columns: ['file_upload_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'file_uploads';
+                        referencedColumns: ['id'];
+                    },
+                ];
             };
             import_mappings: {
                 Row: {
@@ -1782,40 +2926,195 @@ export type Database = {
                     },
                 ];
             };
-            integration_connections: {
+            insight_timeline_events: {
                 Row: {
                     created_at: string;
-                    error_message: string | null;
-                    id: string;
-                    last_checked_at: string | null;
-                    metadata: Json;
-                    provider_id: string;
-                    scopes: string[];
-                    state: string;
-                    updated_at: string;
+                    evidence_role: string;
+                    insight_id: string;
+                    position: number;
+                    timeline_event_id: string;
                     user_id: string;
                 };
                 Insert: {
                     created_at?: string;
-                    error_message?: string | null;
-                    id?: string;
-                    last_checked_at?: string | null;
-                    metadata?: Json;
-                    provider_id: string;
-                    scopes?: string[];
-                    state?: string;
-                    updated_at?: string;
+                    evidence_role?: string;
+                    insight_id: string;
+                    position?: number;
+                    timeline_event_id: string;
                     user_id: string;
                 };
                 Update: {
                     created_at?: string;
+                    evidence_role?: string;
+                    insight_id?: string;
+                    position?: number;
+                    timeline_event_id?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'insight_timeline_events_event_owner_fk';
+                        columns: ['timeline_event_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'timeline_events';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'insight_timeline_events_insight_owner_fk';
+                        columns: ['insight_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'insights';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            insights: {
+                Row: {
+                    confidence: number;
+                    content_cleared_at: string | null;
+                    content_hash: string;
+                    created_at: string;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    kind: string;
+                    metadata: Json;
+                    model_name: string;
+                    model_provider: string;
+                    model_version: string;
+                    policy_version: string;
+                    primary_timeline_event_id: string;
+                    state: string;
+                    summary: string;
+                    title: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    confidence: number;
+                    content_cleared_at?: string | null;
+                    content_hash: string;
+                    created_at?: string;
+                    expires_at: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key: string;
+                    kind: string;
+                    metadata?: Json;
+                    model_name: string;
+                    model_provider: string;
+                    model_version: string;
+                    policy_version: string;
+                    primary_timeline_event_id: string;
+                    state?: string;
+                    summary: string;
+                    title: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    confidence?: number;
+                    content_cleared_at?: string | null;
+                    content_hash?: string;
+                    created_at?: string;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key?: string;
+                    kind?: string;
+                    metadata?: Json;
+                    model_name?: string;
+                    model_provider?: string;
+                    model_version?: string;
+                    policy_version?: string;
+                    primary_timeline_event_id?: string;
+                    state?: string;
+                    summary?: string;
+                    title?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'insights_primary_event_owner_fk';
+                        columns: ['primary_timeline_event_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'timeline_events';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            integration_connections: {
+                Row: {
+                    consecutive_failures: number;
+                    created_at: string;
+                    disabled_at: string | null;
+                    disconnected_at: string | null;
+                    error_message: string | null;
+                    external_account_id: string | null;
+                    id: string;
+                    last_checked_at: string | null;
+                    last_sync_started_at: string | null;
+                    last_sync_succeeded_at: string | null;
+                    metadata: Json;
+                    next_sync_at: string | null;
+                    provider_id: string;
+                    scopes: string[];
+                    state: string;
+                    sync_cursor: string | null;
+                    sync_error_code: string | null;
+                    sync_error_detail: string | null;
+                    sync_status: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    consecutive_failures?: number;
+                    created_at?: string;
+                    disabled_at?: string | null;
+                    disconnected_at?: string | null;
                     error_message?: string | null;
+                    external_account_id?: string | null;
                     id?: string;
                     last_checked_at?: string | null;
+                    last_sync_started_at?: string | null;
+                    last_sync_succeeded_at?: string | null;
                     metadata?: Json;
+                    next_sync_at?: string | null;
+                    provider_id: string;
+                    scopes?: string[];
+                    state?: string;
+                    sync_cursor?: string | null;
+                    sync_error_code?: string | null;
+                    sync_error_detail?: string | null;
+                    sync_status?: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    consecutive_failures?: number;
+                    created_at?: string;
+                    disabled_at?: string | null;
+                    disconnected_at?: string | null;
+                    error_message?: string | null;
+                    external_account_id?: string | null;
+                    id?: string;
+                    last_checked_at?: string | null;
+                    last_sync_started_at?: string | null;
+                    last_sync_succeeded_at?: string | null;
+                    metadata?: Json;
+                    next_sync_at?: string | null;
                     provider_id?: string;
                     scopes?: string[];
                     state?: string;
+                    sync_cursor?: string | null;
+                    sync_error_code?: string | null;
+                    sync_error_detail?: string | null;
+                    sync_status?: string;
                     updated_at?: string;
                     user_id?: string;
                 };
@@ -1931,13 +3230,25 @@ export type Database = {
             };
             jobs: {
                 Row: {
+                    available_at: string | null;
+                    completed_at: string | null;
                     confidence: number | null;
+                    correlation_id: string | null;
                     created_at: string;
+                    dead_lettered_at: string | null;
+                    diagnostics_expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
                     failure_reason: string | null;
                     id: string;
+                    idempotency_key: string | null;
+                    max_attempts: number;
                     metadata: Json;
+                    queue_job_id: string | null;
+                    queue_name: string | null;
                     retry_count: number;
                     source_references: Json;
+                    started_at: string | null;
                     status: string;
                     type: string;
                     updated_at: string;
@@ -1945,13 +3256,25 @@ export type Database = {
                     user_visible_result: Json | null;
                 };
                 Insert: {
+                    available_at?: string | null;
+                    completed_at?: string | null;
                     confidence?: number | null;
+                    correlation_id?: string | null;
                     created_at?: string;
+                    dead_lettered_at?: string | null;
+                    diagnostics_expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     failure_reason?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    max_attempts?: number;
                     metadata?: Json;
+                    queue_job_id?: string | null;
+                    queue_name?: string | null;
                     retry_count?: number;
                     source_references?: Json;
+                    started_at?: string | null;
                     status?: string;
                     type: string;
                     updated_at?: string;
@@ -1959,13 +3282,25 @@ export type Database = {
                     user_visible_result?: Json | null;
                 };
                 Update: {
+                    available_at?: string | null;
+                    completed_at?: string | null;
                     confidence?: number | null;
+                    correlation_id?: string | null;
                     created_at?: string;
+                    dead_lettered_at?: string | null;
+                    diagnostics_expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
                     failure_reason?: string | null;
                     id?: string;
+                    idempotency_key?: string | null;
+                    max_attempts?: number;
                     metadata?: Json;
+                    queue_job_id?: string | null;
+                    queue_name?: string | null;
                     retry_count?: number;
                     source_references?: Json;
+                    started_at?: string | null;
                     status?: string;
                     type?: string;
                     updated_at?: string;
@@ -2216,6 +3551,45 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            notifications: {
+                Row: {
+                    body: string | null;
+                    created_at: string;
+                    entity_id: string | null;
+                    entity_type: string | null;
+                    href: string | null;
+                    id: string;
+                    read: boolean;
+                    title: string;
+                    type: string;
+                    user_id: string;
+                };
+                Insert: {
+                    body?: string | null;
+                    created_at?: string;
+                    entity_id?: string | null;
+                    entity_type?: string | null;
+                    href?: string | null;
+                    id?: string;
+                    read?: boolean;
+                    title: string;
+                    type: string;
+                    user_id: string;
+                };
+                Update: {
+                    body?: string | null;
+                    created_at?: string;
+                    entity_id?: string | null;
+                    entity_type?: string | null;
+                    href?: string | null;
+                    id?: string;
+                    read?: boolean;
+                    title?: string;
+                    type?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
             onboarding_profiles: {
                 Row: {
                     created_at: string;
@@ -2278,25 +3652,31 @@ export type Database = {
             };
             profiles: {
                 Row: {
+                    anthropic_api_key: string | null;
                     created_at: string | null;
                     full_name: string | null;
                     id: string;
                     role: string;
                     updated_at: string | null;
+                    use_ai_email: boolean;
                 };
                 Insert: {
+                    anthropic_api_key?: string | null;
                     created_at?: string | null;
                     full_name?: string | null;
                     id: string;
                     role?: string;
                     updated_at?: string | null;
+                    use_ai_email?: boolean;
                 };
                 Update: {
+                    anthropic_api_key?: string | null;
                     created_at?: string | null;
                     full_name?: string | null;
                     id?: string;
                     role?: string;
                     updated_at?: string | null;
+                    use_ai_email?: boolean;
                 };
                 Relationships: [];
             };
@@ -2320,6 +3700,89 @@ export type Database = {
                     user_id?: string;
                 };
                 Relationships: [];
+            };
+            raw_observations: {
+                Row: {
+                    event_type: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    ingested_at: string;
+                    integration_connection_id: string | null;
+                    metadata: Json;
+                    normalization_version: string | null;
+                    normalized_at: string | null;
+                    occurred_at: string;
+                    payload: Json;
+                    payload_cleared_at: string | null;
+                    payload_expires_at: string;
+                    payload_hash: string;
+                    provider_object_id: string;
+                    provider_version: string;
+                    source_key: string;
+                    source_type: string;
+                    status: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    event_type: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key: string;
+                    ingested_at?: string;
+                    integration_connection_id?: string | null;
+                    metadata?: Json;
+                    normalization_version?: string | null;
+                    normalized_at?: string | null;
+                    occurred_at: string;
+                    payload?: Json;
+                    payload_cleared_at?: string | null;
+                    payload_expires_at?: string;
+                    payload_hash: string;
+                    provider_object_id: string;
+                    provider_version: string;
+                    source_key: string;
+                    source_type: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    event_type?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    id?: string;
+                    idempotency_key?: string;
+                    ingested_at?: string;
+                    integration_connection_id?: string | null;
+                    metadata?: Json;
+                    normalization_version?: string | null;
+                    normalized_at?: string | null;
+                    occurred_at?: string;
+                    payload?: Json;
+                    payload_cleared_at?: string | null;
+                    payload_expires_at?: string;
+                    payload_hash?: string;
+                    provider_object_id?: string;
+                    provider_version?: string;
+                    source_key?: string;
+                    source_type?: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'raw_observations_connection_owner_fk';
+                        columns: ['integration_connection_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'integration_connections';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
             };
             reading_bookmarks: {
                 Row: {
@@ -2732,6 +4195,83 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            timeline_events: {
+                Row: {
+                    content_hash: string;
+                    deleted_at: string | null;
+                    event_type: string;
+                    expires_at: string;
+                    id: string;
+                    idempotency_key: string;
+                    ingested_at: string;
+                    metadata: Json;
+                    normalization_version: string;
+                    observation_id: string;
+                    occurred_at: string;
+                    revision: number;
+                    source_record_id: string | null;
+                    source_record_table: string | null;
+                    source_type: string;
+                    state: string;
+                    summary: string | null;
+                    title: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    content_hash: string;
+                    deleted_at?: string | null;
+                    event_type: string;
+                    expires_at?: string;
+                    id?: string;
+                    idempotency_key: string;
+                    ingested_at?: string;
+                    metadata?: Json;
+                    normalization_version: string;
+                    observation_id: string;
+                    occurred_at: string;
+                    revision?: number;
+                    source_record_id?: string | null;
+                    source_record_table?: string | null;
+                    source_type: string;
+                    state?: string;
+                    summary?: string | null;
+                    title: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    content_hash?: string;
+                    deleted_at?: string | null;
+                    event_type?: string;
+                    expires_at?: string;
+                    id?: string;
+                    idempotency_key?: string;
+                    ingested_at?: string;
+                    metadata?: Json;
+                    normalization_version?: string;
+                    observation_id?: string;
+                    occurred_at?: string;
+                    revision?: number;
+                    source_record_id?: string | null;
+                    source_record_table?: string | null;
+                    source_type?: string;
+                    state?: string;
+                    summary?: string | null;
+                    title?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'timeline_events_observation_owner_fk';
+                        columns: ['observation_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'raw_observations';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
             todos: {
                 Row: {
                     completed: boolean;
@@ -2866,6 +4406,48 @@ export type Database = {
                     },
                 ];
             };
+            user_email_accounts: {
+                Row: {
+                    access_token: string;
+                    created_at: string;
+                    display_name: string | null;
+                    email: string;
+                    expires_at: number | null;
+                    id: string;
+                    last_synced_at: string | null;
+                    provider: string;
+                    refresh_token: string | null;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    access_token: string;
+                    created_at?: string;
+                    display_name?: string | null;
+                    email: string;
+                    expires_at?: number | null;
+                    id?: string;
+                    last_synced_at?: string | null;
+                    provider: string;
+                    refresh_token?: string | null;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    access_token?: string;
+                    created_at?: string;
+                    display_name?: string | null;
+                    email?: string;
+                    expires_at?: number | null;
+                    id?: string;
+                    last_synced_at?: string | null;
+                    provider?: string;
+                    refresh_token?: string | null;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
             user_feedback: {
                 Row: {
                     bugs_found: string | null;
@@ -2996,6 +4578,7 @@ export type Database = {
                     gmail_email: string | null;
                     has_calendar: boolean;
                     has_drive: boolean;
+                    has_gmail: boolean;
                     has_microsoft: boolean;
                     last_history_id: string | null;
                     microsoft_access_token: string | null;
@@ -3012,6 +4595,7 @@ export type Database = {
                     gmail_email?: string | null;
                     has_calendar?: boolean;
                     has_drive?: boolean;
+                    has_gmail?: boolean;
                     has_microsoft?: boolean;
                     last_history_id?: string | null;
                     microsoft_access_token?: string | null;
@@ -3028,6 +4612,7 @@ export type Database = {
                     gmail_email?: string | null;
                     has_calendar?: boolean;
                     has_drive?: boolean;
+                    has_gmail?: boolean;
                     has_microsoft?: boolean;
                     last_history_id?: string | null;
                     microsoft_access_token?: string | null;
@@ -3168,13 +4753,341 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            workspace_activity: {
+                Row: {
+                    action: string;
+                    actor_email: string | null;
+                    actor_id: string | null;
+                    created_at: string;
+                    id: string;
+                    metadata: Json;
+                    target_id: string | null;
+                    target_type: string | null;
+                    workspace_id: string;
+                };
+                Insert: {
+                    action: string;
+                    actor_email?: string | null;
+                    actor_id?: string | null;
+                    created_at?: string;
+                    id?: string;
+                    metadata?: Json;
+                    target_id?: string | null;
+                    target_type?: string | null;
+                    workspace_id: string;
+                };
+                Update: {
+                    action?: string;
+                    actor_email?: string | null;
+                    actor_id?: string | null;
+                    created_at?: string;
+                    id?: string;
+                    metadata?: Json;
+                    target_id?: string | null;
+                    target_type?: string | null;
+                    workspace_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'workspace_activity_workspace_id_fkey';
+                        columns: ['workspace_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_workspaces';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            workspace_approvals: {
+                Row: {
+                    approvals_received: number;
+                    approvals_required: number;
+                    created_at: string;
+                    description: string | null;
+                    handoff_id: string | null;
+                    id: string;
+                    requester_id: string;
+                    resolved_at: string | null;
+                    status: string;
+                    title: string;
+                    updated_at: string;
+                    workspace_id: string;
+                };
+                Insert: {
+                    approvals_received?: number;
+                    approvals_required?: number;
+                    created_at?: string;
+                    description?: string | null;
+                    handoff_id?: string | null;
+                    id?: string;
+                    requester_id: string;
+                    resolved_at?: string | null;
+                    status?: string;
+                    title: string;
+                    updated_at?: string;
+                    workspace_id: string;
+                };
+                Update: {
+                    approvals_received?: number;
+                    approvals_required?: number;
+                    created_at?: string;
+                    description?: string | null;
+                    handoff_id?: string | null;
+                    id?: string;
+                    requester_id?: string;
+                    resolved_at?: string | null;
+                    status?: string;
+                    title?: string;
+                    updated_at?: string;
+                    workspace_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'workspace_approvals_handoff_id_fkey';
+                        columns: ['handoff_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_handoffs';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'workspace_approvals_workspace_id_fkey';
+                        columns: ['workspace_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_workspaces';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            workspace_comments: {
+                Row: {
+                    author_id: string;
+                    body: string;
+                    created_at: string;
+                    edited: boolean;
+                    handoff_id: string | null;
+                    id: string;
+                    parent_id: string | null;
+                    updated_at: string;
+                    workspace_id: string;
+                };
+                Insert: {
+                    author_id: string;
+                    body: string;
+                    created_at?: string;
+                    edited?: boolean;
+                    handoff_id?: string | null;
+                    id?: string;
+                    parent_id?: string | null;
+                    updated_at?: string;
+                    workspace_id: string;
+                };
+                Update: {
+                    author_id?: string;
+                    body?: string;
+                    created_at?: string;
+                    edited?: boolean;
+                    handoff_id?: string | null;
+                    id?: string;
+                    parent_id?: string | null;
+                    updated_at?: string;
+                    workspace_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'workspace_comments_handoff_id_fkey';
+                        columns: ['handoff_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_handoffs';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'workspace_comments_parent_id_fkey';
+                        columns: ['parent_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'workspace_comments';
+                        referencedColumns: ['id'];
+                    },
+                    {
+                        foreignKeyName: 'workspace_comments_workspace_id_fkey';
+                        columns: ['workspace_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_workspaces';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            workspace_invites: {
+                Row: {
+                    created_at: string;
+                    email: string;
+                    expires_at: string;
+                    id: string;
+                    inviter_id: string;
+                    role: string;
+                    status: string;
+                    token: string;
+                    workspace_id: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    email: string;
+                    expires_at?: string;
+                    id?: string;
+                    inviter_id: string;
+                    role?: string;
+                    status?: string;
+                    token: string;
+                    workspace_id: string;
+                };
+                Update: {
+                    created_at?: string;
+                    email?: string;
+                    expires_at?: string;
+                    id?: string;
+                    inviter_id?: string;
+                    role?: string;
+                    status?: string;
+                    token?: string;
+                    workspace_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'workspace_invites_workspace_id_fkey';
+                        columns: ['workspace_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_workspaces';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
+            workspace_members: {
+                Row: {
+                    created_at: string;
+                    email: string | null;
+                    id: string;
+                    joined_at: string | null;
+                    role: string;
+                    status: string;
+                    updated_at: string;
+                    user_id: string | null;
+                    workspace_id: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    email?: string | null;
+                    id?: string;
+                    joined_at?: string | null;
+                    role?: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id?: string | null;
+                    workspace_id: string;
+                };
+                Update: {
+                    created_at?: string;
+                    email?: string | null;
+                    id?: string;
+                    joined_at?: string | null;
+                    role?: string;
+                    status?: string;
+                    updated_at?: string;
+                    user_id?: string | null;
+                    workspace_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'workspace_members_workspace_id_fkey';
+                        columns: ['workspace_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'collaboration_workspaces';
+                        referencedColumns: ['id'];
+                    },
+                ];
+            };
         };
         Views: {
             [_ in never]: never;
         };
         Functions: {
+            decide_action_request: {
+                Args: {
+                    p_action_request_id: string;
+                    p_decided_at?: string;
+                    p_decision: string;
+                    p_payload: Json;
+                    p_payload_hash: string;
+                    p_payload_version: number;
+                    p_permission_snapshot_hash: string;
+                };
+                Returns: {
+                    action_id: string;
+                    approval_state: string;
+                    approved_at: string | null;
+                    approved_payload: Json | null;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    automation_run_id: string | null;
+                    candidate_action_id: string | null;
+                    confidence: number | null;
+                    created_at: string;
+                    decided_at: string | null;
+                    denied_at: string | null;
+                    execution_completed_at: string | null;
+                    execution_started_at: string | null;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string | null;
+                    job_id: string | null;
+                    payload: Json;
+                    payload_hash: string | null;
+                    payload_version: number;
+                    permission_snapshot_hash: string | null;
+                    policy_version: string | null;
+                    requested_at: string;
+                    source_widget_id: string | null;
+                    state_version: number;
+                    status: string;
+                    updated_at: string;
+                    user_id: string;
+                }[];
+                SetofOptions: {
+                    from: '*';
+                    to: 'action_requests';
+                    isOneToOne: false;
+                    isSetofReturn: true;
+                };
+            };
             get_month_day: { Args: { ts: string }; Returns: string };
             grant_admin: { Args: { target_email: string }; Returns: undefined };
+            is_company_leader: {
+                Args: { allowed_roles?: string[]; target_company_id: string };
+                Returns: boolean;
+            };
+            is_company_member: {
+                Args: { target_company_id: string };
+                Returns: boolean;
+            };
+            is_workspace_editor_or_owner: {
+                Args: { p_workspace_id: string };
+                Returns: boolean;
+            };
+            is_workspace_member: {
+                Args: { p_workspace_id: string };
+                Returns: boolean;
+            };
+            purge_expired_v1_lifecycle: {
+                Args: { p_now?: string };
+                Returns: Json;
+            };
+            restore_journal: {
+                Args: { p_entry_id: string };
+                Returns: undefined;
+            };
+            soft_delete_journal: {
+                Args: { p_entry_id: string };
+                Returns: undefined;
+            };
         };
         Enums: {
             [_ in never]: never;

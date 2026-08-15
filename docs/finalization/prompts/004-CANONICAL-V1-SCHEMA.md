@@ -79,9 +79,10 @@ documented in [`../CANONICAL_V1_SCHEMA.md`](../CANONICAL_V1_SCHEMA.md).
   another feature.
 - Existing action, result, job, automation, integration, activity, context,
   knowledge, and domain ownership was preserved.
-- No remote migration or provider action was performed.
+- After explicit owner approval, the six reviewed migrations were deployed to
+  `webwidgets-dev`; no provider action was performed.
 
-Supabase types were generated and reviewed from the verified ephemeral schema
-but not committed: `webwidgets-dev` does not have these migrations yet and the
-output exposed unrelated historical Chess drift. The deployment handoff
-requires remote migration approval followed by direct live type generation.
+Supabase types were generated directly from the deployed live schema and
+committed. The unrelated historical Chess drift exposed by generation was
+reconciled by removing the invalid `game_id` assumption from the suspended
+beta caller.

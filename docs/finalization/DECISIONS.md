@@ -108,7 +108,6 @@ the user-visible result impossible to trace reliably.
 ## Pending implementation decisions
 
 - Select the concrete worker hosting provider during Prompt 005.
-- Deploy the reviewed Prompt 004 migration bundle, regenerate live Supabase
-  types, and complete the separate provider credential-isolation remediation.
+- Complete the separate provider credential-isolation remediation.
 - Set measurable launch thresholds for intelligence precision, duplicate
   rate, latency, reliability, and inference cost.
