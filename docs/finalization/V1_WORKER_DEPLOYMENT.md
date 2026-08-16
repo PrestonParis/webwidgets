@@ -1,10 +1,10 @@
 # V1 Worker Deployment and Operations
 
-Status: Production path implemented; Render provisioning pending
+Status: Free finalization path implemented; Render provisioning pending
 
 Implemented: 2026-08-15
 
-Decision basis: ADR-008, ADR-010, ADR-011, ADR-013, and ADR-014
+Decision basis: ADR-008, ADR-010, ADR-011, ADR-013, ADR-014, and ADR-015
 
 ## Outcome
 
@@ -19,22 +19,28 @@ idempotency key, queue kind, and versioned task. The runner verifies that
 identity before claiming work and persists running, retry, completion, or
 dead-letter state before BullMQ acknowledges the attempt.
 
-## Supported production topology
+## Supported finalization topology
 
 Render is the selected V1 container host. The repository-root `render.yaml`
-defines one Docker background worker and one private, persistent Render Key
-Value instance with `noeviction`. Render documents BullMQ as a supported Node
-background-worker framework and supports Docker workers, private Key Value
-connection strings, and bounded SIGTERM shutdown delays:
+defines one free Docker web service running the worker process and one free,
+private Render Key Value instance with `noeviction` and persistence disabled.
+The web service exposes only liveness/readiness and exists because Render does
+not offer free background workers. Render supports Docker web services,
+private Key Value connection strings, health checks, and bounded SIGTERM
+shutdown delays:
 
+- [Render free instances](https://render.com/docs/free)
+- [Render web services](https://render.com/docs/web-services)
 - [Render background workers](https://render.com/docs/background-workers)
 - [Render Blueprint specification](https://render.com/docs/blueprint-spec)
 - [Render Docker deployments](https://render.com/docs/docker)
 
-The Blueprint uses paid `starter` resources because Render does not offer its
-free plan for background workers. Provisioning it is an external account and
-billing action; repository completion does not imply that the service is
-already running.
+This compatibility topology is for finalization and integration testing. A
+free web service can sleep after inactivity, and free Key Value can lose its
+delivery state on restart. Supabase remains durable job truth, but delivery may
+need to be re-enqueued. Production must cut over to ADR-014's paid background
+worker and persistent Key Value; it must not relabel this free deployment as
+continuous or production-safe automation.
 
 ## Queue and execution contract
 
@@ -80,27 +86,33 @@ only when Redis responds to `PING` and the canonical `jobs` table is reachable
 through the worker client; it returns 503 otherwise. The Docker image carries
 the same readiness probe as a container health check.
 
-Render background workers do not expose a public URL. The runtime therefore
-also performs the readiness check every 30 seconds and emits a structured
-heartbeat containing only instance/dependency status. Job logs include job,
-user, correlation, queue, safe failure code, and attempt identifiers; they do
-not include tokens, emails, source bodies, payloads, or raw provider errors.
+The free web-service compatibility deployment exposes `/live` and `/ready` at
+its Render URL. The runtime also performs the readiness check every 30 seconds
+and emits a structured heartbeat containing only instance/dependency status.
+Job logs include job, user, correlation, queue, safe failure code, and attempt
+identifiers; they do not include tokens, emails, source bodies, payloads, or
+raw provider errors.
 
 ## Dark deployment procedure
 
-1. Review and merge the Prompt 005 branch through CI.
-2. In Render, create a Blueprint from the repository's `render.yaml`.
+1. In Render, create or sync a Blueprint from the `finalization` branch and
+   repository-root `render.yaml`.
+2. Before confirming creation, verify both detected resources say `Free`:
+   `webwidgets-v1-worker` must be a Web Service and
+   `webwidgets-v1-queue` must be Key Value. Stop if Render shows `Starter`.
 3. Supply `SUPABASE_URL` for `webwidgets-dev` and its service-role credential
    through Render's secret prompt. Do not use the Worldview project.
 4. Keep `WORKER_DRY_RUN=true`, `EMAIL_SYNC_ENABLED=false`, and
    `SCHEDULE_OWNER=vercel` for the first deployment.
-5. Confirm the startup log reports four V1 workers, dry-run mode, and ready
+5. Open `https://<service>.onrender.com/ready`; after any cold start it must
+   report `ready`, `redis`, and `supabase` as true.
+6. Confirm the startup log reports four V1 workers, dry-run mode, and ready
    Redis/Supabase dependencies. Confirm at least two successful heartbeats.
-6. Set temporary `SMOKE_USER_ID` and `SMOKE_IDEMPOTENCY_KEY` values in a Render
-   shell and run `node dist/smoke.js`. The command must observe one canonical
-   job reaching `completed`.
-7. Re-run with the same idempotency key. It must return the existing canonical
-   completion rather than produce a second product result.
+7. Because free services do not provide shell access, run the canonical probe
+   locally using a temporarily IP-restricted external Key Value URL. Re-run it
+   with the same idempotency key and confirm it returns the existing canonical
+   completion rather than producing a second product result. Remove external
+   Key Value access immediately afterward.
 
 No provider polling or provider action is enabled by this procedure.
 
@@ -125,9 +137,9 @@ schedule ownership while email sync is disabled. Never enable both owners.
 
 1. If a source schedule has been cut over, restore its Vercel fallback and set
    `SCHEDULE_OWNER=vercel` before stopping the worker schedule.
-2. Roll Render back to the last healthy image or scale the worker to zero.
-3. Preserve Redis while inspecting delivery state; do not treat it as the job
-   history.
+2. Roll Render back to the last healthy image or suspend the web service.
+3. Inspect Key Value delivery state when available; free instances can lose it
+   on restart, so never treat it as job history.
 4. Leave Supabase `jobs`, action receipts, and lifecycle records intact.
 5. Correct or re-enqueue a job with the same canonical identity. Do not delete
    dead-letter evidence to make a retry appear new.
@@ -142,7 +154,14 @@ Rollback never drops schema or rewrites completed provider outcomes.
   legacy producers now fail closed instead of claiming that unconsumed work
   was queued. Prompts 006/013 will create canonical jobs and extend this
   registry; the web app remains a producer.
-- Actual Render provisioning, two observed heartbeats, and the remote smoke
-  probe require owner approval for the paid Render resources.
+- Actual Render provisioning, two observed heartbeats, readiness proof, and
+  the runtime smoke probe still require owner execution in Render.
 - Prompt 006 is the next implementation prompt after the worker is provisioned
   and its dark-deployment smoke proof is recorded.
+
+## Production upgrade
+
+Render service types are immutable. Before launch, create a background worker
+from the same Docker image, provision persistent `noeviction` Key Value, drain
+or safely re-enqueue any pending delivery, validate the canonical probe, and
+then retire the free web service. Do not run both consumers during cutover.

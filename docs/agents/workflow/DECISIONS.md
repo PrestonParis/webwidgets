@@ -4,7 +4,7 @@
 
 ## ADR-001: ML-First, Claude as Paid Fallback
 
-**Status:** Active
+**Status:** Active production target; development deployment amended by ADR-015
 
 **Decision:** In-house TF-IDF + Logistic Regression models run for all users. Claude (Anthropic API) is reserved as a fallback for paid tier only.
 
@@ -283,3 +283,29 @@ Background workers require paid Render resources, so provisioning remains an
 explicit owner billing action. Provider credentials remain disabled until the
 separate server-only credential remediation lands. Prompt 006 and later source
 processors extend the worker registry rather than starting another runtime.
+
+---
+
+## ADR-015: Use Render Free Compatibility Resources During Finalization
+
+**Status:** Active
+
+**Decision:** Until the product is close to release, deploy the same
+`services/sync-worker` Docker image as a free Render web service with `/ready`
+as its health endpoint and one free `noeviction` Render Key Value instance.
+Keep dry-run enabled, provider email work disabled, and Vercel as the schedule
+owner. `render.yaml` describes this temporary development topology.
+
+The free service may sleep when idle and the free Key Value instance has no
+disk persistence. Supabase `jobs` remains durable truth, but delivery may need
+to be re-enqueued after a Key Value restart. This deployment is for integration
+and smoke testing, not a claim of continuous or production-safe automation.
+
+**Why:** The owner explicitly chose the Render free plan during finalization.
+The worker already exposes an HTTP health server on Render's default port, so
+the same container can run as a web service without creating another runtime.
+
+**Consequences:** Before production, replace the web service with the ADR-014
+background worker and use persistent Key Value. Because Render service types
+are immutable and free-to-paid Key Value upgrades lose in-memory data, perform
+that change as an explicit cutover after draining or safely re-enqueuing work.

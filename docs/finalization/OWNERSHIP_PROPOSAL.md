@@ -307,6 +307,6 @@ The project owner accepted these five points on 2026-08-13:
 5. The replay, 30/90/365-day retention, disconnect, and cascading deletion
    defaults are acceptable for V1.
 
-Prompt 002 and Prompt 004 are complete. ADR-008 through ADR-014 are Active.
-Prompt 005 implements the worker runtime and Render deployment path; external
-Render provisioning remains the final deployment gate.
+Prompt 002 and Prompt 004 are complete. ADR-008 through ADR-015 are Active.
+Prompt 005 implements the worker runtime and free Render finalization path;
+external provisioning and smoke evidence remain the final deployment gate.

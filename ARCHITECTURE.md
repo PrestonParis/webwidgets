@@ -80,8 +80,9 @@ service-level `vercel.json`), **or** a Procfile-based host
 (`infra/Procfile`) — the two deploy targets are not reconciled in the repo;
 confirm which is authoritative before relying on either.
 `services/sync-worker` now has one supported Render deployment path in
-`render.yaml`, but the paid worker and Key Value resources are not provisioned
-until the owner approves the external billing action. `services/conversion`
+`render.yaml`. During finalization it uses a free web-service compatibility
+deployment plus free, non-persistent Key Value; the paid continuous worker and
+persistent queue remain the production upgrade target. `services/conversion`
 and `services/go_services/worker` still have no supported production path. Do
 not assume any of the three is live until deployment evidence exists.
 
@@ -101,8 +102,11 @@ manifest are implemented, but this is not a claim that Render is provisioned:
   workflow executor. The Go worker is disabled and deferred for V1.
 - Vercel crons remain temporary cutover fallbacks and must not run a schedule
   also owned by the worker.
-- Render is the selected worker host, with one persistent `noeviction` Key
-  Value queue. The first deployment is dark and provider work remains off.
+- Render is the selected worker host. The finalization deployment uses a free
+  web-service compatibility process and non-persistent `noeviction` Key Value;
+  production upgrades to a continuously running background worker and
+  persistent queue. The first deployment is dark and provider work remains
+  off.
 
 The complete lifecycle, responsibility matrices, retention policy, and
 migration sequence are in

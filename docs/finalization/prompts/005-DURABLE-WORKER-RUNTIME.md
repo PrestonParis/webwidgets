@@ -78,8 +78,10 @@ contract is documented in
   payloads or logs.
 - The two undispatched web-bundle news/action worker factories were removed;
   their legacy producers fail closed until their canonical processors land.
-- `render.yaml` selects one Render Docker background worker and persistent
-  `noeviction` Render Key Value instance. The default deployment is dark.
+- `render.yaml` selects one free Render Docker web service running the worker
+  process and one free, non-persistent `noeviction` Render Key Value instance.
+  The default deployment is dark; ADR-014 retains the paid background-worker
+  and persistent-queue production target.
 
 ### Verification
 
@@ -97,10 +99,11 @@ contract is documented in
 
 ### Deployment gate
 
-The repository does not contain Render account credentials and background
-workers have no free plan. Creating the paid Blueprint resources is an
-external billing action that requires explicit owner approval. Prompt 005
-must remain `Awaiting approval` until the Blueprint is provisioned, two
-healthy heartbeats are observed, and the canonical runtime probe completes.
+The free compatibility Blueprint is ready to provision without paid service
+instances. Prompt 005 remains `Awaiting approval` until the Blueprint is
+provisioned, `/ready` confirms Redis and Supabase connectivity, two healthy
+heartbeats are observed, and the canonical runtime probe completes. Free web
+services can sleep and free Key Value is non-persistent, so this evidence is a
+development gate rather than production-readiness proof.
 
 Prompt 006 remains blocked until that deployment evidence is added here.
