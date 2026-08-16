@@ -113,7 +113,7 @@ the user-visible result impossible to trace reliably.
 
 ## FIN-009: Use Render for the dark V1 worker deployment
 
-**Status:** Accepted in repository; provisioning pending
+**Status:** Accepted production target; free finalization path active
 
 **Decision:** Use the repository Dockerfile and `render.yaml` to provision one
 Render background worker plus persistent Render Key Value. Deploy first with
@@ -124,3 +124,16 @@ schedule ownership. Source prompts cut over one schedule at a time.
 continuous TypeScript/BullMQ owner, persistent queue delivery, private Redis
 connectivity, graceful shutdown, and reproducible infrastructure without
 creating another runtime or state machine.
+
+## FIN-010: Use free Render compatibility resources during finalization
+
+**Status:** Accepted
+
+**Decision:** While WebWidgets remains in finalization, deploy the worker image
+as a free Render web service backed by free, non-persistent Key Value. Preserve
+the dark defaults and use the public `/ready` endpoint for deployment and wake
+checks. Upgrade through a deliberate service cutover before production.
+
+**Reason:** This keeps external spend at zero while allowing real integration
+testing. It does not weaken the ADR-014 production requirement for continuous
+compute and persistent queue delivery.

@@ -1,17 +1,20 @@
 services:
   - type: keyvalue
     name: webwidgets-v1-queue
-    plan: starter
+    plan: free
+    region: virginia
     ipAllowList: []
     maxmemoryPolicy: noeviction
-    persistenceMode: journal-snapshot
+    persistenceMode: 'off'
 
-  - type: worker
+  - type: web
     name: webwidgets-v1-worker
     runtime: docker
-    plan: starter
+    plan: free
+    region: virginia
     dockerfilePath: ./services/sync-worker/Dockerfile
     dockerContext: ./services/sync-worker
+    healthCheckPath: /ready
     maxShutdownDelaySeconds: 120
     envVars:
       - key: SUPABASE_URL
