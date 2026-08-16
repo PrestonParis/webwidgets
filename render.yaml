@@ -15,7 +15,6 @@ services:
     dockerfilePath: ./services/sync-worker/Dockerfile
     dockerContext: ./services/sync-worker
     healthCheckPath: /ready
-    maxShutdownDelaySeconds: 120
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -41,4 +40,4 @@ services:
       - key: JOB_TIMEOUT_MS
         value: '120000'
       - key: SHUTDOWN_TIMEOUT_MS
-        value: '110000'
+        value: '25000'

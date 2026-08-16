@@ -26,8 +26,7 @@ defines one free Docker web service running the worker process and one free,
 private Render Key Value instance with `noeviction` and persistence disabled.
 The web service exposes only liveness/readiness and exists because Render does
 not offer free background workers. Render supports Docker web services,
-private Key Value connection strings, health checks, and bounded SIGTERM
-shutdown delays:
+private Key Value connection strings, health checks, and SIGTERM handling:
 
 - [Render free instances](https://render.com/docs/free)
 - [Render web services](https://render.com/docs/web-services)
@@ -41,6 +40,11 @@ delivery state on restart. Supabase remains durable job truth, but delivery may
 need to be re-enqueued. Production must cut over to ADR-014's paid background
 worker and persistent Key Value; it must not relabel this free deployment as
 continuous or production-safe automation.
+
+Free web services do not support `maxShutdownDelaySeconds`. The Blueprint
+therefore omits that field and bounds the process's own shutdown timeout to 25
+seconds, below Render's default termination window. Production can restore the
+120-second host delay during the ADR-014 cutover.
 
 ## Queue and execution contract
 
@@ -71,7 +75,7 @@ diagnostics. The canonical row's `max_attempts` remains authoritative.
 | `HEALTH_PORT`               | no          | Internal liveness/readiness port; defaults to `10000`           |
 | `HEARTBEAT_INTERVAL_MS`     | no          | Redis/Supabase dependency heartbeat interval                    |
 | `JOB_TIMEOUT_MS`            | no          | Bounded processor execution time                                |
-| `SHUTDOWN_TIMEOUT_MS`       | no          | Must remain below Render's shutdown delay                       |
+| `SHUTDOWN_TIMEOUT_MS`       | no          | Free Blueprint uses 25 seconds, below Render's default window   |
 | `SYNC_BATCH_SIZE`           | no          | Bounded existing email snapshot batch size                      |
 | `SYNC_INTERVAL_MINUTES`     | no          | Email schedule interval after worker cutover                    |
 

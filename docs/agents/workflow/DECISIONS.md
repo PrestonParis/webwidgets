@@ -300,6 +300,8 @@ The free service may sleep when idle and the free Key Value instance has no
 disk persistence. Supabase `jobs` remains durable truth, but delivery may need
 to be re-enqueued after a Key Value restart. This deployment is for integration
 and smoke testing, not a claim of continuous or production-safe automation.
+The free manifest omits the unsupported custom host shutdown delay and bounds
+the process's own shutdown timeout to 25 seconds.
 
 **Why:** The owner explicitly chose the Render free plan during finalization.
 The worker already exposes an HTTP health server on Render's default port, so
