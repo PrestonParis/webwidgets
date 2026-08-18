@@ -121,7 +121,7 @@ jobs:
       - name: ESLint (changed .ts/.tsx files only)
         run: |
           set -euo pipefail
-          mapfile -t files < <(grep -E '\.(ts|tsx)$' /tmp/changed_files.txt | grep -vE '^services/(conversion|sync-worker)/' | grep -vE '^services/ml_service/' || true)
+          mapfile -t files < <(grep -E '\.(ts|tsx)$' /tmp/changed_files.txt | grep -vE '^services/(conversion|sync-worker)/' | grep -vE '^services/ml_service/' | grep -vE '^apps/web/types/supabase\.ts$' || true)
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No web/root TypeScript files changed — skipping ESLint."
             exit 0
@@ -134,8 +134,13 @@ jobs:
             echo "All changed TS files were deleted — nothing to lint."
             exit 0
           fi
-          echo "Linting: ${existing[*]}"
-          NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${existing[@]}"
+          batch_size=1
+          echo "Linting ${#existing[@]} files in batches of $batch_size."
+          for ((offset=0; offset<${#existing[@]}; offset+=batch_size)); do
+            batch=("${existing[@]:offset:batch_size}")
+            echo "Lint batch: ${batch[*]}"
+            NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${batch[@]}"
+          done
 
       - name: TypeScript (root project, changed files only)
         run: |

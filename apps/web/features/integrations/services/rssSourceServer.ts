@@ -37,16 +37,16 @@ export function canonicalizeFeedUrl(value: string) {
 }
 
 function mapSource(row: Record<string, unknown>) {
+    const nullableString = (value: unknown) =>
+        typeof value === 'string' ? value : null;
     return {
         id: String(row.id),
         url: String(row.source_url),
         status: String(row.sync_status),
-        lastSuccessAt: row.last_sync_succeeded_at
-            ? String(row.last_sync_succeeded_at)
-            : null,
-        nextAttemptAt: row.next_sync_at ? String(row.next_sync_at) : null,
+        lastSuccessAt: nullableString(row.last_sync_succeeded_at),
+        nextAttemptAt: nullableString(row.next_sync_at),
         failureCount: Number(row.consecutive_failures),
-        errorCode: row.sync_error_code ? String(row.sync_error_code) : null,
+        errorCode: nullableString(row.sync_error_code),
         fetchIntervalMinutes: Number(row.fetch_interval_minutes),
     };
 }
