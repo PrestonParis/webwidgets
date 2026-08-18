@@ -137,3 +137,18 @@ checks. Upgrade through a deliberate service cutover before production.
 **Reason:** This keeps external spend at zero while allowing real integration
 testing. It does not weaken the ADR-014 production requirement for continuous
 compute and persistent queue delivery.
+
+## FIN-011: Treat RSS as user-controlled timeline evidence
+
+**Status:** Accepted and implemented
+
+**Decision:** Store each user-selected RSS/Atom feed as a canonical integration
+connection. Next.js owns authenticated configuration; the V1 worker owns due
+source scanning, network-safe fetching, normalization, provenance, health, and
+backoff. Persist minimized feed fields and content references, never executable
+HTML or prompt instructions. Conservative related-story keys may link likely
+matches but never merge distinct source events.
+
+**Reason:** This delivers the first real external timeline vertical slice
+without publisher-specific APIs, preserves source control, and keeps untrusted
+feed content outside policy and prompt authority.

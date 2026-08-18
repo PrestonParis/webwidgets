@@ -19,6 +19,10 @@ export const v1QueueKindSchema = z.enum([
 
 export const v1TaskSchema = z.discriminatedUnion('kind', [
     z.object({ kind: z.literal('runtime.probe') }),
+    z.object({
+        kind: z.literal('rss.fetch'),
+        connectionId: z.string().uuid(),
+    }),
 ]);
 
 export const v1JobEnvelopeSchema = z.object({

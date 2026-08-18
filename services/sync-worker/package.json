@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.100.0",
     "bullmq": "^5.76.10",
     "ioredis": "^5.10.1",
+    "rss-parser": "^3.13.0",
     "ws": "^8.21.0",
     "zod": "^4.4.1"
   },

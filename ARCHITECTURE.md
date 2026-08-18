@@ -79,12 +79,12 @@ for Gmail/Outlook processing — see `vercel.json`).
 service-level `vercel.json`), **or** a Procfile-based host
 (`infra/Procfile`) — the two deploy targets are not reconciled in the repo;
 confirm which is authoritative before relying on either.
-`services/sync-worker` now has one supported Render deployment path in
-`render.yaml`. During finalization it uses a free web-service compatibility
-deployment plus free, non-persistent Key Value; the paid continuous worker and
-persistent queue remain the production upgrade target. `services/conversion`
-and `services/go_services/worker` still have no supported production path. Do
-not assume any of the three is live until deployment evidence exists.
+`services/sync-worker` is deployed through `render.yaml`. During finalization
+it uses a free web-service compatibility deployment plus free, non-persistent
+Key Value and has passed readiness, heartbeat, and idempotent runtime probes;
+the paid continuous worker and persistent queue remain the production upgrade
+target. `services/conversion` and `services/go_services/worker` still have no
+supported production path.
 
 ### Accepted V1 ownership target
 
@@ -487,11 +487,14 @@ boundary before connector automation is considered secure.
 
 ## 9. Background jobs / infrastructure
 
-- **Current state:** `services/sync-worker` now starts four V1 consumers from
-  one entrypoint, persists canonical `jobs` transitions, provides readiness,
+- **Current state:** `services/sync-worker` starts four V1 consumers from one
+  entrypoint, persists canonical `jobs` transitions, provides readiness,
   heartbeat, retry/dead-letter, timeout, and graceful shutdown behavior, and
-  has processor-harness tests plus a Render Blueprint. Provider processors are
-  dark and no continuously running production deployment is confirmed.
+  is deployed on Render for finalization. RSS/Atom is the first provider
+  processor: authenticated Next.js routes configure sources while the worker
+  owns network-safe fetches, schedules, normalization, canonical persistence,
+  and health. The free service may sleep, so continuous production operation
+  is not yet confirmed.
 - **Accepted V1 owner:** extend `services/sync-worker` into the one durable
   TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
   configured, validated, approved workflows; it is not the ingestion owner,

@@ -4,6 +4,7 @@ import Header from '@/features/ui/components/Header';
 import { ProductPageShell } from '@/features/ui/components/ProductPageShell';
 import { IntegrationCatalogCard } from '@/features/integrations/components/IntegrationCatalogCard';
 import { useIntegrationCatalog } from '@/features/integrations/hooks/useIntegrationCatalog';
+import { RssSourceManager } from '@/features/integrations/components/RssSourceManager';
 
 export function IntegrationsPage() {
     const { providers } = useIntegrationCatalog();
@@ -16,6 +17,7 @@ export function IntegrationsPage() {
                 title="Integrations"
                 description="Connection states, provider requirements, scopes, onboarding cards, and settings-ready service boundaries."
             >
+                <RssSourceManager />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {providers.map((provider) => (
                         <IntegrationCatalogCard

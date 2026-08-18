@@ -24,6 +24,17 @@ export const workerEnvSchema = z
         MICROSOFT_TENANT_ID: z.string().default('common'),
         SYNC_BATCH_SIZE: z.coerce.number().int().min(1).max(200).default(50),
         SYNC_INTERVAL_MINUTES: z.coerce.number().int().min(1).default(10),
+        RSS_SCHEDULE_INTERVAL_MS: z.coerce
+            .number()
+            .int()
+            .min(10_000)
+            .default(60_000),
+        RSS_SCHEDULE_BATCH_SIZE: z.coerce
+            .number()
+            .int()
+            .min(1)
+            .max(100)
+            .default(25),
         HEALTH_PORT: z.coerce.number().int().min(1).max(65535).default(10000),
         HEARTBEAT_INTERVAL_MS: z.coerce
             .number()

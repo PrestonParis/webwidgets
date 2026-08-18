@@ -1,6 +1,6 @@
 # 006 — Persist User-Selected RSS/Atom Timeline Sources
 
-Status: Blocked  
+Status: Implementation in progress
 Priority: Critical  
 Depends on: 004 and 005
 
@@ -53,3 +53,17 @@ and canonical timeline facts, with activity/context produced only downstream.
 
 Demonstrate one real or fixture feed from configuration through persisted
 timeline query. Report network-safety controls and any clustering limitations.
+
+## Implementation notes
+
+- Next.js owns authenticated source creation, listing, and disable operations
+  through canonical `integration_connections` records.
+- The V1 worker scans due sources, creates canonical BullMQ ingestion jobs,
+  follows bounded redirects, and validates every hostname and resolved address
+  before fetching.
+- RSS and Atom normalize into minimized `raw_observations` and user-scoped
+  `timeline_events`. Source GUID/link identity, canonical URL, content hash,
+  ETag, Last-Modified, revision, health, and exponential backoff are persisted.
+- Related-story clustering is deliberately conservative: a metadata link hashes
+  normalized title plus publication day. It aids later analysis but never
+  merges or deletes distinct events.
