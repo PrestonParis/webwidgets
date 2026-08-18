@@ -134,13 +134,26 @@ jobs:
             echo "All changed TS files were deleted — nothing to lint."
             exit 0
           fi
-          batch_size=1
-          echo "Linting ${#existing[@]} files in batches of $batch_size."
-          for ((offset=0; offset<${#existing[@]}; offset+=batch_size)); do
-            batch=("${existing[@]:offset:batch_size}")
-            echo "Lint batch: ${batch[*]}"
-            NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${batch[@]}"
+          web=(); tests=(); tooling=()
+          for f in "${existing[@]}"; do
+            case "$f" in
+              apps/web/*) web+=("$f") ;;
+              tests/*) tests+=("$f") ;;
+              *) tooling+=("$f") ;;
+            esac
           done
+          lint_batches() {
+            local batch_size="$1"; shift
+            local scoped=("$@")
+            for ((offset=0; offset<${#scoped[@]}; offset+=batch_size)); do
+              batch=("${scoped[@]:offset:batch_size}")
+              echo "Lint batch: ${batch[*]}"
+              NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${batch[@]}"
+            done
+          }
+          lint_batches 6 "${web[@]}"
+          lint_batches 6 "${tests[@]}"
+          lint_batches 12 "${tooling[@]}"
 
       - name: TypeScript (root project, changed files only)
         run: |
