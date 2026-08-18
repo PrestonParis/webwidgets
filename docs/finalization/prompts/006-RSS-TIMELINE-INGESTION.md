@@ -1,6 +1,6 @@
 # 006 — Persist User-Selected RSS/Atom Timeline Sources
 
-Status: Implementation in progress
+Status: Complete
 Priority: Critical  
 Depends on: 004 and 005
 
@@ -67,3 +67,28 @@ timeline query. Report network-safety controls and any clustering limitations.
 - Related-story clustering is deliberately conservative: a metadata link hashes
   normalized title plus publication day. It aids later analysis but never
   merges or deletes distinct events.
+
+## Completion evidence
+
+Completed on 2026-08-17 against the deployed free Render worker and
+`webwidgets-dev`:
+
+- A temporary `https://hnrss.org/frontpage` source moved from scheduled to
+  healthy through the worker-owned schedule, producing 20 minimized raw
+  observations and 20 canonical timeline events.
+- A forced second fetch completed as a second canonical job while observation
+  and timeline counts remained exactly 20, proving source redelivery
+  idempotency.
+- Source health reported zero failures, no error code, persisted last success,
+  and a 30-minute next attempt.
+- Disabling the fixture cleared its next attempt and preserved all 20 historical
+  observations and timeline events.
+- The 53-migration chain replayed locally; 24 pgTAP assertions passed across
+  canonical lifecycle and RSS source RLS/deduplication behavior.
+- Worker verification passed 14 tests plus typecheck and formatting. The scoped
+  web check and seven RSS URL-policy tests passed. CI's Sync Worker job passed
+  on commit `53771317`.
+
+The related-story key intentionally uses only normalized title and publication
+day. It can miss reworded coverage and can link same-title stories on the same
+day; downstream intelligence must treat it as a hint, never identity.
