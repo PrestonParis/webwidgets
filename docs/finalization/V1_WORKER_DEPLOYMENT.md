@@ -63,21 +63,21 @@ diagnostics. The canonical row's `max_attempts` remains authoritative.
 
 ## Environment contract
 
-| Variable                    | Required    | Purpose                                                         |
-| --------------------------- | ----------- | --------------------------------------------------------------- |
-| `SUPABASE_URL`              | yes         | Confirmed WebWidgets Supabase project URL                       |
-| `SUPABASE_SERVICE_ROLE_KEY` | yes, secret | Server-only worker credential; never expose to web code or logs |
-| `REDIS_URL`                 | yes, secret | Render Key Value private connection string                      |
-| `V1_QUEUES_ENABLED`         | no          | Starts the four V1 consumers; defaults to `true`                |
-| `WORKER_DRY_RUN`            | no          | Defaults to `true` for dark deployment                          |
-| `EMAIL_SYNC_ENABLED`        | no          | Defaults to `false`; requires all provider client credentials   |
-| `SCHEDULE_OWNER`            | no          | `vercel` or `worker`; defaults to `vercel` during dark launch   |
-| `HEALTH_PORT`               | no          | Internal liveness/readiness port; defaults to `10000`           |
-| `HEARTBEAT_INTERVAL_MS`     | no          | Redis/Supabase dependency heartbeat interval                    |
-| `JOB_TIMEOUT_MS`            | no          | Bounded processor execution time                                |
-| `SHUTDOWN_TIMEOUT_MS`       | no          | Free Blueprint uses 25 seconds, below Render's default window   |
-| `SYNC_BATCH_SIZE`           | no          | Bounded existing email snapshot batch size                      |
-| `SYNC_INTERVAL_MINUTES`     | no          | Email schedule interval after worker cutover                    |
+| Variable                    | Required    | Purpose                                                          |
+| --------------------------- | ----------- | ---------------------------------------------------------------- |
+| `SUPABASE_URL`              | yes         | Confirmed WebWidgets Supabase project URL                        |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes, secret | Server-only worker credential; never expose to web code or logs  |
+| `REDIS_URL`                 | yes, secret | Render Key Value private connection string                       |
+| `V1_QUEUES_ENABLED`         | no          | Starts the four V1 consumers; defaults to `true`                 |
+| `WORKER_DRY_RUN`            | no          | Render sets `false` after the Prompt 006 RSS persistence cutover |
+| `EMAIL_SYNC_ENABLED`        | no          | Defaults to `false`; requires all provider client credentials    |
+| `SCHEDULE_OWNER`            | no          | `vercel` or `worker`; defaults to `vercel` during dark launch    |
+| `HEALTH_PORT`               | no          | Internal liveness/readiness port; defaults to `10000`            |
+| `HEARTBEAT_INTERVAL_MS`     | no          | Redis/Supabase dependency heartbeat interval                     |
+| `JOB_TIMEOUT_MS`            | no          | Bounded processor execution time                                 |
+| `SHUTDOWN_TIMEOUT_MS`       | no          | Free Blueprint uses 25 seconds, below Render's default window    |
+| `SYNC_BATCH_SIZE`           | no          | Bounded existing email snapshot batch size                       |
+| `SYNC_INTERVAL_MINUTES`     | no          | Email schedule interval after worker cutover                     |
 
 Provider client IDs/secrets and tenant configuration are required only when
 email sync is enabled. The committed `.env.example` contains placeholders,
@@ -106,8 +106,9 @@ raw provider errors.
    `webwidgets-v1-queue` must be Key Value. Stop if Render shows `Starter`.
 3. Supply `SUPABASE_URL` for `webwidgets-dev` and its service-role credential
    through Render's secret prompt. Do not use the Worldview project.
-4. Keep `WORKER_DRY_RUN=true`, `EMAIL_SYNC_ENABLED=false`, and
-   `SCHEDULE_OWNER=vercel` for the first deployment.
+4. The first runtime probe used `WORKER_DRY_RUN=true`. Prompt 006 changes it to
+   `false` so RSS observations persist; email remains disabled and
+   state-changing action processors are not registered.
 5. Open `https://<service>.onrender.com/ready`; after any cold start it must
    report `ready`, `redis`, and `supabase` as true.
 6. Confirm the startup log reports four V1 workers, dry-run mode, and ready

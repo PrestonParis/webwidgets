@@ -1,6 +1,6 @@
 # 005 — Deploy One Durable V1 Worker Runtime
 
-Status: Awaiting approval
+Status: Complete
 Priority: Critical  
 Depends on: 002 and 004
 
@@ -97,13 +97,15 @@ contract is documented in
   503; Redis restoration recovered readiness to 200; SIGINT closed the health
   server and all consumers cleanly. Both temporary services were stopped.
 
-### Deployment gate
+### Deployment evidence
 
-The free compatibility Blueprint is ready to provision without paid service
-instances. Prompt 005 remains `Awaiting approval` until the Blueprint is
-provisioned, `/ready` confirms Redis and Supabase connectivity, two healthy
-heartbeats are observed, and the canonical runtime probe completes. Free web
-services can sleep and free Key Value is non-persistent, so this evidence is a
-development gate rather than production-readiness proof.
+The free compatibility Blueprint was deployed on 2026-08-17 as
+`webwidgets-finalization`. `/ready` returned Redis and Supabase healthy, two
+consecutive worker heartbeats reported `ready: true`, and the canonical runtime
+probe completed twice with the same idempotency key and job ID
+`ccac57ba-6682-4180-a61d-1dc9fe152420`. This closes the Prompt 005 development
+gate and unblocks Prompt 006.
 
-Prompt 006 remains blocked until that deployment evidence is added here.
+Free web services can sleep and free Key Value is non-persistent, so this is
+development evidence rather than production-readiness proof. ADR-014's paid
+continuous worker and persistent queue remain required before release.

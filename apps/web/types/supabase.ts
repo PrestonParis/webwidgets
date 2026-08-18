@@ -3056,6 +3056,9 @@ export type Database = {
                     disconnected_at: string | null;
                     error_message: string | null;
                     external_account_id: string | null;
+                    fetch_interval_minutes: number;
+                    http_etag: string | null;
+                    http_last_modified: string | null;
                     id: string;
                     last_checked_at: string | null;
                     last_sync_started_at: string | null;
@@ -3064,6 +3067,8 @@ export type Database = {
                     next_sync_at: string | null;
                     provider_id: string;
                     scopes: string[];
+                    source_url: string | null;
+                    source_url_hash: string | null;
                     state: string;
                     sync_cursor: string | null;
                     sync_error_code: string | null;
@@ -3079,6 +3084,9 @@ export type Database = {
                     disconnected_at?: string | null;
                     error_message?: string | null;
                     external_account_id?: string | null;
+                    fetch_interval_minutes?: number;
+                    http_etag?: string | null;
+                    http_last_modified?: string | null;
                     id?: string;
                     last_checked_at?: string | null;
                     last_sync_started_at?: string | null;
@@ -3087,6 +3095,8 @@ export type Database = {
                     next_sync_at?: string | null;
                     provider_id: string;
                     scopes?: string[];
+                    source_url?: string | null;
+                    source_url_hash?: string | null;
                     state?: string;
                     sync_cursor?: string | null;
                     sync_error_code?: string | null;
@@ -3102,6 +3112,9 @@ export type Database = {
                     disconnected_at?: string | null;
                     error_message?: string | null;
                     external_account_id?: string | null;
+                    fetch_interval_minutes?: number;
+                    http_etag?: string | null;
+                    http_last_modified?: string | null;
                     id?: string;
                     last_checked_at?: string | null;
                     last_sync_started_at?: string | null;
@@ -3110,6 +3123,8 @@ export type Database = {
                     next_sync_at?: string | null;
                     provider_id?: string;
                     scopes?: string[];
+                    source_url?: string | null;
+                    source_url_hash?: string | null;
                     state?: string;
                     sync_cursor?: string | null;
                     sync_error_code?: string | null;

@@ -311,3 +311,32 @@ the same container can run as a web service without creating another runtime.
 background worker and use persistent Key Value. Because Render service types
 are immutable and free-to-paid Key Value upgrades lose in-memory data, perform
 that change as an explicit cutover after draining or safely re-enqueuing work.
+
+---
+
+## ADR-016: Worker-Owned RSS Sources Use Canonical Integration State
+
+**Status:** Active
+
+**Decision:** Represent each RSS/Atom feed as an `integration_connections` row
+identified by the owner, provider, and canonical URL hash. Authenticated
+Next.js routes create, list, and disable sources. The V1 worker scans due rows,
+creates canonical ingestion jobs, validates every hostname, resolved address,
+and redirect, then persists minimized observations and timeline events before
+recording success. ETag, Last-Modified, failure count, backoff, and next attempt
+remain source state in Supabase.
+
+Feed bodies are untrusted input. The worker strips markup, stores references
+rather than rendered HTML, and marks the resulting metadata as untrusted. A
+title-and-day related-story hash is a non-destructive link only; it cannot
+collapse events or influence permissions.
+
+**Why:** RSS is the smallest transparent external source that proves the V1
+configuration-to-timeline loop without a publisher API. Canonical connection
+state preserves user control and makes retries, deduplication, and health
+queryable independently of Redis delivery history.
+
+**Consequences:** The prior one-row-per-provider uniqueness rule becomes
+owner/provider/external-account uniqueness while preserving one null external
+account for legacy providers. Production still requires ADR-014's continuous
+worker and persistent queue; the free finalization service may sleep.

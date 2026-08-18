@@ -32,6 +32,13 @@ export function createProcessorRegistry(
             dryRun,
             runtimeContractVersion: 1,
         }),
+        'rss.fetch': async () => {
+            throw new WorkerTaskError(
+                'rss_processor_unavailable',
+                'RSS ingestion is not configured in this runtime.',
+                false,
+            );
+        },
         ...overrides,
     };
     return {
