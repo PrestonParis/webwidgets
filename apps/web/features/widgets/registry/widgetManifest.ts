@@ -160,8 +160,8 @@ const manifests = [
     {
         id: 'news',
         feature: 'news',
-        title: 'News Intel',
-        dataNeeds: ['events.feed.ranked'],
+        title: 'Timeline Intelligence',
+        dataNeeds: ['events.timeline'],
         refreshPolicy: 'background',
         fallbackMode: 'stale-cache',
     },

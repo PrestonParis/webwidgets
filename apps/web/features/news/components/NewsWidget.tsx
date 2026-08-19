@@ -1,27 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { Newspaper, RefreshCw } from 'lucide-react';
+import { Activity, RefreshCw } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
-import { useNewsFeed } from '@/features/news/hooks/useNewsFeed';
-import { NewsFeedList } from '@/features/news/components/NewsFeedList';
+import { TimelineFeedList } from '@/features/news/components/TimelineFeedList';
+import { useTimelineFeed } from '@/features/news/hooks/useTimelineFeed';
 
 export default function NewsWidget({
     widgetId = 'news',
 }: {
     widgetId?: string;
 }) {
-    const { filteredItems, isLoading, isError, refetch, isFetching } =
-        useNewsFeed();
-    const topItems = filteredItems.slice(0, 3);
+    const timeline = useTimelineFeed();
+    const topItems = timeline.items.slice(0, 3);
 
     return (
         <WidgetShell
-            icon={<Newspaper size={16} />}
-            title="News"
+            icon={<Activity size={16} />}
+            title="Timeline Intelligence"
             badge={
                 <span className="text-[10px] font-bold text-emerald-500">
-                    {isFetching ? 'LIVE' : `${topItems.length}`}
+                    {timeline.isFetching ? 'SYNC' : `${topItems.length}`}
                 </span>
             }
             widgetId={widgetId}
@@ -29,37 +28,46 @@ export default function NewsWidget({
             footerSlot={
                 <div className="mt-3 flex items-center gap-3">
                     <Link
-                        href="/news"
                         className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                        href="/news"
                     >
-                        View all →
+                        Open timeline →
                     </Link>
                     <button
-                        onClick={() => void refetch()}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                        aria-label="Refresh Timeline Intelligence"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                        disabled={!timeline.isOnline || timeline.isFetching}
+                        onClick={() => void timeline.refetch()}
+                        type="button"
                     >
                         <RefreshCw
+                            aria-hidden
+                            className={
+                                timeline.isFetching ? 'animate-spin' : ''
+                            }
                             size={13}
-                            className={isFetching ? 'animate-spin' : ''}
                         />
                         Refresh
                     </button>
                 </div>
             }
         >
-            {isLoading && (
-                <div className="py-8 text-sm text-zinc-500">
-                    Loading intelligence stream...
-                </div>
-            )}
-            {isError && (
-                <div className="py-8 text-sm text-red-500">
-                    Feed state failed to load.
-                </div>
-            )}
-            {!isLoading && !isError && (
-                <NewsFeedList items={topItems} compact />
-            )}
+            {timeline.isLoading ? (
+                <p className="py-8 text-sm text-zinc-500" role="status">
+                    Loading timeline…
+                </p>
+            ) : null}
+            {timeline.isError ? (
+                <p className="py-8 text-sm text-red-500" role="alert">
+                    Timeline unavailable.
+                </p>
+            ) : null}
+            {!timeline.isLoading && !timeline.isError && !topItems.length ? (
+                <p className="py-8 text-sm text-zinc-500">
+                    No timeline events yet.
+                </p>
+            ) : null}
+            <TimelineFeedList compact items={topItems} />
         </WidgetShell>
     );
 }

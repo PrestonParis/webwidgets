@@ -1,7 +1,7 @@
 # 009 — Deliver the Unified Timeline and Source-Health Experience
 
-Status: Blocked  
-Priority: Critical  
+Status: Complete
+Priority: Critical
 Depends on: 006, 007, and 008
 
 ## Objective
@@ -48,3 +48,26 @@ chronology/provenance, and makes stale or failed sources visible.
 - The empty API behavior is removed; absence of events is represented as a
   truthful initial-empty state.
 - Source status makes stale ingestion understandable without reading logs.
+
+## Completion handoff
+
+The historical `/news` route and `news` widget identifier now present Timeline
+Intelligence backed exclusively by canonical `timeline_events`. The
+authenticated API applies explicit owner scope, active-retention constraints,
+bounded source/event/time filters, and stable occurrence-time/UUID cursor
+pagination. Page rendering never fetches a provider.
+
+The page and widget show chronological groups, occurrence and delayed-ingestion
+times, safe provenance links, related-story relationships, and responsive
+loading, initial-empty, filter-empty, offline, permission, partial-health, and
+fatal states. Connection health distinguishes connected, syncing, healthy,
+stale, failing, disabled, and reconnect-required sources, with management
+continuing through the existing Integrations surface. Untrusted markup is
+reduced to bounded React text and non-HTTP(S) links are discarded.
+
+Verification includes API/contract tests for authentication, owner scoping,
+query validation, stable cursors, partial source-health failure, content
+minimization, safe links, clusters, and health-state derivation. Focused
+TypeScript, ESLint, formatting, smell, news regression, platform naming, and
+database tests pass. No schema migration or historical data rewrite is needed;
+rollback is the web commit only. Prompt 010 is now available.
