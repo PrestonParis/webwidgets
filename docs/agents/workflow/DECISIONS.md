@@ -340,3 +340,39 @@ queryable independently of Redis delivery history.
 owner/provider/external-account uniqueness while preserving one null external
 account for legacy providers. Production still requires ADR-014's continuous
 worker and persistent queue; the free finalization service may sleep.
+
+---
+
+## ADR-017: Provider Signals Converge on Canonical Connection State
+
+**Status:** Active
+
+**Decision:** Link each Google or Microsoft credential row in
+`user_email_accounts` to one owner-matched `integration_connections` row.
+Canonical connection state owns scheduling, incremental cursor, source health,
+failure backoff, and disconnect status. The V1 worker owns Gmail, Google
+Calendar, and Outlook Mail polling and normalization into `raw_observations`
+and `timeline_events`. Gmail webhooks validate notifications and accelerate the
+same connection schedule; the existing Gmail queue remains a temporary
+projection for established inbox actions during cutover.
+
+Provider object/version identity is account-scoped and idempotent. Disconnect
+is an authenticated atomic operation that disables future scheduling and
+removes credentials while retaining already-normalized history. The worker
+rechecks connection state between signal writes and never records a successful
+cursor advance after an interrupted disconnect.
+
+Outlook Calendar is not part of this contract because the existing Microsoft
+OAuth flow grants mail access only. Adding calendar ingestion requires an
+explicit consent change and separate review.
+
+**Why:** Provider credentials, cursor state, health, webhook scheduling, and
+timeline identity previously lived in overlapping paths. A single connection
+owner permits safe replay, source-health UI, and prompt-level cutover without
+discarding the working inbox-action behavior.
+
+**Consequences:** Render must hold the provider OAuth client credentials before
+`PROVIDER_SYNC_ENABLED` is turned on. The flag stays off until one live account
+proves ingestion, replay deduplication, health, and disconnect behavior. Legacy
+processors retire account by account rather than through an unverified global
+switch.

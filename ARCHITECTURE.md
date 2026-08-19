@@ -324,6 +324,23 @@ Gmail API → /api/gmail/inbox (fetch + classify via ML service)
   → /api/gmail/actions/confirm (create Calendar events / Todos)
 ```
 
+**Canonical provider timeline (Prompt 007 cutover path):**
+
+```
+Google/Microsoft OAuth → user_email_accounts (server-only credentials)
+  → integration_connections (identity, cursor, schedule, source health)
+  → V1 worker provider.sync
+  → raw_observations → timeline_events
+  → email_snapshots / email_queue (temporary inbox-action projection)
+```
+
+Gmail push validates the webhook and marks the canonical connection due; it
+does not become a second cursor or source-health owner. Google Calendar uses
+its incremental sync token. Outlook Mail uses Microsoft Graph delta links.
+Outlook Calendar is deferred until the authorization flow explicitly requests
+and verifies a least-privilege calendar scope. Provider polling remains behind
+`PROVIDER_SYNC_ENABLED` until the Render cutover is proven.
+
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
 

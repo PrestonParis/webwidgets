@@ -23,6 +23,8 @@ Before executing any prompt, read:
   human decision has not been recorded.
 - `Complete`: acceptance criteria were verified and completion evidence was
   added to the source issue/PR.
+- `Cutover pending`: implementation and schema are ready, but a live external
+  service must be configured and verified before completion can be claimed.
 
 The status inside each prompt is a planning default. Confirm current GitHub
 issues and PRs before claiming ownership, especially around dashboard,
@@ -38,8 +40,8 @@ Supabase, timeline, action, and automation files.
 | 004    | Add canonical timeline/action schema             | Complete | 002, 003          |
 | 005    | Deploy one durable worker runtime                | Complete | 002, 004          |
 | 006    | Persist RSS/Atom source ingestion                | Complete | 004, 005          |
-| 007    | Ingest email and calendar timeline events        | Blocked  | 004, 005          |
-| 008    | Ingest task, note, document, and activity events | Blocked  | 004, 005          |
+| 007    | Ingest email and calendar timeline events        | Cutover pending | 004, 005          |
+| 008    | Ingest task, note, document, and activity events | Available | 004, 005          |
 | 009    | Deliver timeline query and source-health UI      | Blocked  | 006–008           |
 | 010    | Implement governed LLM provider adapters         | Blocked  | 002, 004          |
 | 011    | Generate evidence-backed briefings               | Blocked  | 009, 010          |

@@ -152,3 +152,24 @@ matches but never merge distinct source events.
 **Reason:** This delivers the first real external timeline vertical slice
 without publisher-specific APIs, preserves source control, and keeps untrusted
 feed content outside policy and prompt authority.
+
+## FIN-012: Converge email and calendar ingestion on canonical connections
+
+**Status:** Accepted; repository and schema implementation complete, live
+provider cutover pending
+
+**Decision:** `integration_connections` owns provider identity, cursor,
+schedule, and health for Gmail, Google Calendar, and Outlook Mail.
+`user_email_accounts` remains the server-only credential store and links to one
+owner-matched connection. The V1 worker owns polling, normalization, retry,
+and canonical timeline persistence. Gmail webhooks only accelerate the next
+canonical sync while the legacy email-action queue remains available during
+account-by-account cutover.
+
+Outlook Calendar is deferred because the existing Microsoft authorization
+requests mail scopes but not a calendar scope. V1 does not silently broaden
+existing consent.
+
+**Reason:** This removes competing provider state without breaking the existing
+inbox action path, gives Prompt 009 one source-health model, and prevents an
+unreviewed OAuth-scope expansion.
