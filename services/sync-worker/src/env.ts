@@ -14,6 +14,7 @@ export const workerEnvSchema = z
         SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
         REDIS_URL: z.string().min(1),
         EMAIL_SYNC_ENABLED: booleanString('false'),
+        PROVIDER_SYNC_ENABLED: booleanString('false'),
         V1_QUEUES_ENABLED: booleanString('true'),
         WORKER_DRY_RUN: booleanString('true'),
         SCHEDULE_OWNER: z.enum(['vercel', 'worker']).default('vercel'),
@@ -30,6 +31,17 @@ export const workerEnvSchema = z
             .min(10_000)
             .default(60_000),
         RSS_SCHEDULE_BATCH_SIZE: z.coerce
+            .number()
+            .int()
+            .min(1)
+            .max(100)
+            .default(25),
+        PROVIDER_SCHEDULE_INTERVAL_MS: z.coerce
+            .number()
+            .int()
+            .min(10_000)
+            .default(60_000),
+        PROVIDER_SCHEDULE_BATCH_SIZE: z.coerce
             .number()
             .int()
             .min(1)
@@ -53,7 +65,7 @@ export const workerEnvSchema = z
         SMOKE_IDEMPOTENCY_KEY: z.string().min(1).max(700).optional(),
     })
     .superRefine((value, context) => {
-        if (!value.EMAIL_SYNC_ENABLED) return;
+        if (!value.EMAIL_SYNC_ENABLED && !value.PROVIDER_SYNC_ENABLED) return;
         const required = [
             'GOOGLE_CLIENT_ID',
             'GOOGLE_CLIENT_SECRET',
@@ -65,7 +77,7 @@ export const workerEnvSchema = z
                 context.addIssue({
                     code: 'custom',
                     path: [key],
-                    message: `${key} is required when email sync is enabled`,
+                    message: `${key} is required when provider sync is enabled`,
                 });
             }
         }

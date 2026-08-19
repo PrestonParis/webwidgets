@@ -26,19 +26,29 @@ export function createProcessorRegistry(
     overrides: Partial<Record<V1Task['kind'], TaskProcessor>> = {},
 ): ProcessorRegistry {
     const processors: Record<V1Task['kind'], TaskProcessor> = {
-        'runtime.probe': async ({ envelope, dryRun }) => ({
-            acknowledged: true,
-            correlationId: envelope.correlationId,
-            dryRun,
-            runtimeContractVersion: 1,
-        }),
-        'rss.fetch': async () => {
-            throw new WorkerTaskError(
-                'rss_processor_unavailable',
-                'RSS ingestion is not configured in this runtime.',
-                false,
-            );
-        },
+        'runtime.probe': ({ envelope, dryRun }) =>
+            Promise.resolve({
+                acknowledged: true,
+                correlationId: envelope.correlationId,
+                dryRun,
+                runtimeContractVersion: 1,
+            }),
+        'rss.fetch': () =>
+            Promise.reject(
+                new WorkerTaskError(
+                    'rss_processor_unavailable',
+                    'RSS ingestion is not configured in this runtime.',
+                    false,
+                ),
+            ),
+        'provider.sync': () =>
+            Promise.reject(
+                new WorkerTaskError(
+                    'provider_processor_unavailable',
+                    'Provider ingestion is not configured in this runtime.',
+                    false,
+                ),
+            ),
         ...overrides,
     };
     return {

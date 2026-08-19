@@ -56,6 +56,38 @@ function collectNewMessages(
     return newMessages;
 }
 
+async function scheduleCanonicalSync(
+    supabase: ReturnType<typeof createAdminClient>,
+    userId: string,
+    emailAddress: string,
+) {
+    const account = await supabase
+        .from('user_email_accounts')
+        .select('integration_connection_id')
+        .eq('user_id', userId)
+        .eq('provider', 'google')
+        .ilike('email', emailAddress)
+        .maybeSingle();
+    const connectionId = account.data?.integration_connection_id as
+        | string
+        | null
+        | undefined;
+    if (!connectionId) return false;
+    const scheduled = await supabase
+        .from('integration_connections')
+        .update({
+            sync_status: 'scheduled',
+            next_sync_at: new Date().toISOString(),
+        })
+        .eq('id', connectionId)
+        .eq('user_id', userId)
+        .is('disabled_at', null)
+        .is('disconnected_at', null)
+        .select('id')
+        .maybeSingle();
+    return Boolean(scheduled.data);
+}
+
 // Gmail sends Pub/Sub push messages to this endpoint.
 // Validate via a shared token appended to the subscription push URL.
 export async function POST(req: Request): Promise<Response> {
@@ -94,6 +126,7 @@ export async function POST(req: Request): Promise<Response> {
 
     const userId = tokenRow.user_id as string;
     const lastHistoryId = tokenRow.last_history_id as string | null;
+    await scheduleCanonicalSync(supabase, userId, notification.emailAddress);
 
     if (!lastHistoryId) {
         // First notification — seed the history cursor and wait for the next event
