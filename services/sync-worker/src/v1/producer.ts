@@ -90,6 +90,10 @@ export async function enqueueCanonicalJob(
     };
     const queue = createV1Queue(env, input.queue);
     try {
+        const existing = await queue.getJob(canonical.queue_job_id);
+        if (existing && (await existing.getState()) === 'failed') {
+            await existing.remove();
+        }
         await queue.add(input.task.kind, envelope, {
             jobId: canonical.queue_job_id,
             attempts: canonical.max_attempts,

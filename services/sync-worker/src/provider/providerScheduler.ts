@@ -31,7 +31,12 @@ export function startProviderScheduler(
                 .in('provider_id', ['google', 'microsoft'])
                 .is('disabled_at', null)
                 .is('disconnected_at', null)
-                .in('sync_status', ['scheduled', 'healthy', 'degraded'])
+                .in('sync_status', [
+                    'scheduled',
+                    'healthy',
+                    'degraded',
+                    'syncing',
+                ])
                 .lte('next_sync_at', now)
                 .order('next_sync_at', { ascending: true })
                 .limit(env.PROVIDER_SCHEDULE_BATCH_SIZE);

@@ -30,7 +30,7 @@ export async function startWorkerRuntime(
     logger: RuntimeLogger,
 ): Promise<RunningWorkerRuntime> {
     const client = createWorkerSupabase(env);
-    const store = new SupabaseJobStore(client);
+    const store = new SupabaseJobStore(client, env.JOB_TIMEOUT_MS + 30_000);
     const processors = createProcessorRegistry({
         'rss.fetch': createRssProcessor(client, logger),
         'provider.sync': createProviderProcessor(client, env, logger),
