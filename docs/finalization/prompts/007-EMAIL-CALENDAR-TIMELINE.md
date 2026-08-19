@@ -1,6 +1,6 @@
 # 007 — Normalize Email and Calendar Signals into the Timeline
 
-Status: Blocked  
+Status: Cutover pending
 Priority: Critical  
 Depends on: 004 and 005
 
@@ -62,3 +62,47 @@ processor.
   success.
 - Existing email/calendar critical behavior remains covered by regression
   tests.
+
+## Implementation notes
+
+- `integration_connections` now owns Google/Microsoft source identity, cursor,
+  schedule, health, and disconnect state. `user_email_accounts` retains tokens
+  and links to the connection through an owner-matched foreign key.
+- The V1 worker normalizes Gmail History, Google Calendar incremental sync, and
+  Outlook Mail delta results into minimized raw observations and canonical
+  timeline events. Gmail and Calendar consume every response page before
+  advancing their provider cursor.
+- Identity includes user, connection, provider object, change, and provider
+  version. Webhook retries, polling overlap, and cursor replay coalesce while
+  meaningful provider versions remain separate facts.
+- Gmail metadata continues to project into `email_snapshots` and the existing
+  `email_queue`, preserving the current classification/action path during
+  cutover. The Gmail webhook also schedules its canonical connection due.
+- The authenticated disconnect RPC atomically marks the source disconnected,
+  clears future scheduling, and removes the linked credential row. The worker
+  rechecks connection state between signals and does not advance the cursor
+  when disconnection interrupts a run.
+- Outlook Calendar is deferred. The live Microsoft flow grants `Mail.Read`,
+  not a calendar scope, and this prompt does not expand consent silently.
+
+## Verification completed
+
+- Migration `202608180002_email_calendar_connections.sql` was applied to
+  `webwidgets-dev`; linked types were regenerated from the live schema.
+- All 31 pgTAP assertions pass, including cross-user connection isolation and
+  owner-only atomic disconnect; Supabase database lint reports no errors.
+- The sync worker passes typecheck, formatting, and 24 tests covering two
+  users, multiple accounts, duplicate delivery, meaningful versions,
+  disconnect, token expiration, revocation, pagination, cancellation, and
+  all-day dates.
+- The web app passes TypeScript validation and the 14 focused inbox/RSS
+  regression tests. The Sync Worker CI job passed on commit `6be0e617`.
+
+## Remaining live acceptance proof
+
+Render must receive the four Google/Microsoft OAuth client variables introduced
+in `render.yaml`. After the new deployment is healthy, enable
+`PROVIDER_SYNC_ENABLED=true`, run one connected account through a canonical
+sync, verify timeline/source-health records, then disconnect that fixture and
+confirm no later job advances its cursor. Keep the flag false until that proof
+is complete.
