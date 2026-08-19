@@ -338,8 +338,9 @@ Gmail push validates the webhook and marks the canonical connection due; it
 does not become a second cursor or source-health owner. Google Calendar uses
 its incremental sync token. Outlook Mail uses Microsoft Graph delta links.
 Outlook Calendar is deferred until the authorization flow explicitly requests
-and verifies a least-privilege calendar scope. Provider polling remains behind
-`PROVIDER_SYNC_ENABLED` until the Render cutover is proven.
+and verifies a least-privilege calendar scope. Provider polling is active on
+the Render worker through `PROVIDER_SYNC_ENABLED`; canonical job leases recover
+work interrupted by a deployment restart.
 
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).

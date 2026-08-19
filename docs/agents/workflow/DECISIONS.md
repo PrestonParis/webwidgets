@@ -371,13 +371,19 @@ timeline identity previously lived in overlapping paths. A single connection
 owner permits safe replay, source-health UI, and prompt-level cutover without
 discarding the working inbox-action behavior.
 
-**Consequences:** Render must hold the provider OAuth client credentials before
-`PROVIDER_SYNC_ENABLED` is turned on. The flag stays off until one live account
-proves ingestion, replay deduplication, health, and disconnect behavior. Legacy
-processors retire account by account rather than through an unverified global
-switch.
+**Consequences:** Render holds the provider OAuth client credentials and runs
+with `PROVIDER_SYNC_ENABLED=true`. Live ingestion, replay deduplication, source
+health, cursor persistence, and restart recovery are proven. Disconnect remains
+an owner-only atomic operation covered by database and worker integration
+tests. Legacy processors retire account by account rather than through an
+unverified global switch.
 
 The initial existing-account backfill required a successor migration because a
 data-changing CTE and its outer update shared one PostgreSQL snapshot. Keeping
 the insert and update as separate statements linked the two live credential
 rows without rewriting deployed migration history.
+
+A back-to-back Render deployment also proved that queue delivery and canonical
+job state need separate recovery. A worker may reclaim a `running` canonical
+job only after the processing timeout plus a lease buffer, and removes a
+failed BullMQ delivery before redelivery.
