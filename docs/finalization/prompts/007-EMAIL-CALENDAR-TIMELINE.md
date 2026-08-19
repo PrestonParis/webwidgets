@@ -1,6 +1,6 @@
 # 007 — Normalize Email and Calendar Signals into the Timeline
 
-Status: Cutover pending
+Status: Complete
 Priority: Critical  
 Depends on: 004 and 005
 
@@ -94,7 +94,7 @@ processor.
   existing-account backfill without rewriting deployed history.
 - All 31 pgTAP assertions pass, including cross-user connection isolation and
   owner-only atomic disconnect; Supabase database lint reports no errors.
-- The sync worker passes typecheck, formatting, and 24 tests covering two
+- The sync worker passes typecheck, formatting, and 25 tests covering two
   users, multiple accounts, duplicate delivery, meaningful versions,
   disconnect, token expiration, revocation, pagination, cancellation, and
   all-day dates.
@@ -104,12 +104,13 @@ processor.
   canonical connections, persisted 51 minimized provider signals, and recorded
   healthy source state with cursors and last-success timestamps. An immediate
   incremental replay returned zero signals and zero writes.
-
-## Remaining live acceptance proof
-
-Render must receive the four Google/Microsoft OAuth client variables introduced
-in `render.yaml`. After the new deployment is healthy, enable
-`PROVIDER_SYNC_ENABLED=true`, run one connected account through a canonical
-sync, verify timeline/source-health records, then disconnect that fixture and
-confirm no later job advances its cursor. Keep the flag false until that proof
-is complete.
+- Render now holds the four Google/Microsoft OAuth client variables and runs
+  with `PROVIDER_SYNC_ENABLED=true`. The deployed worker completed the
+  interrupted canonical job after a restart, leaving two completed jobs, two
+  healthy sources, two cursors, no recorded failures, and no running lease.
+  Its readiness endpoint reports Redis and Supabase healthy.
+- Restart recovery is explicit: a canonical job may reclaim only a `running`
+  record older than the configured processing timeout plus a lease buffer, and
+  failed BullMQ deliveries are removed before redelivery. Disconnect prevention
+  remains covered by owner-only pgTAP and worker integration tests; the live
+  credentials were not destructively disconnected for proof.

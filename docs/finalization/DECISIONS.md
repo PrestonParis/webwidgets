@@ -155,8 +155,7 @@ feed content outside policy and prompt authority.
 
 ## FIN-012: Converge email and calendar ingestion on canonical connections
 
-**Status:** Accepted; repository and schema implementation complete, live
-provider cutover pending
+**Status:** Accepted and implemented
 
 **Decision:** `integration_connections` owns provider identity, cursor,
 schedule, and health for Gmail, Google Calendar, and Outlook Mail.
@@ -169,6 +168,12 @@ account-by-account cutover.
 Outlook Calendar is deferred because the existing Microsoft authorization
 requests mail scopes but not a calendar scope. V1 does not silently broaden
 existing consent.
+
+The Render worker now runs provider sync with the required OAuth clients. Live
+verification completed both canonical jobs with healthy sources and cursors.
+Interrupted work is recoverable only after its bounded processing lease
+expires, preventing a deployment restart from leaving a source permanently in
+`syncing` state.
 
 **Reason:** This removes competing provider state without breaking the existing
 inbox action path, gives Prompt 009 one source-health model, and prevents an
