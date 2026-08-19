@@ -54,7 +54,10 @@ function expiresAt(days: number) {
 }
 
 export class SupabaseJobStore implements DurableJobStore {
-    constructor(private readonly client: SupabaseClient) {}
+    constructor(
+        private readonly client: SupabaseClient,
+        private readonly claimLeaseMs = 150_000,
+    ) {}
 
     async get(jobId: string, userId: string) {
         const result = await this.client
@@ -70,6 +73,9 @@ export class SupabaseJobStore implements DurableJobStore {
     }
 
     async claim(job: V1JobEnvelope, attempt: number) {
+        const staleBefore = new Date(
+            Date.now() - this.claimLeaseMs,
+        ).toISOString();
         const result = await this.client
             .from('jobs')
             .update({
@@ -81,7 +87,9 @@ export class SupabaseJobStore implements DurableJobStore {
             })
             .eq('id', job.jobId)
             .eq('user_id', job.userId)
-            .eq('status', 'queued')
+            .or(
+                `status.eq.queued,and(status.eq.running,started_at.lt.${staleBefore})`,
+            )
             .select('id')
             .maybeSingle();
         if (result.error) throw new Error('Canonical job claim failed');
