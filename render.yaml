@@ -32,7 +32,7 @@ services:
       - key: EMAIL_SYNC_ENABLED
         value: 'false'
       - key: PROVIDER_SYNC_ENABLED
-        value: 'false'
+        value: 'true'
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
