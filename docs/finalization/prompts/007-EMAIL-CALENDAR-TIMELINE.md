@@ -87,8 +87,11 @@ processor.
 
 ## Verification completed
 
-- Migration `202608180002_email_calendar_connections.sql` was applied to
-  `webwidgets-dev`; linked types were regenerated from the live schema.
+- Migrations `202608180002_email_calendar_connections.sql` and
+  `202608190001_backfill_email_account_connections.sql` were applied to
+  `webwidgets-dev`; linked types were regenerated from the live schema. The
+  successor migration corrects PostgreSQL snapshot visibility in the original
+  existing-account backfill without rewriting deployed history.
 - All 31 pgTAP assertions pass, including cross-user connection isolation and
   owner-only atomic disconnect; Supabase database lint reports no errors.
 - The sync worker passes typecheck, formatting, and 24 tests covering two
@@ -97,6 +100,10 @@ processor.
   all-day dates.
 - The web app passes TypeScript validation and the 14 focused inbox/RSS
   regression tests. The Sync Worker CI job passed on commit `6be0e617`.
+- A bounded live run linked both existing credential rows, synchronized both
+  canonical connections, persisted 51 minimized provider signals, and recorded
+  healthy source state with cursors and last-success timestamps. An immediate
+  incremental replay returned zero signals and zero writes.
 
 ## Remaining live acceptance proof
 
