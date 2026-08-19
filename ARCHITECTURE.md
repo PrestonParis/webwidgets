@@ -342,6 +342,21 @@ and verifies a least-privilege calendar scope. Provider polling is active on
 the Render worker through `PROVIDER_SYNC_ENABLED`; canonical job leases recover
 work interrupted by a deployment restart.
 
+**Canonical internal timeline (Prompt 008):**
+
+```
+todos / journals / documents / artifacts / parse outcomes
+  → content-minimizing database projection triggers
+  → raw_observations → timeline_events
+selected activity outcomes → same projection (unless origin=timeline_projection)
+```
+
+Domain rows remain source truth. The projection is forward-only and versioned;
+content-only note/document autosaves are coalesced into 15-minute windows.
+Timeline payloads contain source references and change metadata, not note or
+document bodies. Deleting a source retracts its prior facts, clears retained
+raw payloads, and leaves a minimal tombstone event.
+
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
 

@@ -30,6 +30,7 @@ export async function publishActivityEvent(
             related_entities: input.relatedEntities ?? [],
             metadata: input.metadata ?? {},
             action_url: input.actionUrl ?? null,
+            origin: input.origin ?? 'domain',
         })
         .select()
         .single();
@@ -78,6 +79,7 @@ export async function bulkPublishActivityEvents(
         related_entities: input.relatedEntities ?? [],
         metadata: input.metadata ?? {},
         action_url: input.actionUrl ?? null,
+        origin: input.origin ?? 'domain',
     }));
     const { error } = await supabase.from('activity_events').insert(rows);
     if (error) throw error;
@@ -132,15 +134,18 @@ export async function getActivityEvent(
     userId: string,
     id: string,
 ): Promise<ActivityEvent | null> {
-    const { data, error } = await supabase
+    const result = (await supabase
         .from('activity_events')
         .select('*')
         .eq('user_id', userId)
         .eq('id', id)
-        .maybeSingle();
-    if (error) throw error;
-    if (!data) return null;
-    return mapActivityRow(data as ActivityEventRow);
+        .maybeSingle()) as unknown as {
+        data: ActivityEventRow | null;
+        error: Error | null;
+    };
+    if (result.error) throw result.error;
+    if (!result.data) return null;
+    return mapActivityRow(result.data);
 }
 
 // ── State mutations ───────────────────────────────────────────────────────────
@@ -204,11 +209,12 @@ export async function unarchiveEvents(
 
 // ── Legacy compat (kept for any callers not yet updated) ──────────────────────
 
-export async function recordActivityEvent(
+export function recordActivityEvent(
     _event: Omit<ActivityEvent, 'id' | 'createdAt'>,
 ): Promise<void> {
     // Deprecated — use publishActivityEvent with a SupabaseClient instead.
     console.warn('[activityService] recordActivityEvent is deprecated');
+    return Promise.resolve();
 }
 
 export async function listActivityEventsForUser(

@@ -11,6 +11,25 @@ import type {
 } from '@/features/import-export/types/importExport';
 import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 
+interface TodoExportRow {
+    id: string;
+    text: string;
+    completed: boolean;
+    created_at: string;
+    completed_at: string | null;
+    due_at: string | null;
+}
+
+function optionalScalar(value: unknown): string | undefined {
+    if (typeof value === 'string') return value || undefined;
+    if (typeof value === 'number') return String(value);
+    return undefined;
+}
+
+function throwIfQueryFailed(error: { message: string } | null): void {
+    if (error) throw new Error(error.message);
+}
+
 export const todosAdapter: ImportExportAdapter = {
     id: 'todos',
     displayName: 'Todos',
@@ -56,7 +75,9 @@ export const todosAdapter: ImportExportAdapter = {
 
         let query = supabase
             .from('todos')
-            .select('id, text, completed, created_at, completed_at')
+            .select(
+                'id, text, completed, created_at, completed_at, due_at, updated_at',
+            )
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
@@ -71,7 +92,8 @@ export const todosAdapter: ImportExportAdapter = {
             throw error;
         }
 
-        const rows: MappedRow[] = (data ?? []).map((row, i) => ({
+        const todoRows = (data ?? []) as unknown as TodoExportRow[];
+        const rows: MappedRow[] = todoRows.map((row, i) => ({
             rowIndex: i,
             data: {
                 id: row.id,
@@ -83,6 +105,7 @@ export const todosAdapter: ImportExportAdapter = {
                 done: row.completed ?? false,
                 created_at: row.created_at,
                 completed_at: row.completed_at ?? '',
+                due_at: row.due_at ?? '',
             },
         }));
 
@@ -102,11 +125,8 @@ export const todosAdapter: ImportExportAdapter = {
 
         for (const row of rows) {
             try {
-                const d = row.data as Record<string, unknown>;
-                // Accept 'text' (native) or 'title' (normalized alias)
-                const textValue = (d['text'] ?? d['title']) as
-                    | string
-                    | undefined;
+                const d = row.data;
+                const textValue = optionalScalar(d['text'] ?? d['title']);
                 if (!textValue) {
                     errors.push({
                         rowIndex: row.rowIndex,
@@ -122,7 +142,9 @@ export const todosAdapter: ImportExportAdapter = {
                     d['done'] === 'true' ||
                     d['done'] === '1';
 
-                const rowId = d['id'] ? String(d['id']) : undefined;
+                const rowId = optionalScalar(d['id']);
+                const dueAtValue = d['due_at'] ?? d['due_date'];
+                const dueAt = optionalScalar(dueAtValue) ?? null;
 
                 if (strategy === 'skip' && rowId) {
                     const { data: existing } = await supabase
@@ -151,9 +173,10 @@ export const todosAdapter: ImportExportAdapter = {
                                 // Only overwrite text if the imported value differs from existing
                                 text: textValue || existing.text,
                                 completed,
+                                due_at: dueAt,
                             })
                             .eq('id', rowId);
-                        if (error) throw error;
+                        throwIfQueryFailed(error);
                         successCount++;
                         continue;
                     }
@@ -167,10 +190,11 @@ export const todosAdapter: ImportExportAdapter = {
                             user_id: userId,
                             text: String(textValue),
                             completed,
+                            due_at: dueAt,
                         },
                         { onConflict: 'id' },
                     );
-                    if (error) throw error;
+                    throwIfQueryFailed(error);
                     successCount++;
                     continue;
                 }
@@ -179,8 +203,9 @@ export const todosAdapter: ImportExportAdapter = {
                     user_id: userId,
                     text: String(textValue),
                     completed,
+                    due_at: dueAt,
                 });
-                if (error) throw error;
+                throwIfQueryFailed(error);
                 successCount++;
             } catch (e) {
                 errors.push({

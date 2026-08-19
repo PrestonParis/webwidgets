@@ -8,6 +8,7 @@ const todoSchema = z.object({
     completed: z.boolean(),
     createdAt: z.string(),
     completedAt: z.string().optional(),
+    dueAt: z.string().optional(),
 });
 
 const tasksSnapshotSchema = z.object({
@@ -29,7 +30,7 @@ export const todoResolvers: DataResolver[] = [
 
             const { data, error } = await supabase
                 .from('todos')
-                .select('id, text, completed, created_at, completed_at')
+                .select('id, text, completed, created_at, completed_at, due_at')
                 .eq('user_id', ctx.userId)
                 .order('created_at', { ascending: false })
                 .limit(50);
@@ -42,6 +43,7 @@ export const todoResolvers: DataResolver[] = [
                 completed: row.completed as boolean,
                 createdAt: row.created_at as string,
                 completedAt: (row.completed_at as string | null) ?? undefined,
+                dueAt: (row.due_at as string | null) ?? undefined,
             }));
 
             const open = all.filter((t) => !t.completed).slice(0, 20);

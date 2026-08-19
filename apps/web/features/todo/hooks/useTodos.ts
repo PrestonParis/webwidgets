@@ -18,7 +18,9 @@ export function useTodos() {
         void (async () => {
             const { data } = await supabase
                 .from('todos')
-                .select('id, text, completed, created_at, completed_at')
+                .select(
+                    'id, text, completed, created_at, completed_at, due_at, updated_at',
+                )
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
@@ -60,7 +62,9 @@ export function useTodos() {
             const { data, error } = await supabase
                 .from('todos')
                 .insert({ text: text.trim(), user_id: user.id })
-                .select('id, text, completed, created_at, completed_at')
+                .select(
+                    'id, text, completed, created_at, completed_at, due_at, updated_at',
+                )
                 .single();
             if (!error && data) setTodos((prev) => [data, ...prev]);
         },

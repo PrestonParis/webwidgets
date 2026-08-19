@@ -7,6 +7,12 @@ import {
     ingestContextEdge,
     ingestContextNode,
 } from '@/features/context/services/contextService';
+import { z } from 'zod';
+
+const createTodoSchema = z.object({
+    text: z.string().trim().min(1).max(2000),
+    dueAt: z.string().datetime({ offset: true }).nullable().optional(),
+});
 
 export async function GET(): Promise<Response> {
     try {
@@ -14,7 +20,9 @@ export async function GET(): Promise<Response> {
         const userId = await getRequestUserId(supabase);
         const { data, error } = await supabase
             .from('todos')
-            .select('id, text, completed, created_at, completed_at')
+            .select(
+                'id, text, completed, created_at, completed_at, due_at, updated_at',
+            )
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(200);
@@ -38,18 +46,25 @@ export async function POST(req: Request): Promise<Response> {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = (await req.json()) as { text?: string };
-        const text = body.text?.trim();
-        if (!text)
+        const parsed = createTodoSchema.safeParse(await req.json());
+        if (!parsed.success)
             return NextResponse.json(
-                { error: 'MISSING_TEXT' },
+                { error: 'INVALID_TODO' },
                 { status: 400 },
             );
 
         const { data, error } = await supabase
             .from('todos')
-            .insert({ user_id: userId, text })
-            .select('id, text, completed, created_at, completed_at')
+            .insert({
+                user_id: userId,
+                text: parsed.data.text,
+                ...(parsed.data.dueAt !== undefined
+                    ? { due_at: parsed.data.dueAt }
+                    : {}),
+            })
+            .select(
+                'id, text, completed, created_at, completed_at, due_at, updated_at',
+            )
             .single();
         if (error) throw error;
 

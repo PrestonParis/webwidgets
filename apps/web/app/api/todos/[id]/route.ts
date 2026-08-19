@@ -7,6 +7,15 @@ import {
     ingestContextNode,
     markContextStatus,
 } from '@/features/context/services/contextService';
+import { z } from 'zod';
+
+const updateTodoSchema = z
+    .object({
+        text: z.string().trim().min(1).max(2000).optional(),
+        completed: z.boolean().optional(),
+        dueAt: z.string().datetime({ offset: true }).nullable().optional(),
+    })
+    .refine((value) => Object.keys(value).length > 0);
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -19,10 +28,13 @@ export async function PATCH(
         const userId = await getRequestUserId(supabase);
         const { id } = await params;
 
-        const body = (await req.json()) as {
-            text?: string;
-            completed?: boolean;
-        };
+        const parsed = updateTodoSchema.safeParse(await req.json());
+        if (!parsed.success)
+            return NextResponse.json(
+                { error: 'INVALID_CHANGES' },
+                { status: 400 },
+            );
+        const body = parsed.data;
 
         const update: Record<string, unknown> = {};
         if (body.text !== undefined) update.text = body.text.trim();
@@ -32,6 +44,7 @@ export async function PATCH(
                 ? new Date().toISOString()
                 : null;
         }
+        if (body.dueAt !== undefined) update.due_at = body.dueAt;
 
         if (Object.keys(update).length === 0)
             return NextResponse.json({ error: 'NO_CHANGES' }, { status: 400 });
@@ -41,7 +54,9 @@ export async function PATCH(
             .update(update)
             .eq('id', id)
             .eq('user_id', userId)
-            .select('id, text, completed, created_at, completed_at')
+            .select(
+                'id, text, completed, created_at, completed_at, due_at, updated_at',
+            )
             .single();
         if (error) throw error;
 
@@ -101,6 +116,19 @@ export async function PATCH(
                 priority: 'low',
                 title: `Task updated: ${todo.text}`,
                 metadata: { todoId: todo.id },
+            });
+        } else if (body.dueAt !== undefined) {
+            await publishActivityEventSafe(supabase, {
+                userId,
+                source: 'todo',
+                eventType: 'todo.updated',
+                sourceId: todo.id,
+                sourceTable: 'todos',
+                category: 'content',
+                severity: 'info',
+                priority: 'low',
+                title: 'Task due date updated',
+                metadata: { todoId: todo.id, changedFields: ['dueAt'] },
             });
         }
 

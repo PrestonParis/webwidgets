@@ -178,3 +178,18 @@ expires, preventing a deployment restart from leaving a source permanently in
 **Reason:** This removes competing provider state without breaking the existing
 inbox action path, gives Prompt 009 one source-health model, and prevents an
 unreviewed OAuth-scope expansion.
+
+## FIN-013: Project meaningful internal changes at the database boundary
+
+**Status:** Accepted and implemented
+
+**Decision:** Project meaningful todo, journal, document, artifact, parsing,
+and selected automation lifecycle changes into the canonical timeline with
+database triggers. Domain records remain source truth. Projections are
+forward-only, idempotent by source version, content-minimized, and coalesce
+content-only autosaves into 15-minute windows. `activity_events.origin`
+prevents a timeline-derived activity record from becoming a new timeline fact.
+
+**Reason:** Internal records can be written through UI, API, import, and
+automation paths. One database boundary gives all paths the same semantics
+without copying private bodies or maintaining parallel application emitters.
