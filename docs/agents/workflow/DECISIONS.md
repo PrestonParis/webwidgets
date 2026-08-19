@@ -376,3 +376,8 @@ discarding the working inbox-action behavior.
 proves ingestion, replay deduplication, health, and disconnect behavior. Legacy
 processors retire account by account rather than through an unverified global
 switch.
+
+The initial existing-account backfill required a successor migration because a
+data-changing CTE and its outer update shared one PostgreSQL snapshot. Keeping
+the insert and update as separate statements linked the two live credential
+rows without rewriting deployed migration history.
