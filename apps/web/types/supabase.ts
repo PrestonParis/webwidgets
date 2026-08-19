@@ -7,11 +7,6 @@ export type Json =
     | Json[];
 
 export type Database = {
-    // Allows to automatically instantiate createClient with right options
-    // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-    __InternalSupabase: {
-        PostgrestVersion: '14.5';
-    };
     graphql_public: {
         Tables: {
             [_ in never]: never;
@@ -313,35 +308,65 @@ export type Database = {
             };
             activity_events: {
                 Row: {
+                    action_url: string | null;
                     body: string | null;
+                    category: string;
                     created_at: string;
+                    event_type: string | null;
                     id: string;
+                    is_archived: boolean;
                     metadata: Json;
+                    occurred_at: string;
+                    origin: string;
+                    priority: string;
                     read_at: string | null;
+                    related_entities: Json;
                     severity: string;
                     source: string;
+                    source_id: string | null;
+                    source_table: string | null;
                     title: string;
                     user_id: string;
                 };
                 Insert: {
+                    action_url?: string | null;
                     body?: string | null;
+                    category?: string;
                     created_at?: string;
+                    event_type?: string | null;
                     id?: string;
+                    is_archived?: boolean;
                     metadata?: Json;
+                    occurred_at?: string;
+                    origin?: string;
+                    priority?: string;
                     read_at?: string | null;
+                    related_entities?: Json;
                     severity?: string;
                     source: string;
+                    source_id?: string | null;
+                    source_table?: string | null;
                     title: string;
                     user_id: string;
                 };
                 Update: {
+                    action_url?: string | null;
                     body?: string | null;
+                    category?: string;
                     created_at?: string;
+                    event_type?: string | null;
                     id?: string;
+                    is_archived?: boolean;
                     metadata?: Json;
+                    occurred_at?: string;
+                    origin?: string;
+                    priority?: string;
                     read_at?: string | null;
+                    related_entities?: Json;
                     severity?: string;
                     source?: string;
+                    source_id?: string | null;
+                    source_table?: string | null;
                     title?: string;
                     user_id?: string;
                 };
@@ -4292,24 +4317,30 @@ export type Database = {
                     completed: boolean;
                     completed_at: string | null;
                     created_at: string;
+                    due_at: string | null;
                     id: string;
                     text: string;
+                    updated_at: string;
                     user_id: string;
                 };
                 Insert: {
                     completed?: boolean;
                     completed_at?: string | null;
                     created_at?: string;
+                    due_at?: string | null;
                     id?: string;
                     text: string;
+                    updated_at?: string;
                     user_id: string;
                 };
                 Update: {
                     completed?: boolean;
                     completed_at?: string | null;
                     created_at?: string;
+                    due_at?: string | null;
                     id?: string;
                     text?: string;
+                    updated_at?: string;
                     user_id?: string;
                 };
                 Relationships: [];
@@ -5087,6 +5118,21 @@ export type Database = {
             disconnect_provider_connection: {
                 Args: { connection_id: string };
                 Returns: boolean;
+            };
+            emit_internal_timeline_event: {
+                Args: {
+                    p_event_type: string;
+                    p_metadata?: Json;
+                    p_occurred_at: string;
+                    p_retract_prior?: boolean;
+                    p_source_id: string;
+                    p_source_table: string;
+                    p_source_type: string;
+                    p_source_version: string;
+                    p_title: string;
+                    p_user_id: string;
+                };
+                Returns: string;
             };
             get_month_day: { Args: { ts: string }; Returns: string };
             grant_admin: { Args: { target_email: string }; Returns: undefined };

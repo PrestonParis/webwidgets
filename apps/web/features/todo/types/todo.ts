@@ -11,6 +11,8 @@ export interface Todo {
     completed: boolean;
     created_at: string;
     completed_at: string | null;
+    due_at: string | null;
+    updated_at: string;
 }
 
 export interface TodoFormProps {

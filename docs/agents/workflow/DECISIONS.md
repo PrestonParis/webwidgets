@@ -387,3 +387,30 @@ A back-to-back Render deployment also proved that queue delivery and canonical
 job state need separate recovery. A worker may reclaim a `running` canonical
 job only after the processing timeout plus a lease buffer, and removes a
 failed BullMQ delivery before redelivery.
+
+---
+
+## ADR-018: Internal State Projects into the Timeline at the Database Boundary
+
+**Status:** Active
+
+**Decision:** Use database triggers to project meaningful todo, journal,
+document, artifact, parse, and selected automation transitions into
+`raw_observations` and `timeline_events`. Domain and knowledge rows remain
+source truth. Projection identity includes the source version; content-only
+autosaves share a 15-minute version bucket. No automatic historical backfill
+is performed.
+
+Projection payloads contain source references and bounded change metadata,
+never note, journal, document, extraction, or error bodies. Deletion retracts
+prior active events, clears raw payloads, and records only a minimal tombstone.
+`activity_events.origin` is one-way provenance: records originating from a
+timeline projection cannot generate another timeline event.
+
+**Why:** Internal state has multiple valid write paths. A database boundary
+applies one idempotent contract to UI, API, import, and automation writes while
+avoiding duplicate application emitters and private-content replication.
+
+**Consequences:** Prompt 009 can query one event model without feature joins.
+Any future direct writer inherits the projection contract. A requested
+historical import must be separately bounded and user-authorized.

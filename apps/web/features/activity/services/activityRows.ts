@@ -4,6 +4,7 @@ import type {
     ActivityEventPriority,
     ActivityEventSeverity,
     ActivityEventSource,
+    ActivityEventOrigin,
     RelatedEntity,
 } from '@/features/activity/types/activity';
 
@@ -26,6 +27,7 @@ export type ActivityEventRow = {
     related_entities?: unknown;
     metadata?: Record<string, unknown> | null;
     action_url?: string | null;
+    origin?: string | null;
 };
 
 export function mapActivityRow(row: ActivityEventRow): ActivityEvent {
@@ -51,5 +53,6 @@ export function mapActivityRow(row: ActivityEventRow): ActivityEvent {
             : [],
         metadata: row.metadata ?? {},
         ...(row.action_url ? { actionUrl: row.action_url } : {}),
+        origin: (row.origin as ActivityEventOrigin) ?? 'domain',
     };
 }

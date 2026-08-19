@@ -1,7 +1,7 @@
 # 008 — Normalize Tasks, Notes, Documents, and Activity into the Timeline
 
-Status: Blocked  
-Priority: High  
+Status: Complete
+Priority: High
 Depends on: 004 and 005
 
 ## Objective
@@ -51,3 +51,32 @@ timeline.
 - Sensitive source bodies are not duplicated into timeline or logs.
 - Context/activity integrations remain coherent and documented.
 - Prompt 009 can query a unified event model without feature-specific joins.
+
+## Completion handoff
+
+Prompt 8 adds a forward-only database projection boundary for todos, journals,
+documents, artifacts, parse outcomes, and selected automation outcomes. The
+boundary applies equally to UI, API, import, and automation writes. It records
+source identity and version, stores references instead of private bodies,
+coalesces content-only autosaves into 15-minute windows, and marks activity
+origin so timeline projections cannot feed back into themselves.
+
+`202608190002_internal_timeline_projections.sql` also adds todo due dates and
+reconciles the tracked activity schema with the fields already used by the web
+service. It intentionally performs no historical backfill. Deletion retracts
+active source facts and clears retained raw payloads while preserving a minimal
+tombstone fact.
+
+Verification completed:
+
+- local migrations replayed from an empty database;
+- 47 pgTAP assertions passed, including lifecycle, retry, minimization,
+  coalescing, deletion, loop-prevention, and cross-user cases;
+- Supabase database lint reported no warnings;
+- targeted TypeScript compilation and activity/lifecycle unit tests passed;
+- changed application files passed exact ESLint checks.
+
+Rollback is a forward migration that drops the projection triggers/functions
+and, only if consumers no longer depend on them, the additive todo/activity
+columns. Source domain rows remain canonical throughout. Prompt 009 is now
+available to build the timeline and source-health query surface.

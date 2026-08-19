@@ -41,8 +41,8 @@ Supabase, timeline, action, and automation files.
 | 005    | Deploy one durable worker runtime                | Complete  | 002, 004          |
 | 006    | Persist RSS/Atom source ingestion                | Complete  | 004, 005          |
 | 007    | Ingest email and calendar timeline events        | Complete  | 004, 005          |
-| 008    | Ingest task, note, document, and activity events | Available | 004, 005          |
-| 009    | Deliver timeline query and source-health UI      | Blocked   | 006–008           |
+| 008    | Ingest task, note, document, and activity events | Complete  | 004, 005          |
+| 009    | Deliver timeline query and source-health UI      | Available | 006–008           |
 | 010    | Implement governed LLM provider adapters         | Blocked   | 002, 004          |
 | 011    | Generate evidence-backed briefings               | Blocked   | 009, 010          |
 | 012    | Produce commitment candidate actions             | Blocked   | 007, 010          |
