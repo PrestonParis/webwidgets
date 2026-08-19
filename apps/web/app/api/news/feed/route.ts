@@ -1,20 +1,33 @@
 import { NextResponse } from 'next/server';
-import superjson from 'superjson';
-import { getLogger } from '@/lib/observability/logger';
+import { ZodError } from 'zod';
+import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { parseTimelineQuery } from '@/features/news/schemas/timelineFeedSchemas';
+import { queryTimelineFeed } from '@/features/news/server/timelineFeedServer';
+import { createClients } from '@/lib/supabase/serverClient';
 
-const emptyFeed = {
-    items: [],
-    timelines: [],
-    generatedAt: '',
-    sourceCount: 0,
-};
-
-export function GET() {
-    const log = getLogger({ route: '/api/news/feed' });
-    log.info(
-        { itemCount: 0, sourceCount: 0 },
-        'news feed served (no sources connected)',
-    );
-    const feed = { ...emptyFeed, generatedAt: new Date().toISOString() };
-    return NextResponse.json(superjson.serialize(feed));
+export async function GET(request: Request) {
+    try {
+        const filters = parseTimelineQuery(new URL(request.url));
+        const { supabase } = await createClients();
+        const userId = await getRequestUserId(supabase);
+        return NextResponse.json(
+            await queryTimelineFeed(supabase, userId, filters),
+        );
+    } catch (error) {
+        const message = error instanceof Error ? error.message : '';
+        if (error instanceof ZodError || message === 'BAD_CURSOR')
+            return NextResponse.json(
+                { error: 'Invalid timeline query' },
+                { status: 400 },
+            );
+        if (message === 'Unauthorized')
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 },
+            );
+        return NextResponse.json(
+            { error: 'Unable to load timeline' },
+            { status: 500 },
+        );
+    }
 }

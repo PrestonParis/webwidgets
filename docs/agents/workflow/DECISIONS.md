@@ -414,3 +414,29 @@ avoiding duplicate application emitters and private-content replication.
 **Consequences:** Prompt 009 can query one event model without feature joins.
 Any future direct writer inherits the projection contract. A requested
 historical import must be separately bounded and user-authorized.
+
+---
+
+## ADR-019: Timeline Reads Use One Owner-Scoped Canonical API
+
+**Status:** Active
+
+**Decision:** The `/news` route and `news` widget remain stable identifiers,
+but their V1 surface is Timeline Intelligence. They read persisted
+`timeline_events` through one authenticated API with explicit owner scope,
+retention/state constraints, bounded filters, and stable ordering by
+`occurred_at DESC, id DESC`. Opaque cursors carry only that ordering boundary.
+Provider APIs are never called during page render.
+
+Source health is derived from `integration_connections` and returned as a
+separate recoverable result. External titles and summaries render only as
+bounded text; provenance links are limited to HTTP(S). Related-story keys
+expose links among events but do not merge their identity.
+
+**Why:** A canonical read boundary prevents provider availability, demo data,
+or ranking services from changing timeline truth. Separate health failure lets
+healthy-source events remain useful when one connection needs attention.
+
+**Consequences:** Briefing and action prompts can consume the same event model.
+The route retains its historical URL, while catalog, help, widget, and page
+language consistently present Timeline Intelligence.

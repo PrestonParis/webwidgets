@@ -357,6 +357,19 @@ Timeline payloads contain source references and change metadata, not note or
 document bodies. Deleting a source retracts its prior facts, clears retained
 raw payloads, and leaves a minimal tombstone event.
 
+**Timeline Intelligence read path (Prompt 009):**
+
+```
+News page/widget → authenticated /api/news/feed
+  → owner-scoped timeline_events (stable cursor pagination)
+  + integration_connections (independently recoverable health)
+```
+
+The API reads canonical persistence and never contacts providers during page
+render. It orders by occurrence time and UUID, exposes ingestion time when
+collection was delayed, and returns bounded text plus HTTP(S) provenance.
+Related-story keys remain inspectable links rather than destructive merges.
+
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
 
@@ -458,11 +471,11 @@ policy. See the
 [full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
 The repository contains the 46 reviewed historical migrations recorded by
-remote history plus six reviewed successors. ADR-012's recovered-history
+remote history plus ten reviewed successors. ADR-012's recovered-history
 baseline completed on 2026-08-14; two identity-bearing historical files were
 sanitized intentionally. On 2026-08-14, an owner-approved CLI deployment
 applied the context, job-log security, lifecycle, retention, and approval
-successors to `webwidgets-dev`. Local and remote history align at 52 versions.
+successors to `webwidgets-dev`. Local and remote history align at 56 versions.
 
 Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `widget_folders`, `email_actions`, `email_queue`, `todos`, `habits`,

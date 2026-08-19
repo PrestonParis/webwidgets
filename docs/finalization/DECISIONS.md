@@ -193,3 +193,18 @@ prevents a timeline-derived activity record from becoming a new timeline fact.
 **Reason:** Internal records can be written through UI, API, import, and
 automation paths. One database boundary gives all paths the same semantics
 without copying private bodies or maintaining parallel application emitters.
+
+## FIN-014: Render Timeline Intelligence from canonical persistence
+
+**Status:** Accepted and implemented
+
+**Decision:** Keep `/news` and the `news` widget type as compatibility
+identifiers while naming the user experience Timeline Intelligence. The web
+surface queries only persisted `timeline_events` through an authenticated,
+owner-scoped, cursor-paginated API. Connection health is returned separately
+so a failed health lookup or unhealthy source cannot erase valid events.
+
+**Reason:** Provider fetches and synthetic demo responses made empty, stale,
+and failed states indistinguishable. Canonical reads make chronology,
+provenance, partial failure, and user scope inspectable without adding another
+feed database.

@@ -96,12 +96,12 @@ const sections = [
     {
         id: 'news',
         icon: Newspaper,
-        title: 'News',
+        title: 'Timeline Intelligence',
         items: [
-            'The News widget shows your personalized feed with the most recent articles first.',
-            'Click Refresh to fetch the latest updates.',
-            'Use "View all →" to open the full news page with filtering options.',
-            'Manage news sources and topics from the integrations settings.',
+            'Timeline Intelligence combines authorized personal and external events in chronological order.',
+            'Occurrence and ingestion times are shown separately when collection was delayed.',
+            'Filter by source, event type, or time range without contacting providers during page render.',
+            'Review connection health and manage external sources from Integrations.',
         ],
     },
     {
