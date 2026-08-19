@@ -23,6 +23,10 @@ export const v1TaskSchema = z.discriminatedUnion('kind', [
         kind: z.literal('rss.fetch'),
         connectionId: z.string().uuid(),
     }),
+    z.object({
+        kind: z.literal('provider.sync'),
+        connectionId: z.string().uuid(),
+    }),
 ]);
 
 export const v1JobEnvelopeSchema = z.object({

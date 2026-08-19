@@ -4429,6 +4429,7 @@ export type Database = {
                     email: string;
                     expires_at: number | null;
                     id: string;
+                    integration_connection_id: string | null;
                     last_synced_at: string | null;
                     provider: string;
                     refresh_token: string | null;
@@ -4442,6 +4443,7 @@ export type Database = {
                     email: string;
                     expires_at?: number | null;
                     id?: string;
+                    integration_connection_id?: string | null;
                     last_synced_at?: string | null;
                     provider: string;
                     refresh_token?: string | null;
@@ -4455,13 +4457,22 @@ export type Database = {
                     email?: string;
                     expires_at?: number | null;
                     id?: string;
+                    integration_connection_id?: string | null;
                     last_synced_at?: string | null;
                     provider?: string;
                     refresh_token?: string | null;
                     updated_at?: string;
                     user_id?: string;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'user_email_accounts_connection_owner_fk';
+                        columns: ['integration_connection_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'integration_connections';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
             };
             user_feedback: {
                 Row: {
@@ -5072,6 +5083,10 @@ export type Database = {
                     isOneToOne: false;
                     isSetofReturn: true;
                 };
+            };
+            disconnect_provider_connection: {
+                Args: { connection_id: string };
+                Returns: boolean;
             };
             get_month_day: { Args: { ts: string }; Returns: string };
             grant_admin: { Args: { target_email: string }; Returns: undefined };

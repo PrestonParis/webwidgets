@@ -7,6 +7,11 @@ import {
 import { startHealthServer, type RuntimeHealth } from './health.js';
 import { createWorkerSupabase } from './lib/supabase.js';
 import type { RuntimeLogger } from './logger.js';
+import { createProviderProcessor } from './provider/providerProcessor.js';
+import {
+    startProviderScheduler,
+    type ProviderScheduler,
+} from './provider/providerScheduler.js';
 import { createRssProcessor } from './rss/rssProcessor.js';
 import { startRssScheduler, type RssScheduler } from './rss/rssScheduler.js';
 import { createJobRunner } from './v1/jobRunner.js';
@@ -28,6 +33,7 @@ export async function startWorkerRuntime(
     const store = new SupabaseJobStore(client);
     const processors = createProcessorRegistry({
         'rss.fetch': createRssProcessor(client, logger),
+        'provider.sync': createProviderProcessor(client, env, logger),
     });
     const runner = createJobRunner({
         store,
@@ -40,10 +46,14 @@ export async function startWorkerRuntime(
     let emailWorkers: EmailWorkerSet | undefined;
     let health: RuntimeHealth | undefined;
     let rssScheduler: RssScheduler | undefined;
+    let providerScheduler: ProviderScheduler | undefined;
     try {
         if (env.V1_QUEUES_ENABLED) {
             v1Workers = await startV1Workers(env, runner, logger);
             rssScheduler = startRssScheduler(env, client, logger);
+            if (env.PROVIDER_SYNC_ENABLED) {
+                providerScheduler = startProviderScheduler(env, client, logger);
+            }
         }
         if (env.EMAIL_SYNC_ENABLED) {
             emailWorkers = await startEmailWorkers(env, client, logger);
@@ -60,6 +70,7 @@ export async function startWorkerRuntime(
             workerCount: workerNames.length,
             dryRun: env.WORKER_DRY_RUN,
             emailSyncEnabled: env.EMAIL_SYNC_ENABLED,
+            providerSyncEnabled: env.PROVIDER_SYNC_ENABLED,
             scheduleOwner: env.SCHEDULE_OWNER,
             scheduleConfigured,
         });
@@ -70,6 +81,7 @@ export async function startWorkerRuntime(
                 await health?.close();
                 await Promise.all([
                     rssScheduler?.close(),
+                    providerScheduler?.close(),
                     v1Workers?.close(),
                     emailWorkers?.close(),
                 ]);
@@ -78,6 +90,7 @@ export async function startWorkerRuntime(
     } catch (error) {
         await health?.close().catch(() => undefined);
         await rssScheduler?.close().catch(() => undefined);
+        await providerScheduler?.close().catch(() => undefined);
         await v1Workers?.close().catch(() => undefined);
         await emailWorkers?.close().catch(() => undefined);
         throw error;
