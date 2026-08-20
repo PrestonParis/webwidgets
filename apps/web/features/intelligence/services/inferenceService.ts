@@ -31,9 +31,11 @@ export async function runInference<TInput = Json, TOutput = Json>(
 ): Promise<InferenceResult<TOutput>> {
     const request = buildRequest(input);
     const externalDenial = evaluateExternalInferencePolicy({
-        authorization: input.externalAuthorization,
         sensitive: request.sensitive,
         requiredConsentScopes: request.requiredConsentScopes,
+        ...(input.externalAuthorization
+            ? { authorization: input.externalAuthorization }
+            : {}),
     });
     const providers = getProvidersForTask(
         request.task,
