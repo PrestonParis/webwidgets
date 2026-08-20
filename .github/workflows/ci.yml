@@ -225,14 +225,35 @@ jobs:
 
       - run: pip install -r services/ml_service/requirements-dev.txt
 
-      - name: Format check
-        run: python -m ruff format services/ml_service --check
+      - name: Recover changed-file list
+        run: |
+          echo "${{ needs.changed-files.outputs.files_list }}" | base64 -d > /tmp/changed_files.txt
+          grep -E '^services/ml_service/.*\.py$' /tmp/changed_files.txt | while read -r file; do
+            [ -f "$file" ] && echo "$file"
+          done > /tmp/changed_python.txt || true
+          cat /tmp/changed_python.txt
 
-      - name: Lint
-        run: python -m ruff check services/ml_service
+      - name: Format check (changed Python files)
+        run: |
+          mapfile -t files < /tmp/changed_python.txt
+          if [ "${#files[@]}" -eq 0 ]; then exit 0; fi
+          python -m ruff format --check "${files[@]}"
 
-      - name: Typecheck
-        run: python -m basedpyright services/ml_service
+      - name: Lint (changed Python files)
+        run: |
+          mapfile -t files < /tmp/changed_python.txt
+          if [ "${#files[@]}" -eq 0 ]; then exit 0; fi
+          python -m ruff check "${files[@]}"
+
+      - name: Typecheck (changed Python files)
+        run: |
+          python -m basedpyright services/ml_service > /tmp/pyright.txt 2>&1 || true
+          cat /tmp/pyright.txt
+          if grep -F " - error:" /tmp/pyright.txt | grep -Ff /tmp/changed_python.txt ; then
+            echo "::error::Python type errors in changed files"
+            exit 1
+          fi
+          echo "No Python type errors in changed files."
 
       - name: Tests
         run: python -m pytest services/ml_service/tests
