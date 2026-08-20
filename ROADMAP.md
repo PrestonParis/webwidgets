@@ -85,7 +85,7 @@ it.
 | Billing (Stripe)                           | working                   | Checkout, webhooks, customer portal present.                                                                                                                                                                                                                           |
 | Automation (stage 5)                       | partial                   | Evaluator + registry exist, but user-facing persistence paths include empty/no-op behavior. ADR-008/011 assigns durable schedules to the V1 worker and keeps n8n as an optional executor only.                                                                         |
 | Personalization (stage 6)                  | partial                   | Cross-widget intelligence goals documented in PERSONALIZE.md; onboarding-time personalization exists; full cross-widget adaptation (e.g. "workout tracked → nutrition adjusts") not verified as implemented.                                                           |
-| ML predictions beyond email (stage 3)      | partial                   | Multiple training scripts exist server-side; whether each is wired into a live prediction surface in the UI is unverified per-model.                                                                                                                                   |
+| ML predictions beyond email (stage 3)      | working foundation        | Governed Anthropic summarization/research synthesis is available through an authenticated Render container with paid-tier, consent, schema, audit, cost, rate, and abstention controls. Briefings and candidate-action consumers arrive in Prompts 011–012.            |
 | Widget-based actions (stage 4)             | partial                   | Email/calendar action-confirm flow exists; other items in WIDGET_ACTIONS.md (generate document, export data, summarize file, trigger workflow) not individually verified.                                                                                              |
 | Security (stage 7)                         | partial, critical gaps    | Import/export log RLS is deployed. Four owner-readable tables still expose raw credential columns to authenticated browser sessions, and the audited SECURITY DEFINER hardening remains open.                                                                          |
 | Deployment (stage 8)                       | working (partially)       | Web deploys to Vercel and the V1 worker is deployed as a free Render web service with non-persistent Key Value. The paid worker/persistent queue production cutover, conversion, and Go remain without completed production paths.                                     |
@@ -116,8 +116,9 @@ workflow this bootstrap sets up from being trustworthy.
   — a DEFINITION_OF_DONE that references these as gates would be lying.
 - **Upgrade the smoke-tested worker topology before release** — ADR-015's free
   Render host is deployed and verified. Before production, cut over to
-  ADR-014's continuous worker and persistent Key Value. Prompt 010 must select
-  the bounded Python inference host.
+  ADR-014's continuous worker and persistent Key Value. The bounded Python
+  inference host is selected but its free instance also needs a production
+  availability upgrade.
 - **Wire or formally drop Husky commit-time gating** — currently a dead
   no-op that looks like protection but isn't.
 

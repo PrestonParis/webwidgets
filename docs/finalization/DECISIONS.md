@@ -208,3 +208,18 @@ so a failed health lookup or unhealthy source cannot erase valid events.
 and failed states indistinguishable. Canonical reads make chronology,
 provenance, partial failure, and user scope inspectable without adding another
 feed database.
+
+## FIN-015: Use One Governed Anthropic Inference Boundary
+
+**Status:** Accepted and implemented
+
+**Decision:** Route external V1 summarization and research synthesis through an
+authenticated Python container on Render. Next.js owns paid-tier, consent, and
+sensitivity decisions. Python owns only bounded validation, rate limiting,
+Anthropic invocation, strict output validation, and content-free inference
+telemetry. No model may change a schema, permission, or execution decision.
+
+**Reason:** A single real adapter is enough for V1 fallback behavior. Removing
+the configured-but-fake provider entries and requiring evidence-linked typed
+output gives later briefing and candidate-action work a trustworthy inference
+contract without creating an agent loop.

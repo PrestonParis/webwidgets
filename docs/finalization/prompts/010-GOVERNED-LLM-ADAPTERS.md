@@ -1,7 +1,7 @@
 # 010 — Implement Governed External LLM Provider Adapters
 
-Status: Blocked  
-Priority: Critical  
+Status: Complete
+Priority: Critical
 Depends on: 002 and 004
 
 ## Objective
@@ -61,3 +61,34 @@ Vercel manifests are not automatically the supported production path.
 - Audit and cost records are useful without containing source content.
 - Downstream callers can distinguish abstention, provider failure, and a
   successful low-confidence result.
+
+## Completion handoff
+
+The provider registry now exposes one real external provider: Anthropic through
+the authenticated, stateless Python inference container. OpenAI, Gemini, and
+local placeholders are no longer advertised as available. The supported
+container entrypoint exposes only `/v1/ready` and `/v1/inference`; it does not
+expose the legacy ML suite, own schedules, persist product state, or invoke
+actions.
+
+Next.js remains the authorization boundary. External inference requires an
+authenticated user, a non-free active subscription, `allowExternal`, and
+granted `external_llm`, `external_sensitive_inference`, and task-specific
+consent. Requests use bounded task schemas for summarization and research
+synthesis. Python authenticates the internal request, rate-limits it, separates
+untrusted source payloads from fixed system instructions, validates the model
+response, rejects evidence IDs outside the supplied set, and returns explicit
+success, abstention, or typed failure states.
+
+Inference audit and cost events persist request correlation, provider, model
+version, token counts, estimated cost, status, and a SHA-256 input hash. They do
+not persist prompts or source content. Internal ML now uses measured endpoint
+confidence and abstains on neutral no-model output instead of fabricating a
+constant score.
+
+The Render Blueprint includes the free `webwidgets-v1-inference` container.
+Deployment requires `INFERENCE_SERVICE_URL` in Vercel, matching
+`ML_SERVICE_TOKEN` values in Render and Vercel, plus `ANTHROPIC_API_KEY` and
+current per-million-token prices in Render. The
+free service can sleep, so continuous production availability remains a later
+operations upgrade. Prompt 011 and Prompt 012 are now available.

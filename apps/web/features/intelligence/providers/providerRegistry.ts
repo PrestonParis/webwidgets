@@ -1,6 +1,6 @@
 import { createInternalMlProvider } from '@/features/intelligence/providers/internalMlProvider';
 import { createRuleProvider } from '@/features/intelligence/providers/ruleProvider';
-import { EXTERNAL_LLM_PROVIDERS } from '@/features/intelligence/providers/externalLlmProviders';
+import { createAnthropicProvider } from '@/features/intelligence/providers/externalLlmProviders';
 import type { PredictionTask } from '@/features/intelligence/types/inference';
 import type { MLProvider } from '@/features/intelligence/types/provider';
 
@@ -8,7 +8,7 @@ export function getIntelligenceProviders(): MLProvider[] {
     return [
         createRuleProvider(),
         createInternalMlProvider(),
-        ...EXTERNAL_LLM_PROVIDERS,
+        createAnthropicProvider(),
     ];
 }
 

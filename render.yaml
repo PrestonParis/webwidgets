@@ -53,3 +53,33 @@ services:
         value: '120000'
       - key: SHUTDOWN_TIMEOUT_MS
         value: '25000'
+
+  - type: web
+    name: webwidgets-v1-inference
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./services/ml_service/Dockerfile
+    dockerContext: ./services/ml_service
+    healthCheckPath: /v1/ready
+    envVars:
+      - key: ML_SERVICE_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: ANTHROPIC_MODEL_VERSION
+        value: '2025-10-01'
+      - key: ANTHROPIC_INPUT_USD_PER_MILLION
+        sync: false
+      - key: ANTHROPIC_OUTPUT_USD_PER_MILLION
+        sync: false
+      - key: LLM_REQUESTS_PER_MINUTE
+        value: '20'
+      - key: LLM_TOKENS_PER_MINUTE
+        value: '80000'
+      - key: LLM_PROVIDER_TIMEOUT_SECONDS
+        value: '10'
+      - key: ENVIRONMENT
+        value: production

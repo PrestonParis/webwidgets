@@ -24,7 +24,6 @@ export async function recommendForUser(
         task: 'widget_recommendation',
         input: { goals: context.goals, activeWidgets: context.activeWidgets },
         context: { connectedServices: context.connectedServices },
-        allowExternal: false,
     }).catch(() => null);
 
     return {
