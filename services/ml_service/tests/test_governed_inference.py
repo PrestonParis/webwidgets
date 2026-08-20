@@ -1,5 +1,5 @@
 import json
-from typing import cast
+from typing import Protocol, cast
 from unittest.mock import AsyncMock
 
 import httpx
@@ -18,10 +18,20 @@ app = FastAPI()
 app.include_router(inference_router.router)
 
 
+class HttpTestClient(Protocol):
+    def post(
+        self,
+        url: str,
+        *,
+        json: object,
+        headers: dict[str, str] | None = None,
+    ) -> httpx.Response: ...
+
+
 @pytest.fixture
-def client(monkeypatch):
+def client(monkeypatch: pytest.MonkeyPatch) -> HttpTestClient:
     monkeypatch.setenv("ML_SERVICE_TOKEN", "test-token")
-    return TestClient(app)
+    return cast(HttpTestClient, TestClient(app))
 
 
 def inference_request(text: str = "A trustworthy update") -> dict[str, object]:
@@ -32,13 +42,13 @@ def inference_request(text: str = "A trustworthy update") -> dict[str, object]:
     }
 
 
-def test_inference_requires_service_authentication(client):
+def test_inference_requires_service_authentication(client: HttpTestClient):
     response = client.post("/v1/inference", json=inference_request())
     assert response.status_code == 401
     assert response.json() == {"detail": "unauthorized"}
 
 
-def test_inference_returns_typed_success(client, monkeypatch):
+def test_inference_returns_typed_success(client: HttpTestClient, monkeypatch: pytest.MonkeyPatch):
     result = InferenceSuccess(
         status="success",
         provider="anthropic",
@@ -66,7 +76,7 @@ def test_inference_returns_typed_success(client, monkeypatch):
     assert response.json()["output"]["evidenceIds"] == ["event-1"]
 
 
-def test_provider_timeout_is_typed(client, monkeypatch):
+def test_provider_timeout_is_typed(client: HttpTestClient, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
         inference_router,
         "infer_with_anthropic",
@@ -81,7 +91,7 @@ def test_provider_timeout_is_typed(client, monkeypatch):
     assert response.json() == {"detail": "provider_timeout"}
 
 
-def test_unavailable_provider_is_typed(client, monkeypatch):
+def test_unavailable_provider_is_typed(client: HttpTestClient, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     response = client.post(
         "/v1/inference",
@@ -92,7 +102,9 @@ def test_unavailable_provider_is_typed(client, monkeypatch):
     assert response.json() == {"detail": "provider_unavailable"}
 
 
-def test_rate_limit_is_enforced_before_provider(client, monkeypatch):
+def test_rate_limit_is_enforced_before_provider(
+    client: HttpTestClient, monkeypatch: pytest.MonkeyPatch
+):
     monkeypatch.setattr(inference_router.rate_limiter, "acquire", AsyncMock(return_value=False))
     response = client.post(
         "/v1/inference",

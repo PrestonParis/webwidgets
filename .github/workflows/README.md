@@ -51,6 +51,10 @@ clean clone.
   accuracy, so this workflow runs `tsc --noEmit` for the whole project (as
   it must) and then greps the output for lines matching a changed file. Only
   errors in files the PR touched fail the build.
+- **Python formatting and linting** run directly against changed `.py` files
+  under `services/ml_service/`. Basedpyright analyzes the complete service for
+  cross-file accuracy, then gates only diagnostics belonging to changed files,
+  matching the TypeScript debt-baseline policy.
 - **`services/conversion` and `services/sync-worker`** are checked with
   their own scripts (`npm run typecheck`, `npm run build`) only when a file
   under their respective directories changed, since they're independently
