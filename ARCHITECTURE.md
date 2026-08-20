@@ -98,7 +98,10 @@ manifest are implemented, but this is not a claim that Render is provisioned:
   concurrency, retry timing, and delayed schedules only.
 - Next.js owns authenticated UI/API, webhook validation, source configuration,
   queries, and exact-payload approval boundaries.
-- Python performs bounded stateless inference. n8n is an optional approved
+- Python performs bounded stateless inference through the authenticated
+  `webwidgets-v1-inference` Render container. Anthropic is the only V1 external
+  adapter; Next.js enforces paid-tier and consent policy before calling it.
+  n8n is an optional approved
   workflow executor. The Go worker is disabled and deferred for V1.
 - Vercel crons remain temporary cutover fallbacks and must not run a schedule
   also owned by the worker.
@@ -455,8 +458,10 @@ optional Anthropic fallback (`modelRouter.ts`).
 
 For V1 deployment ownership, Python exposes bounded, versioned, stateless
 inference only. It does not own schedules, queues, authorization policy,
-canonical product state, or provider actions (ADR-011). The concrete supported
-container host remains a Prompt 005/010 deployment decision.
+canonical product state, or provider actions (ADR-011). The supported Render
+container exposes only authenticated `/v1/ready` and `/v1/inference` routes.
+Next.js records content-free audit/cost events and rejects free-tier or
+unconsented external requests before source data crosses that boundary.
 
 ---
 
@@ -615,8 +620,6 @@ These are unresolved boundary questions flagged by prior agent work
 silently pick an interpretation when working in these areas — ask, or scope
 the task narrower to avoid guessing:
 
-- **Concrete Python container host** — worker hosting is resolved by ADR-014,
-  but the bounded Python inference host remains a Prompt 010 decision.
 - **Legacy runtime cutover** — widget hydration remains client-side, the Go
   worker is deferred, n8n is an adapter, and the TypeScript worker owns V1
   background work. The source-by-source order for retiring duplicate Vercel

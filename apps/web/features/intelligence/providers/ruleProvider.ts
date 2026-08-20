@@ -3,7 +3,7 @@ import { confidence } from '@/features/intelligence/lib/confidence';
 import { hashInferenceInput } from '@/features/intelligence/lib/redaction';
 import type {
     InferenceRequest,
-    InferenceResult,
+    InferenceProviderResult,
 } from '@/features/intelligence/types/inference';
 import type { MLProvider } from '@/features/intelligence/types/provider';
 
@@ -29,7 +29,7 @@ export function createRuleProvider(): MLProvider {
 
 function inferWithRules<TInput = Json, TOutput = Json>(
     request: InferenceRequest<TInput>,
-): Promise<InferenceResult<TOutput>> {
+): Promise<InferenceProviderResult<TOutput>> {
     const startedAt = new Date().toISOString();
     const output = {
         provider: 'deterministic-rules',
@@ -37,6 +37,7 @@ function inferWithRules<TInput = Json, TOutput = Json>(
         recommendations: [],
     } as TOutput;
     return Promise.resolve({
+        status: 'success',
         requestId: request.id,
         providerId: 'deterministic-rules',
         task: request.task,

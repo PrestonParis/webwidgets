@@ -43,9 +43,9 @@ Supabase, timeline, action, and automation files.
 | 007    | Ingest email and calendar timeline events        | Complete  | 004, 005          |
 | 008    | Ingest task, note, document, and activity events | Complete  | 004, 005          |
 | 009    | Deliver timeline query and source-health UI      | Complete  | 006–008           |
-| 010    | Implement governed LLM provider adapters         | Available | 002, 004          |
-| 011    | Generate evidence-backed briefings               | Blocked   | 009, 010          |
-| 012    | Produce commitment candidate actions             | Blocked   | 007, 010          |
+| 010    | Implement governed LLM provider adapters         | Complete  | 002, 004          |
+| 011    | Generate evidence-backed briefings               | Available | 009, 010          |
+| 012    | Produce commitment candidate actions             | Available | 007, 010          |
 | 013    | Execute and verify task actions                  | Blocked   | 004, 005, 012     |
 | 014    | Execute calendar, draft, and workflow actions    | Blocked   | 005, 012          |
 | 015    | Persist the automation state machine             | Blocked   | 004, 013, 014     |

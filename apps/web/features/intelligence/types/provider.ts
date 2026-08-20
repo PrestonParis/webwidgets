@@ -1,6 +1,6 @@
 import type {
     InferenceRequest,
-    InferenceResult,
+    InferenceProviderResult,
     PredictionTask,
 } from '@/features/intelligence/types/inference';
 
@@ -40,7 +40,7 @@ export interface MLProvider {
         TOutput = import('@/types/supabase').Json,
     >(
         request: InferenceRequest<TInput>,
-    ) => Promise<InferenceResult<TOutput>>;
+    ) => Promise<InferenceProviderResult<TOutput>>;
 }
 
 export type LLMProvider = MLProvider & { kind: 'llm' };

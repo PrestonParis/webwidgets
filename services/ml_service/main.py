@@ -1,14 +1,14 @@
+import os
 import time
 import uuid
-import os
 
-from fastapi import FastAPI, Request
-
-from observability import setup_logging, setup_sentry, metrics
 import model_store
-from email_router import router as email_router
-from ml_suite_router import router as ml_suite_router
 from admin_router import router as admin_router
+from email_router import router as email_router
+from fastapi import FastAPI, Request
+from inference_router import router as inference_router
+from ml_suite_router import router as ml_suite_router
+from observability import metrics, setup_logging, setup_sentry
 
 logger = setup_logging(level=os.getenv("LOG_LEVEL", "INFO"))
 setup_sentry()
@@ -32,7 +32,16 @@ async def log_requests(request: Request, call_next):
     duration_ms = round((time.perf_counter() - start) * 1000, 2)
     is_error = response.status_code >= 400
     metrics.record_request(latency_ms=duration_ms, is_error=is_error)
-    logger.info("request", extra={"request_id": request_id, "method": request.method, "path": request.url.path, "status": response.status_code, "duration_ms": duration_ms})
+    logger.info(
+        "request",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "duration_ms": duration_ms,
+        },
+    )
     response.headers["x-request-id"] = request_id
     return response
 
@@ -45,3 +54,4 @@ async def shutdown_event():
 app.include_router(email_router)
 app.include_router(ml_suite_router)
 app.include_router(admin_router)
+app.include_router(inference_router)

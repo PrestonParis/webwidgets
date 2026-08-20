@@ -6,7 +6,7 @@ export interface InferenceAudit {
     task: PredictionTask;
     startedAt: string;
     completedAt?: string;
-    status: 'success' | 'failed' | 'skipped';
+    status: 'success' | 'failed' | 'skipped' | 'abstained';
     redactedInputHash?: string;
-    errorMessage?: string;
+    failureCode?: string;
 }

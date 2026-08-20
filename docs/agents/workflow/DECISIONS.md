@@ -440,3 +440,28 @@ healthy-source events remain useful when one connection needs attention.
 **Consequences:** Briefing and action prompts can consume the same event model.
 The route retains its historical URL, while catalog, help, widget, and page
 language consistently present Timeline Intelligence.
+
+---
+
+## ADR-020: Govern External Inference at the Next.js Boundary
+
+**Status:** Active
+
+**Decision:** Use one authenticated Python container on Render for bounded
+Anthropic summarization and research synthesis. Next.js determines paid-tier
+eligibility, explicit consent, task schema, and sensitivity before sending any
+source data. Python is stateless and may validate, rate-limit, call the model,
+and return typed output; it may not grant permission, schedule work, persist
+canonical state, or invoke actions. The production container exposes only its
+authenticated V1 inference routes.
+
+**Why:** The existing registry falsely marked configured placeholder providers
+as available, while direct feature-specific vendor clients duplicated policy
+and leaked provider behavior into callers. One narrow boundary makes real
+availability, cost, failure, abstention, and model provenance inspectable.
+
+**Consequences:** Anthropic is the sole external V1 provider and remains a paid
+fallback under ADR-001. OpenAI, Gemini, and local placeholders are unavailable
+until they implement the same contract. Audit and cost records contain hashes
+and metadata, never prompts. Free Render sleep latency is accepted during
+finalization but is not the production availability target.

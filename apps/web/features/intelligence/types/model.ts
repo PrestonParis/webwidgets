@@ -8,5 +8,8 @@ export interface ModelMetadata {
 
 export interface CostTracking {
     unit: 'request' | 'token' | 'second';
+    inputTokens?: number;
+    outputTokens?: number;
     estimatedCostUsd: number;
+    pricingConfigured?: boolean;
 }
