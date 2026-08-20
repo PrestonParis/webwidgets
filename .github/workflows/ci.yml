@@ -255,8 +255,12 @@ jobs:
           fi
           echo "No Python type errors in changed files."
 
-      - name: Tests
-        run: python -m pytest services/ml_service/tests
+      - name: Run tests (always capture the JUnit report)
+        run: python -m pytest services/ml_service/tests --junitxml=/tmp/pytest-results.xml
+        continue-on-error: true
+
+      - name: Check for unexpected Python test failures
+        run: python tools/ci/checkPythonTestResults.py /tmp/pytest-results.xml
 
   conversion-service:
     name: Conversion service

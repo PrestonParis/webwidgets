@@ -74,6 +74,12 @@ and `tools/ci/checkTestResults.ts` gates only on failures **not** in its
 small, explicitly-documented allowlist. A PR that fixes #21 must remove the
 corresponding allowlist entries in the same PR — don't let it go stale.
 
+The Python job follows the same rule. It runs the complete ML pytest suite and
+captures JUnit output. Four pre-existing failures discovered when the dormant
+job first ran are explicitly named in `tools/ci/checkPythonTestResults.py`;
+every other failure gates the PR. Fixing one of those tests requires removing
+its allowlist entry in the same change.
+
 ### What's intentionally not gated here
 
 - **`services/conversion`'s full test suite** isn't run against live
