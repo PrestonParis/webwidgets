@@ -23,6 +23,12 @@ const REQUIRED_CONSENT_SCOPES = [
     'external_sensitive_inference',
     'timeline_analysis',
 ];
+const consentRowsSchema = z.array(
+    z.object({ scope: z.string(), state: z.string() }),
+);
+const subscriptionSchema = z
+    .object({ plan_id: z.string(), status: z.string() })
+    .nullable();
 
 export async function POST(request: Request) {
     const parsed = requestSchema.safeParse(
@@ -71,11 +77,15 @@ async function loadAuthorization(
             .limit(1)
             .maybeSingle(),
     ]);
-    const grantedConsentScopes = (consents.data ?? [])
+    const consentRows = consentRowsSchema.safeParse(consents.data ?? []);
+    const subscriptionRow = subscriptionSchema.safeParse(subscription.data);
+    const grantedConsentScopes = (consentRows.success ? consentRows.data : [])
         .filter((record) => record.state === 'granted')
         .map((record) => record.scope);
     const paidTier = Boolean(
-        subscription.data && subscription.data.plan_id !== 'free',
+        subscriptionRow.success &&
+        subscriptionRow.data &&
+        subscriptionRow.data.plan_id !== 'free',
     );
     return { allowExternal: true, paidTier, grantedConsentScopes };
 }
