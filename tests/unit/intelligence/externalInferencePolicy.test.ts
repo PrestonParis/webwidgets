@@ -30,7 +30,7 @@ describe('external inference policy', () => {
     ])('rejects unauthorized policy state', (authorization, expected) => {
         expect(
             evaluateExternalInferencePolicy({
-                authorization,
+                ...(authorization && { authorization }),
                 sensitive: true,
                 requiredConsentScopes: ['timeline_analysis'],
             }),
