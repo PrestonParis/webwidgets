@@ -53,7 +53,7 @@ seconds, below Render's default termination window. Production can restore the
 | `v1-ingestion` |                   4 | Versioned runtime probe; source processors arrive in Prompts 006-008     |
 | `v1-analysis`  |                   4 | Versioned runtime probe; governed inference arrives in Prompt 010        |
 | `v1-schedule`  |                   1 | Versioned runtime probe; durable schedules extend this registry          |
-| `v1-action`    |                   2 | Versioned runtime probe; real governed actions arrive in Prompts 013-014 |
+| `v1-action`    |                   2 | Exact-approved local task execution; connector actions arrive in Prompt 014 |
 
 The probe is a real persisted smoke operation with no provider side effect. An
 unsupported task fails explicitly; it is never reported as successful.

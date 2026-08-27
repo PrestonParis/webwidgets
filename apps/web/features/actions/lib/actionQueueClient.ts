@@ -15,7 +15,7 @@ export function enqueueActionJob(
         component: 'action-queue',
         actionId: envelope.actionId,
     }).warn(
-        'Queued provider actions are unavailable until the canonical Prompt 013 processor is deployed',
+        'Browser action envelopes cannot enqueue without a canonical approved action request',
     );
     return Promise.resolve<QueuedActionReceipt | null>(null);
 }

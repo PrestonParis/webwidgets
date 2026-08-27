@@ -5,6 +5,8 @@ import {
     fetchCommitmentCandidates,
     generateCommitmentCandidates,
     reviewCommitmentCandidate,
+    retryCommitmentTask,
+    undoCommitmentTask,
 } from '@/features/news/api/commitmentCandidateClient';
 
 export function useCommitmentCandidates() {
@@ -26,5 +28,13 @@ export function useCommitmentCandidates() {
         }) => reviewCommitmentCandidate(input.candidateId, input.body),
         onSuccess: invalidate,
     });
-    return { query, generate, review };
+    const retry = useMutation({
+        mutationFn: retryCommitmentTask,
+        onSuccess: invalidate,
+    });
+    const undo = useMutation({
+        mutationFn: undoCommitmentTask,
+        onSuccess: invalidate,
+    });
+    return { query, generate, review, retry, undo };
 }

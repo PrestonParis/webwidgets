@@ -37,5 +37,9 @@ export async function reviewCommitmentCandidate(
         p_decision: decision,
     });
     if (result.error) throw new Error('candidate_review_conflict');
-    return { state: decision };
+    return {
+        state: decision,
+        expectedVersion: parsed.expectedVersion,
+        expectedHash: parsed.expectedHash,
+    };
 }

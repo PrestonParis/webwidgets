@@ -508,3 +508,30 @@ stale human decision.
 idempotent action request from an approved exact candidate. Dismissed and
 incorrect decisions remain measurable, and cross-owner evidence is rejected by
 composite foreign keys and RLS.
+
+---
+
+## ADR-023: Task Mutations Converge on an Atomic Product Receipt
+
+**Status:** Active
+
+**Decision:** An exact approved task candidate materializes one canonical
+`action_requests` record before delivery. The V1 worker receives only that
+record's ID. A service-only database function revalidates its approval
+hash/version, owner, expiry, and optimistic edit timestamp; performs
+`tasks.create`, `tasks.update`, or `tasks.complete` against `todos`; reads the
+row back; and records one verified `action_results` receipt. A unique
+`todos.source_action_request_id` makes canonical storage the final idempotency
+boundary. Browser sessions may review, read outcomes, retry the same request,
+or request supported compensation, but cannot invoke task mutation directly.
+
+**Why:** BullMQ provides at-least-once delivery. An application-only receipt
+can still duplicate a task if a process stops after insertion but before
+recording success. The atomic database boundary makes approval, execution,
+verification, replay, and traceability agree.
+
+**Consequences:** Create and update expose safe undo only while the verified
+task has not changed again. Completion reversal is deliberately unavailable
+in V1. Direct action envelopes cannot claim task success; they must enter via
+an approved canonical request. Prompt 014 shares the request/result and worker
+contracts but must define connector-specific receipts independently.

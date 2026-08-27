@@ -248,3 +248,19 @@ durable review outcomes.
 
 **Reason:** This gives users useful commitment capture while keeping untrusted
 source content and probabilistic extraction outside the execution boundary.
+
+## FIN-018: Make Canonical Storage the Task Execution Receipt
+
+**Status:** Accepted and implemented
+
+**Decision:** Exact task-candidate approval materializes one approved action
+request, then the durable worker carries only its canonical ID. A service-only
+database function atomically validates owner, approval hash/version, expiry,
+and optimistic edit timestamp; mutates `todos`; reads the row back; and records
+one verified result. The task row has a unique source action-request receipt.
+Create and update support conflict-aware compensation; completion reversal is
+not offered in V1.
+
+**Reason:** Redis, HTTP, and workers are all retryable boundaries. Only the
+database can prevent a crash between mutation and receipt from creating a
+second task while preserving a queryable evidence-to-outcome chain.

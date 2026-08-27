@@ -4703,6 +4703,8 @@ export type Database = {
                     created_at: string;
                     due_at: string | null;
                     id: string;
+                    notes: string | null;
+                    source_action_request_id: string | null;
                     text: string;
                     updated_at: string;
                     user_id: string;
@@ -4713,6 +4715,8 @@ export type Database = {
                     created_at?: string;
                     due_at?: string | null;
                     id?: string;
+                    notes?: string | null;
+                    source_action_request_id?: string | null;
                     text: string;
                     updated_at?: string;
                     user_id: string;
@@ -4723,11 +4727,21 @@ export type Database = {
                     created_at?: string;
                     due_at?: string | null;
                     id?: string;
+                    notes?: string | null;
+                    source_action_request_id?: string | null;
                     text?: string;
                     updated_at?: string;
                     user_id?: string;
                 };
-                Relationships: [];
+                Relationships: [
+                    {
+                        foreignKeyName: 'todos_source_action_request_owner_fk';
+                        columns: ['source_action_request_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'action_requests';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
             };
             tracking_entries: {
                 Row: {
@@ -5559,6 +5573,14 @@ export type Database = {
                 };
                 Returns: string;
             };
+            execute_approved_task_action: {
+                Args: {
+                    p_action_request_id: string;
+                    p_attempt: number;
+                    p_job_id: string;
+                };
+                Returns: Json;
+            };
             expire_candidate_actions: { Args: never; Returns: number };
             get_month_day: { Args: { ts: string }; Returns: string };
             grant_admin: { Args: { target_email: string }; Returns: undefined };
@@ -5577,6 +5599,52 @@ export type Database = {
             is_workspace_member: {
                 Args: { p_workspace_id: string };
                 Returns: boolean;
+            };
+            materialize_approved_task_action: {
+                Args: {
+                    p_candidate_id: string;
+                    p_expected_hash: string;
+                    p_expected_version: number;
+                };
+                Returns: {
+                    action_id: string;
+                    approval_state: string;
+                    approved_at: string | null;
+                    approved_payload: Json | null;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    automation_run_id: string | null;
+                    candidate_action_id: string | null;
+                    confidence: number | null;
+                    created_at: string;
+                    decided_at: string | null;
+                    denied_at: string | null;
+                    execution_completed_at: string | null;
+                    execution_started_at: string | null;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string | null;
+                    job_id: string | null;
+                    payload: Json;
+                    payload_hash: string | null;
+                    payload_version: number;
+                    permission_snapshot_hash: string | null;
+                    policy_version: string | null;
+                    requested_at: string;
+                    source_widget_id: string | null;
+                    state_version: number;
+                    status: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                SetofOptions: {
+                    from: '*';
+                    to: 'action_requests';
+                    isOneToOne: true;
+                    isSetofReturn: false;
+                };
             };
             purge_expired_v1_lifecycle: {
                 Args: { p_now?: string };
@@ -5630,6 +5698,10 @@ export type Database = {
             soft_delete_journal: {
                 Args: { p_entry_id: string };
                 Returns: undefined;
+            };
+            undo_task_action: {
+                Args: { p_action_request_id: string };
+                Returns: Json;
             };
         };
         Enums: {

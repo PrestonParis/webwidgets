@@ -8,8 +8,30 @@ import {
 
 const taskCreateInput = z.object({
     title: z.string().min(1),
-    dueAt: z.string().datetime().optional(),
-    notes: z.string().optional(),
+    dueAt: z.string().datetime().nullable().default(null),
+    notes: z.string().max(1_000).default(''),
+    sourceReference: z.string().max(2_000).nullable().default(null),
+});
+
+const taskUpdateInput = z
+    .object({
+        taskId: z.string().uuid(),
+        expectedUpdatedAt: z.string().datetime(),
+        title: z.string().min(1).max(300).optional(),
+        dueAt: z.string().datetime().nullable().optional(),
+        notes: z.string().max(1_000).optional(),
+    })
+    .refine(
+        (value) =>
+            value.title !== undefined ||
+            value.dueAt !== undefined ||
+            value.notes !== undefined,
+        'At least one task field must change',
+    );
+
+const taskCompleteInput = z.object({
+    taskId: z.string().uuid(),
+    expectedUpdatedAt: z.string().datetime(),
 });
 
 const calendarCreateInput = z.object({
@@ -56,13 +78,45 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
             'Create a local task from a widget, agent, or workflow request.',
         mutability: 'state-altering',
         destructiveLevel: 'safe',
-        queueability: 'immediate',
+        queueability: 'required',
         expectedInputs: taskCreateInput,
         expectedOutputs: genericOutput,
         requiredPermissions: [],
         requiredConsents: [],
         canUndo: true,
-        handlerId: 'local.echo',
+        handlerId: 'worker.tasks.create',
+    },
+    {
+        id: 'tasks.update',
+        category: 'tasks',
+        providerScope: 'local',
+        label: 'Update task',
+        description: 'Update an existing local task after exact approval.',
+        mutability: 'state-altering',
+        destructiveLevel: 'safe',
+        queueability: 'required',
+        expectedInputs: taskUpdateInput,
+        expectedOutputs: genericOutput,
+        requiredPermissions: [],
+        requiredConsents: [],
+        canUndo: true,
+        handlerId: 'worker.tasks.update',
+    },
+    {
+        id: 'tasks.complete',
+        category: 'tasks',
+        providerScope: 'local',
+        label: 'Complete task',
+        description: 'Complete an existing local task after exact approval.',
+        mutability: 'state-altering',
+        destructiveLevel: 'safe',
+        queueability: 'required',
+        expectedInputs: taskCompleteInput,
+        expectedOutputs: genericOutput,
+        requiredPermissions: [],
+        requiredConsents: [],
+        canUndo: false,
+        handlerId: 'worker.tasks.complete',
     },
     {
         id: 'calendar.create_event',

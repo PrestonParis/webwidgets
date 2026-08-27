@@ -20,6 +20,10 @@ export const v1QueueKindSchema = z.enum([
 export const v1TaskSchema = z.discriminatedUnion('kind', [
     z.object({ kind: z.literal('runtime.probe') }),
     z.object({
+        kind: z.literal('action.execute'),
+        actionRequestId: z.string().uuid(),
+    }),
+    z.object({
         kind: z.literal('rss.fetch'),
         connectionId: z.string().uuid(),
     }),
@@ -56,11 +60,7 @@ export const TERMINAL_JOB_STATUSES = [
 
 export type TerminalJobStatus = (typeof TERMINAL_JOB_STATUSES)[number];
 export type DurableJobStatus =
-    | 'queued'
-    | 'running'
-    | 'waiting'
-    | 'failed'
-    | TerminalJobStatus;
+    'queued' | 'running' | 'waiting' | 'failed' | TerminalJobStatus;
 
 export interface DurableJobRecord {
     id: string;

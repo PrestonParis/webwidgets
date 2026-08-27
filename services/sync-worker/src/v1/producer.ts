@@ -73,6 +73,40 @@ async function createCanonicalJob(client: SupabaseClient, input: EnqueueInput) {
     throw new Error('Canonical job creation failed');
 }
 
+async function reviveRetryableActionJob(
+    client: SupabaseClient,
+    canonical: InsertedJob,
+    input: EnqueueInput,
+) {
+    if (
+        input.task.kind !== 'action.execute' ||
+        !['failed', 'dead_lettered'].includes(canonical.status)
+    ) {
+        return canonical;
+    }
+    const result = await client
+        .from('jobs')
+        .update({
+            status: 'queued',
+            retry_count: 0,
+            available_at: new Date().toISOString(),
+            started_at: null,
+            completed_at: null,
+            dead_lettered_at: null,
+            failure_code: null,
+            failure_detail: null,
+        })
+        .eq('id', canonical.id)
+        .eq('user_id', canonical.user_id)
+        .in('status', ['failed', 'dead_lettered'])
+        .select(
+            'id,user_id,status,idempotency_key,correlation_id,queue_name,queue_job_id,retry_count,max_attempts',
+        )
+        .maybeSingle();
+    if (result.error) throw new Error('Action job retry reset failed');
+    return (result.data as InsertedJob | null) ?? canonical;
+}
+
 async function ensureBriefingReceipt(
     client: SupabaseClient,
     canonical: InsertedJob,
@@ -112,13 +146,34 @@ async function ensureBriefingReceipt(
     if (result.error) throw new Error('Briefing receipt creation failed');
 }
 
+async function linkActionRequest(
+    client: SupabaseClient,
+    canonical: InsertedJob,
+    input: EnqueueInput,
+) {
+    if (input.task.kind !== 'action.execute') return;
+    const result = await client
+        .from('action_requests')
+        .update({ job_id: canonical.id, status: 'queued' })
+        .eq('id', input.task.actionRequestId)
+        .eq('user_id', input.userId)
+        .eq('approval_state', 'approved')
+        .select('id')
+        .maybeSingle();
+    if (result.error || !result.data) {
+        throw new Error('Approved action request link failed');
+    }
+}
+
 export async function enqueueCanonicalJob(
     client: SupabaseClient,
     env: WorkerEnv,
     input: EnqueueInput,
 ) {
-    const canonical = await createCanonicalJob(client, input);
+    const created = await createCanonicalJob(client, input);
+    const canonical = await reviveRetryableActionJob(client, created, input);
     await ensureBriefingReceipt(client, canonical, input);
+    await linkActionRequest(client, canonical, input);
     const envelope: V1JobEnvelope = {
         version: 1,
         jobId: canonical.id,

@@ -5,7 +5,7 @@ import { enqueueNewsJob } from '@/features/news/queues/newsQueue';
 const userId = '10000000-0000-4000-8000-000000000005';
 
 describe('legacy queue cutover', () => {
-    it('fails closed instead of enqueueing an undispatched action job', async () => {
+    it('fails closed instead of trusting a browser approval envelope', async () => {
         const result = await enqueueActionJob(
             {
                 actionId: 'tasks.create',

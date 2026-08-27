@@ -19,6 +19,7 @@ import {
 } from './provider/providerScheduler.js';
 import { createRssProcessor } from './rss/rssProcessor.js';
 import { startRssScheduler, type RssScheduler } from './rss/rssScheduler.js';
+import { createTaskActionProcessor } from './taskActions/taskActionProcessor.js';
 import { createJobRunner } from './v1/jobRunner.js';
 import { SupabaseJobStore } from './v1/jobStore.js';
 import { createProcessorRegistry } from './v1/processors.js';
@@ -41,6 +42,7 @@ export async function startWorkerRuntime(
         'rss.fetch': createRssProcessor(client, logger),
         'provider.sync': createProviderProcessor(client, env, logger),
         'briefing.generate': createBriefingProcessor(env),
+        'action.execute': createTaskActionProcessor(client, logger),
     });
     const runner = createJobRunner({
         store,
@@ -68,19 +70,35 @@ export async function startWorkerRuntime(
             emailWorkers = await startEmailWorkers(env, client, logger);
         }
         const scheduleConfigured = await configureEmailSchedule(env);
-        health = await startHealthServer(env, store, logger, (input) =>
-            enqueueCanonicalJob(client, env, {
-                userId: input.userId,
-                idempotencyKey: input.idempotencyKey,
-                queue: 'analysis',
-                task: {
-                    kind: 'briefing.generate',
-                    trigger: input.trigger,
-                    coveredFrom: input.coveredFrom,
-                    coveredTo: input.coveredTo,
-                },
-                maxAttempts: 3,
-            }),
+        health = await startHealthServer(
+            env,
+            store,
+            logger,
+            (input) =>
+                enqueueCanonicalJob(client, env, {
+                    userId: input.userId,
+                    idempotencyKey: input.idempotencyKey,
+                    queue: 'analysis',
+                    task: {
+                        kind: 'briefing.generate',
+                        trigger: input.trigger,
+                        coveredFrom: input.coveredFrom,
+                        coveredTo: input.coveredTo,
+                    },
+                    maxAttempts: 3,
+                }),
+            (input) =>
+                enqueueCanonicalJob(client, env, {
+                    userId: input.userId,
+                    idempotencyKey: input.idempotencyKey,
+                    correlationId: input.actionRequestId,
+                    queue: 'action',
+                    task: {
+                        kind: 'action.execute',
+                        actionRequestId: input.actionRequestId,
+                    },
+                    maxAttempts: 3,
+                }),
         );
         const readiness = await health.checkReadiness();
         if (!readiness.ready) throw new Error('Runtime dependencies not ready');

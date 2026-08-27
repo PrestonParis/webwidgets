@@ -2,6 +2,61 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 import type { CandidateKind, CommitmentCandidateRecord } from './types';
 
+type Execution = NonNullable<CommitmentCandidateRecord['execution']>;
+
+async function loadExecutions(
+    db: SupabaseClient<Database>,
+    userId: string,
+    candidateIds: string[],
+) {
+    const requests = await db
+        .from('action_requests')
+        .select('id,candidate_action_id,status,failure_code,job_id')
+        .eq('user_id', userId)
+        .in('candidate_action_id', candidateIds);
+    if (requests.error) throw new Error('candidate_execution_read_failed');
+    const requestIds = requests.data.map((row) => row.id);
+    const results = requestIds.length
+        ? await db
+              .from('action_results')
+              .select(
+                  'action_request_id,provider_execution_id,verification_status,verified_at,undo_status',
+              )
+              .eq('user_id', userId)
+              .in('action_request_id', requestIds)
+              .order('created_at', { ascending: false })
+        : { data: [], error: null };
+    if (results.error) throw new Error('candidate_outcome_read_failed');
+    const resultByRequest = new Map<string, (typeof results.data)[number]>();
+    for (const row of results.data) {
+        if (!resultByRequest.has(row.action_request_id)) {
+            resultByRequest.set(row.action_request_id, row);
+        }
+    }
+    return new Map(
+        requests.data.flatMap((request): Array<[string, Execution]> => {
+            if (!request.candidate_action_id) return [];
+            const outcome = resultByRequest.get(request.id);
+            return [
+                [
+                    request.candidate_action_id,
+                    {
+                        actionRequestId: request.id,
+                        status: request.status,
+                        failureCode: request.failure_code,
+                        jobId: request.job_id,
+                        taskId: outcome?.provider_execution_id ?? null,
+                        verificationStatus:
+                            outcome?.verification_status ?? null,
+                        verifiedAt: outcome?.verified_at ?? null,
+                        undoStatus: outcome?.undo_status ?? null,
+                    },
+                ],
+            ];
+        }),
+    );
+}
+
 export async function loadCommitmentCandidates(
     db: SupabaseClient<Database>,
     userId: string,
@@ -18,6 +73,9 @@ export async function loadCommitmentCandidates(
             'proposed',
             'edited',
             'approved',
+            'executing',
+            'completed',
+            'failed',
             'dismissed',
             'incorrect',
             'expired',
@@ -28,6 +86,7 @@ export async function loadCommitmentCandidates(
     if (candidates.error) throw new Error('candidate_read_failed');
     const ids = (candidates.data ?? []).map((candidate) => candidate.id);
     if (!ids.length) return [];
+    const executions = await loadExecutions(db, userId, ids);
     const evidence = await db
         .from('candidate_action_evidence')
         .select(
@@ -69,6 +128,7 @@ export async function loadCommitmentCandidates(
             expiresAt: row.expires_at,
             createdAt: row.created_at,
             evidence: evidenceByCandidate.get(row.id) ?? [],
+            execution: executions.get(row.id) ?? null,
         }),
     );
 }

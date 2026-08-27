@@ -1,6 +1,6 @@
 # 013 — Execute and Verify Real Task Actions
 
-Status: Blocked  
+Status: Complete
 Priority: Critical  
 Depends on: 004, 005, and 012
 
@@ -48,3 +48,20 @@ exactly one task and record a verified outcome linked back to evidence.
 - Placeholder success is impossible for task actions.
 - The evidence → candidate → approval → execution → task → outcome chain is
   queryable and visible.
+
+## Completion handoff
+
+Completed on 2026-08-27. Exact candidate approval now materializes one
+approved `action_requests` row and enqueues an `action.execute` job on the
+durable worker. A service-only atomic database function creates, updates, or
+completes the canonical `todos` row, reads it back, and records one verified
+`action_results` outcome. Unique candidate-version, action-request, product
+receipt, and result keys make browser retries, duplicate approvals, BullMQ
+redelivery, and worker retries converge on the same task and outcome.
+
+The UI exposes queued/running/failed/completed state, verified task ID, safe
+retry, and create/update compensation. Completion reversal is explicitly
+unavailable. Owner checks, exact payload bindings, optimistic timestamps,
+worker-only mutation privileges, and database/worker tests cover stale,
+cross-owner, duplicate, conflict, retry, malformed verification, and undo
+boundaries.

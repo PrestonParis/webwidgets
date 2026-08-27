@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { reviewCommitmentCandidate } from '@/lib/commitments/review';
 import { createTypedClients } from '@/lib/supabase/serverClient';
+import { materializeAndEnqueueTaskAction } from '@/lib/taskActions/orchestration';
 
 export async function PATCH(
     request: Request,
@@ -20,13 +21,31 @@ export async function PATCH(
             candidateId,
             await request.json().catch(() => null),
         );
+        const candidate = await supabase
+            .from('candidate_actions')
+            .select('candidate_kind')
+            .eq('id', candidateId)
+            .eq('user_id', userId)
+            .single();
+        if (candidate.error) throw new Error('candidate_read_failed');
+        const execution =
+            result.state === 'approved' &&
+            candidate.data.candidate_kind === 'task'
+                ? await materializeAndEnqueueTaskAction({
+                      db: supabase,
+                      userId,
+                      candidateId,
+                      expectedVersion: result.expectedVersion,
+                      expectedHash: result.expectedHash,
+                  })
+                : null;
         await supabaseAdmin.from('analytics_events').insert({
             user_id: userId,
             type: `commitment_candidate_${result.state}`,
             source: 'commitment_candidates',
             metadata: { candidateId },
         });
-        return NextResponse.json(result);
+        return NextResponse.json({ ...result, execution });
     } catch (error) {
         const message = error instanceof Error ? error.message : '';
         const status =

@@ -373,14 +373,16 @@ render. It orders by occurrence time and UUID, exposes ingestion time when
 collection was delayed, and returns bounded text plus HTTP(S) provenance.
 Related-story keys remain inspectable links rather than destructive merges.
 
-**Evidence-backed intelligence (Prompts 011–012):**
+**Evidence-backed intelligence and task execution (Prompts 011–013):**
 
 ```
 timeline_events → deterministic bounded ranking/extraction
   → governed inference only for supported ambiguity
   → briefings → briefing_items → briefing_item_evidence
   → insights → candidate_actions → candidate_action_evidence
-  → exact-version candidate review (no execution)
+  → exact-version candidate review
+  → approved action_requests → durable action.execute job
+  → atomic todos mutation → verified action_results
 ```
 
 Briefings are expiring derived aggregates, never timeline facts. Every briefing
@@ -388,9 +390,11 @@ item and commitment candidate keeps direct owner-matched evidence. Daily and
 on-demand briefings share one durable `briefing.generate` job. Commitment
 candidates use deterministic rules for clear dated requests and the governed
 `commitment_candidates` model contract only for bounded ambiguity. Editing a
-candidate increments its payload version and clears approval; approval binds
-the current hash/version but cannot create an action request or invoke a
-handler.
+candidate increments its payload version and clears approval. Approval binds
+the current hash/version; task candidates then materialize one canonical
+request. The worker carries only its ID, while Supabase atomically validates,
+mutates, verifies, and receipts the task. Calendar candidates still stop at
+review until Prompt 014.
 
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
@@ -515,8 +519,8 @@ Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `reading_notes`, `reading_plans`. This historical list is not exhaustive; the
 audit inventory is the canonical dated snapshot for planning Prompt 004.
 
-The committed Supabase types were regenerated directly from the deployed
-`public,graphql_public` schemas after the 52 migrations aligned. Historical
+The committed Supabase types are regenerated directly from the deployed
+`public,graphql_public` schemas after tracked migrations align. Historical
 application drift remains a feature-level concern where callers reference
 tables that do not exist live; generated types must remain mechanical and
 must not be hand-edited to disguise such drift.
@@ -536,6 +540,9 @@ Briefings form a parallel derived aggregate in `briefings`, `briefing_items`,
 the action chain with direct `candidate_action_evidence`, append-only
 `candidate_action_reviews`, and atomic edit/review functions that enforce an
 exact payload version and hash.
+Task execution extends that chain with a unique product receipt on `todos`, a
+durable `action.execute` job, exact approval revalidation, optimistic update
+checks, verified outcomes, and bounded compensation.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
@@ -573,7 +580,9 @@ boundary before connector automation is considered secure.
   is not yet confirmed.
   The analysis queue also owns daily and on-demand briefing generation through
   an authenticated callback to Next.js. Commitment candidate generation stays
-  at the authenticated Next.js policy boundary and performs no execution.
+  at the authenticated Next.js policy boundary. Approved task candidates use
+  the action queue and a service-only atomic Supabase executor; provider and
+  workflow actions remain Prompt 014 work.
 - **Accepted V1 owner:** extend `services/sync-worker` into the one durable
   TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
   configured, validated, approved workflows; it is not the ingestion owner,

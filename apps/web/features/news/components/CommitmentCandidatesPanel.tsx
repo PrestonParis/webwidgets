@@ -22,8 +22,8 @@ export function CommitmentCandidatesPanel() {
                         candidates
                     </h2>
                     <p className="mt-1 text-xs text-zinc-500">
-                        Editable suggestions from authorized email signals. They
-                        never execute themselves.
+                        Evidence-backed suggestions execute only after exact
+                        approval and return a verified task outcome.
                     </p>
                 </div>
                 <button
@@ -63,13 +63,23 @@ export function CommitmentCandidatesPanel() {
                 {records.map((candidate) => (
                     <CommitmentCandidateCard
                         candidate={candidate}
-                        disabled={candidates.review.isPending}
+                        disabled={
+                            candidates.review.isPending ||
+                            candidates.retry.isPending ||
+                            candidates.undo.isPending
+                        }
                         key={candidate.id}
                         onReview={(body) =>
                             candidates.review.mutate({
                                 candidateId: candidate.id,
                                 body,
                             })
+                        }
+                        onRetry={(requestId) =>
+                            candidates.retry.mutate(requestId)
+                        }
+                        onUndo={(requestId) =>
+                            candidates.undo.mutate(requestId)
                         }
                     />
                 ))}
