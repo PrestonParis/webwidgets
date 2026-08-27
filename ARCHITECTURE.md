@@ -373,6 +373,25 @@ render. It orders by occurrence time and UUID, exposes ingestion time when
 collection was delayed, and returns bounded text plus HTTP(S) provenance.
 Related-story keys remain inspectable links rather than destructive merges.
 
+**Evidence-backed intelligence (Prompts 011–012):**
+
+```
+timeline_events → deterministic bounded ranking/extraction
+  → governed inference only for supported ambiguity
+  → briefings → briefing_items → briefing_item_evidence
+  → insights → candidate_actions → candidate_action_evidence
+  → exact-version candidate review (no execution)
+```
+
+Briefings are expiring derived aggregates, never timeline facts. Every briefing
+item and commitment candidate keeps direct owner-matched evidence. Daily and
+on-demand briefings share one durable `briefing.generate` job. Commitment
+candidates use deterministic rules for clear dated requests and the governed
+`commitment_candidates` model contract only for bounded ambiguity. Editing a
+candidate increments its payload version and clears approval; approval binds
+the current hash/version but cannot create an action request or invoke a
+handler.
+
 Calendar events with midnight UTC use all-day `date` format, not `dateTime`,
 to prevent wrong-day display in non-UTC timezones (ADR-003).
 
@@ -476,11 +495,11 @@ policy. See the
 [full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
 The repository contains the 46 reviewed historical migrations recorded by
-remote history plus ten reviewed successors. ADR-012's recovered-history
+remote history plus fifteen reviewed successors. ADR-012's recovered-history
 baseline completed on 2026-08-14; two identity-bearing historical files were
 sanitized intentionally. On 2026-08-14, an owner-approved CLI deployment
 applied the context, job-log security, lifecycle, retention, and approval
-successors to `webwidgets-dev`. Local and remote history align at 56 versions.
+successors to `webwidgets-dev`. Local and remote history align at 61 versions.
 
 Key tables include `profiles`, `dashboard_layouts`, `widget_settings`,
 `widget_folders`, `email_actions`, `email_queue`, `todos`, `habits`,
@@ -511,6 +530,12 @@ RLS protect every new relation. `jobs`, `automation_runs`, and
 `docs/finalization/CANONICAL_V1_SCHEMA.md`. These migrations replay cleanly
 locally, are deployed to `webwidgets-dev`, and are represented by the
 committed live-generated type file.
+
+Briefings form a parallel derived aggregate in `briefings`, `briefing_items`,
+`briefing_item_evidence`, and `briefing_feedback`. Commitment review extends
+the action chain with direct `candidate_action_evidence`, append-only
+`candidate_action_reviews`, and atomic edit/review functions that enforce an
+exact payload version and hash.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
@@ -546,6 +571,9 @@ boundary before connector automation is considered secure.
   owns network-safe fetches, schedules, normalization, canonical persistence,
   and health. The free service may sleep, so continuous production operation
   is not yet confirmed.
+  The analysis queue also owns daily and on-demand briefing generation through
+  an authenticated callback to Next.js. Commitment candidate generation stays
+  at the authenticated Next.js policy boundary and performs no execution.
 - **Accepted V1 owner:** extend `services/sync-worker` into the one durable
   TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
   configured, validated, approved workflows; it is not the ingestion owner,

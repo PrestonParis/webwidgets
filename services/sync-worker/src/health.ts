@@ -1,5 +1,7 @@
-import { createServer, type Server } from 'node:http';
+import { timingSafeEqual } from 'node:crypto';
+import { createServer, type IncomingMessage, type Server } from 'node:http';
 import IORedis from 'ioredis';
+import { z } from 'zod';
 import type { WorkerEnv } from './env.js';
 import type { RuntimeLogger } from './logger.js';
 import type { DurableJobStore } from './v1/jobStore.js';
@@ -19,6 +21,16 @@ interface ReadinessChecks {
     redis(): Promise<boolean>;
     supabase(): Promise<boolean>;
 }
+
+const briefingRequestSchema = z.object({
+    userId: z.string().uuid(),
+    trigger: z.enum(['daily', 'on_demand']),
+    coveredFrom: z.string().datetime(),
+    coveredTo: z.string().datetime(),
+    idempotencyKey: z.string().min(1).max(700),
+});
+
+type BriefingRequest = z.infer<typeof briefingRequestSchema>;
 
 async function boundedCheck(check: () => Promise<boolean>, timeoutMs: number) {
     let timer: NodeJS.Timeout | undefined;
@@ -70,10 +82,31 @@ function closeServer(server: Server) {
     });
 }
 
+function authorized(request: IncomingMessage, token: string) {
+    const supplied = request.headers.authorization?.replace(/^Bearer\s+/i, '');
+    if (!supplied) return false;
+    const left = Buffer.from(token);
+    const right = Buffer.from(supplied);
+    return left.length === right.length && timingSafeEqual(left, right);
+}
+
+async function readBody(request: IncomingMessage) {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    for await (const chunk of request) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        size += buffer.length;
+        if (size > 32_768) throw new Error('body_too_large');
+        chunks.push(buffer);
+    }
+    return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
+}
+
 export async function startHealthServer(
     env: WorkerEnv,
     store: DurableJobStore,
     logger: RuntimeLogger,
+    enqueueBriefing: (input: BriefingRequest) => Promise<string>,
 ): Promise<RuntimeHealth> {
     const redis = new IORedis(env.REDIS_URL, {
         maxRetriesPerRequest: 1,
@@ -93,6 +126,26 @@ export async function startHealthServer(
     });
     let shuttingDown = false;
     const server = createServer(async (request, response) => {
+        if (request.method === 'POST' && request.url === '/v1/jobs/briefings') {
+            if (!authorized(request, env.WORKER_API_TOKEN)) {
+                respond(response, 401, { status: 'unauthorized' });
+                return;
+            }
+            try {
+                const input = briefingRequestSchema.parse(
+                    await readBody(request),
+                );
+                const jobId = await enqueueBriefing(input);
+                respond(response, 202, { jobId });
+            } catch (error) {
+                const status = error instanceof z.ZodError ? 400 : 503;
+                respond(response, status, {
+                    status:
+                        status === 400 ? 'invalid_request' : 'enqueue_failed',
+                });
+            }
+            return;
+        }
         if (request.method !== 'GET') {
             respond(response, 405, { status: 'method_not_allowed' });
             return;

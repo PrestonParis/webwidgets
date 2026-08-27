@@ -13,6 +13,8 @@ export const workerEnvSchema = z
         SUPABASE_URL: z.string().url(),
         SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
         REDIS_URL: z.string().min(1),
+        WEB_APP_URL: z.string().url(),
+        WORKER_API_TOKEN: z.string().min(32),
         EMAIL_SYNC_ENABLED: booleanString('false'),
         PROVIDER_SYNC_ENABLED: booleanString('false'),
         V1_QUEUES_ENABLED: booleanString('true'),
@@ -42,6 +44,17 @@ export const workerEnvSchema = z
             .min(10_000)
             .default(60_000),
         PROVIDER_SCHEDULE_BATCH_SIZE: z.coerce
+            .number()
+            .int()
+            .min(1)
+            .max(100)
+            .default(25),
+        BRIEFING_SCHEDULE_INTERVAL_MS: z.coerce
+            .number()
+            .int()
+            .min(30_000)
+            .default(60_000),
+        BRIEFING_SCHEDULE_BATCH_SIZE: z.coerce
             .number()
             .int()
             .min(1)

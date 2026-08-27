@@ -25,6 +25,10 @@ services:
           type: keyvalue
           name: webwidgets-v1-queue
           property: connectionString
+      - key: WEB_APP_URL
+        sync: false
+      - key: WORKER_API_TOKEN
+        sync: false
       - key: V1_QUEUES_ENABLED
         value: 'true'
       - key: WORKER_DRY_RUN
@@ -51,6 +55,10 @@ services:
         value: '30000'
       - key: JOB_TIMEOUT_MS
         value: '120000'
+      - key: BRIEFING_SCHEDULE_INTERVAL_MS
+        value: '60000'
+      - key: BRIEFING_SCHEDULE_BATCH_SIZE
+        value: '25'
       - key: SHUTDOWN_TIMEOUT_MS
         value: '25000'
 

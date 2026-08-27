@@ -133,6 +133,19 @@ export class SupabaseJobStore implements DurableJobStore {
             failure_detail: failure.detail,
             diagnostics_expires_at: expiresAt(90),
         });
+        if (job.task.kind === 'briefing.generate') {
+            await this.client
+                .from('briefings')
+                .update({
+                    status: 'failed',
+                    generated_at: now,
+                    failure_code: failure.code,
+                    failure_detail: failure.detail,
+                })
+                .eq('user_id', job.userId)
+                .eq('idempotency_key', job.idempotencyKey)
+                .in('status', ['queued', 'generating']);
+        }
     }
 
     async checkConnection() {

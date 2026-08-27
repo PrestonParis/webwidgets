@@ -2,6 +2,8 @@
 
 import { Activity, CalendarClock, RefreshCw } from 'lucide-react';
 import { TimelineFeedError } from '@/features/news/api/timelineFeedClient';
+import { BriefingPanel } from '@/features/news/components/BriefingPanel';
+import { CommitmentCandidatesPanel } from '@/features/news/components/CommitmentCandidatesPanel';
 import { SourceHealthPanel } from '@/features/news/components/SourceHealthPanel';
 import { TimelineControls } from '@/features/news/components/TimelineControls';
 import { TimelineFeedList } from '@/features/news/components/TimelineFeedList';
@@ -26,6 +28,8 @@ export function NewsPage() {
         <main className="mx-auto max-w-6xl px-5 py-8 lg:px-10">
             <TimelineHeader timeline={timeline} />
             <TimelineAlerts timeline={timeline} />
+            <BriefingPanel />
+            <CommitmentCandidatesPanel />
             <section
                 aria-label="Timeline filters"
                 className="mb-7 border-y border-zinc-200 py-5 dark:border-zinc-800"

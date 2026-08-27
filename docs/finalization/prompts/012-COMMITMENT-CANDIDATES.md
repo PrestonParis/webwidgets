@@ -1,6 +1,6 @@
 # 012 — Produce Evidence-Linked Commitment Candidate Actions
 
-Status: Blocked  
+Status: Complete
 Priority: Critical  
 Depends on: 007 and 010; uses canonical records from 004
 
@@ -42,3 +42,32 @@ executions—with evidence, confidence, expiration, and an abstain path.
 - Editing invalidates prior approval and creates a new exact payload version.
 - Dismiss/incorrect feedback is persisted and measurable.
 - No source content can approve itself or alter the action policy.
+
+## Completion handoff
+
+Timeline Intelligence now reviews a bounded 14-day window of authorized Gmail
+and Outlook timeline events. Deterministic rules produce high-confidence dated
+task candidates; only otherwise ambiguous events can reach the governed
+`commitment_candidates` Anthropic contract. Missing paid-tier authorization,
+revoked consent, abstention, provider failure, malformed dates, stale dates, or
+unsupported evidence yields no model candidate. Source text remains untrusted
+data and cannot set candidate state.
+
+Candidates persist in the canonical insight/action chain with direct timeline
+evidence, reason, confidence, extractor/model version, expiration, normalized
+task or calendar payload, stable content-level idempotency, and owner-scoped
+RLS. Repeated mail and model reruns converge on one candidate; existing matching
+tasks are suppressed. The review UI supports edit, approve, dismiss, and
+incorrect. An edit atomically increments the payload version and clears prior
+approval. Approval atomically binds the exact current hash and version, but does
+not create an action request or execute anything.
+
+Migrations `202608270001_commitment_candidate_reviews.sql` and
+`202608270002_enforce_candidate_review_boundary.sql`, followed by
+`202608270003_server_own_candidate_proposals.sql`, are deployed to
+`webwidgets-dev`, generated types match the live schema, and pgTAP coverage
+exercises owner isolation plus stale/exact-version review behavior. Evaluation
+fixtures cover positive, irrelevant, ambiguous, duplicate, stale, relative-date,
+malicious, unsupported-evidence, and revoked-consent cases. Prompts 013 and 014
+are now available; they must consume approved candidates without weakening this
+boundary.

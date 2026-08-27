@@ -14,7 +14,8 @@ export type PredictionTask =
     | 'search_ranking'
     | 'personalization_scoring'
     | 'summarization'
-    | 'research_synthesis';
+    | 'research_synthesis'
+    | 'commitment_candidates';
 
 export interface ConfidenceScore {
     value: number;

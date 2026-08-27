@@ -150,3 +150,44 @@ def test_malformed_or_unlinked_model_output_is_rejected():
     }
     with pytest.raises(MalformedProviderOutputError):
         parse_anthropic_response(request, raw)
+
+
+def test_commitment_output_requires_supplied_evidence():
+    request = InferenceRequest.model_validate(
+        {
+            "requestId": "commitment-request",
+            "task": "commitment_candidates",
+            "input": {"items": [{"id": "event-1", "text": "Please send by Friday"}]},
+        }
+    )
+    raw = {
+        "content": [
+            {
+                "type": "text",
+                "text": json.dumps(
+                    {
+                        "status": "success",
+                        "confidence": 0.9,
+                        "output": {
+                            "candidates": [
+                                {
+                                    "kind": "task",
+                                    "title": "Send memo",
+                                    "notes": "",
+                                    "dueAt": "2026-08-30T17:00:00Z",
+                                    "startsAt": None,
+                                    "endsAt": None,
+                                    "reason": "Dated request",
+                                    "evidenceIds": ["invented-event"],
+                                    "confidence": 0.9,
+                                }
+                            ]
+                        },
+                    }
+                ),
+            }
+        ],
+        "usage": {"input_tokens": 4, "output_tokens": 4},
+    }
+    with pytest.raises(MalformedProviderOutputError):
+        parse_anthropic_response(request, raw)

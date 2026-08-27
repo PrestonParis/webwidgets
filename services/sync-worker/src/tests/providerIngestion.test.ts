@@ -28,6 +28,8 @@ const env = workerEnvSchema.parse({
     SUPABASE_URL: 'https://example.supabase.co',
     SUPABASE_SERVICE_ROLE_KEY: 'test-service-role',
     REDIS_URL: 'redis://localhost:6379',
+    WEB_APP_URL: 'https://webwidgets.example.com',
+    WORKER_API_TOKEN: 'test-worker-token-at-least-32-characters',
 });
 
 const silentLogger: RuntimeLogger = {

@@ -6,6 +6,7 @@ from typing import cast
 
 import httpx
 from inference_models import (
+    CommitmentOutput,
     InferenceAbstention,
     InferenceRequest,
     InferenceResponse,
@@ -140,24 +141,31 @@ def validate_task_output(request: InferenceRequest, decision: ModelDecision) -> 
             decision.output, SynthesisOutput
         ):
             raise MalformedProviderOutputError
+        if request.task == "commitment_candidates" and not isinstance(
+            decision.output, CommitmentOutput
+        ):
+            raise MalformedProviderOutputError
         allowed_ids = {item.id for item in request.input.items}
         evidence_ids = evidence_from_output(decision.output)
         if not evidence_ids.issubset(allowed_ids):
             raise MalformedProviderOutputError
 
 
-def evidence_from_output(output: SummaryOutput | SynthesisOutput) -> set[str]:
+def evidence_from_output(
+    output: SummaryOutput | SynthesisOutput | CommitmentOutput,
+) -> set[str]:
     if isinstance(output, SummaryOutput):
         return set(output.evidence_ids)
     return {evidence for candidate in output.candidates for evidence in candidate.evidence_ids}
 
 
 def response_schema(task: str) -> dict[str, object]:
-    output = (
-        SummaryOutput.model_json_schema()
-        if task == "summarization"
-        else SynthesisOutput.model_json_schema()
-    )
+    if task == "summarization":
+        output = SummaryOutput.model_json_schema()
+    elif task == "commitment_candidates":
+        output = CommitmentOutput.model_json_schema()
+    else:
+        output = SynthesisOutput.model_json_schema()
     return {
         "oneOf": [
             {"status": "success", "confidence": "number 0..1", "output": output},

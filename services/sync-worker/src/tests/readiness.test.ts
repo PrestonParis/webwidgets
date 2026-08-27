@@ -40,6 +40,8 @@ void describe('V1 runtime readiness and configuration', () => {
             SUPABASE_URL: 'https://example.supabase.co',
             SUPABASE_SERVICE_ROLE_KEY: 'test-service-role',
             REDIS_URL: 'redis://localhost:6379',
+            WEB_APP_URL: 'https://webwidgets.example.com',
+            WORKER_API_TOKEN: 'test-worker-token-at-least-32-characters',
         });
         assert.equal(env.WORKER_DRY_RUN, true);
         assert.equal(env.EMAIL_SYNC_ENABLED, false);
@@ -53,6 +55,8 @@ void describe('V1 runtime readiness and configuration', () => {
             SUPABASE_URL: 'https://example.supabase.co',
             SUPABASE_SERVICE_ROLE_KEY: 'test-service-role',
             REDIS_URL: 'redis://localhost:6379',
+            WEB_APP_URL: 'https://webwidgets.example.com',
+            WORKER_API_TOKEN: 'test-worker-token-at-least-32-characters',
             SCHEDULE_OWNER: 'worker',
         });
         assert.equal(result.success, false);
@@ -63,6 +67,8 @@ void describe('V1 runtime readiness and configuration', () => {
             SUPABASE_URL: 'https://example.supabase.co',
             SUPABASE_SERVICE_ROLE_KEY: 'test-service-role',
             REDIS_URL: 'redis://localhost:6379',
+            WEB_APP_URL: 'https://webwidgets.example.com',
+            WORKER_API_TOKEN: 'test-worker-token-at-least-32-characters',
             PROVIDER_SYNC_ENABLED: 'true',
         });
         assert.equal(result.success, false);
