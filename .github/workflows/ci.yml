@@ -151,9 +151,9 @@ jobs:
               NODE_OPTIONS=--max-old-space-size=4096 npx eslint "${batch[@]}"
             done
           }
-          lint_batches 6 "${web[@]}"
-          lint_batches 6 "${tests[@]}"
-          lint_batches 12 "${tooling[@]}"
+          lint_batches 24 "${web[@]}"
+          lint_batches 24 "${tests[@]}"
+          lint_batches 24 "${tooling[@]}"
 
       - name: TypeScript (root project, changed files only)
         run: |
