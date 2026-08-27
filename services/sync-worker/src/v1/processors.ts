@@ -49,6 +49,14 @@ export function createProcessorRegistry(
                     false,
                 ),
             ),
+        'briefing.generate': () =>
+            Promise.reject(
+                new WorkerTaskError(
+                    'briefing_processor_unavailable',
+                    'Briefing generation is not configured in this runtime.',
+                    false,
+                ),
+            ),
         ...overrides,
     };
     return {

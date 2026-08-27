@@ -3,6 +3,8 @@ import { confidence } from '@/features/intelligence/lib/confidence';
 import { hashInferenceInput } from '@/features/intelligence/lib/redaction';
 import { InferenceProviderError } from '@/features/intelligence/providers/providerError';
 import {
+    commitmentCandidatesInputSchema,
+    commitmentCandidatesOutputSchema,
     researchSynthesisInputSchema,
     researchSynthesisOutputSchema,
     summarizationInputSchema,
@@ -54,7 +56,11 @@ export function createAnthropicProvider(): LLMProvider {
         kind: 'llm',
         availability: configured ? 'available' : 'missing_config',
         capabilities: {
-            tasks: ['summarization', 'research_synthesis'],
+            tasks: [
+                'summarization',
+                'research_synthesis',
+                'commitment_candidates',
+            ],
             supportsBatching: false,
             supportsOffline: false,
             supportsStreaming: false,
@@ -93,10 +99,7 @@ async function inferWithAnthropic<TInput = Json, TOutput = Json>(
 }
 
 function parseInput<TInput>(request: InferenceRequest<TInput>) {
-    const schema =
-        request.task === 'summarization'
-            ? summarizationInputSchema
-            : researchSynthesisInputSchema;
+    const schema = inputSchemaFor(request.task);
     const parsed = schema.safeParse(request.input);
     if (!parsed.success)
         throw new InferenceProviderError('malformed_output', false);
@@ -107,14 +110,25 @@ function parseOutput<TInput>(
     request: InferenceRequest<TInput>,
     output: unknown,
 ) {
-    const schema =
-        request.task === 'summarization'
-            ? summarizationOutputSchema
-            : researchSynthesisOutputSchema;
+    const schema = outputSchemaFor(request.task);
     const parsed = schema.safeParse(output);
     if (!parsed.success)
         throw new InferenceProviderError('malformed_output', false);
     return parsed.data;
+}
+
+function inputSchemaFor(task: InferenceRequest['task']) {
+    if (task === 'summarization') return summarizationInputSchema;
+    if (task === 'commitment_candidates')
+        return commitmentCandidatesInputSchema;
+    return researchSynthesisInputSchema;
+}
+
+function outputSchemaFor(task: InferenceRequest['task']) {
+    if (task === 'summarization') return summarizationOutputSchema;
+    if (task === 'commitment_candidates')
+        return commitmentCandidatesOutputSchema;
+    return researchSynthesisOutputSchema;
 }
 
 async function callInferenceService<TInput>(

@@ -7,6 +7,11 @@ export type Json =
     | Json[];
 
 export type Database = {
+    // Allows to automatically instantiate createClient with right options
+    // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+    __InternalSupabase: {
+        PostgrestVersion: '14.17';
+    };
     graphql_public: {
         Tables: {
             [_ in never]: never;
@@ -875,63 +880,442 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            briefing_feedback: {
+                Row: {
+                    briefing_id: string;
+                    briefing_item_id: string;
+                    comment: string | null;
+                    created_at: string;
+                    id: string;
+                    rating: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                Insert: {
+                    briefing_id: string;
+                    briefing_item_id: string;
+                    comment?: string | null;
+                    created_at?: string;
+                    id?: string;
+                    rating: string;
+                    updated_at?: string;
+                    user_id: string;
+                };
+                Update: {
+                    briefing_id?: string;
+                    briefing_item_id?: string;
+                    comment?: string | null;
+                    created_at?: string;
+                    id?: string;
+                    rating?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'briefing_feedback_briefing_owner_fk';
+                        columns: ['briefing_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'briefings';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'briefing_feedback_item_briefing_owner_fk';
+                        columns: ['briefing_item_id', 'briefing_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'briefing_items';
+                        referencedColumns: ['id', 'briefing_id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'briefing_feedback_item_owner_fk';
+                        columns: ['briefing_item_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'briefing_items';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            briefing_item_evidence: {
+                Row: {
+                    briefing_item_id: string;
+                    created_at: string;
+                    evidence_role: string;
+                    timeline_event_id: string;
+                    user_id: string;
+                };
+                Insert: {
+                    briefing_item_id: string;
+                    created_at?: string;
+                    evidence_role?: string;
+                    timeline_event_id: string;
+                    user_id: string;
+                };
+                Update: {
+                    briefing_item_id?: string;
+                    created_at?: string;
+                    evidence_role?: string;
+                    timeline_event_id?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'briefing_item_evidence_event_owner_fk';
+                        columns: ['timeline_event_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'timeline_events';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'briefing_item_evidence_item_owner_fk';
+                        columns: ['briefing_item_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'briefing_items';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            briefing_items: {
+                Row: {
+                    briefing_id: string;
+                    confidence: number;
+                    created_at: string;
+                    fingerprint: string;
+                    id: string;
+                    importance_score: number;
+                    novelty_score: number;
+                    position: number;
+                    relevance_score: number;
+                    section: string;
+                    summary: string;
+                    title: string;
+                    urgency_score: number;
+                    user_id: string;
+                };
+                Insert: {
+                    briefing_id: string;
+                    confidence: number;
+                    created_at?: string;
+                    fingerprint: string;
+                    id?: string;
+                    importance_score: number;
+                    novelty_score: number;
+                    position: number;
+                    relevance_score: number;
+                    section: string;
+                    summary: string;
+                    title: string;
+                    urgency_score: number;
+                    user_id: string;
+                };
+                Update: {
+                    briefing_id?: string;
+                    confidence?: number;
+                    created_at?: string;
+                    fingerprint?: string;
+                    id?: string;
+                    importance_score?: number;
+                    novelty_score?: number;
+                    position?: number;
+                    relevance_score?: number;
+                    section?: string;
+                    summary?: string;
+                    title?: string;
+                    urgency_score?: number;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'briefing_items_briefing_owner_fk';
+                        columns: ['briefing_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'briefings';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            briefing_preferences: {
+                Row: {
+                    created_at: string;
+                    daily_enabled: boolean;
+                    last_enqueued_window_end: string | null;
+                    local_time: string;
+                    timezone: string;
+                    updated_at: string;
+                    user_id: string;
+                    window_hours: number;
+                };
+                Insert: {
+                    created_at?: string;
+                    daily_enabled?: boolean;
+                    last_enqueued_window_end?: string | null;
+                    local_time?: string;
+                    timezone?: string;
+                    updated_at?: string;
+                    user_id: string;
+                    window_hours?: number;
+                };
+                Update: {
+                    created_at?: string;
+                    daily_enabled?: boolean;
+                    last_enqueued_window_end?: string | null;
+                    local_time?: string;
+                    timezone?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                    window_hours?: number;
+                };
+                Relationships: [];
+            };
+            briefings: {
+                Row: {
+                    covered_from: string;
+                    covered_to: string;
+                    created_at: string;
+                    estimated_cost_usd: number | null;
+                    expires_at: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    generated_at: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    input_event_count: number;
+                    job_id: string | null;
+                    latency_ms: number | null;
+                    metadata: Json;
+                    model_name: string;
+                    model_provider: string;
+                    model_version: string;
+                    rule_version: string;
+                    source_coverage: Json;
+                    status: string;
+                    surfaced_item_count: number;
+                    trigger_type: string;
+                    updated_at: string;
+                    user_id: string;
+                    warnings: string[];
+                };
+                Insert: {
+                    covered_from: string;
+                    covered_to: string;
+                    created_at?: string;
+                    estimated_cost_usd?: number | null;
+                    expires_at: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    generated_at?: string | null;
+                    id?: string;
+                    idempotency_key: string;
+                    input_event_count?: number;
+                    job_id?: string | null;
+                    latency_ms?: number | null;
+                    metadata?: Json;
+                    model_name?: string;
+                    model_provider?: string;
+                    model_version?: string;
+                    rule_version: string;
+                    source_coverage?: Json;
+                    status?: string;
+                    surfaced_item_count?: number;
+                    trigger_type: string;
+                    updated_at?: string;
+                    user_id: string;
+                    warnings?: string[];
+                };
+                Update: {
+                    covered_from?: string;
+                    covered_to?: string;
+                    created_at?: string;
+                    estimated_cost_usd?: number | null;
+                    expires_at?: string;
+                    failure_code?: string | null;
+                    failure_detail?: string | null;
+                    generated_at?: string | null;
+                    id?: string;
+                    idempotency_key?: string;
+                    input_event_count?: number;
+                    job_id?: string | null;
+                    latency_ms?: number | null;
+                    metadata?: Json;
+                    model_name?: string;
+                    model_provider?: string;
+                    model_version?: string;
+                    rule_version?: string;
+                    source_coverage?: Json;
+                    status?: string;
+                    surfaced_item_count?: number;
+                    trigger_type?: string;
+                    updated_at?: string;
+                    user_id?: string;
+                    warnings?: string[];
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'briefings_job_owner_fk';
+                        columns: ['job_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'jobs';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            candidate_action_evidence: {
+                Row: {
+                    candidate_action_id: string;
+                    created_at: string;
+                    evidence_role: string;
+                    position: number;
+                    timeline_event_id: string;
+                    user_id: string;
+                };
+                Insert: {
+                    candidate_action_id: string;
+                    created_at?: string;
+                    evidence_role?: string;
+                    position?: number;
+                    timeline_event_id: string;
+                    user_id: string;
+                };
+                Update: {
+                    candidate_action_id?: string;
+                    created_at?: string;
+                    evidence_role?: string;
+                    position?: number;
+                    timeline_event_id?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'candidate_action_evidence_candidate_owner_fk';
+                        columns: ['candidate_action_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'candidate_actions';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                    {
+                        foreignKeyName: 'candidate_action_evidence_event_owner_fk';
+                        columns: ['timeline_event_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'timeline_events';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
+            candidate_action_reviews: {
+                Row: {
+                    candidate_action_id: string;
+                    created_at: string;
+                    decision: string;
+                    id: string;
+                    payload_hash: string;
+                    payload_version: number;
+                    user_id: string;
+                };
+                Insert: {
+                    candidate_action_id: string;
+                    created_at?: string;
+                    decision: string;
+                    id?: string;
+                    payload_hash: string;
+                    payload_version: number;
+                    user_id: string;
+                };
+                Update: {
+                    candidate_action_id?: string;
+                    created_at?: string;
+                    decision?: string;
+                    id?: string;
+                    payload_hash?: string;
+                    payload_version?: number;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'candidate_action_reviews_candidate_owner_fk';
+                        columns: ['candidate_action_id', 'user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'candidate_actions';
+                        referencedColumns: ['id', 'user_id'];
+                    },
+                ];
+            };
             candidate_actions: {
                 Row: {
                     action_id: string;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    candidate_kind: string;
                     confidence: number;
                     content_cleared_at: string | null;
                     created_at: string;
                     expires_at: string;
+                    extractor_version: string;
                     failure_code: string | null;
                     failure_detail: string | null;
                     id: string;
                     idempotency_key: string;
                     insight_id: string;
                     metadata: Json;
+                    model_version: string | null;
                     payload: Json;
                     payload_hash: string;
                     payload_version: number;
                     policy_version: string;
+                    reason: string;
+                    reviewed_at: string | null;
                     state: string;
                     updated_at: string;
                     user_id: string;
                 };
                 Insert: {
                     action_id: string;
+                    approved_payload_hash?: string | null;
+                    approved_payload_version?: number | null;
+                    candidate_kind?: string;
                     confidence: number;
                     content_cleared_at?: string | null;
                     created_at?: string;
                     expires_at: string;
+                    extractor_version?: string;
                     failure_code?: string | null;
                     failure_detail?: string | null;
                     id?: string;
                     idempotency_key: string;
                     insight_id: string;
                     metadata?: Json;
+                    model_version?: string | null;
                     payload?: Json;
                     payload_hash: string;
                     payload_version?: number;
                     policy_version: string;
+                    reason?: string;
+                    reviewed_at?: string | null;
                     state?: string;
                     updated_at?: string;
                     user_id: string;
                 };
                 Update: {
                     action_id?: string;
+                    approved_payload_hash?: string | null;
+                    approved_payload_version?: number | null;
+                    candidate_kind?: string;
                     confidence?: number;
                     content_cleared_at?: string | null;
                     created_at?: string;
                     expires_at?: string;
+                    extractor_version?: string;
                     failure_code?: string | null;
                     failure_detail?: string | null;
                     id?: string;
                     idempotency_key?: string;
                     insight_id?: string;
                     metadata?: Json;
+                    model_version?: string | null;
                     payload?: Json;
                     payload_hash?: string;
                     payload_version?: number;
                     policy_version?: string;
+                    reason?: string;
+                    reviewed_at?: string | null;
                     state?: string;
                     updated_at?: string;
                     user_id?: string;
@@ -5119,6 +5503,47 @@ export type Database = {
                 Args: { connection_id: string };
                 Returns: boolean;
             };
+            edit_candidate_action: {
+                Args: {
+                    p_candidate_id: string;
+                    p_expected_version: number;
+                    p_payload: Json;
+                    p_payload_hash: string;
+                };
+                Returns: {
+                    action_id: string;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    candidate_kind: string;
+                    confidence: number;
+                    content_cleared_at: string | null;
+                    created_at: string;
+                    expires_at: string;
+                    extractor_version: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    insight_id: string;
+                    metadata: Json;
+                    model_version: string | null;
+                    payload: Json;
+                    payload_hash: string;
+                    payload_version: number;
+                    policy_version: string;
+                    reason: string;
+                    reviewed_at: string | null;
+                    state: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                SetofOptions: {
+                    from: '*';
+                    to: 'candidate_actions';
+                    isOneToOne: true;
+                    isSetofReturn: false;
+                };
+            };
             emit_internal_timeline_event: {
                 Args: {
                     p_event_type: string;
@@ -5134,6 +5559,7 @@ export type Database = {
                 };
                 Returns: string;
             };
+            expire_candidate_actions: { Args: never; Returns: number };
             get_month_day: { Args: { ts: string }; Returns: string };
             grant_admin: { Args: { target_email: string }; Returns: undefined };
             is_company_leader: {
@@ -5159,6 +5585,47 @@ export type Database = {
             restore_journal: {
                 Args: { p_entry_id: string };
                 Returns: undefined;
+            };
+            review_candidate_action: {
+                Args: {
+                    p_candidate_id: string;
+                    p_decision: string;
+                    p_expected_hash: string;
+                    p_expected_version: number;
+                };
+                Returns: {
+                    action_id: string;
+                    approved_payload_hash: string | null;
+                    approved_payload_version: number | null;
+                    candidate_kind: string;
+                    confidence: number;
+                    content_cleared_at: string | null;
+                    created_at: string;
+                    expires_at: string;
+                    extractor_version: string;
+                    failure_code: string | null;
+                    failure_detail: string | null;
+                    id: string;
+                    idempotency_key: string;
+                    insight_id: string;
+                    metadata: Json;
+                    model_version: string | null;
+                    payload: Json;
+                    payload_hash: string;
+                    payload_version: number;
+                    policy_version: string;
+                    reason: string;
+                    reviewed_at: string | null;
+                    state: string;
+                    updated_at: string;
+                    user_id: string;
+                };
+                SetofOptions: {
+                    from: '*';
+                    to: 'candidate_actions';
+                    isOneToOne: true;
+                    isSetofReturn: false;
+                };
             };
             soft_delete_journal: {
                 Args: { p_entry_id: string };

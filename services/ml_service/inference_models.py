@@ -32,7 +32,7 @@ class InferenceInput(ApiModel):
 
 class InferenceRequest(ApiModel):
     request_id: str = Field(min_length=1, max_length=200)
-    task: Literal["summarization", "research_synthesis"]
+    task: Literal["summarization", "research_synthesis", "commitment_candidates"]
     input: InferenceInput
 
 
@@ -58,10 +58,28 @@ class SynthesisOutput(ApiModel):
     candidates: list[Candidate] = Field(max_length=12)
 
 
+class CommitmentCandidate(ApiModel):
+    kind: Literal["task", "calendar"]
+    title: str = Field(min_length=1, max_length=300)
+    notes: str = Field(default="", max_length=1_000)
+    due_at: str | None = None
+    starts_at: str | None = None
+    ends_at: str | None = None
+    reason: str = Field(min_length=1, max_length=1_000)
+    evidence_ids: list[Annotated[str, Field(min_length=1, max_length=200)]] = Field(
+        min_length=1, max_length=20
+    )
+    confidence: float = Field(ge=0, le=1)
+
+
+class CommitmentOutput(ApiModel):
+    candidates: list[CommitmentCandidate] = Field(max_length=12)
+
+
 class ModelSuccess(ApiModel):
     status: Literal["success"]
     confidence: float = Field(ge=0, le=1)
-    output: SummaryOutput | SynthesisOutput
+    output: SummaryOutput | SynthesisOutput | CommitmentOutput
 
 
 class ModelAbstention(ApiModel):
@@ -80,7 +98,7 @@ class InferenceSuccess(ApiModel):
     provider: Literal["anthropic"]
     model: str
     model_version: str
-    output: SummaryOutput | SynthesisOutput
+    output: SummaryOutput | SynthesisOutput | CommitmentOutput
     confidence: float
     input_tokens: int
     output_tokens: int

@@ -223,3 +223,28 @@ telemetry. No model may change a schema, permission, or execution decision.
 the configured-but-fake provider entries and requiring evidence-linked typed
 output gives later briefing and candidate-action work a trustworthy inference
 contract without creating an agent loop.
+
+## FIN-016: Keep Briefings Derived, Bounded, and Fully Cited
+
+**Status:** Accepted and implemented
+
+**Decision:** Daily and on-demand briefings are expiring aggregates over a
+bounded, deterministically ranked timeline window. Every item requires direct
+timeline evidence. Missing inference uses a labeled cited fallback, and source
+health controls partial/stale disclosure rather than hiding valid output.
+
+**Reason:** Briefings should compress canonical evidence without becoming a
+second fact store or allowing a model to discover relevance from an inbox dump.
+
+## FIN-017: Separate Candidate Review from Action Execution
+
+**Status:** Accepted and implemented
+
+**Decision:** Email commitments can create editable task or calendar
+candidates with evidence, confidence, provenance, expiration, and idempotency.
+Candidate approval binds the exact payload version and hash but performs no
+action. Editing always invalidates prior approval; dismiss and incorrect remain
+durable review outcomes.
+
+**Reason:** This gives users useful commitment capture while keeping untrusted
+source content and probabilistic extraction outside the execution boundary.

@@ -465,3 +465,46 @@ fallback under ADR-001. OpenAI, Gemini, and local placeholders are unavailable
 until they implement the same contract. Audit and cost records contain hashes
 and metadata, never prompts. Free Render sleep latency is accepted during
 finalization but is not the production availability target.
+
+---
+
+## ADR-021: Persist Briefings as Evidence-Linked Derived Aggregates
+
+**Status:** Active
+
+**Decision:** Persist daily and on-demand briefings separately from canonical
+timeline facts. Deterministic ranking bounds input before governed inference,
+every surfaced item links owner-matched timeline evidence, and unsupported
+output is discarded. Provider failure uses cited deterministic fallback;
+source impairment and empty, stale, partial, or failed output remain explicit
+states. One canonical worker job owns scheduled and on-demand generation.
+
+**Why:** A briefing is an expiring interpretation, not source truth. Separate
+records preserve replay, provenance, honest degradation, feedback, and cost
+measurement without rewriting the timeline.
+
+**Consequences:** Models cannot invent uncited briefing claims. Item feedback
+is measurable without altering evidence. Briefing records can expire or be
+deleted independently of canonical source events.
+
+---
+
+## ADR-022: Candidate Approval Binds an Exact Editable Payload Without Execution
+
+**Status:** Active
+
+**Decision:** Commitment detection creates expiring `candidate_actions` backed
+by an insight and direct timeline evidence. Deterministic extraction handles
+clear dated requests; governed external resolution receives only bounded
+ambiguous signals. Candidate edits atomically increment payload version and
+invalidate approval. Approval stores the exact current payload hash/version
+but creates no action request and invokes no handler.
+
+**Why:** Untrusted mail can suggest work but must never approve or execute it.
+Exact-version review prevents a later edit, retry, or model rerun from reusing a
+stale human decision.
+
+**Consequences:** Prompts 013 and 014 may execute only by creating a separate
+idempotent action request from an approved exact candidate. Dismissed and
+incorrect decisions remain measurable, and cross-owner evidence is rejected by
+composite foreign keys and RLS.

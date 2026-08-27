@@ -36,6 +36,27 @@ export const researchSynthesisOutputSchema = z.object({
     candidates: z.array(candidateSchema).max(12),
 });
 
+const commitmentCandidateSchema = z.object({
+    kind: z.enum(['task', 'calendar']),
+    title: z.string().min(1).max(300),
+    notes: z.string().max(1_000).default(''),
+    dueAt: z.iso.datetime().nullable().default(null),
+    startsAt: z.iso.datetime().nullable().default(null),
+    endsAt: z.iso.datetime().nullable().default(null),
+    reason: z.string().min(1).max(1_000),
+    evidenceIds: z.array(z.string().min(1).max(200)).min(1).max(20),
+    confidence: z.number().min(0).max(1),
+});
+
+export const commitmentCandidatesInputSchema = z.object({
+    items: z.array(sourceItemSchema).min(1).max(30),
+    objective: z.string().max(500),
+});
+
+export const commitmentCandidatesOutputSchema = z.object({
+    candidates: z.array(commitmentCandidateSchema).max(12),
+});
+
 export type SummarizationInput = z.infer<typeof summarizationInputSchema>;
 export type SummarizationOutput = z.infer<typeof summarizationOutputSchema>;
 export type ResearchSynthesisInput = z.infer<
@@ -43,4 +64,10 @@ export type ResearchSynthesisInput = z.infer<
 >;
 export type ResearchSynthesisOutput = z.infer<
     typeof researchSynthesisOutputSchema
+>;
+export type CommitmentCandidatesInput = z.infer<
+    typeof commitmentCandidatesInputSchema
+>;
+export type CommitmentCandidatesOutput = z.infer<
+    typeof commitmentCandidatesOutputSchema
 >;

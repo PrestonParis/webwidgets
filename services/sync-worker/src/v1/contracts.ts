@@ -27,6 +27,12 @@ export const v1TaskSchema = z.discriminatedUnion('kind', [
         kind: z.literal('provider.sync'),
         connectionId: z.string().uuid(),
     }),
+    z.object({
+        kind: z.literal('briefing.generate'),
+        trigger: z.enum(['daily', 'on_demand']),
+        coveredFrom: z.string().datetime(),
+        coveredTo: z.string().datetime(),
+    }),
 ]);
 
 export const v1JobEnvelopeSchema = z.object({
@@ -50,7 +56,11 @@ export const TERMINAL_JOB_STATUSES = [
 
 export type TerminalJobStatus = (typeof TERMINAL_JOB_STATUSES)[number];
 export type DurableJobStatus =
-    'queued' | 'running' | 'waiting' | 'failed' | TerminalJobStatus;
+    | 'queued'
+    | 'running'
+    | 'waiting'
+    | 'failed'
+    | TerminalJobStatus;
 
 export interface DurableJobRecord {
     id: string;

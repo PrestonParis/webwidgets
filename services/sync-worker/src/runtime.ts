@@ -1,4 +1,9 @@
 import type { WorkerEnv } from './env.js';
+import { createBriefingProcessor } from './briefings/briefingProcessor.js';
+import {
+    startBriefingScheduler,
+    type BriefingScheduler,
+} from './briefings/briefingScheduler.js';
 import {
     configureEmailSchedule,
     startEmailWorkers,
@@ -17,6 +22,7 @@ import { startRssScheduler, type RssScheduler } from './rss/rssScheduler.js';
 import { createJobRunner } from './v1/jobRunner.js';
 import { SupabaseJobStore } from './v1/jobStore.js';
 import { createProcessorRegistry } from './v1/processors.js';
+import { enqueueCanonicalJob } from './v1/producer.js';
 import { startV1Workers, type V1WorkerSet } from './v1/queues.js';
 
 export interface RunningWorkerRuntime {
@@ -34,6 +40,7 @@ export async function startWorkerRuntime(
     const processors = createProcessorRegistry({
         'rss.fetch': createRssProcessor(client, logger),
         'provider.sync': createProviderProcessor(client, env, logger),
+        'briefing.generate': createBriefingProcessor(env),
     });
     const runner = createJobRunner({
         store,
@@ -47,10 +54,12 @@ export async function startWorkerRuntime(
     let health: RuntimeHealth | undefined;
     let rssScheduler: RssScheduler | undefined;
     let providerScheduler: ProviderScheduler | undefined;
+    let briefingScheduler: BriefingScheduler | undefined;
     try {
         if (env.V1_QUEUES_ENABLED) {
             v1Workers = await startV1Workers(env, runner, logger);
             rssScheduler = startRssScheduler(env, client, logger);
+            briefingScheduler = startBriefingScheduler(env, client, logger);
             if (env.PROVIDER_SYNC_ENABLED) {
                 providerScheduler = startProviderScheduler(env, client, logger);
             }
@@ -59,7 +68,20 @@ export async function startWorkerRuntime(
             emailWorkers = await startEmailWorkers(env, client, logger);
         }
         const scheduleConfigured = await configureEmailSchedule(env);
-        health = await startHealthServer(env, store, logger);
+        health = await startHealthServer(env, store, logger, (input) =>
+            enqueueCanonicalJob(client, env, {
+                userId: input.userId,
+                idempotencyKey: input.idempotencyKey,
+                queue: 'analysis',
+                task: {
+                    kind: 'briefing.generate',
+                    trigger: input.trigger,
+                    coveredFrom: input.coveredFrom,
+                    coveredTo: input.coveredTo,
+                },
+                maxAttempts: 3,
+            }),
+        );
         const readiness = await health.checkReadiness();
         if (!readiness.ready) throw new Error('Runtime dependencies not ready');
         const workerNames = [
@@ -81,6 +103,7 @@ export async function startWorkerRuntime(
                 await health?.close();
                 await Promise.all([
                     rssScheduler?.close(),
+                    briefingScheduler?.close(),
                     providerScheduler?.close(),
                     v1Workers?.close(),
                     emailWorkers?.close(),
@@ -90,6 +113,7 @@ export async function startWorkerRuntime(
     } catch (error) {
         await health?.close().catch(() => undefined);
         await rssScheduler?.close().catch(() => undefined);
+        await briefingScheduler?.close().catch(() => undefined);
         await providerScheduler?.close().catch(() => undefined);
         await v1Workers?.close().catch(() => undefined);
         await emailWorkers?.close().catch(() => undefined);

@@ -32,19 +32,24 @@ All five new tables carry `user_id`, have RLS enabled, grant no access to
 composite with `user_id`, so knowing another user's UUID cannot create a
 cross-owner relation.
 
-| Record                    | Durable responsibility                          | Idempotency / provenance                                                    |
-| ------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
-| `raw_observations`        | Minimized provider evidence and replay identity | Unique owner-scoped source key; optional owner-matched connection           |
-| `timeline_events`         | Canonical normalized fact and revision          | One logical event key; required observation with cascading deletion         |
-| `insights`                | Expiring model interpretation                   | Model/policy version, content hash, confidence, required primary event      |
-| `insight_timeline_events` | Additional supporting or contradicting evidence | Owner-matched insight and timeline foreign keys                             |
-| `candidate_actions`       | Expiring proposal that cannot execute itself    | Policy/payload version and hash; required insight                           |
-| `action_requests`         | Existing approval and execution command ledger  | Exact payload receipt, permission snapshot, optional job/automation links   |
-| `action_results`          | Existing attempt and verified outcome ledger    | Attempt and execution keys, provider receipt, verification and compensation |
-| `jobs`                    | Persisted worker correlation                    | Queue identity, attempts, dead letter, diagnostic expiry                    |
-| `automation_runs`         | Typed action orchestration                      | Trigger event, job, policy, and run idempotency references                  |
+| Record                      | Durable responsibility                          | Idempotency / provenance                                                    |
+| --------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| `raw_observations`          | Minimized provider evidence and replay identity | Unique owner-scoped source key; optional owner-matched connection           |
+| `timeline_events`           | Canonical normalized fact and revision          | One logical event key; required observation with cascading deletion         |
+| `insights`                  | Expiring model interpretation                   | Model/policy version, content hash, confidence, required primary event      |
+| `insight_timeline_events`   | Additional supporting or contradicting evidence | Owner-matched insight and timeline foreign keys                             |
+| `candidate_actions`         | Expiring proposal that cannot execute itself    | Exact editable payload version/hash; required insight and review state      |
+| `candidate_action_evidence` | Direct candidate provenance                     | Owner-matched candidate and timeline evidence                               |
+| `candidate_action_reviews`  | Append-only edit/approval/feedback history      | Exact payload version/hash and review decision                              |
+| `action_requests`           | Existing approval and execution command ledger  | Exact payload receipt, permission snapshot, optional job/automation links   |
+| `action_results`            | Existing attempt and verified outcome ledger    | Attempt and execution keys, provider receipt, verification and compensation |
+| `jobs`                      | Persisted worker correlation                    | Queue identity, attempts, dead letter, diagnostic expiry                    |
+| `automation_runs`           | Typed action orchestration                      | Trigger event, job, policy, and run idempotency references                  |
 
-Approvals use `decide_action_request`, an authenticated, atomic database
+Candidate review uses `edit_candidate_action` and `review_candidate_action`.
+An edit increments the version and clears prior approval; approval binds the
+current candidate hash/version but never executes. Later action-request
+approvals use `decide_action_request`, an authenticated, atomic database
 transition. Approval fails if the payload JSON, hash, version, permission
 snapshot, or current approval state changed. A result is only reflected as a
 completed request when its outcome is explicitly verified.
@@ -77,10 +82,11 @@ Apply only after review in this order:
 5. `202608140004_canonical_retention.sql` — service-role retention operation;
 6. `202608140005_canonical_approval_transition.sql` — exact-payload approval.
 
-The complete 52-migration chain replayed successfully from an empty local
+The original 52-migration canonical chain replayed successfully from an empty local
 Supabase database. After an owner-approved CLI dry run identified exactly the
 six successors above, they were applied to `webwidgets-dev` on 2026-08-14.
-Local and remote migration history now align at all 52 versions.
+Briefing and commitment-review successors bring aligned local and remote
+history to 61 versions.
 
 The action migration performs two bounded compatibility backfills: legacy
 requests receive `requested_at = created_at` and payload version `1`; legacy

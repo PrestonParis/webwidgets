@@ -73,12 +73,52 @@ async function createCanonicalJob(client: SupabaseClient, input: EnqueueInput) {
     throw new Error('Canonical job creation failed');
 }
 
+async function ensureBriefingReceipt(
+    client: SupabaseClient,
+    canonical: InsertedJob,
+    input: EnqueueInput,
+) {
+    if (input.task.kind !== 'briefing.generate') return;
+    const existing = await client
+        .from('briefings')
+        .select('id')
+        .eq('user_id', input.userId)
+        .eq('idempotency_key', input.idempotencyKey)
+        .maybeSingle();
+    if (existing.error) throw new Error('Briefing receipt lookup failed');
+    if (existing.data) {
+        const linked = await client
+            .from('briefings')
+            .update({ job_id: canonical.id })
+            .eq('id', existing.data.id)
+            .is('job_id', null);
+        if (linked.error) throw new Error('Briefing receipt link failed');
+        return;
+    }
+    const result = await client.from('briefings').insert({
+        user_id: input.userId,
+        job_id: canonical.id,
+        idempotency_key: input.idempotencyKey,
+        trigger_type: input.task.trigger,
+        status: 'queued',
+        covered_from: input.task.coveredFrom,
+        covered_to: input.task.coveredTo,
+        expires_at: new Date(
+            Date.parse(input.task.coveredTo) + 48 * 3_600_000,
+        ).toISOString(),
+        rule_version: 'briefing-rank-v1',
+    });
+    if (result.error?.code === '23505') return;
+    if (result.error) throw new Error('Briefing receipt creation failed');
+}
+
 export async function enqueueCanonicalJob(
     client: SupabaseClient,
     env: WorkerEnv,
     input: EnqueueInput,
 ) {
     const canonical = await createCanonicalJob(client, input);
+    await ensureBriefingReceipt(client, canonical, input);
     const envelope: V1JobEnvelope = {
         version: 1,
         jobId: canonical.id,
