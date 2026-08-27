@@ -105,6 +105,7 @@ export class SupabaseJobStore implements DurableJobStore {
             available_at: new Date().toISOString(),
             diagnostics_expires_at: expiresAt(90),
         });
+        await this.markActionRetry(job, failure);
     }
 
     async markCompleted(job: V1JobEnvelope, result: JsonValue) {
@@ -146,6 +147,9 @@ export class SupabaseJobStore implements DurableJobStore {
                 .eq('idempotency_key', job.idempotencyKey)
                 .in('status', ['queued', 'generating']);
         }
+        if (job.task.kind === 'action.execute') {
+            await this.markActionFailed(job, attempt, failure, now);
+        }
     }
 
     async checkConnection() {
@@ -160,5 +164,73 @@ export class SupabaseJobStore implements DurableJobStore {
             .eq('id', job.jobId)
             .eq('user_id', job.userId);
         if (result.error) throw new Error('Canonical job transition failed');
+    }
+
+    private async markActionRetry(job: V1JobEnvelope, failure: JobFailure) {
+        if (job.task.kind !== 'action.execute') return;
+        const result = await this.client
+            .from('action_requests')
+            .update({
+                status: 'queued',
+                failure_code: failure.code,
+                failure_detail: failure.detail,
+            })
+            .eq('id', job.task.actionRequestId)
+            .eq('user_id', job.userId)
+            .neq('status', 'completed');
+        if (result.error) throw new Error('Action retry transition failed');
+    }
+
+    private async markActionFailed(
+        job: V1JobEnvelope,
+        attempt: number,
+        failure: JobFailure,
+        completedAt: string,
+    ) {
+        if (job.task.kind !== 'action.execute') return;
+        const request = await this.client
+            .from('action_requests')
+            .update({
+                status: 'failed',
+                failure_code: failure.code,
+                failure_detail: failure.detail,
+                execution_completed_at: completedAt,
+            })
+            .eq('id', job.task.actionRequestId)
+            .eq('user_id', job.userId)
+            .neq('status', 'completed')
+            .select('candidate_action_id')
+            .maybeSingle();
+        if (request.error) throw new Error('Action failure transition failed');
+        if (!request.data) return;
+        const outcome = await this.client.from('action_results').upsert(
+            {
+                user_id: job.userId,
+                action_request_id: job.task.actionRequestId,
+                job_id: job.jobId,
+                idempotency_key: `task-failure:${job.task.actionRequestId}:${job.jobId}:${attempt}`,
+                attempt,
+                status: 'failed',
+                result_hash: `failed:${job.jobId}`,
+                ok: false,
+                message: failure.detail,
+                failure_code: failure.code,
+                failure_detail: failure.detail,
+                verification_status: 'unverifiable',
+                undo_status: 'not_available',
+                completed_at: completedAt,
+            },
+            { onConflict: 'user_id,idempotency_key', ignoreDuplicates: true },
+        );
+        if (outcome.error) throw new Error('Action failure outcome failed');
+        if (request.data.candidate_action_id) {
+            const candidate = await this.client
+                .from('candidate_actions')
+                .update({ state: 'failed' })
+                .eq('id', request.data.candidate_action_id)
+                .eq('user_id', job.userId);
+            if (candidate.error)
+                throw new Error('Action candidate failure transition failed');
+        }
     }
 }

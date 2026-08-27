@@ -36,6 +36,9 @@ export interface CommitmentCandidateRecord {
         | 'proposed'
         | 'edited'
         | 'approved'
+        | 'executing'
+        | 'completed'
+        | 'failed'
         | 'dismissed'
         | 'incorrect'
         | 'expired'
@@ -50,4 +53,14 @@ export interface CommitmentCandidateRecord {
         occurredAt: string;
         sourceType: string;
     }>;
+    execution: {
+        actionRequestId: string;
+        status: string;
+        failureCode: string | null;
+        jobId: string | null;
+        taskId: string | null;
+        verificationStatus: string | null;
+        verifiedAt: string | null;
+        undoStatus: string | null;
+    } | null;
 }

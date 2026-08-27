@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { CommitmentCandidateCardProps } from '@/features/news/types/commitmentCandidates';
 import type { CommitmentCandidateRecord } from '@/lib/commitments/types';
+import { CommitmentCandidateEditor } from './CommitmentCandidateEditor';
 
 function payloadOf(candidate: CommitmentCandidateRecord) {
     const value = candidate.payload;
@@ -20,39 +21,15 @@ export function CommitmentCandidateCard({
     candidate,
     disabled,
     onReview,
+    onRetry,
+    onUndo,
 }: CommitmentCandidateCardProps) {
     const payload = payloadOf(candidate);
     const [editing, setEditing] = useState(false);
-    const [title, setTitle] = useState(stringField(payload, 'title'));
-    const [notes, setNotes] = useState(stringField(payload, 'notes'));
-    const [date, setDate] = useState(
-        (
-            stringField(payload, 'dueAt') || stringField(payload, 'startsAt')
-        ).slice(0, 16),
-    );
+    const date = (
+        stringField(payload, 'dueAt') || stringField(payload, 'startsAt')
+    ).slice(0, 16);
     const active = ['proposed', 'edited', 'approved'].includes(candidate.state);
-    const save = () => {
-        const iso = new Date(date).toISOString();
-        const nextPayload =
-            candidate.kind === 'task'
-                ? { ...payload, title, notes, dueAt: iso }
-                : {
-                      ...payload,
-                      title,
-                      notes,
-                      startsAt: iso,
-                      endsAt: new Date(
-                          Date.parse(iso) + 3_600_000,
-                      ).toISOString(),
-                  };
-        onReview({
-            decision: 'edit',
-            expectedVersion: candidate.payloadVersion,
-            kind: candidate.kind,
-            payload: nextPayload,
-        });
-        setEditing(false);
-    };
     return (
         <article className="rounded-md border border-zinc-200 p-4 dark:border-zinc-800">
             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -76,42 +53,12 @@ export function CommitmentCandidateCard({
                 {date ? new Date(date).toLocaleString() : 'Needs a date'}
             </p>
             {editing ? (
-                <div className="mt-3 grid gap-2">
-                    <label className="text-xs font-medium">
-                        Title
-                        <input
-                            className="mt-1 w-full rounded-md border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-                            onChange={(event) => setTitle(event.target.value)}
-                            value={title}
-                        />
-                    </label>
-                    <label className="text-xs font-medium">
-                        Date and time
-                        <input
-                            className="mt-1 w-full rounded-md border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-                            onChange={(event) => setDate(event.target.value)}
-                            type="datetime-local"
-                            value={date}
-                        />
-                    </label>
-                    <label className="text-xs font-medium">
-                        Notes
-                        <textarea
-                            className="mt-1 w-full rounded-md border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-                            onChange={(event) => setNotes(event.target.value)}
-                            rows={2}
-                            value={notes}
-                        />
-                    </label>
-                    <button
-                        className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900"
-                        disabled={disabled || !title.trim() || !date}
-                        onClick={save}
-                        type="button"
-                    >
-                        Save new version
-                    </button>
-                </div>
+                <CommitmentCandidateEditor
+                    candidate={candidate}
+                    disabled={disabled}
+                    onClose={() => setEditing(false)}
+                    onReview={onReview}
+                />
             ) : null}
             <div className="mt-3 flex flex-wrap gap-2">
                 {active ? (
@@ -149,7 +96,66 @@ export function CommitmentCandidateCard({
                     executed.
                 </p>
             ) : null}
+            {candidate.execution ? (
+                <ExecutionStatus
+                    candidate={candidate}
+                    disabled={disabled}
+                    onRetry={onRetry}
+                    onUndo={onUndo}
+                />
+            ) : null}
         </article>
+    );
+}
+
+function ExecutionStatus({
+    candidate,
+    disabled,
+    onRetry,
+    onUndo,
+}: Pick<
+    CommitmentCandidateCardProps,
+    'candidate' | 'disabled' | 'onRetry' | 'onUndo'
+>) {
+    const execution = candidate.execution;
+    if (!execution) return null;
+    const verified = execution.verificationStatus === 'verified';
+    const retryable = ['queued', 'failed'].includes(execution.status);
+    return (
+        <div className="mt-3 rounded-md bg-zinc-50 p-3 text-xs dark:bg-zinc-900">
+            <p className="font-medium">
+                {verified
+                    ? `Task verified · ${execution.taskId}`
+                    : `Execution ${execution.status}`}
+            </p>
+            {execution.failureCode ? (
+                <p className="mt-1 text-red-600 dark:text-red-300">
+                    {execution.failureCode}
+                </p>
+            ) : null}
+            <div className="mt-2 flex gap-2">
+                {retryable && !verified ? (
+                    <button
+                        className="rounded-md border border-zinc-300 px-2 py-1 dark:border-zinc-700"
+                        disabled={disabled}
+                        onClick={() => onRetry(execution.actionRequestId)}
+                        type="button"
+                    >
+                        Retry safely
+                    </button>
+                ) : null}
+                {execution.undoStatus === 'available' ? (
+                    <button
+                        className="rounded-md border border-zinc-300 px-2 py-1 dark:border-zinc-700"
+                        disabled={disabled}
+                        onClick={() => onUndo(execution.actionRequestId)}
+                        type="button"
+                    >
+                        Undo
+                    </button>
+                ) : null}
+            </div>
+        </div>
     );
 }
 
@@ -157,7 +163,7 @@ function ReviewButtons({
     candidate,
     disabled,
     onReview,
-}: CommitmentCandidateCardProps) {
+}: Pick<CommitmentCandidateCardProps, 'candidate' | 'disabled' | 'onReview'>) {
     const decide = (decision: 'approve' | 'dismiss' | 'incorrect') =>
         onReview({
             decision,

@@ -32,6 +32,14 @@ const briefingRequestSchema = z.object({
 
 type BriefingRequest = z.infer<typeof briefingRequestSchema>;
 
+const actionRequestSchema = z.object({
+    userId: z.string().uuid(),
+    actionRequestId: z.string().uuid(),
+    idempotencyKey: z.string().min(1).max(700),
+});
+
+type ActionRequest = z.infer<typeof actionRequestSchema>;
+
 async function boundedCheck(check: () => Promise<boolean>, timeoutMs: number) {
     let timer: NodeJS.Timeout | undefined;
     const timeout = new Promise<boolean>((resolve) => {
@@ -107,6 +115,7 @@ export async function startHealthServer(
     store: DurableJobStore,
     logger: RuntimeLogger,
     enqueueBriefing: (input: BriefingRequest) => Promise<string>,
+    enqueueAction: (input: ActionRequest) => Promise<string>,
 ): Promise<RuntimeHealth> {
     const redis = new IORedis(env.REDIS_URL, {
         maxRetriesPerRequest: 1,
@@ -136,6 +145,26 @@ export async function startHealthServer(
                     await readBody(request),
                 );
                 const jobId = await enqueueBriefing(input);
+                respond(response, 202, { jobId });
+            } catch (error) {
+                const status = error instanceof z.ZodError ? 400 : 503;
+                respond(response, status, {
+                    status:
+                        status === 400 ? 'invalid_request' : 'enqueue_failed',
+                });
+            }
+            return;
+        }
+        if (request.method === 'POST' && request.url === '/v1/jobs/actions') {
+            if (!authorized(request, env.WORKER_API_TOKEN)) {
+                respond(response, 401, { status: 'unauthorized' });
+                return;
+            }
+            try {
+                const input = actionRequestSchema.parse(
+                    await readBody(request),
+                );
+                const jobId = await enqueueAction(input);
                 respond(response, 202, { jobId });
             } catch (error) {
                 const status = error instanceof z.ZodError ? 400 : 503;

@@ -46,7 +46,7 @@ Supabase, timeline, action, and automation files.
 | 010    | Implement governed LLM provider adapters         | Complete  | 002, 004          |
 | 011    | Generate evidence-backed briefings               | Complete  | 009, 010          |
 | 012    | Produce commitment candidate actions             | Complete  | 007, 010          |
-| 013    | Execute and verify task actions                  | Available | 004, 005, 012     |
+| 013    | Execute and verify task actions                  | Complete  | 004, 005, 012     |
 | 014    | Execute calendar, draft, and workflow actions    | Available | 005, 012          |
 | 015    | Persist the automation state machine             | Blocked   | 004, 013, 014     |
 | 016    | Ship bounded automation templates                | Blocked   | 011, 015          |

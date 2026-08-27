@@ -34,7 +34,7 @@ describe('executeUnifiedAction', () => {
         expect(result.code).toBe('PermissionDenied');
     });
 
-    it('executes approved immediate actions synchronously', async () => {
+    it('cannot fabricate synchronous success for approved task actions', async () => {
         const result = await executeUnifiedAction(
             {
                 actionId: 'tasks.create',
@@ -44,9 +44,9 @@ describe('executeUnifiedAction', () => {
             runtime,
         );
 
-        expect(result.status).toBe('completed');
-        if (result.status !== 'completed') return;
-        expect(result.actionId).toBe('tasks.create');
+        expect(result.status).toBe('failed');
+        if (result.status !== 'failed') return;
+        expect(result.code).toBe('QueueUnavailable');
     });
 
     it('fails required background actions when Redis is not configured', async () => {

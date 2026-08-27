@@ -33,6 +33,14 @@ export function createProcessorRegistry(
                 dryRun,
                 runtimeContractVersion: 1,
             }),
+        'action.execute': () =>
+            Promise.reject(
+                new WorkerTaskError(
+                    'task_action_processor_unavailable',
+                    'Task action execution is not configured in this runtime.',
+                    false,
+                ),
+            ),
         'rss.fetch': () =>
             Promise.reject(
                 new WorkerTaskError(

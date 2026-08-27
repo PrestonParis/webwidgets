@@ -37,3 +37,15 @@ export function reviewCommitmentCandidate(
         },
     );
 }
+
+export function retryCommitmentTask(actionRequestId: string) {
+    return jsonRequest(`/api/task-actions/${actionRequestId}`, {
+        method: 'POST',
+    });
+}
+
+export function undoCommitmentTask(actionRequestId: string) {
+    return jsonRequest(`/api/task-actions/${actionRequestId}/undo`, {
+        method: 'POST',
+    });
+}
