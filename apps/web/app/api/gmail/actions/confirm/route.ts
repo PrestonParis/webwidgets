@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { z } from 'zod';
-import { createClients } from '@/lib/supabase/serverClient';
+import { createCredentialClients as createClients } from '@/app/api/auth/_lib/credentialClients';
 import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
@@ -177,11 +177,13 @@ async function createCalendarEvents(
 
 async function markActionsSynced(
     supabaseAdmin: SupabaseAdmin,
+    userId: string,
     actionIds: string[],
 ): Promise<void> {
     const { error: syncError } = await supabaseAdmin
         .from('email_actions')
         .update({ synced: true })
+        .eq('user_id', userId)
         .in('id', actionIds);
 
     if (syncError) {
@@ -239,7 +241,10 @@ export async function POST(req: Request) {
             ),
         ),
     ]);
-    await markActionsSynced(supabaseAdmin, actionIds);
+    await markActionsSynced(supabaseAdmin, user.id, [
+        ...createdTodos.map(({ action }) => action.id),
+        ...createdCalendarEvents.map(({ action }) => action.id),
+    ]);
 
     return NextResponse.json({
         ok: true,

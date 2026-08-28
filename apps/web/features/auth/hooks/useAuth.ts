@@ -2,6 +2,7 @@
 
 import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { supabase } from '@/lib/db/supabase';
+import { startGoogleConnection } from '@/lib/auth/googleConnection';
 
 async function signUpWithEmail(email: string, password: string) {
     return supabase.auth.signUp({ email, password });
@@ -11,8 +12,6 @@ async function signInWithEmail(email: string, password: string) {
     return supabase.auth.signInWithPassword({ email, password });
 }
 
-// All Google OAuth flows request the same combined scope set so that
-// whichever flow runs last doesn't clobber the other service's token.
 const GOOGLE_SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/calendar.events',
@@ -29,15 +28,8 @@ async function signInWithGoogle() {
     });
 }
 
-async function connectCalendar() {
-    return supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-            scopes: GOOGLE_SCOPES,
-            queryParams: { access_type: 'offline', prompt: 'consent' },
-        },
-    });
+function connectCalendar() {
+    startGoogleConnection('calendar');
 }
 
 async function signOut() {

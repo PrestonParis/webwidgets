@@ -27,6 +27,7 @@ async function persistToken(
     input: RefreshInput,
     token: string,
     expiresIn: number | undefined,
+    refreshToken?: string,
 ) {
     const expiresAt = Date.now() + (expiresIn ?? 3590) * 1000;
     await updateAccountTokens(
@@ -35,6 +36,7 @@ async function persistToken(
         input.accountId,
         token,
         expiresAt,
+        refreshToken,
     );
     return token;
 }
@@ -84,7 +86,6 @@ export async function getValidMicrosoftToken(input: RefreshInput) {
         ),
         refresh_token: input.refreshToken,
         grant_type: 'refresh_token',
-        scope: 'https://graph.microsoft.com/Mail.Read offline_access',
     });
     const response = await fetch(url, {
         method: 'POST',
@@ -94,9 +95,15 @@ export async function getValidMicrosoftToken(input: RefreshInput) {
     const json = (await response.json()) as {
         access_token?: string;
         expires_in?: number;
+        refresh_token?: string;
     };
     if (!response.ok || !json.access_token) {
         throw new Error('Microsoft token refresh failed');
     }
-    return persistToken(input, json.access_token, json.expires_in);
+    return persistToken(
+        input,
+        json.access_token,
+        json.expires_in,
+        json.refresh_token,
+    );
 }

@@ -6,7 +6,7 @@ export function createWorkerSupabase(env: WorkerEnv): SupabaseClient {
     return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
         auth: { persistSession: false, autoRefreshToken: false },
         realtime: { transport: ws as unknown as typeof WebSocket },
-    });
+    }) as SupabaseClient;
 }
 
 export interface EmailAccountReference {
@@ -97,10 +97,15 @@ export async function updateAccountTokens(
     accountId: string,
     accessToken: string,
     expiresAt: number,
+    refreshToken?: string,
 ): Promise<void> {
     const { error } = await client
         .from('user_email_accounts')
-        .update({ access_token: accessToken, expires_at: expiresAt })
+        .update({
+            access_token: accessToken,
+            expires_at: expiresAt,
+            ...(refreshToken ? { refresh_token: refreshToken } : {}),
+        })
         .eq('id', accountId)
         .eq('user_id', userId);
     if (error) throw new Error('Failed to update scoped account token');

@@ -566,6 +566,15 @@ credential columns from `profiles`, `user_tokens`, `user_email_accounts`, and
 `user_integration_keys`. V1 must move these behind a server-only credential
 boundary before connector automation is considered secure.
 
+The approved Prompt 014 prerequisite now has a prepared, undeployed cutover:
+email tables retain credentials but revoke browser token-column access while
+allowing owner-only metadata reads. New API-boundary helpers use cookie-free
+service clients after verified-user checks; worker credentials remain scoped to
+account and user. OAuth callbacks bind connections with one-use state, verify
+provider identity/grants, and keep provider tokens out of new browser session
+cookies. See `docs/finalization/EMAIL_CREDENTIAL_CUTOVER.md` for deployment gates
+and remaining Vault/other-table work; do not assume live isolation is fixed.
+
 ---
 
 ## 9. Background jobs / infrastructure

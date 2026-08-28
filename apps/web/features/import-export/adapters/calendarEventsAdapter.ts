@@ -10,7 +10,7 @@
 // CalendarAdapterPayload. The nested start/end format matches CalendarEvent
 // so the widget can use eventStart(), isAllDay(), formatEventTime() directly.
 
-import { getCalendarSnapshot } from '@/features/calendar/server/calendarService';
+import { loadCredentialCalendarSnapshot } from '@/app/api/auth/_lib/providerSnapshots';
 import { createClients } from '@/lib/supabase/serverClient';
 import type { ImportExportAdapter } from '@/features/import-export/lib/adapterInterface';
 import type {
@@ -95,7 +95,6 @@ export const calendarEventsAdapter: ImportExportAdapter = {
         userId: string,
         options?: ExportOptions,
     ): Promise<ExportResult> {
-        const { supabaseAdmin } = await createClients();
         const warnings: string[] = [];
 
         // Determine the fetch window.
@@ -120,8 +119,7 @@ export const calendarEventsAdapter: ImportExportAdapter = {
         }
 
         try {
-            const snapshot = await getCalendarSnapshot(
-                supabaseAdmin,
+            const snapshot = await loadCredentialCalendarSnapshot(
                 userId,
                 daysAhead,
             );

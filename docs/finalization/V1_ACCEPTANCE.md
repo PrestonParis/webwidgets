@@ -14,6 +14,9 @@ or production-like tests. “Code exists” is not evidence of working behavior.
 - The task can be updated and completed, and its outcome is visible.
 - An approved calendar candidate creates exactly one provider event.
 - An email response can be prepared as a draft but is not sent automatically.
+- Gmail is the primary email provider; Outlook is secondary. Both support
+  sending only after a separate user approval of the exact account, recipients,
+  subject, body, and reply context. Editing invalidates send approval.
 - At least the daily briefing and commitment-capture automations run through
   the durable automation state machine.
 - The user can inspect, pause, disable, and review automation runs.

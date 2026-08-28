@@ -264,3 +264,31 @@ not offered in V1.
 **Reason:** Redis, HTTP, and workers are all retryable boundaries. Only the
 database can prevent a crash between mutation and receipt from creating a
 second task while preserving a queryable evidence-to-outcome chain.
+
+## FIN-019: Support Gmail-First Drafts and Explicitly Approved Sending
+
+**Status:** Scope accepted by the owner on 2026-08-28; implementation pending
+
+**Decision:** Gmail is the primary V1 email provider. Outlook is secondary,
+with draft and sending support as well. This supersedes Prompt 014's original
+drafts-only restriction. A draft action never sends; sending is a distinct,
+explicitly approved exact-message action. No autonomous sending, automatic
+account fallback, or implicit send approval from draft creation is permitted.
+Send approval covers account, recipients, subject, body, and reply context;
+edits invalidate it. Provider submission is not proof of recipient delivery.
+
+**Prerequisite:** Complete a separately reviewed email credential-isolation
+and OAuth account-binding maintenance plan before requesting write/send
+permissions. The earlier live audit found raw token columns browser-readable
+by their owner; current tracked schema retains that boundary. Additional
+permissions require explicit provider re-consent and verified granted scopes.
+The owner approved implementing the prerequisite on 2026-08-28. Its local
+implementation and rollback-only verification are recorded in
+`EMAIL_CREDENTIAL_CUTOVER.md`; coordinated deployment and real reconnect checks
+are pending. This isolates existing email columns without relocating or
+rotating credential data. Vault/rotation and other credential tables remain
+separate maintenance work.
+
+**Reason:** The owner primarily uses Gmail and wants real email completion.
+Broader provider permissions must not bypass the existing human approval
+policy or amplify unresolved credential exposure.

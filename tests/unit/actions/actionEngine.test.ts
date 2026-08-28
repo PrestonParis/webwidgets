@@ -4,6 +4,44 @@ import { executeUnifiedAction } from '@/features/actions/lib/actionEngine';
 const runtime = { userId: 'user-test' };
 
 describe('executeUnifiedAction', () => {
+    it.each([
+        {
+            actionId: 'email.draft_reply',
+            payload: { threadId: 'fixture-thread', body: 'Fixture draft' },
+        },
+        {
+            actionId: 'calendar.create_event',
+            payload: {
+                title: 'Fixture event',
+                startsAt: '2026-09-01T12:00:00Z',
+                endsAt: '2026-09-01T13:00:00Z',
+            },
+        },
+        {
+            actionId: 'automation.run',
+            payload: { automationId: 'fixture-workflow' },
+        },
+    ])(
+        'never reports fake success for $actionId through a caller-approved envelope',
+        async ({ actionId, payload }) => {
+            const result = await executeUnifiedAction(
+                {
+                    actionId,
+                    payload,
+                    approvalState: 'approved',
+                    invocationMode: 'sync',
+                },
+                runtime,
+            );
+            expect(result.status).toBe('failed');
+            if (result.status !== 'failed') return;
+            expect(result.code).toBe('ExecutionFault');
+            expect(result.message).toContain(
+                'No provider action was performed',
+            );
+        },
+    );
+
     it('rejects unvalidated action input before execution', async () => {
         const result = await executeUnifiedAction(
             {

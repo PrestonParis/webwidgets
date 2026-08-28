@@ -14,13 +14,14 @@ insert into public.user_tokens (
     ('22222222-2222-4222-8222-222222222222', 'microsoft-token', false, false, true);
 
 insert into public.user_email_accounts (
-    id, user_id, provider, email, access_token
+    id, user_id, provider, email, access_token, granted_scopes
 ) values
-    ('10000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'google', 'one@example.invalid', 'google-token'),
-    ('10000000-0000-4000-8000-000000000002', '22222222-2222-4222-8222-222222222222', 'microsoft', 'two@example.invalid', 'microsoft-token');
+    ('10000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'google', 'one@example.invalid', 'google-token', array['gmail.readonly', 'calendar.events']),
+    ('10000000-0000-4000-8000-000000000002', '22222222-2222-4222-8222-222222222222', 'microsoft', 'two@example.invalid', 'microsoft-token', array['Mail.Read']);
 
 select results_eq(
-    $$select count(*)::bigint from public.user_email_accounts where integration_connection_id is not null$$,
+    $$select count(*)::bigint from public.user_email_accounts where integration_connection_id is not null
+        and user_id in ('11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222')$$,
     $$values (2::bigint)$$,
     'provider credentials are linked to canonical connections'
 );
@@ -66,4 +67,3 @@ select results_eq(
 reset role;
 select * from finish();
 rollback;
-

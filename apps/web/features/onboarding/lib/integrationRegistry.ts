@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/db/supabase';
+import { startGoogleConnection } from '@/lib/auth/googleConnection';
 import type {
     IntegrationProvider,
     IntegrationState,
@@ -92,46 +92,9 @@ export function applyConnectionState(
     return connectedIds.includes(providerId) ? 'connected' : undefined;
 }
 
-export async function connectAvailableProvider(providerId: string) {
-    if (providerId === 'gmail') {
-        return supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: 'https://www.googleapis.com/auth/gmail.readonly',
-                queryParams: { access_type: 'offline', prompt: 'consent' },
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
-    }
-
-    if (providerId === 'google-calendar') {
-        return supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: [
-                    'https://www.googleapis.com/auth/gmail.readonly',
-                    'https://www.googleapis.com/auth/calendar.events',
-                ].join(' '),
-                queryParams: { access_type: 'offline', prompt: 'consent' },
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
-    }
-
-    if (providerId === 'google-drive') {
-        return supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: [
-                    'https://www.googleapis.com/auth/gmail.readonly',
-                    'https://www.googleapis.com/auth/calendar.events',
-                    'https://www.googleapis.com/auth/drive.readonly',
-                ].join(' '),
-                queryParams: { access_type: 'offline', prompt: 'consent' },
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
-    }
-
-    return { data: null, error: null };
+export function connectAvailableProvider(providerId: string) {
+    if (providerId === 'gmail') startGoogleConnection('gmail');
+    if (providerId === 'google-calendar') startGoogleConnection('calendar');
+    if (providerId === 'google-drive') startGoogleConnection('drive');
+    return Promise.resolve();
 }
