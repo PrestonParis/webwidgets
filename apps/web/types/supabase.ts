@@ -10,7 +10,7 @@ export type Database = {
     // Allows to automatically instantiate createClient with right options
     // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
     __InternalSupabase: {
-        PostgrestVersion: '14.17';
+        PostgrestVersion: '14.5';
     };
     graphql_public: {
         Tables: {
@@ -4014,6 +4014,33 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            oauth_connection_attempts: {
+                Row: {
+                    code_verifier: string | null;
+                    expires_at: string;
+                    provider: string;
+                    redirect_path: string;
+                    state_hash: string;
+                    user_id: string;
+                };
+                Insert: {
+                    code_verifier?: string | null;
+                    expires_at?: string;
+                    provider: string;
+                    redirect_path: string;
+                    state_hash: string;
+                    user_id: string;
+                };
+                Update: {
+                    code_verifier?: string | null;
+                    expires_at?: string;
+                    provider?: string;
+                    redirect_path?: string;
+                    state_hash?: string;
+                    user_id?: string;
+                };
+                Relationships: [];
+            };
             onboarding_profiles: {
                 Row: {
                     created_at: string;
@@ -4857,10 +4884,12 @@ export type Database = {
                     display_name: string | null;
                     email: string;
                     expires_at: number | null;
+                    granted_scopes: string[];
                     id: string;
                     integration_connection_id: string | null;
                     last_synced_at: string | null;
                     provider: string;
+                    provider_subject: string | null;
                     refresh_token: string | null;
                     updated_at: string;
                     user_id: string;
@@ -4871,10 +4900,12 @@ export type Database = {
                     display_name?: string | null;
                     email: string;
                     expires_at?: number | null;
+                    granted_scopes?: string[];
                     id?: string;
                     integration_connection_id?: string | null;
                     last_synced_at?: string | null;
                     provider: string;
+                    provider_subject?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;
                     user_id: string;
@@ -4885,10 +4916,12 @@ export type Database = {
                     display_name?: string | null;
                     email?: string;
                     expires_at?: number | null;
+                    granted_scopes?: string[];
                     id?: string;
                     integration_connection_id?: string | null;
                     last_synced_at?: string | null;
                     provider?: string;
+                    provider_subject?: string | null;
                     refresh_token?: string | null;
                     updated_at?: string;
                     user_id?: string;
@@ -5037,6 +5070,8 @@ export type Database = {
                     has_microsoft: boolean;
                     last_history_id: string | null;
                     microsoft_access_token: string | null;
+                    microsoft_email: string | null;
+                    microsoft_expires_at: number | null;
                     microsoft_refresh_token: string | null;
                     provider: string | null;
                     refresh_token: string | null;
@@ -5054,6 +5089,8 @@ export type Database = {
                     has_microsoft?: boolean;
                     last_history_id?: string | null;
                     microsoft_access_token?: string | null;
+                    microsoft_email?: string | null;
+                    microsoft_expires_at?: number | null;
                     microsoft_refresh_token?: string | null;
                     provider?: string | null;
                     refresh_token?: string | null;
@@ -5071,6 +5108,8 @@ export type Database = {
                     has_microsoft?: boolean;
                     last_history_id?: string | null;
                     microsoft_access_token?: string | null;
+                    microsoft_email?: string | null;
+                    microsoft_expires_at?: number | null;
                     microsoft_refresh_token?: string | null;
                     provider?: string | null;
                     refresh_token?: string | null;
@@ -5463,6 +5502,27 @@ export type Database = {
             [_ in never]: never;
         };
         Functions: {
+            consume_oauth_connection_attempt: {
+                Args: {
+                    p_provider: string;
+                    p_state_hash: string;
+                    p_user_id: string;
+                };
+                Returns: {
+                    code_verifier: string | null;
+                    expires_at: string;
+                    provider: string;
+                    redirect_path: string;
+                    state_hash: string;
+                    user_id: string;
+                }[];
+                SetofOptions: {
+                    from: '*';
+                    to: 'oauth_connection_attempts';
+                    isOneToOne: false;
+                    isSetofReturn: true;
+                };
+            };
             decide_action_request: {
                 Args: {
                     p_action_request_id: string;
@@ -5697,6 +5757,19 @@ export type Database = {
             };
             soft_delete_journal: {
                 Args: { p_entry_id: string };
+                Returns: undefined;
+            };
+            store_verified_provider_credentials: {
+                Args: {
+                    p_access_token: string;
+                    p_email: string;
+                    p_expires_at: number;
+                    p_provider: string;
+                    p_refresh_token: string;
+                    p_scopes: string[];
+                    p_subject: string;
+                    p_user_id: string;
+                };
                 Returns: undefined;
             };
             undo_task_action: {
