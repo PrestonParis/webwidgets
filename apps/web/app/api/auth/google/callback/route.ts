@@ -6,6 +6,8 @@ import { createCallbackSession } from '@/app/api/auth/_lib/callbackSession';
 import { consumeConnectionAttempt } from '@/app/api/auth/_lib/connectionAttempt';
 import { verifyGoogleAccount } from '@/app/api/auth/_lib/googleOAuth';
 import { persistProviderAccount } from '@/app/api/auth/_lib/providerAccount';
+import { safeCallbackFailure } from '@/app/api/auth/_lib/callbackDiagnostics';
+import { getLogger } from '@/lib/observability/logger';
 
 async function connectionOwner(request: Request) {
     const url = new URL(request.url);
@@ -22,17 +24,23 @@ async function connectionOwner(request: Request) {
 
 export async function GET(request: Request) {
     const url = new URL(request.url);
+    let stage = 'request_validation';
     try {
         const code = url.searchParams.get('code');
         if (!code || url.searchParams.has('error'))
             throw new Error('oauth_code_missing');
+        stage = 'connection_owner';
         const owner = await connectionOwner(request);
+        stage = 'session_client';
         const callback = createCallbackSession(request);
+        stage = 'code_exchange';
         const { data, error } =
             await callback.client.auth.exchangeCodeForSession(code);
         const session = data.session;
-        if (error || !session) throw new Error('oauth_code_exchange_failed');
+        if (error) throw error;
+        if (!session) throw new Error('oauth_code_exchange_failed');
         if (session.provider_token) {
+            stage = 'provider_verification';
             const account = await verifyGoogleAccount(
                 session.provider_token,
                 session.provider_refresh_token,
@@ -48,6 +56,7 @@ export async function GET(request: Request) {
                 )
             )
                 throw new Error('google_mail_scope_missing');
+            stage = 'credential_persistence';
             await persistProviderAccount(
                 owner?.userId ?? session.user.id,
                 'google',
@@ -58,9 +67,15 @@ export async function GET(request: Request) {
             owner?.redirectPath ??
             safeOAuthRedirect(url.searchParams.get('next'), '/');
         const response = NextResponse.redirect(new URL(redirect, url.origin));
+        stage = 'session_sanitization';
         if (!owner) await callback.writeSanitizedSession(response, session);
         return response;
-    } catch {
+    } catch (error) {
+        // Provider errors can contain credentials; log only allowlisted categories.
+        getLogger({ operation: 'googleOAuthCallback' }).error(
+            { stage, reason: safeCallbackFailure(error) },
+            'Google OAuth callback failed',
+        );
         return NextResponse.redirect(
             new URL('/auth/auth-code-error', url.origin),
         );

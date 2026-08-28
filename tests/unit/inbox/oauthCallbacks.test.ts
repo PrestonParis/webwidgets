@@ -8,6 +8,10 @@ const mocks = vi.hoisted(() => ({
     verify: vi.fn(),
     persist: vi.fn(),
     sanitize: vi.fn(),
+    logError: vi.fn(),
+}));
+vi.mock('@/lib/observability/logger', () => ({
+    getLogger: () => ({ error: mocks.logError }),
 }));
 vi.mock('@/lib/supabase/serverClient', () => ({
     createClients: () => Promise.resolve({ supabase: {} }),
@@ -151,6 +155,42 @@ describe('OAuth route ownership', () => {
             new Request('https://app.invalid/auth/callback?code=fixture'),
         );
         expect(response.headers.get('location')).toContain('auth-code-error');
+        expect(mocks.sanitize).not.toHaveBeenCalled();
+    });
+    it('reports missing PKCE proof without logging the code or SDK message', async () => {
+        mocks.exchangeGoogle.mockResolvedValue({
+            data: { session: null },
+            error: {
+                code: 'pkce_code_verifier_not_found',
+                message: 'PRIVATE-VERIFIER',
+            },
+        });
+        const response = await googleCallback(
+            new Request('https://app.invalid/auth/callback?code=PRIVATE-CODE'),
+        );
+        expect(response.headers.get('location')).toBe(
+            'https://app.invalid/auth/auth-code-error',
+        );
+        expect(mocks.logError).toHaveBeenCalledWith(
+            { stage: 'code_exchange', reason: 'pkce_code_verifier_not_found' },
+            'Google OAuth callback failed',
+        );
+        expect(mocks.persist).not.toHaveBeenCalled();
+        expect(mocks.sanitize).not.toHaveBeenCalled();
+    });
+    it('reports the failed stage without exposing an unknown error', async () => {
+        mocks.verify.mockRejectedValue(new Error('PRIVATE-PROVIDER-TOKEN'));
+        await googleCallback(
+            new Request('https://app.invalid/auth/callback?code=PRIVATE-CODE'),
+        );
+        expect(mocks.logError).toHaveBeenCalledWith(
+            {
+                stage: 'provider_verification',
+                reason: 'unclassified_callback_failure',
+            },
+            'Google OAuth callback failed',
+        );
+        expect(mocks.persist).not.toHaveBeenCalled();
         expect(mocks.sanitize).not.toHaveBeenCalled();
     });
 });
