@@ -215,3 +215,13 @@ diagnostics, with an allowlist preventing raw provider errors, codes, tokens,
 and cookie values from reaching logs. Failure redirects and credential/session
 validation remain unchanged. Targeted callback tests (18 assertions) and web
 TypeScript pass; successful owner sign-in and reconnect remain unverified.
+
+The next owner attempt failed at `session_client`, before code exchange. A
+credential-free synthetic callback reproduced the same failure, ruling out
+Google consent and user-specific tokens as its trigger. Vercel reports Node
+24.x. The callback now reads the incoming Cookie header using Supabase SSR's
+parser instead of reconstructing the hosting runtime's Request object. Added
+explicit missing-configuration diagnostics and a header-only request regression
+that reaches PKCE rejection without network calls. Existing real-Request tests
+still verify provider-token stripping for short and chunked session cookies.
+Production verification is required before treating this as resolved.

@@ -13,6 +13,7 @@ const SAFE_REASONS = new Set([
     'google_token_missing',
     'provider_credential_persistence_failed',
     'session_sanitization_failed',
+    'supabase_callback_configuration_missing',
 ]);
 
 export function safeCallbackFailure(error: unknown): string {

@@ -59,7 +59,7 @@ describe('OAuth callback session persistence', () => {
             const callback = createCallbackSession(
                 new Request('https://app.invalid/auth/callback', {
                     headers: {
-                        cookie: `sb-fixture-auth-token-code-verifier=${verifier}`,
+                        cookie: `sb-fixture-auth-token-code-verifier=${encodeURIComponent(verifier)}`,
                     },
                 }),
             );
@@ -96,4 +96,22 @@ describe('OAuth callback session persistence', () => {
             expect(decoded).not.toContain('provider_token');
         },
     );
+    it('constructs without cookies and rejects exchange without PKCE proof', async () => {
+        vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://fixture.supabase.co');
+        vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'fixture-anon');
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
+        const callback = createCallbackSession({ headers: new Headers() });
+        const exchange =
+            await callback.client.auth.exchangeCodeForSession('fixture-code');
+        expect(exchange.error?.code).toBe('pkce_code_verifier_not_found');
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+    it('reports missing server configuration without exposing its values', () => {
+        vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
+        vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'PRIVATE-FIXTURE-KEY');
+        expect(() => createCallbackSession({ headers: new Headers() })).toThrow(
+            'supabase_callback_configuration_missing',
+        );
+    });
 });
