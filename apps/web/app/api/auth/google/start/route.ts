@@ -17,7 +17,7 @@ export async function GET(req: Request) {
         const user = await getUserOrThrow(supabase);
         originalUserId = user.id;
     } catch {
-        return NextResponse.redirect(new URL('/login', req.url));
+        return NextResponse.redirect(new URL('/', req.url));
     }
 
     const { searchParams, origin } = new URL(req.url);

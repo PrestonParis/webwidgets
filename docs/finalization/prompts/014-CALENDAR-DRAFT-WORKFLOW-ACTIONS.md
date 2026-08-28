@@ -4,18 +4,21 @@ Status: Blocked
 Priority: Critical  
 Depends on: 005, 012, and email credential/OAuth hardening below; coordinate shared action contracts with 013
 
-2026-08-28 update: owner approved the security prerequisite. Implementation and
-rollback-only database tests are prepared; coordinated deployment and live
-reconnect verification remain outstanding. See
+2026-08-28 update: owner approved the security prerequisite and production
+cutover. Security commits `b31a9970`/`c7daa7a6` are published, both credential
+migrations are applied, and 41 live-schema assertions passed with rollback-only
+fixtures. The matching app and worker are live; owner reconnect and real
+provider verification remain outstanding. See
 [`EMAIL_CREDENTIAL_CUTOVER.md`](../EMAIL_CREDENTIAL_CUTOVER.md). No new send
 capability is enabled, and this prompt is not complete.
 
-Continuation check: signed-in Render and Vercel access is now available.
-Production still runs `main`, the `finalization` preview has a different
-Supabase project URL, and the latest worker deployment fails because
-`WEB_APP_URL` and `WORKER_API_TOKEN` are missing. The cutover document records
-the deployment evidence and required target decision. Migrations
-`202608280001`/`202608280002` remain unapplied.
+Continuation check: Vercel production now tracks `finalization` and the approved
+Supabase project. The worker's missing URL/token are configured and its matching
+security revision is healthy. Production deployment is Ready at `webwidgets.me`
+and six public HTTP boundary checks passed. The temporary maintenance rule is
+removed; existing mail connections remain paused pending owner reconnect.
+Historical preview environments remain stale.
+The cutover document records the release evidence and restoration procedure.
 The legacy email-draft, calendar-create, and workflow handlers now fail
 explicitly instead of reporting fabricated provider success (10 action-engine
 and registry tests pass). This is a safety correction, not implementation of
