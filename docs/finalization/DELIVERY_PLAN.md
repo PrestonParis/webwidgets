@@ -108,7 +108,9 @@ latency thresholds on the evaluation set and a staging pilot.
 
 - Implement real `tasks.create`, task update, and task completion handlers.
 - Implement the real calendar event provider handler.
-- Implement email drafting without sending.
+- Implement Gmail-first drafts and separately approved sending, with Outlook
+  as a secondary provider. Credential isolation and OAuth account-binding
+  hardening must precede permission expansion (FIN-019 / Prompt 014).
 - Implement workflow triggering through the existing validated n8n boundary.
 - Add idempotency, exact-payload approval, execution receipts, verification,
   retries, compensating/undo behavior where possible, and visible failures.
@@ -123,7 +125,7 @@ verified outcome.
 
 ### Exit gate
 
-The five V1 action types perform real work, never claim fake success, and pass
+The V1 action types perform real work, never claim fake success, and pass
 integration tests covering duplicate delivery, expired approval, revoked
 permission, provider failure, and retry.
 

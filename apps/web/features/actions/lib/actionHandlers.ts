@@ -1,5 +1,4 @@
 import { err, ok, ResultAsync, type Result } from 'neverthrow';
-import { getLogger } from '@/lib/observability/logger';
 import { extractRssContent } from '@/features/actions/lib/contentExtractionProvider';
 import type { ActionDefinition } from '@/features/actions/lib/schemas/definitionSchemas';
 import type { ActionExecutionContext } from '@/features/actions/lib/schemas/actionPayloadSchemas';
@@ -29,25 +28,14 @@ const localEchoHandler: ActionHandler = ({ definition, input }) =>
         }),
     );
 
-const providerPlaceholderHandler: ActionHandler = ({
-    definition,
-    context,
-    input,
-}) => {
-    getLogger({
-        component: 'action-provider-placeholder',
-        actionId: definition.id,
-        userId: context.userId,
-    }).info('provider placeholder executed');
-
-    return Promise.resolve(
-        ok({
-            accepted: true,
-            message: `${definition.providerScope} provider action accepted`,
-            data: input,
+const canonicalProviderRequired: ActionHandler = () =>
+    Promise.resolve(
+        err({
+            code: 'ExecutionFault' as const,
+            message:
+                'Provider execution requires a canonical approved request and a configured durable executor. No provider action was performed.',
         }),
     );
-};
 
 const parseRssHandler: ActionHandler = async ({ context, input }) => {
     const parsed = input as { providerId: string; url: string };
@@ -71,9 +59,9 @@ const parseRssHandler: ActionHandler = async ({ context, input }) => {
 
 const handlers = new Map<string, ActionHandler>([
     ['local.echo', localEchoHandler],
-    ['provider.email.draftReply', providerPlaceholderHandler],
-    ['provider.calendar.createEvent', providerPlaceholderHandler],
-    ['provider.automation.run', providerPlaceholderHandler],
+    ['provider.email.draftReply', canonicalProviderRequired],
+    ['provider.calendar.createEvent', canonicalProviderRequired],
+    ['provider.automation.run', canonicalProviderRequired],
     ['provider.news.parseRss', parseRssHandler],
 ]);
 

@@ -535,3 +535,32 @@ task has not changed again. Completion reversal is deliberately unavailable
 in V1. Direct action envelopes cannot claim task success; they must enter via
 an approved canonical request. Prompt 014 shares the request/result and worker
 contracts but must define connector-specific receipts independently.
+
+---
+
+## ADR-024: Isolate Existing Email Credentials Before Increasing OAuth Capability
+
+**Status:** Approved; implementation prepared, live cutover pending
+
+**Decision:** Remove browser table/column access to email secrets in both
+credential tables, retaining an explicit owner-only metadata allowlist. Keep
+existing credential rows and legacy mirrors during this access-control cutover.
+API helpers verify the current user before creating a cookie-free service
+client; resolver wrappers return product snapshots, never credentials. Do not
+change the shared cookie-bound Supabase clients globally. Worker reads remain
+account/user scoped.
+
+OAuth account connection uses a one-use user/provider-bound nonce, expiry,
+PKCE, safe local redirects, provider-verified identity and actual scopes.
+Atomic persistence preserves other providers and never pairs one mailbox's
+access token with another mailbox's refresh token. Browser session cookies are
+rebuilt from Supabase-only tokens before being emitted.
+
+**Why:** Sending-capable tokens must not amplify the existing browser-secret
+exposure or query-string OAuth owner binding. Reusing the existing tables with
+restrictive grants avoids a simultaneous credential relocation/rotation.
+
+**Consequences:** New grant scopes stay disabled until coordinated web/schema
+deployment and real reconnect checks pass. This is not encryption/Vault
+migration or resolution of other secret-table findings. See
+`docs/finalization/EMAIL_CREDENTIAL_CUTOVER.md` for evidence and recovery rules.

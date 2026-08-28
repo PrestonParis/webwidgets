@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
+import { startGoogleConnection } from '@/lib/auth/googleConnection';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
 
 export interface IntegrationState {
@@ -95,15 +96,12 @@ export function useIntegrations() {
         return () => window.clearTimeout(timeoutId);
     }, [user, status, load]);
 
-    const connectGoogle = useCallback(async (scopes: string[]) => {
-        await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: scopes.join(' '),
-                queryParams: { access_type: 'offline', prompt: 'consent' },
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
+    const connectGoogle = useCallback((scopes: string[]) => {
+        startGoogleConnection(
+            scopes.includes('https://www.googleapis.com/auth/calendar.events')
+                ? 'calendar'
+                : 'gmail',
+        );
     }, []);
 
     const connectMicrosoft = useCallback(() => {

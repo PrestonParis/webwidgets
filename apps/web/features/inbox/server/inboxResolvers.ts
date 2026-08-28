@@ -1,5 +1,4 @@
-import { createClients } from '@/lib/supabase/serverClient';
-import { getInboxSummary } from '@/features/inbox/server/inboxService';
+import { loadCredentialInboxSnapshot } from '@/app/api/auth/_lib/providerSnapshots';
 import { inboxSummarySchema } from '@/features/inbox/schemas/inboxSchemas';
 import type { DataResolver } from '@/features/widgets/types/snapshot';
 
@@ -12,8 +11,7 @@ export const inboxResolvers: DataResolver[] = [
         async resolve(ctx) {
             if (!ctx.userId)
                 throw new Error('Missing userId for inbox resolver');
-            const { supabaseAdmin } = await createClients();
-            return getInboxSummary(supabaseAdmin, ctx.userId, 10);
+            return loadCredentialInboxSnapshot(ctx.userId, 10);
         },
     },
 ];

@@ -4,6 +4,7 @@ import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
+import { startGoogleConnection } from '@/lib/auth/googleConnection';
 
 const profileSchema = z.object({
     full_name: z.string().nullable().optional(),
@@ -53,33 +54,6 @@ async function fetchUserSettingsData(user: User): Promise<SettingsData> {
     };
 }
 
-async function connectGmailOAuth(origin: string) {
-    const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            scopes: 'https://www.googleapis.com/auth/gmail.readonly',
-            queryParams: { access_type: 'offline', prompt: 'consent' },
-            redirectTo: `${origin}/auth/callback`,
-        },
-    });
-    if (error) console.error('Error connecting to Google:', error.message);
-}
-
-async function connectCalendarOAuth(origin: string) {
-    const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            scopes: [
-                'https://www.googleapis.com/auth/gmail.readonly',
-                'https://www.googleapis.com/auth/calendar.events',
-            ].join(' '),
-            queryParams: { access_type: 'offline', prompt: 'consent' },
-            redirectTo: `${origin}/auth/callback`,
-        },
-    });
-    if (error) console.error('Error connecting calendar:', error.message);
-}
-
 export function useSettings() {
     const router = useRouter();
     const { user, status } = useAuthContext();
@@ -112,9 +86,8 @@ export function useSettings() {
         return () => window.clearTimeout(timeoutId);
     }, [user, status]);
 
-    const handleGoogleConnect = () => connectGmailOAuth(window.location.origin);
-    const handleConnectCalendar = () =>
-        connectCalendarOAuth(window.location.origin);
+    const handleGoogleConnect = () => startGoogleConnection('gmail');
+    const handleConnectCalendar = () => startGoogleConnection('calendar');
 
     const handleGoogleDisconnect = async () => {
         if (
