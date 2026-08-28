@@ -1,31 +1,38 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextRequest, type NextResponse } from 'next/server';
+import {
+    createServerClient,
+    parseCookieHeader,
+    type CookieOptions,
+} from '@supabase/ssr';
+import type { NextResponse } from 'next/server';
 
-export function createCallbackSession(request: Request) {
-    const incoming = new NextRequest(request).cookies.getAll();
+export function createCallbackSession(request: Pick<Request, 'headers'>) {
+    // Cookie parsing must not depend on the hosting runtime's Request wrapper.
+    const incoming = parseCookieHeader(request.headers.get('cookie') ?? '')
+        .filter((cookie) => cookie.value !== undefined)
+        .map((cookie) => ({ name: cookie.name, value: cookie.value! }));
     const pending = new Map<
         string,
         { name: string; value: string; options: CookieOptions }
     >();
-    const client = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll: () => {
-                    const values = new Map(
-                        incoming.map((cookie) => [cookie.name, cookie]),
-                    );
-                    for (const cookie of pending.values())
-                        values.set(cookie.name, cookie);
-                    return [...values.values()];
-                },
-                setAll: (values) => {
-                    for (const value of values) pending.set(value.name, value);
-                },
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey)
+        throw new Error('supabase_callback_configuration_missing');
+    const client = createServerClient(supabaseUrl, supabaseKey, {
+        cookies: {
+            getAll: () => {
+                const values = new Map(
+                    incoming.map((cookie) => [cookie.name, cookie]),
+                );
+                for (const cookie of pending.values())
+                    values.set(cookie.name, cookie);
+                return [...values.values()];
+            },
+            setAll: (values) => {
+                for (const value of values) pending.set(value.name, value);
             },
         },
-    );
+    });
     return {
         client,
         async writeSanitizedSession(
