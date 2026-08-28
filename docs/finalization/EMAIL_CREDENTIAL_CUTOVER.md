@@ -1,7 +1,8 @@
 # Email credential and OAuth cutover
 
-2026-08-28 — prerequisite approved by the owner; implemented locally on
-`finalization`, not deployed. Prompt 014 is still incomplete.
+2026-08-28 — prerequisite and production cutover approved by the owner.
+Security code is live on `finalization`; both migrations are applied.
+Prompt 014 remains incomplete pending live provider verification and executors.
 
 ## Scope and evidence
 
@@ -137,10 +138,62 @@ rotation or Vault/data relocation needs a separately scoped maintenance plan.
   provider consent/reconnect, live read-only ingestion, and a CI build remain
   release gates. No local production build or persistent dev server was run.
 
-No live migration, deployment, token rotation, or outbound email has occurred.
-Follow-up metadata queries confirmed that rehearsal schema and fixture users
-were fully rolled back. Changes remain local and uncommitted so a branch push
-cannot trigger an incompatible partial deployment.
+## Approved release execution
+
+- Published `b31a9970` (credential boundary/OAuth code) and `c7daa7a6`
+  (live-generated Supabase types); no merge into `main`.
+- Applied only `202608280001` and `202608280002`; linked history confirms both.
+  The CLI's Docker migration-catalog cache warning did not prevent migration
+  application. No database reset, token rotation, or outbound email occurred.
+- Re-ran 34 credential assertions and 7 provider-connection assertions against
+  the migrated schema, all passing with rollback-only fixtures. Final metadata
+  checks confirm no fixture users remain and browser secret reads are denied.
+- Render worker `c7daa7a6` is live and `/ready` reports all dependencies ready.
+  Recorded `PROVIDER_SYNC_ENABLED=true` and `EMAIL_SYNC_ENABLED=false` before
+  temporarily pausing provider scheduling. The two previously active
+  connections were paused at `2026-08-28 18:15:15.436294+00`; restoration must
+  match this timestamp so subsequent owner changes are never overwritten.
+- Vercel production now tracks `finalization`, with production Supabase URL
+  `cvroudtyxsgllivlrayu.supabase.co`, matching worker authentication, worker
+  service URL, site URL, and the existing Microsoft server credentials.
+  Real Google audience/consent and Microsoft redirect verification still need
+  the owner reconnect journey; presence alone is not proof of OAuth validity.
+- Vercel project pause also prevents builds. Replaced it with the published
+  temporary `temporary-credential-cutover` deny rule (request path starts `/`),
+  then resumed the project to permit builds. Confirmed the public old callback
+  returns 403. Remove the temporary rule after the matching revision is live;
+  do not resume the old credential-bearing callback as a recovery shortcut.
+
+Production deployment `HqELhYArAcB9pUc4QuqNkRFxyWmH` is Ready at `webwidgets.me`
+and uses `c7daa7a6`. The temporary firewall rule was deleted and the removal
+published; the project is resumed. The previous production deployment's direct
+URL redirects to Vercel SSO rather than publicly serving the old callback.
+
+Six unauthenticated HTTP checks passed on production: three callback rejection
+paths, authenticated-initiation enforcement, missing worker authorization
+rejection, and public web liveness. These exercise the callback E2E spec's HTTP
+assertions, not an authenticated browser consent journey. Web/root TypeScript,
+41 targeted unit/route tests, and 35 worker tests also passed locally.
+
+Provider scheduling is restored to its original enabled state. The two
+existing mail connections intentionally remain paused, with credentials and
+cursors preserved, until owner reconnect establishes actual granted scopes.
+Both old access tokens were expired; live refresh/revocation and real read-only
+sync must still be verified, not inferred from readiness. Reconnect clears the
+selected account's pause through the verified persistence path. Do not blindly
+clear all connection pauses or invent grants from legacy metadata.
+
+Provider reconnection remains a release-verification gate. Historical preview
+deployments still have the old Supabase environment and must not be used as
+evidence for this release. The inference service's existing readiness failure
+is separate outstanding work. Prompt 014 provider executors are not complete.
+
+The `c7daa7a6` CI run completed successfully, including changed-file lint/types,
+the unit-test gate, worker build, and production build. A live browser check
+also found a pre-existing `/login` redirect to a nonexistent route. Both
+provider start routes now redirect signed-out users to the actual `/` sign-in
+screen. Two new route regressions and an authenticated-entry browser assertion
+cover this correction; the route tests, scoped ESLint, and web TypeScript pass.
 
 Provider reference: Microsoft documents optional refresh scopes and replacement
 refresh tokens in its [authorization-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow).

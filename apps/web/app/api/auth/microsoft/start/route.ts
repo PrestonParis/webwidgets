@@ -20,7 +20,7 @@ export async function GET(req: Request) {
         );
     const { supabase } = await createClients();
     const user = await getUserOrThrow(supabase).catch(() => null);
-    if (!user) return NextResponse.redirect(new URL('/login', req.url));
+    if (!user) return NextResponse.redirect(new URL('/', req.url));
     try {
         const url = new URL(req.url);
         const attempt = await beginConnectionAttempt(
