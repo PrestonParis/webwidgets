@@ -197,3 +197,21 @@ cover this correction; the route tests, scoped ESLint, and web TypeScript pass.
 
 Provider reference: Microsoft documents optional refresh scopes and replacement
 refresh tokens in its [authorization-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow).
+
+## Production sign-in investigation (2026-08-28)
+
+The hosted Supabase Site URL was still `http://localhost:3000` and its only
+allowed redirect was the local callback. Changed Site URL to
+`https://webwidgets.me`, preserved the local callback, and added
+`https://webwidgets.me/auth/callback` plus the narrowly scoped connection
+callback pattern `https://webwidgets.me/auth/callback?ic=1&state=*`.
+Reloading the dashboard confirmed all settings persisted.
+
+A fresh owner attempt now reaches the production callback but redirects to
+the generic authentication-error page. Supabase and Vercel Google client IDs
+match. The existing callback swallowed errors, so the failed request's logs
+do not establish the remaining cause. Added server-only stage/category
+diagnostics, with an allowlist preventing raw provider errors, codes, tokens,
+and cookie values from reaching logs. Failure redirects and credential/session
+validation remain unchanged. Targeted callback tests (18 assertions) and web
+TypeScript pass; successful owner sign-in and reconnect remain unverified.
