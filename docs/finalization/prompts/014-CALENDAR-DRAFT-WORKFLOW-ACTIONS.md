@@ -1,6 +1,6 @@
 # 014 — Execute Calendar, Email, and Workflow Actions
 
-Status: Implementation complete; production rollout in progress
+Status: Complete
 Priority: Critical  
 Depends on: 005, 012, and email credential/OAuth hardening below; coordinate shared action contracts with 013
 
@@ -21,6 +21,24 @@ a test email. Outlook V1 parity is deliberately bounded to new-message drafts
 and sends; reply composition remains Gmail-only and fails explicitly on Outlook.
 The optional n8n adapter also fails explicitly until its three server secrets
 and an enabled allowlisted automation config exist.
+
+Production rollout completed on 2026-08-29. All 71 tracked migrations align
+with `webwidgets-dev`. Vercel deployment `F3iG95BWdRcHfTnik8NpU3z7mmyL` is
+Ready and Current for `webwidgets.me` with `EMAIL_ACTIONS_ENABLED` and
+`PROVIDER_ACTIONS_ENABLED` enabled. Render deploy
+`dep-da9gurbncjis739ai7d0` is live on commit `57ac0969`; `/ready` and repeated
+heartbeats report Redis and Supabase healthy. Production route checks passed
+for `/inbox/compose`, `/planning/actions`, and `/automation/workflows` while
+performing no provider write.
+
+Verification includes 177 focused web regressions, 37 worker tests, web/root/
+worker TypeScript checks, scoped ESLint, migration dry-run, live migration
+alignment, and regenerated live Supabase types. The CLI's post-deployment
+linked pgTAP rerun could not execute because its generated login role lacks
+`USAGE` on the existing `extensions` schema; database grants were not weakened
+as a workaround. The reviewed migrations had already passed rollback-only
+rehearsals (44 email assertions and 22 calendar/workflow assertions) before
+deployment. This tooling limitation is recorded rather than hidden.
 
 2026-08-28 update: owner approved the security prerequisite and production
 cutover. Security commits `b31a9970`/`c7daa7a6` are published, both credential
