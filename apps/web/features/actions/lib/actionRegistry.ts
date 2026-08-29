@@ -41,10 +41,16 @@ const calendarCreateInput = z.object({
     attendees: z.array(z.string().email()).default([]),
 });
 
-const emailDraftInput = z.object({
-    threadId: z.string(),
+const emailMessageInput = z.object({
+    provider: z.enum(['google', 'microsoft']),
+    accountId: z.string().uuid(),
+    from: z.string().email(),
+    to: z.array(z.string().email()).min(1),
+    cc: z.array(z.string().email()).default([]),
+    bcc: z.array(z.string().email()).default([]),
+    subject: z.string().min(1),
     body: z.string().min(1),
-    tone: z.enum(['concise', 'warm', 'formal']).default('concise'),
+    reply: z.unknown().nullable().default(null),
 });
 
 const automationRunInput = z.object({
@@ -127,7 +133,7 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
             'Create a calendar event through the calendar provider boundary.',
         mutability: 'state-altering',
         destructiveLevel: 'warning',
-        queueability: 'optional',
+        queueability: 'required',
         expectedInputs: calendarCreateInput,
         expectedOutputs: genericOutput,
         requiredPermissions: ['calendar:write'],
@@ -136,20 +142,38 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
         handlerId: 'provider.calendar.createEvent',
     },
     {
-        id: 'email.draft_reply',
+        id: 'email.draft',
         category: 'email',
         providerScope: 'email',
-        label: 'Draft email reply',
-        description: 'Draft a reply without sending it.',
+        label: 'Create email draft',
+        description:
+            'Create an exact approved Gmail or Outlook draft without sending.',
         mutability: 'state-altering',
         destructiveLevel: 'safe',
-        queueability: 'optional',
-        expectedInputs: emailDraftInput,
+        queueability: 'required',
+        expectedInputs: emailMessageInput,
         expectedOutputs: genericOutput,
-        requiredPermissions: ['email:read'],
+        requiredPermissions: ['email:write'],
         requiredConsents: ['email_access'],
-        canUndo: true,
-        handlerId: 'provider.email.draftReply',
+        canUndo: false,
+        handlerId: 'provider.email.draft',
+    },
+    {
+        id: 'email.send',
+        category: 'email',
+        providerScope: 'email',
+        label: 'Send approved email',
+        description:
+            'Send one exact approved message through the selected Gmail or Outlook account.',
+        mutability: 'state-altering',
+        destructiveLevel: 'warning',
+        queueability: 'required',
+        expectedInputs: emailMessageInput,
+        expectedOutputs: genericOutput,
+        requiredPermissions: ['email:send'],
+        requiredConsents: ['email_access'],
+        canUndo: false,
+        handlerId: 'provider.email.send',
     },
     {
         id: 'automation.run',

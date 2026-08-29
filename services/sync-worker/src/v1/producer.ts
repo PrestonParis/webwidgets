@@ -158,6 +158,7 @@ async function linkActionRequest(
         .eq('id', input.task.actionRequestId)
         .eq('user_id', input.userId)
         .eq('approval_state', 'approved')
+        .not('status', 'in', '(completed,cancelled)')
         .select('id')
         .maybeSingle();
     if (result.error || !result.data) {

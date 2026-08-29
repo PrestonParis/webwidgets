@@ -60,7 +60,11 @@ export const TERMINAL_JOB_STATUSES = [
 
 export type TerminalJobStatus = (typeof TERMINAL_JOB_STATUSES)[number];
 export type DurableJobStatus =
-    'queued' | 'running' | 'waiting' | 'failed' | TerminalJobStatus;
+    | 'queued'
+    | 'running'
+    | 'waiting'
+    | 'failed'
+    | TerminalJobStatus;
 
 export interface DurableJobRecord {
     id: string;

@@ -498,8 +498,8 @@ to anonymous/authenticated roles; `user_feedback` has RLS enabled with no
 policy. See the
 [full schema/RLS audit](docs/finalization/audits/2026-08-13-webwidgets-dev-schema-and-rls-audit.md).
 
-The repository contains the 46 reviewed historical migrations recorded by
-remote history plus fifteen reviewed successors. ADR-012's recovered-history
+The repository contains 71 reviewed migrations aligned with remote history.
+ADR-012's recovered-history
 baseline completed on 2026-08-14; two identity-bearing historical files were
 sanitized intentionally. On 2026-08-14, an owner-approved CLI deployment
 applied the context, job-log security, lifecycle, retention, and approval
@@ -566,14 +566,22 @@ credential columns from `profiles`, `user_tokens`, `user_email_accounts`, and
 `user_integration_keys`. V1 must move these behind a server-only credential
 boundary before connector automation is considered secure.
 
-The approved Prompt 014 prerequisite now has a prepared, undeployed cutover:
-email tables retain credentials but revoke browser token-column access while
+The approved Prompt 014 prerequisite is deployed: email tables retain
+credentials but revoke browser token-column access while
 allowing owner-only metadata reads. New API-boundary helpers use cookie-free
 service clients after verified-user checks; worker credentials remain scoped to
 account and user. OAuth callbacks bind connections with one-use state, verify
 provider identity/grants, and keep provider tokens out of new browser session
 cookies. See `docs/finalization/EMAIL_CREDENTIAL_CUTOVER.md` for deployment gates
-and remaining Vault/other-table work; do not assume live isolation is fixed.
+and remaining Vault/other-table work. This closes the email-action prerequisite,
+not the separate credential findings in `profiles` or `user_integration_keys`.
+
+External actions extend the same canonical request/result chain. Email draft
+and send, Google Calendar create/cancel, and allowlisted workflow runs reserve a
+provider dispatch exactly once after exact-payload approval. Worker retries may
+only reconcile that reservation. Receipts record safe provider identifiers and
+verified state; n8n completion arrives through a signed, replay-safe callback
+correlated to the canonical user, request, job, idempotency key, and run ID.
 
 ---
 
@@ -590,8 +598,10 @@ and remaining Vault/other-table work; do not assume live isolation is fixed.
   The analysis queue also owns daily and on-demand briefing generation through
   an authenticated callback to Next.js. Commitment candidate generation stays
   at the authenticated Next.js policy boundary. Approved task candidates use
-  the action queue and a service-only atomic Supabase executor; provider and
-  workflow actions remain Prompt 014 work.
+  the action queue and a service-only atomic Supabase executor. The same queue
+  now routes exact-approved Gmail/Outlook, Google Calendar, and n8n actions to
+  protected Next.js provider executors; generic job retry state cannot
+  overwrite their canonical provider receipts.
 - **Accepted V1 owner:** extend `services/sync-worker` into the one durable
   TypeScript/BullMQ runtime. n8n is only an optional executor for explicitly
   configured, validated, approved workflows; it is not the ingestion owner,

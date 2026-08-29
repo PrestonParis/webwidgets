@@ -1,8 +1,26 @@
 # 014 — Execute Calendar, Email, and Workflow Actions
 
-Status: Blocked  
+Status: Implementation complete; production rollout in progress
 Priority: Critical  
 Depends on: 005, 012, and email credential/OAuth hardening below; coordinate shared action contracts with 013
+
+2026-08-29 implementation update: the credential prerequisite is deployed and
+the owner verified production sign-in plus a working connected Gmail account.
+Prompt 014 now has canonical Gmail/Outlook draft and explicit-send actions,
+Google Calendar create/cancel actions, and allowlisted n8n workflow actions.
+Every path binds exact approval to a payload hash/version, reserves its provider
+side effect once, runs through the V1 worker, and records a safe receipt.
+Retries reconcile rather than blindly re-dispatch. Gmail and Outlook write
+grants are requested only through an explicit capability upgrade. The legacy
+direct workflow trigger is closed.
+
+No live message was sent while implementing this prompt. Sending still requires
+a separate user click approving the displayed account, recipients, subject,
+body, and reply context. This implementation approval is not authorization for
+a test email. Outlook V1 parity is deliberately bounded to new-message drafts
+and sends; reply composition remains Gmail-only and fails explicitly on Outlook.
+The optional n8n adapter also fails explicitly until its three server secrets
+and an enabled allowlisted automation config exist.
 
 2026-08-28 update: owner approved the security prerequisite and production
 cutover. Security commits `b31a9970`/`c7daa7a6` are published, both credential
@@ -10,9 +28,9 @@ migrations are applied, and 41 live-schema assertions passed with rollback-only
 fixtures. The matching app and worker are live; owner reconnect and real
 provider verification remain outstanding. See
 [`EMAIL_CREDENTIAL_CUTOVER.md`](../EMAIL_CREDENTIAL_CUTOVER.md). No new send
-capability is enabled, and this prompt is not complete.
+capability was enabled, and the prompt was not complete at that checkpoint.
 
-Continuation check: Vercel production now tracks `finalization` and the approved
+Historical continuation check (2026-08-28): Vercel production tracks `finalization` and the approved
 Supabase project. The worker's missing URL/token are configured and its matching
 security revision is healthy. Production deployment is Ready at `webwidgets.me`
 and six public HTTP boundary checks passed. The temporary maintenance rule is
@@ -21,9 +39,9 @@ Historical preview environments remain stale.
 The cutover document records the release evidence and restoration procedure.
 The legacy email-draft, calendar-create, and workflow handlers now fail
 explicitly instead of reporting fabricated provider success (10 action-engine
-and registry tests pass). This is a safety correction, not implementation of
-the remaining provider executors. Coordinated deployment and real reconnect
-verification are still needed to pass the security prerequisite.
+and registry tests pass). This was a safety correction, not implementation of
+the remaining provider executors at that checkpoint. The later 2026-08-29
+update above supersedes those remaining implementation notes.
 
 ## Objective
 

@@ -1,8 +1,11 @@
 # Email credential and OAuth cutover
 
 2026-08-28 — prerequisite and production cutover approved by the owner.
-Security code is live on `finalization`; both migrations are applied.
-Prompt 014 remains incomplete pending live provider verification and executors.
+Security code is live on `finalization`; both migrations are applied. The owner
+subsequently verified production sign-in and a working connected Gmail account.
+Prompt 014's executors and explicit scope-upgrade paths are implemented; a
+write-capable account is still established only when the owner chooses the
+corresponding draft/send capability.
 
 ## Scope and evidence
 
@@ -183,10 +186,10 @@ sync must still be verified, not inferred from readiness. Reconnect clears the
 selected account's pause through the verified persistence path. Do not blindly
 clear all connection pauses or invent grants from legacy metadata.
 
-Provider reconnection remains a release-verification gate. Historical preview
-deployments still have the old Supabase environment and must not be used as
-evidence for this release. The inference service's existing readiness failure
-is separate outstanding work. Prompt 014 provider executors are not complete.
+The owner later completed production sign-in and Gmail reconnection. Historical
+preview deployments still have the old Supabase environment and must not be
+used as evidence for this release. The inference service's existing readiness
+failure is separate outstanding work.
 
 The `c7daa7a6` CI run completed successfully, including changed-file lint/types,
 the unit-test gate, worker build, and production build. A live browser check

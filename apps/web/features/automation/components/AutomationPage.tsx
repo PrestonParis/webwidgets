@@ -12,6 +12,7 @@ import {
     Workflow,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import Header from '@/features/ui/components/Header';
 import { cn } from '@/lib/utils/utils';
 import {
@@ -71,6 +72,12 @@ export function AutomationPage() {
                         </p>
                     </div>
                     <div className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+                        <Link
+                            href="/automation/workflows"
+                            className="text-xs font-semibold text-blue-600 dark:text-blue-400"
+                        >
+                            Run workflow
+                        </Link>
                         <div className="text-right">
                             <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
                                 Automations {globalEnabled ? 'on' : 'paused'}
