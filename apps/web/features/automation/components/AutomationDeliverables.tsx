@@ -120,7 +120,7 @@ export function AutomationDeliverables({
 }: {
     controller: AutomationCenterController;
 }) {
-    const { deliverables, toggleDeliverable } = controller;
+    const { deliverables, toggleDeliverable, createDeliverable } = controller;
     const toast = useToastContext();
     const [showCreate, setShowCreate] = useState(false);
     const [newName, setNewName] = useState('');
@@ -201,9 +201,23 @@ export function AutomationDeliverables({
                         type="button"
                         onClick={() => {
                             if (!newName.trim()) return;
-                            toast.success(`"${newName}" scheduled`);
-                            setShowCreate(false);
-                            setNewName('');
+                            void createDeliverable(
+                                newName.trim(),
+                                outputType,
+                                destination,
+                            )
+                                .then(() => {
+                                    toast.success(
+                                        `"${newName}" saved as paused`,
+                                    );
+                                    setShowCreate(false);
+                                    setNewName('');
+                                })
+                                .catch(() =>
+                                    toast.error(
+                                        'Deliverable could not be saved',
+                                    ),
+                                );
                         }}
                         className="w-full rounded-lg bg-zinc-900 dark:bg-zinc-100 px-3 py-2 text-xs font-semibold text-white dark:text-zinc-900"
                     >

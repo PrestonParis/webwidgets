@@ -47,9 +47,9 @@ Supabase, timeline, action, and automation files.
 | 011    | Generate evidence-backed briefings               | Complete  | 009, 010          |
 | 012    | Produce commitment candidate actions             | Complete  | 007, 010          |
 | 013    | Execute and verify task actions                  | Complete  | 004, 005, 012     |
-| 014    | Execute calendar, email draft/send, and workflows | Blocked   | 005, 012; credential/OAuth code prepared, live cutover pending |
-| 015    | Persist the automation state machine             | Blocked   | 004, 013, 014     |
-| 016    | Ship bounded automation templates                | Blocked   | 011, 015          |
+| 014    | Execute calendar, email draft/send, and workflows | Complete  | 005, 012          |
+| 015    | Persist the automation state machine             | Complete  | 004, 013, 014     |
+| 016    | Ship bounded automation templates                | Ready     | 011, 015          |
 | 017    | Integrate the V1 command center                  | Blocked   | 009, 011, 013–016 |
 | 018    | Complete security and operational hardening      | Blocked   | 005–017           |
 | 019    | Prove V1 journeys and release readiness          | Blocked   | 001–018           |

@@ -1,7 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { History, Search, Settings2, Workflow } from 'lucide-react';
+import {
+    FlaskConical,
+    History,
+    Play,
+    Search,
+    Settings2,
+    Workflow,
+} from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { EmptyState } from '@/features/ui/components/EmptyState';
 import type {
@@ -14,7 +21,10 @@ import {
     widgetEmoji,
 } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge, StatusBadge, Toggle } from './AutomationBadges';
-import { deleteAutomation } from '@/features/automation/services/automationService';
+import {
+    deleteAutomation,
+    triggerAutomation,
+} from '@/features/automation/services/automationCenterService';
 
 const FILTERS: { value: AutomationFilter; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -146,6 +156,31 @@ function InstanceRow({
                     >
                         Remove automation
                     </button>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            disabled={!instance.enabled}
+                            onClick={() =>
+                                void triggerAutomation(instance.id).then(() =>
+                                    window.location.reload(),
+                                )
+                            }
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 disabled:text-zinc-400"
+                        >
+                            <Play size={12} /> Run now
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                void triggerAutomation(instance.id, true).then(
+                                    () => window.location.reload(),
+                                )
+                            }
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300"
+                        >
+                            <FlaskConical size={12} /> Dry run
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

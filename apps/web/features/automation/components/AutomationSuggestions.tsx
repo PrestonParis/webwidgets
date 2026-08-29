@@ -7,7 +7,7 @@ import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type { AutomationCenterController } from '@/features/automation/hooks/useAutomationCenter';
 import { widgetEmoji } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge } from './AutomationBadges';
-import { createAutomation } from '@/features/automation/services/automationService';
+import { createAutomation } from '@/features/automation/services/automationCenterService';
 
 export function AutomationSuggestions({
     controller,
@@ -80,24 +80,26 @@ export function AutomationSuggestions({
                             <button
                                 type="button"
                                 disabled={enabling === suggestion.id}
-                                onClick={async () => {
-                                    setEnabling(suggestion.id);
-                                    try {
-                                        await createAutomation({
-                                            userId: 'me',
-                                            definitionId: definition.id,
-                                        });
-                                        toast.success(
-                                            `"${definition.name}" enabled — check Automations tab`,
-                                        );
-                                        dismissSuggestion(suggestion.id);
-                                    } catch {
-                                        toast.error(
-                                            'Failed to enable automation',
-                                        );
-                                    } finally {
-                                        setEnabling(null);
-                                    }
+                                onClick={() => {
+                                    void (async () => {
+                                        setEnabling(suggestion.id);
+                                        try {
+                                            await createAutomation({
+                                                userId: 'me',
+                                                definitionId: definition.id,
+                                            });
+                                            toast.success(
+                                                `"${definition.name}" created — enable it from Automations`,
+                                            );
+                                            window.location.reload();
+                                        } catch {
+                                            toast.error(
+                                                'Failed to enable automation',
+                                            );
+                                        } finally {
+                                            setEnabling(null);
+                                        }
+                                    })();
                                 }}
                                 className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
                             >

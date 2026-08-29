@@ -25,6 +25,10 @@ import { SupabaseJobStore } from './v1/jobStore.js';
 import { createProcessorRegistry } from './v1/processors.js';
 import { enqueueCanonicalJob } from './v1/producer.js';
 import { startV1Workers, type V1WorkerSet } from './v1/queues.js';
+import {
+    startAutomationScheduler,
+    type AutomationScheduler,
+} from './automation/automationScheduler.js';
 
 export interface RunningWorkerRuntime {
     workerNames: string[];
@@ -57,11 +61,13 @@ export async function startWorkerRuntime(
     let rssScheduler: RssScheduler | undefined;
     let providerScheduler: ProviderScheduler | undefined;
     let briefingScheduler: BriefingScheduler | undefined;
+    let automationScheduler: AutomationScheduler | undefined;
     try {
         if (env.V1_QUEUES_ENABLED) {
             v1Workers = await startV1Workers(env, runner, logger);
             rssScheduler = startRssScheduler(env, client, logger);
             briefingScheduler = startBriefingScheduler(env, client, logger);
+            automationScheduler = startAutomationScheduler(env, client, logger);
             if (env.PROVIDER_SYNC_ENABLED) {
                 providerScheduler = startProviderScheduler(env, client, logger);
             }
@@ -122,6 +128,7 @@ export async function startWorkerRuntime(
                 await Promise.all([
                     rssScheduler?.close(),
                     briefingScheduler?.close(),
+                    automationScheduler?.close(),
                     providerScheduler?.close(),
                     v1Workers?.close(),
                     emailWorkers?.close(),
@@ -132,6 +139,7 @@ export async function startWorkerRuntime(
         await health?.close().catch(() => undefined);
         await rssScheduler?.close().catch(() => undefined);
         await briefingScheduler?.close().catch(() => undefined);
+        await automationScheduler?.close().catch(() => undefined);
         await providerScheduler?.close().catch(() => undefined);
         await v1Workers?.close().catch(() => undefined);
         await emailWorkers?.close().catch(() => undefined);

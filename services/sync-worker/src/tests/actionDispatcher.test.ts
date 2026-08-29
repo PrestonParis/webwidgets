@@ -39,7 +39,10 @@ function actionClient(actionId: string) {
         single: () =>
             Promise.resolve({ data: { action_id: actionId }, error: null }),
     };
-    return { from: () => chain } as unknown as SupabaseClient;
+    return {
+        from: () => chain,
+        rpc: () => Promise.resolve({ data: true, error: null }),
+    } as unknown as SupabaseClient;
 }
 
 afterEach(() => {
@@ -90,6 +93,25 @@ void describe('provider action dispatcher', () => {
             processor({ envelope, dryRun: true }),
             (error: unknown) =>
                 error instanceof WorkerTaskError && !error.retryable,
+        );
+    });
+
+    void it('stops an automation action when pause-all wins the execution race', async () => {
+        const client = actionClient('tasks.create') as unknown as {
+            rpc: () => Promise<{ data: boolean; error: null }>;
+        };
+        client.rpc = () => Promise.resolve({ data: false, error: null });
+        const processor = createActionDispatcher(
+            client as unknown as SupabaseClient,
+            env,
+            logger,
+        );
+        await assert.rejects(
+            processor({ envelope, dryRun: false }),
+            (error: unknown) =>
+                error instanceof WorkerTaskError &&
+                error.code === 'automation_paused' &&
+                !error.retryable,
         );
     });
 });

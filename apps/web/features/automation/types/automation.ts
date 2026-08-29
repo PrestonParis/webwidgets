@@ -22,8 +22,11 @@ export type AutomationActionType =
     | 'request_approval'
     | 'webhook_placeholder';
 export type AutomationConfigState =
+    | 'draft'
+    | 'dry_run'
     | 'disabled'
     | 'enabled'
+    | 'paused'
     | 'requires_connection'
     | 'requires_consent';
 
@@ -231,6 +234,8 @@ export interface AutomationApproval {
     outputPreview?: string;
     createdAt: string;
     widgetName: string;
+    payloadVersion: number;
+    payloadHash: string;
 }
 
 // Deliverable

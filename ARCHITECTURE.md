@@ -543,6 +543,12 @@ exact payload version and hash.
 Task execution extends that chain with a unique product receipt on `todos`, a
 durable `action.execute` job, exact approval revalidation, optimistic update
 checks, verified outcomes, and bounded compensation.
+Automation orchestration extends the same chain rather than duplicating it.
+`automation_configs`, `automation_user_controls`, and `automation_runs` own
+durable policy and run state; the TypeScript worker performs idempotent due
+schedule scans and a final pause check; approved task effects remain canonical
+`action_requests`/`jobs`/`action_results`. The initial V1 fixture is deliberately
+limited to approval-gated local task creation.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by

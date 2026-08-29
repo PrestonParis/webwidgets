@@ -267,7 +267,7 @@ second task while preserving a queryable evidence-to-outcome chain.
 
 ## FIN-019: Support Gmail-First Drafts and Explicitly Approved Sending
 
-**Status:** Scope accepted by the owner on 2026-08-28; implementation pending
+**Status:** Accepted, deployed, and owner-verified on 2026-08-29
 
 **Decision:** Gmail is the primary V1 email provider. Outlook is secondary,
 with draft and sending support as well. This supersedes Prompt 014's original
@@ -282,13 +282,27 @@ and OAuth account-binding maintenance plan before requesting write/send
 permissions. The earlier live audit found raw token columns browser-readable
 by their owner; current tracked schema retains that boundary. Additional
 permissions require explicit provider re-consent and verified granted scopes.
-The owner approved implementing the prerequisite on 2026-08-28. Its local
-implementation and rollback-only verification are recorded in
-`EMAIL_CREDENTIAL_CUTOVER.md`; coordinated deployment and real reconnect checks
-are pending. This isolates existing email columns without relocating or
-rotating credential data. Vault/rotation and other credential tables remain
-separate maintenance work.
+The owner approved implementing the prerequisite on 2026-08-28. The deployed
+cutover and real Gmail reconnect are recorded in `EMAIL_CREDENTIAL_CUTOVER.md`.
+This isolates existing email columns without relocating or rotating credential
+data. Vault/rotation and other credential tables remain separate maintenance
+work.
 
 **Reason:** The owner primarily uses Gmail and wants real email completion.
 Broader provider permissions must not bypass the existing human approval
 policy or amplify unresolved credential exposure.
+
+## FIN-020: Keep Automation Policy Deterministic and Action Execution Canonical
+
+**Status:** Accepted, implemented, and deployed
+
+**Decision:** Supabase owns automation configuration, pause controls, runs,
+approvals, and history. The TypeScript V1 worker owns durable schedule scans
+and checks pause controls immediately before mutation. V1 supports one typed
+task-creation fixture; its condition is deterministic, its exact payload is
+copied at approval, and execution reuses the existing `action_requests`,
+`jobs`, `todos`, and `action_results` path. Redis remains delivery only.
+
+**Reason:** A separate automation executor or model-authored policy would split
+idempotency and approval semantics. Reusing the canonical action receipt makes
+restart, retry, pause, and history behavior independently verifiable.
