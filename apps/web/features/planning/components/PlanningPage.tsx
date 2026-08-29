@@ -7,6 +7,7 @@ import { useTodos } from '@/features/todo/hooks/useTodos';
 import { PlanningTodayPanel } from '@/features/planning/components/PlanningTodayPanel';
 import { PlanningCalendarGrid } from '@/features/planning/components/PlanningCalendarGrid';
 import { PlanningAgendaPanel } from '@/features/planning/components/PlanningAgendaPanel';
+import Link from 'next/link';
 
 export function PlanningPage() {
     const {
@@ -52,7 +53,13 @@ export function PlanningPage() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
+        <div className="relative flex h-[calc(100vh-3.5rem)] overflow-hidden">
+            <Link
+                href="/planning/actions"
+                className="absolute right-4 top-3 z-20 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white"
+            >
+                Create with approval
+            </Link>
             {/* Left: today date + tasks */}
             <div className="w-64 shrink-0">
                 <PlanningTodayPanel

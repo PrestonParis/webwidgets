@@ -4,6 +4,9 @@ import { normalizeGrantedScopes } from '@/lib/auth/oauthConnectionPolicy';
 export const microsoftReadScopes =
     'https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/User.Read offline_access';
 
+export const microsoftEmailActionScopes =
+    'https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/User.Read offline_access';
+
 export function microsoftRedirectUri(req: Request) {
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
     return new URL('/api/auth/microsoft/callback', origin).href;
@@ -48,10 +51,21 @@ export async function exchangeMicrosoftCode(
     const scopes = normalizeGrantedScopes(token.scope);
     if (!scopes.some((s) => s === 'Mail.Read' || s === 'Mail.ReadWrite'))
         throw new Error('microsoft_mail_scope_missing');
+    const account = await verifyMicrosoftAccount(token.access_token);
+    return {
+        accessToken: token.access_token,
+        refreshToken: token.refresh_token,
+        expiresAt: Date.now() + token.expires_in * 1000,
+        scopes,
+        ...account,
+    };
+}
+
+export async function verifyMicrosoftAccount(accessToken: string) {
     const me = await fetch(
         'https://graph.microsoft.com/v1.0/me?$select=id,mail,displayName,userPrincipalName',
         {
-            headers: { Authorization: `Bearer ${token.access_token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
             signal: AbortSignal.timeout(15_000),
         },
     );
@@ -69,10 +83,6 @@ export async function exchangeMicrosoftCode(
         .parse(account.mail ?? account.userPrincipalName)
         .toLowerCase();
     return {
-        accessToken: token.access_token,
-        refreshToken: token.refresh_token,
-        expiresAt: Date.now() + token.expires_in * 1000,
-        scopes,
         email,
         displayName: account.displayName ?? null,
         subject: account.id,

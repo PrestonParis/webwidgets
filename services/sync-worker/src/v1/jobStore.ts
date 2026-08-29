@@ -177,6 +177,11 @@ export class SupabaseJobStore implements DurableJobStore {
             })
             .eq('id', job.task.actionRequestId)
             .eq('user_id', job.userId)
+            .not(
+                'action_id',
+                'in',
+                '(email.draft,email.send,calendar.create_event,automation.run)',
+            )
             .neq('status', 'completed');
         if (result.error) throw new Error('Action retry transition failed');
     }
@@ -198,6 +203,11 @@ export class SupabaseJobStore implements DurableJobStore {
             })
             .eq('id', job.task.actionRequestId)
             .eq('user_id', job.userId)
+            .not(
+                'action_id',
+                'in',
+                '(email.draft,email.send,calendar.create_event,automation.run)',
+            )
             .neq('status', 'completed')
             .select('candidate_action_id')
             .maybeSingle();

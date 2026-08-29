@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { googleReadScopes } from '@/lib/auth/googleConnection';
+import { googleEmailActionScopes } from '@/lib/auth/googleEmailScopes';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import {
@@ -22,13 +23,24 @@ export async function GET(req: Request) {
 
     const { searchParams, origin } = new URL(req.url);
     const capability = z
-        .enum(['gmail', 'calendar', 'drive'])
+        .enum(['gmail', 'calendar', 'drive', 'gmail-compose', 'gmail-send'])
         .safeParse(searchParams.get('capability') ?? 'calendar');
     if (!capability.success)
         return NextResponse.json(
             { error: 'invalid_capability' },
             { status: 400 },
         );
+    const emailUpgrade =
+        capability.data === 'gmail-compose' || capability.data === 'gmail-send';
+    if (emailUpgrade && process.env.EMAIL_ACTIONS_ENABLED !== 'true')
+        return NextResponse.json(
+            { error: 'email_actions_not_enabled' },
+            { status: 503 },
+        );
+    const scopes =
+        capability.data === 'gmail-compose' || capability.data === 'gmail-send'
+            ? googleEmailActionScopes(capability.data)
+            : googleReadScopes(capability.data);
     const attempt = await beginConnectionAttempt(
         originalUserId,
         'google',
@@ -42,7 +54,7 @@ export async function GET(req: Request) {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            scopes: googleReadScopes(capability.data),
+            scopes,
             queryParams: {
                 access_type: 'offline',
                 prompt: 'consent select_account',

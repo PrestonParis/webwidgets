@@ -540,7 +540,7 @@ contracts but must define connector-specific receipts independently.
 
 ## ADR-024: Isolate Existing Email Credentials Before Increasing OAuth Capability
 
-**Status:** Approved; implementation prepared, live cutover pending
+**Status:** Active; deployed
 
 **Decision:** Remove browser table/column access to email secrets in both
 credential tables, retaining an explicit owner-only metadata allowlist. Keep
@@ -560,7 +560,36 @@ rebuilt from Supabase-only tokens before being emitted.
 exposure or query-string OAuth owner binding. Reusing the existing tables with
 restrictive grants avoids a simultaneous credential relocation/rotation.
 
-**Consequences:** New grant scopes stay disabled until coordinated web/schema
-deployment and real reconnect checks pass. This is not encryption/Vault
+**Consequences:** Write scopes are requested only from an explicit capability
+upgrade and persisted from the provider's actual grant. This is not encryption/Vault
 migration or resolution of other secret-table findings. See
 `docs/finalization/EMAIL_CREDENTIAL_CUTOVER.md` for evidence and recovery rules.
+
+---
+
+## ADR-025: Reserve External Side Effects Once and Reconcile Canonically
+
+**Status:** Active
+
+**Decision:** Email, calendar, and configured workflow actions enter through a
+canonical action request whose exact provider, account, recipients or event/
+workflow parameters, payload hash, and version are approved by the owner.
+Approval creates a durable worker job. A service-only claim reserves each
+external operation once; retries may inspect provider state but cannot reserve
+or dispatch it again. Safe receipts live in `action_results` and dedicated
+dispatch ledgers. Gmail is primary; Outlook supports the bounded new-message
+draft/send journey. Sending is always a separate action and approval.
+
+Google Calendar uses a deterministic event ID and verified read-back. n8n is
+an optional allowlisted executor whose signed callback must match the canonical
+user, request, job, idempotency key, and provider run. An ambiguous initial n8n
+response can be resolved only by that callback, never by blind retriggering.
+
+**Why:** BullMQ is at-least-once and provider writes are outside the database
+transaction. Approval alone does not prevent duplicates if a process stops
+between a provider response and receipt persistence.
+
+**Consequences:** Provider-specific unknown states remain visible and require
+reconciliation. A draft can never inherit send approval; send has no promised
+undo. Calendar cancellation is a separate explicit action. Legacy direct
+workflow triggering returns a canonical-approval-required error.

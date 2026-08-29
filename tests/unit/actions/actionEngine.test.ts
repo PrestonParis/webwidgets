@@ -6,8 +6,15 @@ const runtime = { userId: 'user-test' };
 describe('executeUnifiedAction', () => {
     it.each([
         {
-            actionId: 'email.draft_reply',
-            payload: { threadId: 'fixture-thread', body: 'Fixture draft' },
+            actionId: 'email.draft',
+            payload: {
+                provider: 'google',
+                accountId: '10000000-0000-4000-8000-000000000001',
+                from: 'owner@example.invalid',
+                to: ['recipient@example.invalid'],
+                subject: 'Fixture draft',
+                body: 'Fixture body',
+            },
         },
         {
             actionId: 'calendar.create_event',

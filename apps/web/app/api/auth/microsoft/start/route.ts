@@ -7,6 +7,7 @@ import {
     setConnectionCookie,
 } from '@/app/api/auth/_lib/connectionAttempt';
 import {
+    microsoftEmailActionScopes,
     microsoftRedirectUri,
     microsoftReadScopes,
 } from '@/app/api/auth/_lib/microsoftOAuth';
@@ -23,6 +24,13 @@ export async function GET(req: Request) {
     if (!user) return NextResponse.redirect(new URL('/', req.url));
     try {
         const url = new URL(req.url);
+        const emailActions =
+            url.searchParams.get('capability') === 'email-actions';
+        if (emailActions && process.env.EMAIL_ACTIONS_ENABLED !== 'true')
+            return NextResponse.json(
+                { error: 'email_actions_not_enabled' },
+                { status: 503 },
+            );
         const attempt = await beginConnectionAttempt(
             user.id,
             'microsoft',
@@ -33,7 +41,9 @@ export async function GET(req: Request) {
             client_id: clientId,
             response_type: 'code',
             redirect_uri: microsoftRedirectUri(req),
-            scope: microsoftReadScopes,
+            scope: emailActions
+                ? microsoftEmailActionScopes
+                : microsoftReadScopes,
             state: attempt.state,
             prompt: 'select_account',
             response_mode: 'query',

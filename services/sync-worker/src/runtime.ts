@@ -19,7 +19,7 @@ import {
 } from './provider/providerScheduler.js';
 import { createRssProcessor } from './rss/rssProcessor.js';
 import { startRssScheduler, type RssScheduler } from './rss/rssScheduler.js';
-import { createTaskActionProcessor } from './taskActions/taskActionProcessor.js';
+import { createActionDispatcher } from './taskActions/actionDispatcher.js';
 import { createJobRunner } from './v1/jobRunner.js';
 import { SupabaseJobStore } from './v1/jobStore.js';
 import { createProcessorRegistry } from './v1/processors.js';
@@ -42,7 +42,7 @@ export async function startWorkerRuntime(
         'rss.fetch': createRssProcessor(client, logger),
         'provider.sync': createProviderProcessor(client, env, logger),
         'briefing.generate': createBriefingProcessor(env),
-        'action.execute': createTaskActionProcessor(client, logger),
+        'action.execute': createActionDispatcher(client, env, logger),
     });
     const runner = createJobRunner({
         store,

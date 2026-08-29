@@ -19,9 +19,7 @@ interface GraphBodyResponse {
     error?: { code: string; message: string };
 }
 
-async function refreshMicrosoftToken(
-    refreshToken: string,
-): Promise<{
+async function refreshMicrosoftToken(refreshToken: string): Promise<{
     access_token: string;
     refresh_token?: string;
     expires_in: number;

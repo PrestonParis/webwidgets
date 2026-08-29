@@ -59,7 +59,8 @@ const parseRssHandler: ActionHandler = async ({ context, input }) => {
 
 const handlers = new Map<string, ActionHandler>([
     ['local.echo', localEchoHandler],
-    ['provider.email.draftReply', canonicalProviderRequired],
+    ['provider.email.draft', canonicalProviderRequired],
+    ['provider.email.send', canonicalProviderRequired],
     ['provider.calendar.createEvent', canonicalProviderRequired],
     ['provider.automation.run', canonicalProviderRequired],
     ['provider.news.parseRss', parseRssHandler],
