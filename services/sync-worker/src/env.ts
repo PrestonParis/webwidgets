@@ -60,6 +60,17 @@ export const workerEnvSchema = z
             .min(1)
             .max(100)
             .default(25),
+        AUTOMATION_SCHEDULE_INTERVAL_MS: z.coerce
+            .number()
+            .int()
+            .min(30_000)
+            .default(60_000),
+        AUTOMATION_SCHEDULE_BATCH_SIZE: z.coerce
+            .number()
+            .int()
+            .min(1)
+            .max(100)
+            .default(25),
         HEALTH_PORT: z.coerce.number().int().min(1).max(65535).default(10000),
         HEARTBEAT_INTERVAL_MS: z.coerce
             .number()

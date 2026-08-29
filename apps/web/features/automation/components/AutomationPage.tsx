@@ -6,7 +6,6 @@ import {
     FileOutput,
     History,
     LayoutGrid,
-    PanelsTopLeft,
     ShieldCheck,
     Sparkles,
     Workflow,
@@ -32,7 +31,6 @@ const TABS: { id: AutomationTab; label: string; icon: LucideIcon }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
     { id: 'automations', label: 'Automations', icon: Workflow },
     { id: 'actions', label: 'Actions', icon: ListChecks },
-    { id: 'workstreams', label: 'Workstreams', icon: PanelsTopLeft },
     { id: 'suggestions', label: 'Suggestions', icon: Sparkles },
     { id: 'deliverables', label: 'Deliverables', icon: FileOutput },
     { id: 'history', label: 'Run history', icon: History },
@@ -155,12 +153,6 @@ export function AutomationPage() {
                             )}
                             {activeTab === 'actions' && (
                                 <AutomationActionCatalog />
-                            )}
-                            {activeTab === 'workstreams' && (
-                                <div className="text-center py-20 text-sm text-zinc-400">
-                                    Workstreams functionality - to be
-                                    implemented
-                                </div>
                             )}
                             {activeTab === 'suggestions' && (
                                 <AutomationSuggestions

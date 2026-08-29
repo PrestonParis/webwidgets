@@ -598,12 +598,19 @@ export type Database = {
       automation_configs: {
         Row: {
           action_types: string[]
+          approval_mode: string
+          archived_at: string | null
           condition_types: string[]
           config: Json
           consent_requirements: string[]
+          cost_budget_cents: number
           created_at: string
+          definition_id: string | null
           id: string
+          last_triggered_at: string | null
           name: string
+          next_run_at: string | null
+          rate_limit_per_hour: number
           requires_approval: boolean
           schedule: string | null
           service_requirements: string[]
@@ -611,15 +618,23 @@ export type Database = {
           trigger_type: string
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           action_types?: string[]
+          approval_mode?: string
+          archived_at?: string | null
           condition_types?: string[]
           config?: Json
           consent_requirements?: string[]
+          cost_budget_cents?: number
           created_at?: string
+          definition_id?: string | null
           id?: string
+          last_triggered_at?: string | null
           name: string
+          next_run_at?: string | null
+          rate_limit_per_hour?: number
           requires_approval?: boolean
           schedule?: string | null
           service_requirements?: string[]
@@ -627,15 +642,23 @@ export type Database = {
           trigger_type: string
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           action_types?: string[]
+          approval_mode?: string
+          archived_at?: string | null
           condition_types?: string[]
           config?: Json
           consent_requirements?: string[]
+          cost_budget_cents?: number
           created_at?: string
+          definition_id?: string | null
           id?: string
+          last_triggered_at?: string | null
           name?: string
+          next_run_at?: string | null
+          rate_limit_per_hour?: number
           requires_approval?: boolean
           schedule?: string | null
           service_requirements?: string[]
@@ -643,60 +666,142 @@ export type Database = {
           trigger_type?: string
           updated_at?: string
           user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      automation_deliverables: {
+        Row: {
+          approval_mode: string
+          created_at: string
+          delivery_destination: string
+          enabled: boolean
+          id: string
+          last_generated_at: string | null
+          name: string
+          next_generated_at: string | null
+          output_type: string
+          schedule: Json
+          source_widgets: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approval_mode: string
+          created_at?: string
+          delivery_destination: string
+          enabled?: boolean
+          id?: string
+          last_generated_at?: string | null
+          name: string
+          next_generated_at?: string | null
+          output_type: string
+          schedule: Json
+          source_widgets?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approval_mode?: string
+          created_at?: string
+          delivery_destination?: string
+          enabled?: boolean
+          id?: string
+          last_generated_at?: string | null
+          name?: string
+          next_generated_at?: string | null
+          output_type?: string
+          schedule?: Json
+          source_widgets?: string[]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
       automation_runs: {
         Row: {
+          action_payload: Json
+          action_payload_hash: string | null
+          action_payload_version: number
+          approval_state: string | null
+          attempt: number
           automation_config_id: string | null
           completed_at: string | null
           created_at: string
+          dry_run: boolean
+          evaluation: Json
           expires_at: string
           failure_code: string | null
           failure_detail: string | null
           id: string
           idempotency_key: string | null
           job_id: string | null
+          max_attempts: number
           policy_version: string | null
           result: Json | null
           started_at: string | null
+          state_version: number
           status: string
+          trigger_key: string | null
+          trigger_payload: Json
           trigger_timeline_event_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          action_payload?: Json
+          action_payload_hash?: string | null
+          action_payload_version?: number
+          approval_state?: string | null
+          attempt?: number
           automation_config_id?: string | null
           completed_at?: string | null
           created_at?: string
+          dry_run?: boolean
+          evaluation?: Json
           expires_at?: string
           failure_code?: string | null
           failure_detail?: string | null
           id?: string
           idempotency_key?: string | null
           job_id?: string | null
+          max_attempts?: number
           policy_version?: string | null
           result?: Json | null
           started_at?: string | null
+          state_version?: number
           status?: string
+          trigger_key?: string | null
+          trigger_payload?: Json
           trigger_timeline_event_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          action_payload?: Json
+          action_payload_hash?: string | null
+          action_payload_version?: number
+          approval_state?: string | null
+          attempt?: number
           automation_config_id?: string | null
           completed_at?: string | null
           created_at?: string
+          dry_run?: boolean
+          evaluation?: Json
           expires_at?: string
           failure_code?: string | null
           failure_detail?: string | null
           id?: string
           idempotency_key?: string | null
           job_id?: string | null
+          max_attempts?: number
           policy_version?: string | null
           result?: Json | null
           started_at?: string | null
+          state_version?: number
           status?: string
+          trigger_key?: string | null
+          trigger_payload?: Json
           trigger_timeline_event_id?: string | null
           updated_at?: string
           user_id?: string
@@ -724,6 +829,45 @@ export type Database = {
             referencedColumns: ["id", "user_id"]
           },
         ]
+      }
+      automation_suggestion_dismissals: {
+        Row: {
+          dismissed_at: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      automation_user_controls: {
+        Row: {
+          pause_all: boolean
+          state_version: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          pause_all?: boolean
+          state_version?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          pause_all?: boolean
+          state_version?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       billing_customers: {
         Row: {
@@ -5832,6 +5976,10 @@ export type Database = {
         Args: { p_action_id: string; p_payload: Json; p_user_id: string }
         Returns: undefined
       }
+      assert_v1_automation_execution: {
+        Args: { p_action_request_id: string }
+        Returns: boolean
+      }
       assert_workflow_action_config: {
         Args: { p_payload: Json; p_user_id: string }
         Returns: string
@@ -5876,6 +6024,45 @@ export type Database = {
           to: "oauth_connection_attempts"
           isOneToOne: false
           isSetofReturn: true
+        }
+      }
+      create_v1_task_automation: {
+        Args: {
+          p_name: string
+          p_notes?: string
+          p_schedule_time?: string
+          p_timezone?: string
+          p_title: string
+        }
+        Returns: {
+          action_types: string[]
+          approval_mode: string
+          archived_at: string | null
+          condition_types: string[]
+          config: Json
+          consent_requirements: string[]
+          cost_budget_cents: number
+          created_at: string
+          definition_id: string | null
+          id: string
+          last_triggered_at: string | null
+          name: string
+          next_run_at: string | null
+          rate_limit_per_hour: number
+          requires_approval: boolean
+          schedule: string | null
+          service_requirements: string[]
+          state: string
+          trigger_type: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "automation_configs"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       decide_action_request: {
@@ -5926,6 +6113,53 @@ export type Database = {
           to: "action_requests"
           isOneToOne: false
           isSetofReturn: true
+        }
+      }
+      decide_v1_automation_run: {
+        Args: {
+          p_decision: string
+          p_expected_hash: string
+          p_expected_version: number
+          p_run_id: string
+        }
+        Returns: {
+          action_id: string
+          approval_state: string
+          approved_at: string | null
+          approved_payload: Json | null
+          approved_payload_hash: string | null
+          approved_payload_version: number | null
+          automation_run_id: string | null
+          candidate_action_id: string | null
+          confidence: number | null
+          created_at: string
+          decided_at: string | null
+          denied_at: string | null
+          execution_completed_at: string | null
+          execution_started_at: string | null
+          expires_at: string
+          failure_code: string | null
+          failure_detail: string | null
+          id: string
+          idempotency_key: string | null
+          job_id: string | null
+          payload: Json
+          payload_hash: string | null
+          payload_version: number
+          permission_snapshot_hash: string | null
+          policy_version: string | null
+          requested_at: string
+          source_widget_id: string | null
+          state_version: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "action_requests"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       disconnect_provider_connection: {
@@ -6288,6 +6522,49 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      trigger_v1_task_automation: {
+        Args: {
+          p_config_id: string
+          p_dry_run?: boolean
+          p_service_user_id?: string
+          p_trigger_key: string
+        }
+        Returns: {
+          action_payload: Json
+          action_payload_hash: string | null
+          action_payload_version: number
+          approval_state: string | null
+          attempt: number
+          automation_config_id: string | null
+          completed_at: string | null
+          created_at: string
+          dry_run: boolean
+          evaluation: Json
+          expires_at: string
+          failure_code: string | null
+          failure_detail: string | null
+          id: string
+          idempotency_key: string | null
+          job_id: string | null
+          max_attempts: number
+          policy_version: string | null
+          result: Json | null
+          started_at: string | null
+          state_version: number
+          status: string
+          trigger_key: string | null
+          trigger_payload: Json
+          trigger_timeline_event_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "automation_runs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       undo_task_action: { Args: { p_action_request_id: string }; Returns: Json }
     }

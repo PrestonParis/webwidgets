@@ -1,8 +1,16 @@
 # 015 — Persist the V1 Automation State Machine
 
-Status: Blocked  
+Status: Complete
 Priority: Critical  
 Depends on: 004, 013, and 014
+
+2026-08-29 implementation update: migrations `202608290005` and the verified
+trigger-function correction `202608290006` are deployed to `webwidgets-dev`.
+The Automation Center now uses authenticated persisted
+configuration, control, run, approval, suggestion, and deliverable records.
+The V1 fixture is a deterministic scheduled/manual local task proposal with
+exact-payload approval, dry-run, pause-all, canonical worker execution,
+idempotent scheduling, verified outcome roll-up, and dead-letter recovery.
 
 ## Objective
 

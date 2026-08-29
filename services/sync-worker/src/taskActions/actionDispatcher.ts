@@ -35,6 +35,21 @@ export function createActionDispatcher(
                 'Action could not be loaded.',
                 true,
             );
+        const allowed = await client.rpc('assert_v1_automation_execution', {
+            p_action_request_id: envelope.task.actionRequestId,
+        });
+        if (allowed.error)
+            throw new WorkerTaskError(
+                'automation_guard_failed',
+                'Automation safety controls could not be verified.',
+                true,
+            );
+        if (allowed.data !== true)
+            throw new WorkerTaskError(
+                'automation_paused',
+                'Automation execution was cancelled by a pause control.',
+                false,
+            );
         const kind = ['email.draft', 'email.send'].includes(
             action.data.action_id,
         )
