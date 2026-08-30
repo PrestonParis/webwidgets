@@ -8,6 +8,25 @@ import { loadAutomationCenter } from './_lib/data';
 const commandSchema = z.discriminatedUnion('command', [
     z.strictObject({ command: z.literal('create_fixture') }),
     z.strictObject({
+        command: z.literal('create_template'),
+        definitionId: z.enum([
+            'v1.commitment-capture',
+            'v1.daily-briefing',
+            'v1.calendar-preparation',
+            'v1.stale-task-review',
+        ]),
+        localTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        timezone: z.string().min(1).max(100),
+        dryRun: z.boolean(),
+    }),
+    z.strictObject({
+        command: z.literal('configure'),
+        id: z.uuid(),
+        localTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+        timezone: z.string().min(1).max(100),
+        dryRun: z.boolean(),
+    }),
+    z.strictObject({
         command: z.literal('set_state'),
         id: z.uuid(),
         enabled: z.boolean(),

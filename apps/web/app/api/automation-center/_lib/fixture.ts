@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AutomationDefinition } from '@/features/automation/types/automation';
 
 export const V1_SUGGESTION_ID = 'v1-create-task-suggestion';
@@ -40,3 +41,15 @@ export const V1_TASK_DEFINITION: AutomationDefinition = {
     suggestedReason:
         'This is the V1 automation fixture for safe, approval-gated task completion.',
 };
+
+export async function createLegacyTaskFixture(db: SupabaseClient) {
+    const result = await db.rpc('create_v1_task_automation', {
+        p_name: 'Daily priority task',
+        p_title: 'Review today’s WebWidgets priorities',
+        p_notes: 'Created only after approval in the Automation Center.',
+        p_schedule_time: '09:00',
+        p_timezone: 'UTC',
+    });
+    if (result.error) throw result.error;
+    return result.data as unknown;
+}

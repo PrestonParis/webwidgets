@@ -1,14 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    FlaskConical,
-    History,
-    Play,
-    Search,
-    Settings2,
-    Workflow,
-} from 'lucide-react';
+import { History, Search, Settings2, Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import { EmptyState } from '@/features/ui/components/EmptyState';
 import type {
@@ -21,10 +14,7 @@ import {
     widgetEmoji,
 } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge, StatusBadge, Toggle } from './AutomationBadges';
-import {
-    deleteAutomation,
-    triggerAutomation,
-} from '@/features/automation/services/automationCenterService';
+import { AutomationTemplateConfiguration } from './AutomationTemplateConfiguration';
 
 const FILTERS: { value: AutomationFilter; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -130,58 +120,7 @@ function InstanceRow({
             </div>
 
             {configureOpen && (
-                <div className="mt-3 border-t border-zinc-100 pt-3 space-y-2 dark:border-zinc-800">
-                    <div>
-                        <label className="text-[10px] font-medium uppercase text-zinc-400">
-                            Trigger
-                        </label>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-300">
-                            {definition.trigger.label}
-                        </p>
-                    </div>
-                    {definition.approvalPolicy.required && (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                            This automation requires your approval before
-                            executing actions.
-                        </p>
-                    )}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            void deleteAutomation(instance.id).then(() =>
-                                window.location.reload(),
-                            )
-                        }
-                        className="text-xs text-red-500 hover:text-red-700"
-                    >
-                        Remove automation
-                    </button>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            disabled={!instance.enabled}
-                            onClick={() =>
-                                void triggerAutomation(instance.id).then(() =>
-                                    window.location.reload(),
-                                )
-                            }
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 disabled:text-zinc-400"
-                        >
-                            <Play size={12} /> Run now
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() =>
-                                void triggerAutomation(instance.id, true).then(
-                                    () => window.location.reload(),
-                                )
-                            }
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300"
-                        >
-                            <FlaskConical size={12} /> Dry run
-                        </button>
-                    </div>
-                </div>
+                <AutomationTemplateConfiguration instance={instance} />
             )}
         </div>
     );

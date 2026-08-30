@@ -200,6 +200,9 @@ export interface AutomationInstance {
     nextRunAt?: string;
     errorMessage?: string;
     approvalRequired: boolean;
+    dryRun: boolean;
+    localTime?: string;
+    timezone?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -222,6 +225,7 @@ export interface AutomationRunRecord {
     triggerInput?: Record<string, unknown>;
     actionsAttempted?: string[];
     outputGenerated?: string;
+    warnings?: string[];
 }
 
 // Pending approval
