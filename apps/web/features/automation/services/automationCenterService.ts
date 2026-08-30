@@ -46,9 +46,24 @@ export function createAutomation(config: {
     userId: string;
     definitionId: string;
 }) {
-    if (config.definitionId !== 'v1.create-task')
-        return Promise.reject(new Error('Unsupported automation definition'));
-    return centerCommand({ command: 'create_fixture' });
+    if (config.definitionId === 'v1.create-task')
+        return centerCommand({ command: 'create_fixture' });
+    return centerCommand({
+        command: 'create_template',
+        definitionId: config.definitionId,
+        localTime: '09:00',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+        dryRun: true,
+    });
+}
+
+export function configureAutomation(
+    id: string,
+    config: { localTime: string; timezone: string; dryRun: boolean },
+) {
+    return centerCommand({ command: 'configure', id, ...config }).then(
+        () => undefined,
+    );
 }
 
 export function updateAutomation(

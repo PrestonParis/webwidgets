@@ -547,8 +547,11 @@ Automation orchestration extends the same chain rather than duplicating it.
 `automation_configs`, `automation_user_controls`, and `automation_runs` own
 durable policy and run state; the TypeScript worker performs idempotent due
 schedule scans and a final pause check; approved task effects remain canonical
-`action_requests`/`jobs`/`action_results`. The initial V1 fixture is deliberately
-limited to approval-gated local task creation.
+`action_requests`/`jobs`/`action_results`. Four immutable V1 definitions now
+cover commitment capture, daily briefings, calendar preparation, and
+stale-task review. Local-day trigger keys, provider/product receipts, and a
+job-status rollup make schedule, restart, and worker replay safe; external
+writes remain bound to exact approval.
 
 Admin/service-role Supabase access is restricted to `/app/api/**` server
 routes and the dedicated server-only V1 worker (ADR-005 as amended by
