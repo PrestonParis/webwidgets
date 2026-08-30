@@ -1,4 +1,6 @@
 import { expect, test, type APIResponse } from '@playwright/test';
+import { timelineFeedResponseSchema } from '@/features/news/schemas/timelineFeedSchemas';
+import { briefingResponseSchema } from '@/lib/briefings/schemas';
 import {
     countFixtureTasks,
     createReleaseFixture,
@@ -42,7 +44,7 @@ async function json<T>(response: APIResponse): Promise<T> {
     return response.json() as Promise<T>;
 }
 
-test.describe.serial('WebWidgets V1 release journeys', () => {
+test.describe('WebWidgets V1 release journeys', () => {
     let fixture: ReleaseFixture;
 
     test.beforeAll(async () => {
@@ -71,9 +73,12 @@ test.describe.serial('WebWidgets V1 release journeys', () => {
                 data: { url: fixture.failedFeedUrl, fetchIntervalMinutes: 15 },
             }),
         );
+        const eventTime = new Date(Date.now() - 600_000).toISOString();
         const task = await fixture.admin.from('todos').insert({
             user_id: fixture.userId,
             text: 'Synthetic personal timeline fixture',
+            created_at: eventTime,
+            updated_at: eventTime,
         });
         if (task.error) throw task.error;
 
@@ -111,6 +116,11 @@ test.describe.serial('WebWidgets V1 release journeys', () => {
                 healthy: true,
                 failed: true,
             });
+        timelineFeedResponseSchema.parse(
+            await (
+                await page.request.get('/api/news/feed?limit=25')
+            ).json(),
+        );
 
         await json(
             await page.request.post('/api/briefings', {
@@ -143,9 +153,15 @@ test.describe.serial('WebWidgets V1 release journeys', () => {
                 { timeout: 240_000 },
             )
             .toEqual({ cited: true, warned: true });
+        briefingResponseSchema.parse(
+            await (await page.request.get('/api/briefings')).json(),
+        );
         await page.goto('/news');
         await expect(page.getByText('Timeline Intelligence')).toBeVisible();
-        await expect(page.getByText(/source needs attention/)).toBeVisible();
+        await page.getByRole('button', { name: 'Refresh timeline' }).click();
+        await expect(
+            page.getByText(/sources? need(?:s)? attention/),
+        ).toBeVisible();
         await expect(page.getByText(/Evidence:/).first()).toBeVisible();
     });
 

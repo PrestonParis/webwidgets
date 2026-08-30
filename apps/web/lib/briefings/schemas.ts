@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const databaseTimestampSchema = z.iso.datetime({ offset: true });
+
 export const briefingStatusSchema = z.enum([
     'queued',
     'generating',
@@ -23,8 +25,8 @@ export const createBriefingRequestSchema = z.object({
 export const workerBriefingRequestSchema = z.object({
     userId: z.string().uuid(),
     trigger: briefingTriggerSchema,
-    coveredFrom: z.iso.datetime(),
-    coveredTo: z.iso.datetime(),
+    coveredFrom: databaseTimestampSchema,
+    coveredTo: databaseTimestampSchema,
     idempotencyKey: z.string().min(1).max(700),
 });
 
@@ -50,7 +52,7 @@ export const briefingPreferencesRequestSchema = z.object({
 const briefingEvidenceSchema = z.object({
     eventId: z.string().uuid(),
     title: z.string(),
-    occurredAt: z.iso.datetime(),
+    occurredAt: databaseTimestampSchema,
     sourceType: z.string(),
 });
 
@@ -68,10 +70,10 @@ const briefingRecordSchema = z.object({
     id: z.string().uuid(),
     status: briefingStatusSchema,
     trigger: briefingTriggerSchema,
-    coveredFrom: z.iso.datetime(),
-    coveredTo: z.iso.datetime(),
-    generatedAt: z.iso.datetime().nullable(),
-    expiresAt: z.iso.datetime(),
+    coveredFrom: databaseTimestampSchema,
+    coveredTo: databaseTimestampSchema,
+    generatedAt: databaseTimestampSchema.nullable(),
+    expiresAt: databaseTimestampSchema,
     modelProvider: z.string(),
     modelName: z.string(),
     modelVersion: z.string(),

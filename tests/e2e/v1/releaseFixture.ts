@@ -39,6 +39,26 @@ export async function createReleaseFixture(): Promise<ReleaseFixture> {
     });
     if (created.error || !created.data.user)
         throw created.error ?? new Error('Fixture user creation failed');
+    const consent = await admin.from('consent_records').insert([
+        {
+            user_id: created.data.user.id,
+            category: 'intelligence',
+            scope: 'timeline_analysis',
+            state: 'granted',
+            granted_at: new Date().toISOString(),
+        },
+        {
+            user_id: created.data.user.id,
+            category: 'integration',
+            scope: 'email_access',
+            state: 'granted',
+            granted_at: new Date().toISOString(),
+        },
+    ]);
+    if (consent.error) {
+        await admin.auth.admin.deleteUser(created.data.user.id, true);
+        throw consent.error;
+    }
     return {
         admin,
         userId: created.data.user.id,
@@ -56,7 +76,12 @@ export async function createReleaseFixture(): Promise<ReleaseFixture> {
 
 export async function destroyReleaseFixture(fixture: ReleaseFixture) {
     const result = await fixture.admin.auth.admin.deleteUser(fixture.userId);
-    if (result.error) throw result.error;
+    if (!result.error) return;
+    const fallback = await fixture.admin.auth.admin.deleteUser(
+        fixture.userId,
+        true,
+    );
+    if (fallback.error) throw fallback.error;
 }
 
 export async function signIn(page: Page, fixture: ReleaseFixture) {
@@ -64,6 +89,7 @@ export async function signIn(page: Page, fixture: ReleaseFixture) {
     await page.getByPlaceholder('Email address').fill(fixture.email);
     await page.getByPlaceholder('Password').fill(fixture.password);
     await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page.getByPlaceholder('Email address')).toBeHidden();
     await expect
         .poll(async () =>
             (await page.request.get('/api/news/feed?limit=1')).status(),

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const databaseTimestampSchema = z.string().datetime({ offset: true });
+
 export const sourceHealthSchema = z.enum([
     'connected',
     'syncing',
@@ -16,9 +18,9 @@ export const timelineFeedItemSchema = z.object({
     sourceType: z.string(),
     title: z.string(),
     summary: z.string().nullable(),
-    occurredAt: z.string().datetime(),
-    ingestedAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
+    occurredAt: databaseTimestampSchema,
+    ingestedAt: databaseTimestampSchema,
+    updatedAt: databaseTimestampSchema,
     state: z.string(),
     revision: z.number().int(),
     sourceLabel: z.string(),
@@ -41,14 +43,14 @@ export const timelineFeedResponseSchema = z.object({
             providerId: z.string(),
             label: z.string(),
             health: sourceHealthSchema,
-            lastCheckedAt: z.string().datetime().nullable(),
-            lastSucceededAt: z.string().datetime().nullable(),
-            nextSyncAt: z.string().datetime().nullable(),
+            lastCheckedAt: databaseTimestampSchema.nullable(),
+            lastSucceededAt: databaseTimestampSchema.nullable(),
+            nextSyncAt: databaseTimestampSchema.nullable(),
             failureCount: z.number().int().min(0),
             issueCode: z.string().nullable(),
         }),
     ),
-    generatedAt: z.string().datetime(),
+    generatedAt: databaseTimestampSchema,
     nextCursor: z.string().nullable(),
     hasMore: z.boolean(),
     sourceHealthUnavailable: z.boolean(),
