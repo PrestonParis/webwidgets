@@ -32,6 +32,8 @@ of widgets in the repository.
   be silently reversed during implementation.
 - [Implementation prompts](prompts/README.md) turns the delivery plan into an
   ordered queue of bounded, agent-ready tasks.
+- [V1 operations runbook](V1_OPERATIONS_RUNBOOK.md) defines telemetry,
+  thresholds, deployment, rollback, incident response, and recovery.
 
 ## Planning rules
 

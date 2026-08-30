@@ -9,6 +9,7 @@ if (!env.WORKER_INSTANCE_ID) {
         process.env.HOSTNAME ??
         `worker-${process.pid}`;
 }
+env.WORKER_RELEASE_ID ??= process.env.RENDER_GIT_COMMIT;
 
 const runtime = await startWorkerRuntime(env, logger);
 let shutdownStarted = false;

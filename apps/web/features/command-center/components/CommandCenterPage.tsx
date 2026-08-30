@@ -6,6 +6,7 @@ import Header from '@/features/ui/components/Header';
 import { useCommandCenter } from '../hooks/useCommandCenter';
 import { BriefingSection, ChangesSection } from './ChangesAndBriefing';
 import { DecisionsSection, TasksSection } from './DecisionsAndTasks';
+import { RuntimeStatus } from './RuntimeStatus';
 import {
     AutomationHealthSection,
     OutcomesSection,
@@ -61,6 +62,8 @@ export function CommandCenterPage() {
                         </Link>
                     </nav>
                 </header>
+
+                <RuntimeStatus controller={controller} />
 
                 <div className="mt-8 grid gap-5 lg:grid-cols-2">
                     <ChangesSection controller={controller} />

@@ -87,3 +87,8 @@ export interface AutomationSummary {
 export interface SeenState {
     lastSeenAt: string | null;
 }
+
+export interface RuntimeHealth {
+    state: 'operational' | 'degraded';
+    lastSeenAt: string | null;
+}

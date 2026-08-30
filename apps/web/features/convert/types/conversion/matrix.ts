@@ -24,7 +24,7 @@ function docRoute(
     };
 }
 
-export const supportedConversionMatrix: SupportedConversion[] = [
+const conversionCatalog: SupportedConversion[] = [
     docRoute('doc', 'pdf', 'libreoffice', {
         notes: 'Legacy Word layout fidelity is best-effort.',
     }),
@@ -235,3 +235,7 @@ export const supportedConversionMatrix: SupportedConversion[] = [
         worker: 'worker-images',
     },
 ];
+
+export const supportedConversionMatrix = conversionCatalog.filter(
+    (conversion) => conversion.sourceExtension !== 'html',
+);

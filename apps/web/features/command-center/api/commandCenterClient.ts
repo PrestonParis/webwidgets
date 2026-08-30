@@ -5,6 +5,7 @@ import type {
     Candidate,
     CommandTask,
     SeenState,
+    RuntimeHealth,
     SourceHealth,
     TimelineChange,
 } from '../types/commandCenter';
@@ -82,4 +83,8 @@ export function markCommandCenterSeen() {
     return jsonRequest<SeenState>('/api/command-center/seen', {
         method: 'POST',
     });
+}
+
+export function fetchRuntimeHealth() {
+    return jsonRequest<RuntimeHealth>('/api/command-center/health');
 }

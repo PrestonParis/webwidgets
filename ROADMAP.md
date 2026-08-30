@@ -73,13 +73,13 @@ it.
 | Chess                                      | working, suspended beta   | Lichess sync, PGN import, studies, and move trainer remain available to existing users but are outside V1 defaults and completion claims.                                                                                                                                        |
 | Reading platform                           | working, suspended beta   | Bible/Quran/PDF via provider abstraction, annotations, and plans remain available to existing users but are outside V1 defaults and completion claims.                                                                                                                           |
 | Creative Studio / Memorization             | working, suspended beta   | Existing widgets and data paths remain intact; both are excluded from V1 onboarding, generated workspaces, and automatic recommendations.                                                                                                                                        |
-| Timeline Intelligence (`news`)             | working, bounded V1       | The authenticated page and widget render canonical events, source health, evidence-backed briefings, and editable commitment candidates. Exact approval now creates one durable, verified local task with retry and safe compensation. Calendar/provider execution remains Prompt 014; Outlook Calendar still requires explicit consent. |
+| Timeline Intelligence (`news`)             | working, bounded V1       | The command center and timeline render canonical events, source health, evidence-backed briefings, editable commitment candidates, exact-approved actions, and verified outcomes across the V1 loop. |
 | Context graph (`features/context/`)        | partial                   | ADR-009 defines it as a projection. The context substrate is now deployed, but rich-write behavior and projection integration still require end-to-end verification.                                                                                                             |
 | Knowledge registry (`features/knowledge/`) | unknown                   | Owns user-authored durable content under ADR-009; functional depth remains unverified.                                                                                                                                                                                           |
 | ML service                                 | working                   | FastAPI, model registry, drift monitor, 4-file pytest suite, 10 training scripts.                                                                                                                                                                                                |
 | Go worker (cache/snapshot/events)          | broken                    | All 3 subsystems are stub no-ops (identical `// TODO: In future phases` markers). Nothing depends on it persisting data safely today.                                                                                                                                            |
-| Conversion service                         | partial                   | Functional locally via docker-compose; no production deploy path found; self-documented unsanitized-HTML-input gap (security).                                                                                                                                                   |
-| V1 worker                                  | deployed for finalization | The free Render worker passed readiness, heartbeat, and duplicate runtime probes. One entrypoint starts all four consumers and routes exact-approved local and provider actions while preserving provider-specific idempotency and receipts. Paid continuous compute and persistent queue delivery remain the production upgrade. |
+| Conversion service                         | partial, suspended beta   | Functional locally via docker-compose; no production deploy path. Unsafe HTML-input routes are disabled, dependency audit is clean, and HTML output remains supported. |
+| V1 worker                                  | deployed for finalization | The free Render worker runs all four consumers, persists dependency heartbeats, reports durable queue/action/source health, and routes exact-approved actions with provider idempotency and receipts. Paid continuous compute and persistent queue delivery remain the production upgrade. |
 | Onboarding                                 | working                   | Goal discovery, intent capture, widget selection, workspace generation — described as a finished pass.                                                                                                                                                                           |
 | Admin panel                                | unknown                   | Feature-complete per FEATURE_LIST.md scope (users/flags/audit/metrics/ML/jobs); functional depth not verified.                                                                                                                                                                   |
 | Billing (Stripe)                           | working                   | Checkout, webhooks, customer portal present.                                                                                                                                                                                                                                     |
@@ -87,9 +87,9 @@ it.
 | Personalization (stage 6)                  | partial                   | Cross-widget intelligence goals documented in PERSONALIZE.md; onboarding-time personalization exists; full cross-widget adaptation (e.g. "workout tracked → nutrition adjusts") not verified as implemented.                                                                     |
 | ML predictions beyond email (stage 3)      | working foundation        | Governed Anthropic summarization, research synthesis, and commitment resolution are available with paid-tier, consent, schema, audit, cost, rate, evidence, and abstention controls. Briefings and candidate review now consume this boundary.                                   |
 | Widget-based actions (stage 4)             | partial                   | Email draft/send, Calendar create/cancel, local tasks, and configured workflow runs use canonical approval and receipts. Generate document, export data, and summarize file remain unverified.                                                                                                                                                   |
-| Security (stage 7)                         | partial, critical gaps    | Import/export log RLS is deployed. Four owner-readable tables still expose raw credential columns to authenticated browser sessions, and the audited SECURITY DEFINER hardening remains open.                                                                                    |
+| Security (stage 7)                         | working, bounded V1       | Prompt 18 closes known critical/high V1 findings: provider keys are server-only, metrics fail closed, unsafe HTML input is disabled, webhook secrets use constant-time comparison, and owner/action boundaries have automated evidence. Broader platform hardening remains post-pilot work. |
 | Deployment (stage 8)                       | working (partially)       | Web deploys to Vercel and the V1 worker is deployed as a free Render web service with non-persistent Key Value. The paid worker/persistent queue production cutover, conversion, and Go remain without completed production paths.                                               |
-| Schema/migration tracking                  | working, audited          | Local and remote migration history aligns through Prompt 16. Briefing, commitment-review, task, email, calendar, workflow, automation-state, and bounded-template migrations are tracked.                                                                                                                                                         |
+| Schema/migration tracking                  | working, audited          | Local and remote migration history aligns through Prompt 17; Prompt 18 operations and credential-boundary migrations are tracked and locally verified for deployment. |
 | CI                                         | working (baseline)        | `.github/workflows/ci.yml` gates changed files only (lint/typecheck/tests/build); see `.github/workflows/README.md`. Branch-protection required-checks still need repo-owner configuration — not something a workflow file alone can do.                                         |
 | Automated test coverage                    | partial                   | 52 unit test files (shallow, one per domain); e2e has heavy scaffolding but only 3 real spec files; 4 of 8 `test:*` e2e npm scripts point at nonexistent directories.                                                                                                            |
 | Local commit-time quality gates            | broken                    | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today.                                                                                                                                                                 |
@@ -106,12 +106,9 @@ workflow this bootstrap sets up from being trustworthy.
   but marking its jobs as required status checks on `main` is a repository
   settings change only the repo owner can make (Settings → Branches). Until
   that's done, CI runs and reports but doesn't actually block a merge.
-- **Finish the remaining audited P0 credential boundary** — import/export log
-  RLS and email credential isolation are deployed. `profiles` and
-  `user_integration_keys` still need a server-only store/projection and
-  rotation plan.
-- **Fix the unsanitized-HTML-input gap** in the conversion pipeline
-  (self-flagged in 3 files) — a live security TODO, not speculative.
+- **Connect external alert delivery** — Prompt 18 provides durable telemetry,
+  protected Prometheus metrics, thresholds, and tracked alert rules. Configure
+  the scrape target and receiver before expanding beyond the staging pilot.
 - **Prune or fix the broken e2e npm scripts** (`test:dashboard`,
   `test:performance`, `test:hydration` target directories that don't exist)
   — a DEFINITION_OF_DONE that references these as gates would be lying.
@@ -181,8 +178,9 @@ not a general cleanup wishlist.
   delete them — their presence currently implies infrastructure that
   doesn't exist.
 - **Duplicated conversion-matrix logic** across `apps/web` and
-  `services/conversion` (near-identical files, same unsanitized-HTML TODO in
-  both) — a drift risk any time one copy is fixed and the other isn't.
+  `services/conversion` remains a drift risk. Prompt 18 disables HTML input in
+  both copies and tests the server boundary, but the catalogs should eventually
+  share one generated source.
 - **Playwright `critical`/`performance`/`slow` tag-based projects** in
   `playwright.config.ts` have no matching spec files — dead configuration
   that implies coverage that doesn't exist.

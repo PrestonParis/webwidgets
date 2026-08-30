@@ -1,5 +1,10 @@
 import { timingSafeEqual } from 'node:crypto';
-import { createServer, type IncomingMessage, type Server } from 'node:http';
+import {
+    createServer,
+    type IncomingMessage,
+    type Server,
+    type ServerResponse,
+} from 'node:http';
 import IORedis from 'ioredis';
 import { z } from 'zod';
 import type { WorkerEnv } from './env.js';
@@ -21,6 +26,8 @@ interface ReadinessChecks {
     redis(): Promise<boolean>;
     supabase(): Promise<boolean>;
 }
+
+type HeartbeatRecorder = (readiness: ReadinessResult) => Promise<void>;
 
 const briefingRequestSchema = z.object({
     userId: z.string().uuid(),
@@ -58,8 +65,8 @@ export function createReadinessChecker(
 ) {
     return async (): Promise<ReadinessResult> => {
         const [redis, supabase] = await Promise.all([
-            boundedCheck(checks.redis, timeoutMs),
-            boundedCheck(checks.supabase, timeoutMs),
+            boundedCheck(() => checks.redis(), timeoutMs),
+            boundedCheck(() => checks.supabase(), timeoutMs),
         ]);
         return { ready: redis && supabase, redis, supabase };
     };
@@ -101,13 +108,86 @@ function authorized(request: IncomingMessage, token: string) {
 async function readBody(request: IncomingMessage) {
     const chunks: Buffer[] = [];
     let size = 0;
-    for await (const chunk of request) {
-        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    for await (const chunk of request as AsyncIterable<unknown>) {
+        if (!(typeof chunk === 'string' || chunk instanceof Uint8Array)) {
+            throw new Error('invalid_body_chunk');
+        }
+        const buffer = Buffer.from(chunk);
         size += buffer.length;
         if (size > 32_768) throw new Error('body_too_large');
         chunks.push(buffer);
     }
     return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
+}
+
+interface RequestHandlerOptions {
+    token: string;
+    checkReadiness: () => Promise<ReadinessResult>;
+    isShuttingDown: () => boolean;
+    enqueueBriefing: (input: BriefingRequest) => Promise<string>;
+    enqueueAction: (input: ActionRequest) => Promise<string>;
+}
+
+function createRequestHandler(options: RequestHandlerOptions) {
+    return async (request: IncomingMessage, response: ServerResponse) => {
+        if (request.method === 'POST' && request.url === '/v1/jobs/briefings') {
+            if (!authorized(request, options.token)) {
+                respond(response, 401, { status: 'unauthorized' });
+                return;
+            }
+            try {
+                const input = briefingRequestSchema.parse(
+                    await readBody(request),
+                );
+                const jobId = await options.enqueueBriefing(input);
+                respond(response, 202, { jobId });
+            } catch (error) {
+                const status = error instanceof z.ZodError ? 400 : 503;
+                respond(response, status, {
+                    status:
+                        status === 400 ? 'invalid_request' : 'enqueue_failed',
+                });
+            }
+            return;
+        }
+        if (request.method === 'POST' && request.url === '/v1/jobs/actions') {
+            if (!authorized(request, options.token)) {
+                respond(response, 401, { status: 'unauthorized' });
+                return;
+            }
+            try {
+                const input = actionRequestSchema.parse(
+                    await readBody(request),
+                );
+                const jobId = await options.enqueueAction(input);
+                respond(response, 202, { jobId });
+            } catch (error) {
+                const status = error instanceof z.ZodError ? 400 : 503;
+                respond(response, status, {
+                    status:
+                        status === 400 ? 'invalid_request' : 'enqueue_failed',
+                });
+            }
+            return;
+        }
+        if (request.method !== 'GET') {
+            respond(response, 405, { status: 'method_not_allowed' });
+            return;
+        }
+        if (request.url === '/live') {
+            const shuttingDown = options.isShuttingDown();
+            respond(response, shuttingDown ? 503 : 200, {
+                status: shuttingDown ? 'stopping' : 'alive',
+            });
+            return;
+        }
+        if (request.url === '/ready') {
+            const readiness = await options.checkReadiness();
+            respond(response, readiness.ready ? 200 : 503, readiness);
+            return;
+        }
+        respond(response, 404, { status: 'not_found' });
+    };
 }
 
 export async function startHealthServer(
@@ -116,6 +196,7 @@ export async function startHealthServer(
     logger: RuntimeLogger,
     enqueueBriefing: (input: BriefingRequest) => Promise<string>,
     enqueueAction: (input: ActionRequest) => Promise<string>,
+    recordHeartbeat: HeartbeatRecorder,
 ): Promise<RuntimeHealth> {
     const redis = new IORedis(env.REDIS_URL, {
         maxRetriesPerRequest: 1,
@@ -134,76 +215,44 @@ export async function startHealthServer(
         supabase: () => store.checkConnection(),
     });
     let shuttingDown = false;
-    const server = createServer(async (request, response) => {
-        if (request.method === 'POST' && request.url === '/v1/jobs/briefings') {
-            if (!authorized(request, env.WORKER_API_TOKEN)) {
-                respond(response, 401, { status: 'unauthorized' });
-                return;
+    const handleRequest = createRequestHandler({
+        token: env.WORKER_API_TOKEN,
+        checkReadiness,
+        isShuttingDown: () => shuttingDown,
+        enqueueBriefing,
+        enqueueAction,
+    });
+    const server = createServer((request, response) => {
+        void handleRequest(request, response).catch(() => {
+            if (!response.headersSent) {
+                respond(response, 503, { status: 'health_check_failed' });
             }
-            try {
-                const input = briefingRequestSchema.parse(
-                    await readBody(request),
-                );
-                const jobId = await enqueueBriefing(input);
-                respond(response, 202, { jobId });
-            } catch (error) {
-                const status = error instanceof z.ZodError ? 400 : 503;
-                respond(response, status, {
-                    status:
-                        status === 400 ? 'invalid_request' : 'enqueue_failed',
-                });
-            }
-            return;
-        }
-        if (request.method === 'POST' && request.url === '/v1/jobs/actions') {
-            if (!authorized(request, env.WORKER_API_TOKEN)) {
-                respond(response, 401, { status: 'unauthorized' });
-                return;
-            }
-            try {
-                const input = actionRequestSchema.parse(
-                    await readBody(request),
-                );
-                const jobId = await enqueueAction(input);
-                respond(response, 202, { jobId });
-            } catch (error) {
-                const status = error instanceof z.ZodError ? 400 : 503;
-                respond(response, status, {
-                    status:
-                        status === 400 ? 'invalid_request' : 'enqueue_failed',
-                });
-            }
-            return;
-        }
-        if (request.method !== 'GET') {
-            respond(response, 405, { status: 'method_not_allowed' });
-            return;
-        }
-        if (request.url === '/live') {
-            respond(response, shuttingDown ? 503 : 200, {
-                status: shuttingDown ? 'stopping' : 'alive',
-            });
-            return;
-        }
-        if (request.url === '/ready') {
-            const readiness = await checkReadiness();
-            respond(response, readiness.ready ? 200 : 503, readiness);
-            return;
-        }
-        respond(response, 404, { status: 'not_found' });
+        });
     });
     await listen(server, env.HEALTH_PORT);
-    const heartbeat = setInterval(() => {
-        void checkReadiness().then((readiness) => {
+    const writeHeartbeat = async () => {
+        const readiness = await checkReadiness();
+        try {
+            await recordHeartbeat(readiness);
+        } catch {
+            logger.warn('worker heartbeat persistence failed', {
+                instanceId: env.WORKER_INSTANCE_ID ?? null,
+            });
+        } finally {
             logger[readiness.ready ? 'info' : 'warn']('worker heartbeat', {
                 instanceId: env.WORKER_INSTANCE_ID ?? null,
                 ready: readiness.ready,
                 redis: readiness.redis,
                 supabase: readiness.supabase,
             });
-        });
-    }, env.HEARTBEAT_INTERVAL_MS);
+        }
+    };
+    const heartbeat = setInterval(
+        () => void writeHeartbeat(),
+        env.HEARTBEAT_INTERVAL_MS,
+    );
     heartbeat.unref();
+    void writeHeartbeat();
     return {
         checkReadiness,
         close: async () => {

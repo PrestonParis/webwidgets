@@ -105,6 +105,26 @@ export async function startWorkerRuntime(
                     },
                     maxAttempts: 3,
                 }),
+            async (readiness) => {
+                const result = await client
+                    .from('worker_runtime_heartbeats')
+                    .upsert(
+                        {
+                            instance_id: env.WORKER_INSTANCE_ID,
+                            release_id: env.WORKER_RELEASE_ID ?? null,
+                            ready: readiness.ready,
+                            redis_ready: readiness.redis,
+                            supabase_ready: readiness.supabase,
+                            seen_at: new Date().toISOString(),
+                            metadata: {
+                                dryRun: env.WORKER_DRY_RUN,
+                                providerSyncEnabled: env.PROVIDER_SYNC_ENABLED,
+                            },
+                        },
+                        { onConflict: 'instance_id' },
+                    );
+                if (result.error) throw result.error;
+            },
         );
         const readiness = await health.checkReadiness();
         if (!readiness.ready) throw new Error('Runtime dependencies not ready');

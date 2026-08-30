@@ -1,0 +1,61 @@
+groups:
+  - name: webwidgets-v1
+    rules:
+      - alert: WebWidgetsWorkerDegraded
+        expr: dashboard_v1_worker_healthy == 0
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          {
+            summary: 'V1 worker heartbeat is stale or dependency checks are failing',
+          }
+      - alert: WebWidgetsWorkerUnavailable
+        expr: dashboard_v1_worker_healthy == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          { summary: 'V1 worker has been unavailable for five minutes' }
+      - alert: WebWidgetsQueueBacklog
+        expr: dashboard_v1_queue_depth > 100
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: 'V1 queue depth exceeds the staging threshold' }
+      - alert: WebWidgetsQueueStalled
+        expr: dashboard_v1_oldest_queue_age_seconds > 300
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          { summary: 'Oldest V1 queued job is more than five minutes old' }
+      - alert: WebWidgetsDeadLetter
+        expr: dashboard_v1_dead_letters_24h > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations: { summary: 'A canonical V1 job entered dead-letter state' }
+      - alert: WebWidgetsPersistedTimelineDuplicate
+        expr: dashboard_v1_persisted_timeline_duplicate_groups > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations: { summary: 'Timeline idempotency invariant was violated' }
+      - alert: WebWidgetsActionOutcomeUnknown
+        expr: dashboard_v1_action_failed_or_unknown_24h > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations: { summary: 'A V1 action failed or has an unknown outcome' }
+      - alert: WebWidgetsInferenceCostHigh
+        expr: dashboard_v1_inference_estimated_cost_usd_24h > 5
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          {
+            summary: 'V1 estimated inference cost exceeded the pilot daily ceiling',
+          }
+      - alert: WebWidgetsSourceOverdue
+        expr: dashboard_v1_overdue_sources > 0
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: 'One or more enabled sources are overdue' }
+      - alert: WebWidgetsAutomationFailure
+        expr: dashboard_v1_automation_failures_24h > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations: { summary: 'A V1 automation failed or dead-lettered' }

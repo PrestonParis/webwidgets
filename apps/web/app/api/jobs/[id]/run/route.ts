@@ -13,7 +13,7 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
     try {
-        const { supabase } = await createClients();
+        const { supabase, supabaseAdmin } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { id } = await params;
 
@@ -42,7 +42,7 @@ export async function POST(
 
         // Run synchronously — fine for Stage 1 job sizes.
         // Switch to async queue when job execution time exceeds ~25s.
-        await runner.run(job, supabase);
+        await runner.run(job, supabase, supabaseAdmin);
 
         return NextResponse.json({ success: true, jobId: id });
     } catch (err) {

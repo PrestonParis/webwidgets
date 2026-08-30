@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { startGoogleConnection } from '@/lib/auth/googleConnection';
+import {
+    deleteEmailIntelligenceKey,
+    getEmailIntelligenceKeyStatus,
+    saveEmailIntelligenceKey,
+} from '../api/integrationKeysClient';
 
 const profileSchema = z.object({
     full_name: z.string().nullable().optional(),
     use_ai_email: z.boolean().optional(),
-    anthropic_api_key: z.string().nullable().optional(),
 });
 
 const tokenSchema = z.object({
@@ -31,7 +35,7 @@ async function fetchUserSettingsData(user: User): Promise<SettingsData> {
     const [profileResult, tokenResult] = await Promise.all([
         db
             .from('profiles')
-            .select('full_name, use_ai_email, anthropic_api_key')
+            .select('full_name, use_ai_email')
             .eq('id', user.id)
             .single(),
         db
@@ -46,7 +50,7 @@ async function fetchUserSettingsData(user: User): Promise<SettingsData> {
     return {
         fullName: profile?.full_name ?? '',
         useAIEmail: profile?.use_ai_email ?? false,
-        anthropicApiKey: profile?.anthropic_api_key ?? '',
+        anthropicApiKey: '',
         isGmailConnected: !!googleIdentity,
         isCalendarConnected: token.success
             ? (token.data.has_calendar ?? false)
@@ -64,6 +68,7 @@ export function useSettings() {
     const [isCalendarConnected, setIsCalendarConnected] = useState(false);
     const [useAIEmail, setUseAIEmail] = useState(false);
     const [anthropicApiKey, setAnthropicApiKey] = useState('');
+    const [hasAnthropicApiKey, setHasAnthropicApiKey] = useState(false);
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -73,10 +78,14 @@ export function useSettings() {
             }
 
             const load = async () => {
-                const data = await fetchUserSettingsData(user);
+                const [data, keyStatus] = await Promise.all([
+                    fetchUserSettingsData(user),
+                    getEmailIntelligenceKeyStatus(),
+                ]);
                 setFullName(data.fullName);
                 setUseAIEmail(data.useAIEmail);
                 setAnthropicApiKey(data.anthropicApiKey);
+                setHasAnthropicApiKey(keyStatus.hasKey);
                 setIsGmailConnected(data.isGmailConnected);
                 setIsCalendarConnected(data.isCalendarConnected);
                 setLoading(false);
@@ -120,10 +129,19 @@ export function useSettings() {
     const handleSaveApiKey = async () => {
         if (!user) return;
         setSaving(true);
-        const { error } = await db.from('profiles').upsert({
-            id: user.id,
-            anthropic_api_key: anthropicApiKey || null,
-        });
+        let error = false;
+        try {
+            if (anthropicApiKey.trim()) {
+                await saveEmailIntelligenceKey(anthropicApiKey.trim());
+                setHasAnthropicApiKey(true);
+            } else {
+                await deleteEmailIntelligenceKey();
+                setHasAnthropicApiKey(false);
+            }
+            setAnthropicApiKey('');
+        } catch {
+            error = true;
+        }
         setSaving(false);
         if (error) alert('Failed to save API key');
     };
@@ -138,6 +156,7 @@ export function useSettings() {
         isCalendarConnected,
         useAIEmail,
         anthropicApiKey,
+        hasAnthropicApiKey,
         setAnthropicApiKey,
         handleGoogleConnect,
         handleConnectCalendar,

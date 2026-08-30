@@ -8,6 +8,7 @@ import {
     fetchBriefingSummary,
     fetchCandidates,
     fetchSeenState,
+    fetchRuntimeHealth,
     fetchTasks,
     fetchTimelineSummary,
     markCommandCenterSeen,
@@ -41,6 +42,11 @@ export function useCommandCenter() {
     const seen = useQuery({
         queryKey: ['command-center', 'seen'],
         queryFn: fetchSeenState,
+    });
+    const runtime = useQuery({
+        queryKey: ['command-center', 'runtime'],
+        queryFn: fetchRuntimeHealth,
+        refetchInterval: 60_000,
     });
     const markSeen = useMutation({ mutationFn: markCommandCenterSeen });
     useEffect(() => {
@@ -82,6 +88,7 @@ export function useCommandCenter() {
         candidates,
         tasks,
         automation,
+        runtime,
         seen,
         review,
         finishTask,

@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/lib/requestUser';
-import { db } from '@/lib/db/supabase';
+import { createCredentialClients } from '@/app/api/auth/_lib/credentialClients';
 import { deleteModelKey } from '@/features/chatbot/services/chatService';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ModelProvider } from '@/features/chatbot/types/chat';
@@ -12,10 +10,9 @@ export async function DELETE(
 ) {
     try {
         const { provider } = await params;
-        const { supabase } = await createClients();
-        const userId = await getRequestUserId(supabase);
+        const { supabaseAdmin, userId } = await createCredentialClients();
         await deleteModelKey(
-            db as unknown as SupabaseClient,
+            supabaseAdmin as unknown as SupabaseClient,
             userId,
             provider as ModelProvider,
         );

@@ -1,6 +1,6 @@
 # 018 — Complete V1 Security and Operational Hardening
 
-Status: Ready
+Status: Complete
 Priority: Critical  
 Depends on: 005 through 017
 
@@ -59,3 +59,19 @@ staging pilot.
 - Operators can trace and recover a failed run without reading private source
   bodies.
 - Release thresholds can be measured from actual telemetry.
+
+## Completion record — 2026-08-30
+
+Prompt 18 closed the known critical/high V1 findings. Migrations
+`202608300003`–`202608300005` add content-free worker telemetry and move raw
+profile, integration, and model provider keys behind authenticated server
+routes. The command center now reports a stale/degraded runtime without false
+success; protected Prometheus metrics and an admin snapshot expose measurable
+queue, source, inference, briefing, candidate, action, and automation signals.
+
+Unsafe HTML-input conversion is disabled at both catalogs and the server
+policy boundary. Webhook and metrics secrets use fail-closed constant-time
+checks. Conversion dependencies audit clean. The dated audit, alert rules, and
+operator runbook record the threat model, thresholds, deploy/rollback,
+dead-letter recovery, backups, and proportional outage exercises. Prompt 019
+is unblocked for end-to-end release proof and the staging soak gate.
