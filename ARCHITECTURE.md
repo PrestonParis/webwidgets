@@ -55,7 +55,11 @@ flowchart TB
     subgraph LocalDockerOnly["Docker-compose only — no prod deploy config found"]
         GoWorker["Go Worker\nservices/go_services/worker\ncache / snapshot / events — all stubbed"]
         Conversion["Conversion Service\nservices/conversion\nfastify + BullMQ + Postgres + Redis + MinIO"]
-        SyncWorker["Sync Worker\nservices/sync-worker\nBullMQ + Redis"]
+    end
+
+    subgraph Render["Render — finalization topology"]
+        SyncWorker["V1 Sync Worker\nservices/sync-worker\nfree web compatibility service"]
+        V1Queue["Key Value\nfree non-persistent Redis"]
     end
 
     n8n["n8n\nscheduled syncs, webhooks, long-running automation"]
@@ -64,6 +68,9 @@ flowchart TB
     NextApp -->|"HTTP, ML_SERVICE_URL"| MLService
     NextApp -->|"anon key + RLS (client), service-role key (server routes only)"| Supabase
     NextApp -->|goWorker client, lib/goWorker/| GoWorker
+    NextApp -->|authenticated job submission| SyncWorker
+    SyncWorker -->|canonical state| Supabase
+    SyncWorker -->|delivery only| V1Queue
     NextApp -->|N8N_BASE_URL, server-only| n8n
     n8n -->|webhooks| NextApp
     NextApp -.->|no prod route confirmed| Conversion
@@ -88,8 +95,9 @@ supported production path.
 
 ### Accepted V1 ownership target
 
-ADR-008 through ADR-014 define the accepted target. The worker runtime and
-manifest are implemented, but this is not a claim that Render is provisioned:
+ADR-008 through ADR-015 define the accepted target. The worker runtime and
+manifest are implemented and the free finalization topology is provisioned;
+the production compute/storage cutover remains outstanding:
 
 - `services/sync-worker` becomes the one continuously running V1
   TypeScript/BullMQ worker for polling, normalization, analysis schedules,
@@ -566,14 +574,10 @@ jobs, approvals, action outcomes, automation state, and audit. BullMQ/Redis is
 at-least-once delivery only; every queue job references a canonical record and
 deterministic idempotency key (ADR-010). The target data model is implemented,
 verified, deployed, and represented in generated types. Production connector
-automation remains blocked on credential isolation and a reviewed worker
-deployment.
-
-Credential isolation is also unresolved: owner-readable policies protect
-cross-user access but allow authenticated browser sessions to select raw
-credential columns from `profiles`, `user_tokens`, `user_email_accounts`, and
-`user_integration_keys`. V1 must move these behind a server-only credential
-boundary before connector automation is considered secure.
+automation uses the reviewed server/worker boundary. The email and
+model/provider-key tables used by V1 have server-only secret access. Broader
+legacy credential findings in `profiles` and `user_integration_keys` remain
+post-pilot hardening and are not V1 connector storage.
 
 The approved Prompt 014 prerequisite is deployed: email tables retain
 credentials but revoke browser token-column access while
@@ -625,12 +629,21 @@ phases, this will...` marker at the same line — cache writes, snapshot
 - **Conversion service** (`services/conversion/`) — fastify API + BullMQ
   worker + Postgres + Redis + MinIO, its own docker-compose stack, own
   migrations directory (`infra/docker/initdb/`, separate database from the
-  main Supabase project). Self-documented, duplicated-in-3-places gap: HTML
-  input to the conversion pipeline is **not sanitized** before processing
-  (`conversionMatrix.ts` exists near-identically in both `apps/web` and
-  `services/conversion`, plus a third TODO in
-  `spreadsheetProcessor.ts` — these copies can drift; changes to the
-  sanitizer gap should update all three).
+  main Supabase project). HTML input is disabled at both catalog and server
+  boundaries; HTML output remains supported. The conversion matrix is still
+  duplicated between the web app and service, so future format changes must
+  keep both copies aligned.
+
+### V1 release proof
+
+Prompt 19 uses one disposable confirmed account, a public synthetic RSS
+fixture, canonical production-like services, and three Chromium journeys. The
+suite deletes the account after the run and never commits private content.
+Numerical thresholds are frozen in
+`docs/finalization/V1_LAUNCH_THRESHOLDS.md`; seven consecutive qualifying days
+and human release-owner approval remain release-state inputs rather than code
+flags. GitHub required checks are an external repository control and cannot be
+inferred from the CI workflow file.
 
 ---
 

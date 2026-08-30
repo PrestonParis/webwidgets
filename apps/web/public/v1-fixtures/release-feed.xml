@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>WebWidgets V1 Release Fixture</title>
+    <link>https://webwidgets.me/</link>
+    <description>Public synthetic evidence for the controlled V1 staging pilot.</description>
+    <item>
+      <guid>webwidgets-v1-release-fixture-1</guid>
+      <title>Fixture source confirms healthy timeline ingestion</title>
+      <link>https://webwidgets.me/v1-fixtures/release-evidence</link>
+      <description>Synthetic content only. No private user data is present.</description>
+    </item>
+  </channel>
+</rss>

@@ -63,12 +63,11 @@ the gaps that made that baseline possible in the first place.
   persistence, file upload/viewing, context recall, or an integration
   connect flow. Do not add E2E coverage for anything else; it's expensive
   and this repo's E2E layer is already thinner than its scaffolding implies.
-- **Do not treat `npm run test:dashboard`, `test:performance`, or
-  `test:hydration` as functioning gates** — as of this audit they point at
-  directories that don't exist (`tests/e2e/dashboard`, `tests/e2e/performance`,
-  `tests/e2e/hydration`). If a task is meant to add that coverage, say so
-  explicitly; otherwise use `test:widgets`, `test:traversal`, or a scoped
-  Playwright invocation against real spec files.
+- `npm run test:dashboard`, `test:integrations`, `test:runtime`, and
+  `test:v1` point at committed specs and use Chromium as the documented
+  release browser. Firefox, WebKit, and mobile remain available through
+  explicit Playwright project selection; no npm command implies coverage for
+  a nonexistent test directory.
 - Never weaken, skip, or delete a test to make CI pass. If a test is
   actually wrong (asserts old, incorrect behavior), fix the test and say
   why in the PR — don't just remove the assertion.

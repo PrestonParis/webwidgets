@@ -593,3 +593,26 @@ between a provider response and receipt persistence.
 reconciliation. A draft can never inherit send approval; send has no promised
 undo. Calendar cancellation is a separate explicit action. Legacy direct
 workflow triggering returns a canonical-approval-required error.
+
+---
+
+## ADR-026: Treat Release Readiness as Measured State, Not a Build Flag
+
+**Status:** Active
+
+**Decision:** The V1 release gate combines a disposable-account production-like
+E2E suite, frozen numerical thresholds, seven consecutive daily evidence
+windows, repository enforcement, production topology, and a human release
+owner. The suite uses only synthetic committed fixture content and deletes its
+account. CI configuration without enforced required checks is reported as an
+external blocker, not treated as protection.
+
+**Why:** Durable jobs and exact receipts can be correct in isolation while the
+deployed product still loses data, sleeps through schedules, duplicates an
+effect, or presents an unhealthy source as healthy. Release readiness is an
+observed operational property and needs an accountable decision owner.
+
+**Consequences:** Prompt 19 remains incomplete until all seven pilot days and
+human approval exist. Missing evidence restarts the consecutive-day count.
+Agents can recommend Go, Conditional Go, or No Go but cannot self-certify or
+merge their own release PR.

@@ -105,12 +105,6 @@ outcome. Activity and context remain projections.
 parallel approval, execution, or job database would split idempotency and make
 the user-visible result impossible to trace reliably.
 
-## Pending implementation decisions
-
-- Complete the separate provider credential-isolation remediation.
-- Set measurable launch thresholds for intelligence precision, duplicate
-  rate, latency, reliability, and inference cost.
-
 ## FIN-009: Use Render for the dark V1 worker deployment
 
 **Status:** Accepted production target; free finalization path active
@@ -306,3 +300,20 @@ copied at approval, and execution reuses the existing `action_requests`,
 **Reason:** A separate automation executor or model-authored policy would split
 idempotency and approval semantics. Reusing the canonical action receipt makes
 restart, retry, pause, and history behavior independently verifiable.
+
+## FIN-021: Require Measured Release Proof and Human Ownership
+
+**Status:** Accepted; evidence collection active
+
+**Decision:** Freeze numerical V1 launch thresholds before the pilot. Prove the
+three V1 journeys with a disposable controlled account and synthetic public
+RSS fixture, then require seven complete consecutive days of safe operational
+evidence. Any silent data loss, duplicate side effect, fake success, uncited
+claim, approval/pause bypass, or critical/high security finding is an automatic
+No Go. The implementing agent may collect evidence but cannot approve or merge
+the release.
+
+**Reason:** Code presence and green unit tests do not establish product or
+operational readiness. A fixed threshold contract, production-like journey
+suite, and accountable human decision prevent the release bar from moving in
+response to failures.
