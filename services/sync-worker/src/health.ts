@@ -97,6 +97,16 @@ function closeServer(server: Server) {
     });
 }
 
+function serializeCheck(check: () => Promise<boolean>) {
+    let pending: Promise<boolean> | undefined;
+    return () => {
+        pending ??= check().finally(() => {
+            pending = undefined;
+        });
+        return pending;
+    };
+}
+
 function authorized(request: IncomingMessage, token: string) {
     const supplied = request.headers.authorization?.replace(/^Bearer\s+/i, '');
     if (!supplied) return false;
@@ -205,13 +215,14 @@ export async function startHealthServer(
         retryStrategy: () => null,
     });
     redis.on('error', () => undefined);
+    const checkRedis = serializeCheck(async () => {
+        if (redis.status === 'wait' || redis.status === 'end') {
+            await redis.connect();
+        }
+        return (await redis.ping()) === 'PONG';
+    });
     const checkReadiness = createReadinessChecker({
-        redis: async () => {
-            if (redis.status === 'wait' || redis.status === 'end') {
-                await redis.connect();
-            }
-            return (await redis.ping()) === 'PONG';
-        },
+        redis: checkRedis,
         supabase: () => store.checkConnection(),
     });
     let shuttingDown = false;
@@ -252,7 +263,7 @@ export async function startHealthServer(
         env.HEARTBEAT_INTERVAL_MS,
     );
     heartbeat.unref();
-    void writeHeartbeat();
+    await writeHeartbeat();
     return {
         checkReadiness,
         close: async () => {
