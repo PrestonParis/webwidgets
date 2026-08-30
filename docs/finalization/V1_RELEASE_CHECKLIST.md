@@ -3,7 +3,8 @@
 ## Pre-deployment
 
 - [ ] Seven consecutive pilot days meet every frozen launch threshold.
-- [ ] `npm run test:v1` passes against the production-like services.
+- [x] The three `test:v1` journeys passed against production-like services on
+      2026-08-30 (3 passed in 22.5 seconds).
 - [ ] Targeted lint, type, unit, integration, Supabase, sync-worker, and CI
       checks pass for the release commit.
 - [ ] PR #22 has a non-author review and all reported CI checks are green.

@@ -32,27 +32,27 @@ Supabase, timeline, action, and automation files.
 
 ## Ordered queue
 
-| Prompt | Outcome                                           | Status        | Depends on        |
-| ------ | ------------------------------------------------- | ------------- | ----------------- |
-| 001    | Enforce breadth freeze and suspended beta         | Complete      | —                 |
-| 002    | Decide runtime and information ownership          | Complete      | —                 |
-| 003    | Audit live schema and RLS                         | Complete      | Supabase access   |
-| 004    | Add canonical timeline/action schema              | Complete      | 002, 003          |
-| 005    | Deploy one durable worker runtime                 | Complete      | 002, 004          |
-| 006    | Persist RSS/Atom source ingestion                 | Complete      | 004, 005          |
-| 007    | Ingest email and calendar timeline events         | Complete      | 004, 005          |
-| 008    | Ingest task, note, document, and activity events  | Complete      | 004, 005          |
-| 009    | Deliver timeline query and source-health UI       | Complete      | 006–008           |
-| 010    | Implement governed LLM provider adapters          | Complete      | 002, 004          |
-| 011    | Generate evidence-backed briefings                | Complete      | 009, 010          |
-| 012    | Produce commitment candidate actions              | Complete      | 007, 010          |
-| 013    | Execute and verify task actions                   | Complete      | 004, 005, 012     |
-| 014    | Execute calendar, email draft/send, and workflows | Complete      | 005, 012          |
-| 015    | Persist the automation state machine              | Complete      | 004, 013, 014     |
-| 016    | Ship bounded automation templates                 | Complete      | 011, 015          |
-| 017    | Integrate the V1 command center                   | Complete      | 009, 011, 013–016 |
-| 018    | Complete security and operational hardening       | Complete      | 005–017           |
-| 019    | Prove V1 journeys and release readiness           | Pilot pending | 001–018           |
+| Prompt | Outcome                                           | Status                    | Depends on        |
+| ------ | ------------------------------------------------- | ------------------------- | ----------------- |
+| 001    | Enforce breadth freeze and suspended beta         | Complete                  | —                 |
+| 002    | Decide runtime and information ownership          | Complete                  | —                 |
+| 003    | Audit live schema and RLS                         | Complete                  | Supabase access   |
+| 004    | Add canonical timeline/action schema              | Complete                  | 002, 003          |
+| 005    | Deploy one durable worker runtime                 | Complete                  | 002, 004          |
+| 006    | Persist RSS/Atom source ingestion                 | Complete                  | 004, 005          |
+| 007    | Ingest email and calendar timeline events         | Complete                  | 004, 005          |
+| 008    | Ingest task, note, document, and activity events  | Complete                  | 004, 005          |
+| 009    | Deliver timeline query and source-health UI       | Complete                  | 006–008           |
+| 010    | Implement governed LLM provider adapters          | Complete                  | 002, 004          |
+| 011    | Generate evidence-backed briefings                | Complete                  | 009, 010          |
+| 012    | Produce commitment candidate actions              | Complete                  | 007, 010          |
+| 013    | Execute and verify task actions                   | Complete                  | 004, 005, 012     |
+| 014    | Execute calendar, email draft/send, and workflows | Complete                  | 005, 012          |
+| 015    | Persist the automation state machine              | Complete                  | 004, 013, 014     |
+| 016    | Ship bounded automation templates                 | Complete                  | 011, 015          |
+| 017    | Integrate the V1 command center                   | Complete                  | 009, 011, 013–016 |
+| 018    | Complete security and operational hardening       | Complete                  | 005–017           |
+| 019    | Prove V1 journeys and release readiness           | Pilot pending; E2E passes | 001–018           |
 
 Prompts 006, 007, and 008 may run in parallel only when they do not edit the
 same canonical schema or shared worker registry. Prompts 013 and 014 may run

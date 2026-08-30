@@ -15,10 +15,10 @@ summary that sits above them.
 
 **Stated target:** "Fully functional Website App V1" by **August 25, 2026**
 (`VISION.md`). That date has passed. As of 2026-08-30, Prompts 001–018 are
-implemented, but Prompt 19 still requires the deployed journey run, seven-day
-pilot, production worker/queue and alerting cutover, enforced required checks,
-and human release-owner approval. Treat the release as `No Go` until the
-remaining gates in §3 are closed.
+implemented, and all three deployed Prompt 19 journeys passed on 2026-08-30.
+The seven-day pilot, production worker/queue and alerting cutover, enforced
+required checks, and human release-owner approval remain. Treat the release as
+`No Go` until the remaining gates in §3 are closed.
 
 ---
 
@@ -108,9 +108,9 @@ workflow this bootstrap sets up from being trustworthy.
 - **Connect external alert delivery** — Prompt 18 provides durable telemetry,
   protected Prometheus metrics, thresholds, and tracked alert rules. Configure
   the scrape target and receiver before expanding beyond the staging pilot.
-- **Complete Prompt 19 evidence** — run the three deployed V1 journeys, then
-  record seven consecutive qualifying pilot days against the frozen launch
-  thresholds and obtain human release-owner approval.
+- **Complete Prompt 19 evidence** — preserve the passing deployed V1 journeys,
+  then record seven consecutive qualifying pilot days against the frozen
+  launch thresholds and obtain human release-owner approval.
 - **Upgrade the smoke-tested worker topology before release** — ADR-015's free
   Render host is deployed and verified. Before production, cut over to
   ADR-014's continuous worker and persistent Key Value. The bounded Python

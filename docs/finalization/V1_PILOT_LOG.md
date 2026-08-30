@@ -11,6 +11,14 @@
 - Start: not yet recorded.
 - Consecutive qualifying days: 0 of 7.
 
+## Preflight evidence
+
+On 2026-08-30, all three release journeys passed against `webwidgets.me` and
+the linked WebWidgets Supabase/Render services using one disposable synthetic
+account: 3 passed in 22.5 seconds. This proves the release suite is runnable
+but is not a substitute for a complete 24-hour pilot window. Day 1 remains
+pending.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and

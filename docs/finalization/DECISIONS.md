@@ -317,3 +317,18 @@ the release.
 operational readiness. A fixed threshold contract, production-like journey
 suite, and accountable human decision prevent the release bar from moving in
 response to failures.
+
+## FIN-022: Keep Service-Role Clients Stateless
+
+**Status:** Accepted, implemented, and deployed
+
+**Decision:** Request-scoped Supabase clients continue to use the signed-in
+user's cookies. Service-role clients are created separately with no cookie
+adapter, persisted session, URL session detection, or token refresh. Typed and
+untyped variants preserve their existing route contracts while sharing this
+stateless authorization boundary.
+
+**Reason:** A service-role client built with the request cookie adapter can
+adopt the user's bearer token and silently lose its server-only privileges.
+Prompt 19 exposed that downgrade when candidate persistence correctly failed
+against authenticated-role grants.
