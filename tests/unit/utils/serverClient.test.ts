@@ -1,9 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-    createClient: vi.fn(() => ({ kind: 'admin' })),
-    createServerClient: vi.fn(() => ({ kind: 'session' })),
-    cookies: vi.fn(async () => ({ getAll: vi.fn(), set: vi.fn() })),
+    createClient: vi.fn(
+        (_url: string, _key: string, _options: unknown) => ({ kind: 'admin' }),
+    ),
+    createServerClient: vi.fn(
+        (_url: string, _key: string, _options: unknown) => ({
+            kind: 'session',
+        }),
+    ),
+    cookies: vi.fn(() =>
+        Promise.resolve({ getAll: vi.fn(), set: vi.fn() }),
+    ),
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -31,11 +39,16 @@ describe('server Supabase clients', () => {
             supabase: { kind: 'session' },
             supabaseAdmin: { kind: 'admin' },
         });
-        expect(mocks.createServerClient).toHaveBeenCalledWith(
-            'https://project.supabase.co',
-            'anon-key',
-            expect.objectContaining({ cookies: expect.any(Object) }),
-        );
+        const sessionCall = mocks.createServerClient.mock.calls[0];
+        const options = sessionCall?.[2] as
+            | {
+                  cookies?: { getAll?: unknown; setAll?: unknown };
+              }
+            | undefined;
+        expect(sessionCall?.[0]).toBe('https://project.supabase.co');
+        expect(sessionCall?.[1]).toBe('anon-key');
+        expect(typeof options?.cookies?.getAll).toBe('function');
+        expect(typeof options?.cookies?.setAll).toBe('function');
         expect(mocks.createClient).toHaveBeenCalledWith(
             'https://project.supabase.co',
             'service-role-key',
