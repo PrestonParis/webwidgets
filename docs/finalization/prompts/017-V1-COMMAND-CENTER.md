@@ -1,6 +1,6 @@
 # 017 — Integrate the V1 Command Center
 
-Status: Ready
+Status: Complete
 Priority: Critical  
 Depends on: 009, 011, 013, 014, 015, and 016
 
@@ -60,3 +60,28 @@ The primary surface must answer, using real data:
 - Partial failure preserves usable sections and clearly identifies stale data.
 - The page contains no demo fixtures or unimplemented controls in production.
 - Existing user layouts and beta-feature data are preserved.
+
+## Completion evidence
+
+- The authenticated root now renders a production command center composed
+  from the existing timeline, briefing, commitment-candidate, task,
+  automation, and integration-health contracts.
+- Timeline, briefing, candidate, task, and automation requests fail
+  independently; every section owns its loading, empty, and error state.
+- Candidate edits and exact-version decisions, task completion, global
+  automation pause/resume, run review, evidence inspection, and source
+  reconnection all use implemented production routes.
+- `user_preferences.commandCenter.lastSeenAt` records visits while candidates,
+  failures, and approvals remain visible until their underlying state changes.
+- The original customizable dashboard is preserved at `/dashboard`; no widget
+  registrations, layouts, beta data, or high-fan-in dashboard files changed.
+- Focused selector tests cover new changes, unresolved approvals, due-task
+  ordering, stale/reconnect-required sources, and verified outcomes.
+
+Validation completed on 2026-08-30:
+
+- `npx tsc --noEmit -p apps/web/tsconfig.json`
+- scoped ESLint, Prettier, and repository smell checks
+- `npx vitest run tests/unit/command-center/selectors.test.ts` (5/5)
+- `npx supabase test db supabase/tests/015_command_center_seen.test.sql`
+  (7/7)
