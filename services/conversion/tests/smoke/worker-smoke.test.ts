@@ -211,31 +211,18 @@ describe('processDocumentJob (mocked S3)', () => {
         expect(uploadedHtml).toMatch(/<html/i);
     });
 
-    it('html→md: produces markdown when Pandoc is available', async (ctx) => {
-        if (!(await isPandocAvailable())) return ctx.skip();
-
-        let uploadedMarkdown = '';
-        downloadObject.mockImplementation(
-            async (_key: string, destPath: string) => {
-                await copyFile(FIXTURES.html, destPath);
-            },
-        );
-        uploadObject.mockImplementation(
-            async (_key: string, srcPath: string) => {
-                uploadedMarkdown = await readFile(srcPath, 'utf8');
-            },
-        );
-
+    it('html→md: rejects unsafe HTML input', async () => {
         const job = makeJob({
             originalFileName: 'sample.html',
             sourceMime: 'text/html',
             sourceExtension: 'html',
             targetExtension: 'md',
         });
-        const result = await processDocumentJob(job);
 
-        expect(result.outputObjectKey).toMatch(/\.md$/);
-        expect(uploadedMarkdown).toMatch(/Sample HTML Document/i);
+        await expect(processDocumentJob(job)).rejects.toThrow(
+            'No document converter for html to md',
+        );
+        expect(uploadObject).not.toHaveBeenCalled();
     });
 
     it('txt→md: preserves plain text natively', async () => {

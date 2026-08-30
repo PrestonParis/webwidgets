@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClients } from '@/lib/supabase/serverClient';
-import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { createCredentialClients } from '@/app/api/auth/_lib/credentialClients';
 import {
     saveModelKey,
     listSavedProviders,
@@ -14,15 +13,14 @@ import type {
 
 const saveSchema = z.object({
     provider: z.enum(['anthropic', 'openai', 'google']),
-    apiKey: z.string().min(1),
+    apiKey: z.string().trim().min(1).max(500),
 });
 
 export async function GET() {
     try {
-        const { supabase } = await createClients();
-        const userId = await getRequestUserId(supabase);
+        const { supabaseAdmin, userId } = await createCredentialClients();
         const providers = await listSavedProviders(
-            supabase as unknown as SupabaseClient,
+            supabaseAdmin as unknown as SupabaseClient,
             userId,
         );
         const availability: ModelProviderAvailability[] = (
@@ -54,8 +52,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
-        const { supabase } = await createClients();
-        const userId = await getRequestUserId(supabase);
+        const { supabaseAdmin, userId } = await createCredentialClients();
         const body = saveSchema.safeParse(await req.json());
         if (!body.success)
             return NextResponse.json(
@@ -63,7 +60,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         await saveModelKey(
-            supabase as unknown as SupabaseClient,
+            supabaseAdmin as unknown as SupabaseClient,
             userId,
             body.data.provider as ModelProvider,
             body.data.apiKey,

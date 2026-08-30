@@ -87,6 +87,19 @@ describe('assertJobAllowed (no infra)', () => {
         ).toThrow(HttpError);
     });
 
+    it('rejects unsanitized HTML input', () => {
+        expect(() =>
+            assertJobAllowed(
+                validJobPayload({
+                    originalFileName: 'sample.html',
+                    sourceMime: 'text/html',
+                    sourceExtension: 'html',
+                    targetExtension: 'md',
+                }) as Parameters<typeof assertJobAllowed>[0],
+            ),
+        ).toThrow(/disabled until active sanitization/i);
+    });
+
     it('rejects double extension filename', () => {
         expect(() =>
             assertJobAllowed(

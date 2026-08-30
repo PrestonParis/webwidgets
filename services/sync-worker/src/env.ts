@@ -85,6 +85,7 @@ export const workerEnvSchema = z
             .max(290_000)
             .default(110_000),
         WORKER_INSTANCE_ID: z.string().min(1).optional(),
+        WORKER_RELEASE_ID: z.string().min(1).max(300).optional(),
         SMOKE_USER_ID: z.string().uuid().optional(),
         SMOKE_IDEMPOTENCY_KEY: z.string().min(1).max(700).optional(),
     })

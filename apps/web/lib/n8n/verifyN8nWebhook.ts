@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { N8nError } from '@/lib/n8n/n8nErrors';
 
 const SECRET_HEADERS = [
@@ -5,6 +6,15 @@ const SECRET_HEADERS = [
     'x-webhook-secret',
     'x-webwidgets-n8n-secret',
 ];
+
+function secretsMatch(expected: string, provided: string | null | undefined) {
+    const expectedBytes = Buffer.from(expected);
+    const providedBytes = Buffer.from(provided ?? '');
+    return (
+        expectedBytes.length === providedBytes.length &&
+        timingSafeEqual(expectedBytes, providedBytes)
+    );
+}
 
 export function verifyN8nWebhook(
     headers: Headers,
@@ -20,7 +30,7 @@ export function verifyN8nWebhook(
     const provided = SECRET_HEADERS.map((header) => headers.get(header)).find(
         Boolean,
     );
-    if (!provided || provided !== secret) {
+    if (!secretsMatch(secret, provided)) {
         throw new N8nError(
             'N8N_UNAUTHORIZED',
             'Invalid n8n webhook secret.',

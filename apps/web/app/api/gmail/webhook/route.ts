@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
@@ -19,6 +20,19 @@ const notificationSchema = z.object({
     emailAddress: z.string(),
     historyId: z.string(),
 });
+
+function validWebhookToken(
+    expected: string | undefined,
+    received: string | null,
+) {
+    if (!expected) return false;
+    const expectedBytes = Buffer.from(expected);
+    const receivedBytes = Buffer.from(received ?? '');
+    return (
+        expectedBytes.length === receivedBytes.length &&
+        timingSafeEqual(expectedBytes, receivedBytes)
+    );
+}
 
 function parseNotification(
     data: string,
@@ -93,7 +107,7 @@ async function scheduleCanonicalSync(
 export async function POST(req: Request): Promise<Response> {
     const expectedToken = process.env.GMAIL_WEBHOOK_TOKEN;
     const receivedToken = new URL(req.url).searchParams.get('token');
-    if (!expectedToken || receivedToken !== expectedToken) {
+    if (!validWebhookToken(expectedToken, receivedToken)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

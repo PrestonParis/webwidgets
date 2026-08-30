@@ -3,6 +3,7 @@
 interface EmailIntelligenceCardProps {
     useAI: boolean;
     apiKey: string;
+    hasApiKey: boolean;
     saving: boolean;
     onToggleAI: () => void;
     onApiKeyChange: (key: string) => void;
@@ -12,6 +13,7 @@ interface EmailIntelligenceCardProps {
 export function EmailIntelligenceCard({
     useAI,
     apiKey,
+    hasApiKey,
     saving,
     onToggleAI,
     onApiKeyChange,
@@ -67,7 +69,11 @@ export function EmailIntelligenceCard({
                             type="password"
                             value={apiKey}
                             onChange={(e) => onApiKeyChange(e.target.value)}
-                            placeholder="sk-ant-api03-..."
+                            placeholder={
+                                hasApiKey
+                                    ? 'Key saved — enter a replacement'
+                                    : 'sk-ant-api03-...'
+                            }
                             className="flex-1 text-xs bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition-colors"
                         />
                         <button

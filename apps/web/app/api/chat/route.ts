@@ -339,7 +339,7 @@ function createFallbackChatStream({
 
 export async function POST(req: Request) {
     try {
-        const { supabase } = await createClients();
+        const { supabase, supabaseAdmin } = await createClients();
         const userId = await getRequestUserId(supabase);
         const parsed = bodySchema.safeParse(await req.json());
         if (!parsed.success)
@@ -369,7 +369,7 @@ export async function POST(req: Request) {
         const systemMsg = await buildSystemMessage(userId, clientDb, content);
 
         const attempts = await buildFallbackAttempts(
-            clientDb,
+            supabaseAdmin as unknown as SupabaseClient,
             userId,
             provider,
             model,

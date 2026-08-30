@@ -51,7 +51,7 @@ const pandocPdfWarning =
 const htmlSafetyWarning =
     'TODO: HTML input is not actively sanitized before conversion; scripts are not executed by Pandoc, but untrusted HTML needs a sanitizer pass.';
 
-export const documentConversions = [
+const documentConversionCatalog = [
     // Office/text to PDF
     documentConversion('doc', 'pdf', 'libreoffice', {
         notes: 'Legacy Word layout fidelity is best-effort.',
@@ -432,6 +432,10 @@ export const documentConversions = [
         notes: 'First page only. Rasterised at 150 DPI.',
     }),
 ] as const satisfies readonly SupportedConversion[];
+
+export const documentConversions = documentConversionCatalog.filter(
+    (conversion) => conversion.sourceExtension !== 'html',
+);
 
 const imageConversions = [
     // Future: HEIC support requires libheif with decoder support.
