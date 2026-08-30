@@ -18,6 +18,7 @@ export function ChangesSection({
     const lastSeen = controller.seen.data?.lastSeenAt;
     const changes = controller.timeline.data?.items ?? [];
     const fresh = changesSince(changes, lastSeen ?? null);
+    const freshIds = new Set(fresh.map((item) => item.id));
     return (
         <SectionShell
             description={
@@ -51,7 +52,7 @@ export function ChangesSection({
                                         </p>
                                     ) : null}
                                 </div>
-                                {(!lastSeen || item.occurredAt > lastSeen) && (
+                                {freshIds.has(item.id) && (
                                     <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                                         New
                                     </span>
