@@ -1,10 +1,10 @@
 'use client';
-import Dashboard from '@/features/dashboard/components/DashboardView';
 import SignInPage from '@/features/auth/components/SignInPage';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import LoadingState from '@/features/ui/components/LoadingState';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { useOnboardingGate } from '@/features/onboarding/hooks/useOnboardingGate';
+import { CommandCenterPage } from '@/features/command-center/components/CommandCenterPage';
 
 // Main page component that conditionally renders either the dashboard or the sign-in page based on authentication status.
 export default function Page() {
@@ -19,5 +19,5 @@ export default function Page() {
         return <LoadingState />;
     if (status === 'authenticated' && onboardingGate.shouldShowOnboarding)
         return <OnboardingPage />;
-    return status === 'authenticated' ? <Dashboard /> : <SignInPage />;
+    return status === 'authenticated' ? <CommandCenterPage /> : <SignInPage />;
 }

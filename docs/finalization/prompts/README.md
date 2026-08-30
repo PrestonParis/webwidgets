@@ -50,8 +50,8 @@ Supabase, timeline, action, and automation files.
 | 014    | Execute calendar, email draft/send, and workflows | Complete  | 005, 012          |
 | 015    | Persist the automation state machine             | Complete  | 004, 013, 014     |
 | 016    | Ship bounded automation templates                | Complete  | 011, 015          |
-| 017    | Integrate the V1 command center                  | Ready     | 009, 011, 013–016 |
-| 018    | Complete security and operational hardening      | Blocked   | 005–017           |
+| 017    | Integrate the V1 command center                  | Complete  | 009, 011, 013–016 |
+| 018    | Complete security and operational hardening      | Ready     | 005–017           |
 | 019    | Prove V1 journeys and release readiness          | Blocked   | 001–018           |
 
 Prompts 006, 007, and 008 may run in parallel only when they do not edit the
