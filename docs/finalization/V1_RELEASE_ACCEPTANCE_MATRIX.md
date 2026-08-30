@@ -9,26 +9,26 @@ all `Pilot`/`Manual` entries with dated evidence or mark them blockers.
 
 | ID    | Criterion                                                           | Evidence route                                                                       | Status   |
 | ----- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | -------- |
-| PJ-01 | Connect a personal source and RSS/Atom source                       | `tests/e2e/v1/release-journeys.spec.ts` journey 1                                    | Pilot    |
-| PJ-02 | Source items appear on owner timeline with provenance               | V1 E2E journey 1; `supabase/tests/004`, `005`, `007`                                 | Pilot    |
-| PJ-03 | Generate briefing from real timeline data                           | V1 E2E journey 1; `supabase/tests/016`                                               | Pilot    |
-| PJ-04 | Commitment becomes editable task candidate                          | V1 E2E journey 2; `supabase/tests/008`                                               | Pilot    |
-| PJ-05 | Approval creates exactly one task                                   | V1 E2E journey 2; `supabase/tests/009`                                               | Pilot    |
-| PJ-06 | Task updates/completes with visible outcome                         | V1 E2E journey 2; `supabase/tests/009`                                               | Pilot    |
+| PJ-01 | Connect a personal source and RSS/Atom source                       | 2026-08-30 deployed V1 E2E journey 1                                                 | Evidence |
+| PJ-02 | Source items appear on owner timeline with provenance               | 2026-08-30 V1 E2E journey 1; `supabase/tests/004`, `005`, `007`                      | Evidence |
+| PJ-03 | Generate briefing from real timeline data                           | 2026-08-30 V1 E2E journey 1; `supabase/tests/016`                                    | Evidence |
+| PJ-04 | Commitment becomes editable task candidate                          | 2026-08-30 V1 E2E journey 2; `supabase/tests/008`                                    | Evidence |
+| PJ-05 | Approval creates exactly one task                                   | 2026-08-30 V1 E2E journey 2; `supabase/tests/009`                                    | Evidence |
+| PJ-06 | Task updates/completes with visible outcome                         | 2026-08-30 V1 E2E journey 2; `supabase/tests/009`                                    | Evidence |
 | PJ-07 | Approved calendar candidate creates one provider event              | `supabase/tests/012`; provider smoke verification                                    | Manual   |
 | PJ-08 | Email response can be prepared without automatic send               | Email action tests and Prompt 14 receipt evidence                                    | Evidence |
 | PJ-09 | Gmail primary, Outlook secondary; exact separate send approval      | `tests/unit/actions/emailActionContracts.test.ts`; FIN-019; owner Gmail verification | Evidence |
-| PJ-10 | Daily briefing and commitment automations use durable state machine | `supabase/tests/014`; worker automation tests                                        | Pilot    |
-| PJ-11 | Inspect, pause, disable, and review automation runs                 | V1 E2E journey 3; `supabase/tests/013`, `014`                                        | Pilot    |
+| PJ-10 | Daily briefing and commitment automations use durable state machine | 2026-08-30 V1 E2E journey 3; `supabase/tests/014`; worker tests                      | Evidence |
+| PJ-11 | Inspect, pause, disable, and review automation runs                 | 2026-08-30 V1 E2E journey 3; `supabase/tests/013`, `014`                             | Evidence |
 
 ## Timeline quality
 
 | ID    | Criterion                                                           | Evidence route                                        | Status   |
 | ----- | ------------------------------------------------------------------- | ----------------------------------------------------- | -------- |
 | TQ-01 | Preserve source/reference/provider/fetch/owner/normalization fields | `supabase/tests/004`, `005`, `007`; timeline schema   | Evidence |
-| TQ-02 | Reprocessing creates no duplicate event/action                      | V1 E2E journeys 1–2; canonical unique constraints     | Pilot    |
+| TQ-02 | Reprocessing creates no duplicate event/action                      | 2026-08-30 V1 E2E journeys 1–2; canonical constraints | Evidence |
 | TQ-03 | Related feed items are clustered or visibly identified              | RSS normalization tests and timeline related-event UI | Manual   |
-| TQ-04 | Source failures and stale syncs are visible                         | V1 E2E journey 1; source-health UI                    | Pilot    |
+| TQ-04 | Source failures and stale syncs are visible                         | 2026-08-30 V1 E2E journey 1; source-health UI         | Evidence |
 | TQ-05 | Disconnect stops future ingestion                                   | `supabase/tests/005`; RSS source API                  | Evidence |
 | TQ-06 | Retention and deletion follow documented rules                      | canonical-retention migration and lifecycle tests     | Evidence |
 
@@ -36,8 +36,8 @@ all `Pilot`/`Manual` entries with dated evidence or mark them blockers.
 
 | ID    | Criterion                                                                 | Evidence route                                                            | Status   |
 | ----- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------- |
-| IQ-01 | Briefings cite supporting timeline events                                 | V1 E2E journey 1; briefing ranking tests                                  | Pilot    |
-| IQ-02 | Candidates include evidence/reason/confidence/editable input              | V1 E2E journey 2; candidate tests                                         | Pilot    |
+| IQ-01 | Briefings cite supporting timeline events                                 | 2026-08-30 V1 E2E journey 1; briefing ranking tests                       | Evidence |
+| IQ-02 | Candidates include evidence/reason/confidence/editable input              | 2026-08-30 V1 E2E journey 2; candidate tests                              | Evidence |
 | IQ-03 | System abstains on insufficient evidence/confidence                       | commitment and governed inference unit fixtures                           | Evidence |
 | IQ-04 | External content cannot approve or modify policy                          | candidate/action RLS and untrusted-content tests                          | Evidence |
 | IQ-05 | Evaluation covers relevant/irrelevant/ambiguous/duplicate/stale/malicious | `tests/fixtures/briefings`, `tests/fixtures/commitments`, inference tests | Evidence |
@@ -49,12 +49,12 @@ all `Pilot`/`Manual` entries with dated evidence or mark them blockers.
 | ----- | ------------------------------------------------------------ | -------------------------------------------------------- | -------- |
 | AS-01 | No placeholder handler reports success                       | action engine/contracts and Prompt 18 audit              | Evidence |
 | AS-02 | Exact approval required unless explicitly permitted low risk | action migrations/tests; V1 template catalog             | Evidence |
-| AS-03 | Idempotency prevents provider-side duplicates                | action receipt tests; V1 E2E replay                      | Pilot    |
+| AS-03 | Idempotency prevents provider-side duplicates                | action receipt tests; 2026-08-30 V1 E2E replay           | Evidence |
 | AS-04 | Provider results verified after execution                    | task/calendar/email/workflow outcome tests               | Evidence |
 | AS-05 | Failed/partial actions visible and recoverable               | operations snapshot, action UI, automation history tests | Pilot    |
 | AS-06 | Revoked consent/permission blocks later execution            | provider credential/action boundary tests                | Evidence |
-| AS-07 | Every automation supports enable/disable/dry-run/history     | V1 E2E journey 3; `supabase/tests/013`, `014`            | Pilot    |
-| AS-08 | Global pause stops new automation executions                 | V1 E2E journey 3; worker pause-race test                 | Pilot    |
+| AS-07 | Every automation supports enable/disable/dry-run/history     | 2026-08-30 V1 E2E journey 3; `supabase/tests/013`, `014` | Evidence |
+| AS-08 | Global pause stops new automation executions                 | 2026-08-30 V1 E2E journey 3; worker pause-race test      | Evidence |
 | AS-09 | High-risk effects unavailable autonomously                   | template catalog policy and action engine tests          | Evidence |
 
 ## Security and data
@@ -97,7 +97,7 @@ all `Pilot`/`Manual` entries with dated evidence or mark them blockers.
 | EG-01 | Targeted lint/type checks pass                                    | Prompt 19 verification log and CI                         | Pilot    |
 | EG-02 | Unit tests cover new business logic                               | unit suites and CI                                        | Evidence |
 | EG-03 | Integration tests cover adapters/RLS/inference/actions/automation | worker, Vitest, and Supabase test suites                  | Evidence |
-| EG-04 | Three required E2E journeys pass                                  | `npm run test:v1`                                         | Blocker  |
+| EG-04 | Three required E2E journeys pass                                  | 2026-08-30 deployed run: 3 passed in 22.5 seconds         | Evidence |
 | EG-05 | CI checks are required on release branch                          | GitHub API returned HTTP 403 on current private-repo plan | Blocker  |
 | EG-06 | Critical/high security findings closed                            | Prompt 18 security audit; daily pilot review              | Pilot    |
 | EG-07 | Known limitations documented and V1-consistent                    | `V1_RELEASE_NOTES.md`                                     | Evidence |
@@ -107,6 +107,6 @@ all `Pilot`/`Manual` entries with dated evidence or mark them blockers.
 Current recommendation: **No Go**. Accountable blockers are the release owner:
 upgrade GitHub or make the repository public and configure required checks;
 upgrade Render worker/queue and connect alert delivery; the implementing agent:
-run and record the three production-like E2E journeys and seven qualifying
-pilot days; and the human release owner: perform manual checks and sign the
-final decision. No implementing agent may self-certify or merge PR #22.
+record seven qualifying pilot days; and the human release owner: perform manual
+checks and sign the final decision. No implementing agent may self-certify or
+merge PR #22.

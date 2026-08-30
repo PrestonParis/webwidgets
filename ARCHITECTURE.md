@@ -639,6 +639,7 @@ phases, this will...` marker at the same line — cache writes, snapshot
 Prompt 19 uses one disposable confirmed account, a public synthetic RSS
 fixture, canonical production-like services, and three Chromium journeys. The
 suite deletes the account after the run and never commits private content.
+All three deployed journeys passed against `webwidgets.me` on 2026-08-30.
 Numerical thresholds are frozen in
 `docs/finalization/V1_LAUNCH_THRESHOLDS.md`; seven consecutive qualifying days
 and human release-owner approval remain release-state inputs rather than code
@@ -656,6 +657,9 @@ inferred from the CI workflow file.
 - Tokens live in `user_tokens`, refreshed via `@supabase/ssr`.
 - Server Components use cookie-based sessions; Client Components use
   `createBrowserClient`.
+- Service-role clients are stateless and never inherit request cookies; request
+  session clients and service-role clients are separate authorization paths
+  (FIN-022).
 - Admin access is DB-driven (`admin_role` table), checked via
   `lib/supabase/requireAdmin.ts` — not a hardcoded allowlist.
 - Security posture overall is closer to "scoped checklist" than "implemented

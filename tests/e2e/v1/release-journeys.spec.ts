@@ -52,7 +52,7 @@ test.describe('WebWidgets V1 release journeys', () => {
     });
 
     test.afterAll(async () => {
-        await destroyReleaseFixture(fixture);
+        if (fixture) await destroyReleaseFixture(fixture);
     });
 
     test.beforeEach(async ({ page }) => {
@@ -117,9 +117,7 @@ test.describe('WebWidgets V1 release journeys', () => {
                 failed: true,
             });
         timelineFeedResponseSchema.parse(
-            await (
-                await page.request.get('/api/news/feed?limit=25')
-            ).json(),
+            await (await page.request.get('/api/news/feed?limit=25')).json(),
         );
 
         await json(
@@ -162,7 +160,12 @@ test.describe('WebWidgets V1 release journeys', () => {
         await expect(
             page.getByText(/sources? need(?:s)? attention/),
         ).toBeVisible();
-        await expect(page.getByText(/Evidence:/).first()).toBeVisible();
+        await expect(
+            page
+                .getByRole('region', { name: 'Briefing' })
+                .locator('a[href^="#timeline-"]')
+                .first(),
+        ).toBeVisible();
     });
 
     test('dated commitment creates and completes exactly one task', async ({
@@ -249,7 +252,7 @@ test.describe('WebWidgets V1 release journeys', () => {
         await page.goto('/news');
         await expect(page.getByText(/Task verified/)).toBeVisible();
         await expect(
-            page.getByText('Task completed', { exact: false }),
+            page.getByRole('heading', { name: 'Task completed', exact: true }),
         ).toBeVisible();
     });
 

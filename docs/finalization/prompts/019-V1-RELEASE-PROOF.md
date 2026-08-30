@@ -1,6 +1,6 @@
 # 019 — Prove the V1 Journeys and Release Readiness
 
-Status: In progress — pilot and owner approval pending
+Status: In progress — deployed journeys pass; pilot and owner approval pending
 Priority: Critical  
 Depends on: 001 through 018
 
@@ -86,11 +86,16 @@ synthetic fixture content. Launch thresholds were frozen before the pilot, and
 the acceptance matrix, pilot log, candidate release notes, deployment
 checklist, and rollback plan are linked from `docs/finalization/README.md`.
 
+On 2026-08-30, the deployed suite passed all three journeys against
+`webwidgets.me` in 22.5 seconds. That run also exposed and closed two genuine
+product defects: UTC-offset database timestamps were rejected by client
+schemas, and the service-role client inherited the user cookie and lost its
+server-only privileges.
+
 Prompt 19 is not complete. GitHub returned HTTP 403 for `main` branch
 protection because the current plan does not support it for this private
-repository. The deployed V1 suite still needs a recorded pass, followed by
-seven consecutive qualifying pilot days. Continuous Render worker compute,
-persistent queue storage, external alert delivery, non-author review, and
-human release-owner approval also remain release blockers. The current
-evidence-based recommendation is `No Go`; the implementing agent has not
-self-certified or merged PR #22.
+repository. Seven consecutive qualifying pilot days are still required.
+Continuous Render worker compute, persistent queue storage, external alert
+delivery, non-author review, and human release-owner approval also remain
+release blockers. The current evidence-based recommendation is `No Go`; the
+implementing agent has not self-certified or merged PR #22.
