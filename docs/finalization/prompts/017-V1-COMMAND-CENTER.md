@@ -84,4 +84,4 @@ Validation completed on 2026-08-30:
 - scoped ESLint, Prettier, and repository smell checks
 - `npx vitest run tests/unit/command-center/selectors.test.ts` (5/5)
 - `npx supabase test db supabase/tests/015_command_center_seen.test.sql`
-  (7/7)
+  (9/9)
