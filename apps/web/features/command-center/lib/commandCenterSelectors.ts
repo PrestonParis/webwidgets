@@ -12,7 +12,7 @@ export function changesSince(
     lastSeenAt: string | null,
 ) {
     if (!lastSeenAt) return items;
-    return items.filter((item) => item.occurredAt > lastSeenAt);
+    return items.filter((item) => item.ingestedAt > lastSeenAt);
 }
 
 export function pendingCandidates(items: Candidate[]) {

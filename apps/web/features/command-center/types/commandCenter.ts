@@ -5,6 +5,7 @@ export interface TimelineChange {
     sourceLabel: string;
     sourceType: string;
     occurredAt: string;
+    ingestedAt: string;
 }
 
 export interface SourceHealth {

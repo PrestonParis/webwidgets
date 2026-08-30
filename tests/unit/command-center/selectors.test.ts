@@ -39,10 +39,15 @@ describe('command center selectors', () => {
     it('shows only changes since the prior visit', () => {
         const items = [
             change('old', '2026-08-29T10:00:00.000Z'),
+            change(
+                'future-event-already-seen',
+                '2026-08-29T11:00:00.000Z',
+                '2027-01-06T19:00:00.000Z',
+            ),
             change('new', '2026-08-30T10:00:00.000Z'),
         ];
         expect(changesSince(items, '2026-08-30T00:00:00.000Z')).toEqual([
-            items[1],
+            items[2],
         ]);
     });
 
@@ -96,10 +101,15 @@ describe('command center selectors', () => {
     });
 });
 
-function change(id: string, occurredAt: string): TimelineChange {
+function change(
+    id: string,
+    ingestedAt: string,
+    occurredAt = ingestedAt,
+): TimelineChange {
     return {
         id,
         occurredAt,
+        ingestedAt,
         title: id,
         summary: null,
         sourceLabel: 'Gmail',
