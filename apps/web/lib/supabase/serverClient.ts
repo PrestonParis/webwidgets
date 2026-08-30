@@ -4,6 +4,20 @@ import { cookies } from 'next/headers';
 import type { Database } from '@/types/supabase';
 
 function createAdminClient() {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+            auth: {
+                autoRefreshToken: false,
+                detectSessionInUrl: false,
+                persistSession: false,
+            },
+        },
+    );
+}
+
+function createTypedAdminClient() {
     return createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -58,6 +72,6 @@ export async function createTypedClients() {
 
     return {
         supabase: makeClient(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!),
-        supabaseAdmin: createAdminClient(),
+        supabaseAdmin: createTypedAdminClient(),
     };
 }
