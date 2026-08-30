@@ -17,10 +17,14 @@ select is((select preferences->>'theme' from public.user_preferences),'dark','un
 select is((select preferences#>>'{commandCenter,density}' from public.user_preferences),'compact','existing command-center preferences are preserved');
 reset role;
 
+insert into public.user_preferences(user_id,preferences) values
+('b2222222-2222-4222-8222-222222222222','{"theme":"light"}');
 set local role authenticated;
 set local request.jwt.claim.sub='b2222222-2222-4222-8222-222222222222';
-select is((select count(*) from public.user_preferences),0::bigint,'another user cannot read the visit state');
+select is((select count(*) from public.user_preferences),1::bigint,'another user can read only their own preference row');
 select lives_ok($$select public.mark_command_center_seen()$$,'another user records an isolated visit');
+select ok((select preferences#>>'{commandCenter,lastSeenAt}' is not null from public.user_preferences),'last-seen is added when nested state did not exist');
+select is((select preferences->>'theme' from public.user_preferences),'light','top-level preferences remain intact when nested state is added');
 reset role;
 
 select is((select count(*) from public.user_preferences),2::bigint,'each user has one isolated preference row');
