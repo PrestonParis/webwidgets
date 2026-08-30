@@ -34,6 +34,11 @@ of widgets in the repository.
   ordered queue of bounded, agent-ready tasks.
 - [V1 operations runbook](V1_OPERATIONS_RUNBOOK.md) defines telemetry,
   thresholds, deployment, rollback, incident response, and recovery.
+- [Launch thresholds](V1_LAUNCH_THRESHOLDS.md),
+  [acceptance matrix](V1_RELEASE_ACCEPTANCE_MATRIX.md),
+  [pilot log](V1_PILOT_LOG.md), [release notes](V1_RELEASE_NOTES.md), and the
+  [release checklist](V1_RELEASE_CHECKLIST.md) hold Prompt 19 evidence and the
+  final human decision.
 
 ## Planning rules
 

@@ -9,7 +9,6 @@ import { defineConfig, devices } from '@playwright/test';
  * - Trace collection on failure
  * - Screenshots/videos only on failure
  * - Parallelization where safe
- * - Test tags/groups for selective execution
  * - Robust webServer integration with startup modes
  */
 export default defineConfig({
@@ -82,28 +81,6 @@ export default defineConfig({
         {
             name: 'mobile-chrome',
             use: { ...devices['Pixel 5'] },
-        },
-
-        // Critical path tests - run first
-        {
-            name: 'critical',
-            testMatch: /.*\.critical\.spec\.ts/,
-            dependencies: ['chromium'],
-        },
-
-        // Performance tests - run sequentially
-        {
-            name: 'performance',
-            testMatch: /.*\.perf\.spec\.ts/,
-            fullyParallel: false,
-            retries: 0,
-        },
-
-        // Slow tests - run separately
-        {
-            name: 'slow',
-            testMatch: /.*\.slow\.spec\.ts/,
-            fullyParallel: false,
         },
     ],
 

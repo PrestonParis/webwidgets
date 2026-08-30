@@ -72,4 +72,21 @@ tests/
 2. Import from `@/features/...` — the `@` alias resolves to the project root.
 3. Run `npm run test:watch` while writing to get instant feedback.
 
-Keep tests in `tests/unit/` for pure logic. Anything that touches the DOM, network, or React lifecycle belongs in an integration or e2e layer (not set up yet).
+Keep tests in `tests/unit/` for pure logic. Playwright tests live in
+`tests/e2e/`; the production-like V1 release journeys live in `tests/e2e/v1/`
+and run with `npm run test:v1` after their controlled-account environment is
+configured.
+
+## End-to-end commands
+
+```bash
+npm run test:dashboard
+npm run test:integrations
+npm run test:runtime
+npm run test:v1
+```
+
+These commands run Chromium once. Use `npx playwright test --project=firefox`,
+`--project=webkit`, or `--project=mobile-chrome` for the additional supported
+projects. The release suite does not use tag-only projects or directories
+without committed specs.
