@@ -1,7 +1,26 @@
 import { FullConfig } from '@playwright/test';
-import { RuntimeManager } from './runtime-manager';
+import { RuntimeManager, type StartupMode } from './runtime-manager';
 import * as fs from 'fs';
 import * as path from 'path';
+
+function requestedStartupMode(): StartupMode | undefined {
+    const mode = process.env.E2E_MODE;
+    return mode === 'attached' || mode === 'managed' || mode === 'ci'
+        ? mode
+        : undefined;
+}
+
+async function probeRemoteTarget(baseURL: string) {
+    const target = new URL(baseURL);
+    if (['localhost', '127.0.0.1'].includes(target.hostname)) return false;
+    const response = await fetch(target, {
+        signal: AbortSignal.timeout(30_000),
+    });
+    if (!response.ok)
+        throw new Error(`Remote E2E target returned HTTP ${response.status}`);
+    console.log('✅ Remote E2E target is reachable. Proceeding with tests.');
+    return true;
+}
 
 /**
  * Global setup for Playwright tests
@@ -25,9 +44,12 @@ async function globalSetup(config: FullConfig) {
     console.log(`📦 E2E Mode: ${process.env.E2E_MODE || 'attached'}`);
     console.log('');
 
+    if (await probeRemoteTarget(baseURL)) return;
+    const mode = requestedStartupMode();
+
     // Create runtime manager
     const runtimeManager = new RuntimeManager({
-        mode: (process.env.E2E_MODE as any) || undefined,
+        ...(mode && { mode }),
         port: parseInt(process.env.PORT || '3000', 10),
         startupTimeout: 120000, // 2 minutes
         readinessTimeout: 30000, // 30 seconds
@@ -83,7 +105,10 @@ async function globalSetup(config: FullConfig) {
     console.log('');
 
     // Store runtime manager for cleanup
-    (global as any).__runtimeManager = runtimeManager;
+    const runtimeGlobal = globalThis as typeof globalThis & {
+        __runtimeManager?: RuntimeManager;
+    };
+    runtimeGlobal.__runtimeManager = runtimeManager;
 }
 
 export default globalSetup;

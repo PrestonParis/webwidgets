@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { parseTimelineQuery } from '@/features/news/schemas/timelineFeedSchemas';
+import {
+    parseTimelineQuery,
+    timelineFeedResponseSchema,
+} from '@/features/news/schemas/timelineFeedSchemas';
 import {
     deriveSourceHealth,
     mapTimelineRows,
@@ -54,6 +57,30 @@ function event(id: string, metadata: Record<string, unknown>): TimelineRow {
 }
 
 describe('timeline feed contract', () => {
+    it('accepts database timestamps with UTC offsets', () => {
+        expect(
+            timelineFeedResponseSchema.safeParse({
+                items: [
+                    {
+                        ...mapTimelineRows([
+                            event('11111111-1111-4111-8111-111111111111', {}),
+                        ])[0],
+                        occurredAt: '2026-08-19T11:00:00+00:00',
+                        ingestedAt: '2026-08-19T11:10:00+00:00',
+                        updatedAt: '2026-08-19T11:10:00+00:00',
+                    },
+                ],
+                sources: [],
+                availableSourceTypes: ['rss'],
+                availableEventTypes: ['rss.item.published'],
+                generatedAt: '2026-08-19T12:00:00+00:00',
+                nextCursor: null,
+                hasMore: false,
+                sourceHealthUnavailable: false,
+            }).success,
+        ).toBe(true);
+    });
+
     it('parses bounded filters and rejects invalid values', () => {
         const parsed = parseTimelineQuery(
             new URL(
