@@ -19,6 +19,28 @@ account: 3 passed in 22.5 seconds. This proves the release suite is runnable
 but is not a substitute for a complete 24-hour pilot window. Day 1 remains
 pending.
 
+## Non-qualifying windows
+
+### 2026-08-31 UTC
+
+This window does not start or advance the seven-day count. A persistent
+controlled pilot cohort and full-window evidence capture were not active, so
+the review cannot establish source sync/lag, duplicate handling, briefing
+latency/cost/usefulness, commitment-candidate quality, action and automation
+outcomes, pause behavior, or recovery behavior for the complete UTC window.
+External alert delivery also remains unconfigured.
+
+At the following review, on 2026-09-01, the production web liveness and
+readiness endpoints returned HTTP 200. The Render worker endpoints did not
+respond within the review window, and the protected aggregate operations
+snapshot was unavailable to the automated review. These point-in-time checks
+cannot replace the missing 24-hour evidence. Result: **not counted; 0 of 7**.
+
+Before another window can qualify, establish the controlled cohort, retain
+all required aggregate evidence continuously from 00:00 through 23:59 UTC,
+verify the worker stays observable through free-tier sleep/wake behavior, and
+configure verifiable external alert delivery.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
