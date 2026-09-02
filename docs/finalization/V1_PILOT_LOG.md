@@ -41,6 +41,19 @@ all required aggregate evidence continuously from 00:00 through 23:59 UTC,
 verify the worker stays observable through free-tier sleep/wake behavior, and
 configure verifiable external alert delivery.
 
+### 2026-09-01 UTC
+
+This window also does not start or advance the count. No retained full-window
+evidence was available for the controlled cohort, source sync/lag, duplicates,
+briefing quality/latency/cost, commitment candidates, action and automation
+outcomes, pause and recovery behavior, or external alert delivery.
+
+At the following review, on 2026-09-02, the production web liveness and
+readiness endpoints returned HTTP 200. Point-in-time probes of the Render
+worker and inference readiness endpoints timed out. These checks do not prove
+the missing 24-hour categories. Result: **not counted; 0 of 7**. The setup
+requirements recorded for the previous window remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
