@@ -6,7 +6,9 @@ node_modules/
 # =========================
 # Private / local-only
 # =========================
-scripts/
+scripts/*
+!scripts/linting/
+!scripts/linting/**
 
 # =========================
 # Environment variables
