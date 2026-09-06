@@ -43,6 +43,7 @@
     "linting:ts": "tsx scripts/linting/index.ts --ts-only",
     "linting:smells": "tsx scripts/linting/index.ts --smells-only",
     "linting:stats": "tsx scripts/linting/index.ts --stats-only",
+    "linting:publish-sheets": "tsx scripts/linting/publishToGoogleSheets.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
