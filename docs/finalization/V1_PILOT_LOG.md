@@ -54,6 +54,20 @@ worker and inference readiness endpoints timed out. These checks do not prove
 the missing 24-hour categories. Result: **not counted; 0 of 7**. The setup
 requirements recorded for the previous window remain unresolved.
 
+### 2026-09-02 UTC
+
+This window does not start or advance the count. The automated review has no
+retained full-window evidence for the controlled cohort, source sync/lag,
+duplicates, briefing quality/latency/cost, commitment candidates, action and
+automation outcomes, pause and recovery behavior, or external alert delivery.
+
+At the next available review, on 2026-09-06, the production web liveness and
+readiness endpoints and the Render worker readiness endpoint returned HTTP
+200; the worker reported Redis and Supabase ready. The inference probe did not
+produce verifiable readiness evidence. These later point-in-time checks cannot
+prove the missing 24-hour categories. Result: **not counted; 0 of 7**. The
+pilot setup requirements remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
