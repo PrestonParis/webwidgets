@@ -781,3 +781,194 @@ implementation work must establish versioned contracts, canonical schema,
 ownership gates, compatibility tests, and a dark Go runtime. V1 continues
 unchanged until each class meets its cutover gate. The context and memory
 lifecycle remains a separate decision in ADR-028.
+
+---
+
+## ADR-028: Separate Context, Memory, and Execution-Evidence Lifecycles
+
+**Status:** Active V2 target
+
+**Decision:** V2 keeps five data classes separate in schemas, runtime
+contracts, access policy, retention, and product language:
+
+1. raw source and domain records;
+2. durable user-authored facts and preferences;
+3. inferred context;
+4. objective-local working memory; and
+5. immutable execution evidence.
+
+`context_entries` and context edges are inferred/rebuildable retrieval
+projections. `knowledge_items` and owning domain tables remain durable source
+truth. An objective receives an immutable, task-scoped context package built
+from these sources; it never receives unrestricted account memory. This
+decision completes ADR-009 for V2 and uses the control/execution ownership in
+ADR-027.
+
+### Lifecycle contract
+
+| Class                           | Source of truth and provenance                                                                                                                                                                    | Confidence and freshness                                                                                                                                                                               | Correction and deletion                                                                                                                                                                                               | Default retention                                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Raw source/domain records       | Owning provider object or WebWidgets domain row; record user/workspace, connection, provider/object identity, occurrence and observation times, parser version, and content hash                  | Observed fields are not assigned model confidence; parsed/normalized claims identify parser confidence where applicable; freshness is measured from provider occurrence and successful observation     | Provider refresh may supersede a version but cannot rewrite historical provenance; source deletion cascades to copied payloads and dependent projections; disconnect stops new access and work                        | Private raw payload is deleted within 30 days after successful normalization; minimized identity/hash metadata follows the source dedupe policy; normalized domain content follows its owning feature rule |
+| User-authored facts/preferences | Authenticated user command, import explicitly accepted as authored, or a user-approved conversion from a proposal; record author, scope, version, and effective time                              | User authorship is authority, not a probability score; freshness is the latest effective non-revoked version and may include an explicit expiry                                                        | Correction creates a new version or revocation linked to the prior version; deletion removes content and invalidates dependent packages/projections                                                                   | Until explicit deletion, revocation, expiry, account deletion, or the owning domain's documented rule                                                                                                      |
+| Inferred context                | Evidence-linked rule/model output such as context entries, edges, insights, rankings, summaries, or candidates; record source versions, rule/model/prompt version, generated time, and provenance | Numeric confidence is required where the inference is probabilistic; every inference has `last_verified_at` and/or `expires_at`; an expired inference is unavailable, not silently refreshed           | Rejection records feedback and invalidates or supersedes the inference; rebuilding creates a new projection version; an inference can become a durable fact only through a separate explicit authenticated user write | Until its declared expiry, source deletion, consent withdrawal, supersession, or a shorter feature policy; never longer than required source access                                                        |
+| Objective-local working memory  | One objective/run, context-package ID, plan version, attempt, and producing step; append checkpoints rather than overwrite provenance                                                             | No standalone truth/confidence claim; every item is a typed intermediate value or reference with creation time and source lineage; stale items are excluded after plan revision or source invalidation | A plan revision supersedes entries without rewriting them; cancellation blocks new writes; source deletion purges copied content and leaves only a minimal invalidation marker where audit requires it                | Active objective lifetime plus 30 days after terminal state for bounded recovery/debugging, then content deletion; hashes and references survive only when required by retained execution evidence         |
+| Execution evidence              | Go-owned append-only attempt results, side-effect reservations/receipts, policy and approval references, verifier observations, compensation records, and plan lineage                            | Evidence reports observed state and verifier outcome, not model confidence; timestamps, contract versions, and verification freshness are mandatory                                                    | No ordinary update or user edit; correction appends a superseding evidence record without deleting the original; content is removed only by the documented retention or account/data-deletion process                 | Content-minimized evidence follows ADR-010's 365-day V1 baseline until a later approved policy changes it; account deletion and explicit source-data deletion run the documented purge/tombstone process   |
+
+Retention periods are maximum defaults, not permission to retain data that is
+no longer authorized or necessary. Legal hold or regulatory exceptions require
+a separately documented policy and cannot be inferred by an agent or worker.
+
+### Durable fact and preference boundary
+
+A durable fact or preference requires an authenticated user-originated command
+whose UI/API identifies the value, scope, effective time, and whether it
+expires. Imports count as authored only after the user accepts that
+classification. Provider data remains provider/domain truth even when the user
+connects it. Model output, source text, inferred relationships, action success,
+and repeated behavior cannot silently create or modify a durable preference.
+
+When V2 offers to remember an inference, it creates a proposal referencing the
+inference and evidence. Acceptance creates a new authored record with its own
+version and audit entry; it does not mutate the inference into a fact. Rejection
+may tune ranking or suppress the proposal but cannot rewrite source evidence.
+
+### Task-scoped context package
+
+The Next.js control plane assembles a context package before planning or
+re-planning. The package request is versioned and includes:
+
+- immutable objective and objective-version IDs;
+- requesting user and workspace;
+- intended planner/capability purpose;
+- permitted source classes and entity/domain filters;
+- maximum age per source class and the package `as_of` time;
+- consent and connection-scope snapshot IDs;
+- policy and redaction-policy versions;
+- resource limits; and
+- prior verified result references allowed for this objective.
+
+The builder performs owner/workspace and consent checks before retrieval. It
+uses the authenticated user client and RLS for ordinary reads; a privileged
+server function may be used only when it accepts explicit user/workspace scope
+and enforces equivalent ownership. Capability access is least privilege: a
+planner cannot include a source merely because another connected capability
+could read it.
+
+The first V2 package contract uses these hard ceilings:
+
+- at most 64 evidence items;
+- at most 48 KiB of serialized untrusted source excerpts;
+- at most 8 KiB of authenticated user-authored facts/preferences;
+- at most 64 KiB total serialized content and metadata; and
+- at most 12,000 model-input tokens after deterministic rendering.
+
+The lowest applicable ceiling wins. Capability contracts may require smaller
+limits but cannot enlarge them. Each requested source class must provide an
+explicit `max_age`; absent freshness policy excludes that class rather than
+using an implicit default. A record is also excluded when expired, deleted,
+revoked, outside consent, outside tenant scope, or older than the capability's
+stricter bound. The package records every exclusion reason without copying the
+excluded content.
+
+Selection is deterministic for a given request and source snapshot: filter by
+access/freshness first, deduplicate by canonical source identity, rank using a
+versioned deterministic scorer, then order ties by event time and stable ID.
+The package ID is a digest of the package-contract version, objective version,
+policy/consent snapshots, selection parameters, and selected source
+IDs/versions/content hashes. Identical inputs and source state therefore
+produce the same identity. The complete immutable package is persisted so the
+plan and every attempt can name the exact context used.
+
+### Trust and prompt-injection boundary
+
+Context is represented as typed lanes rather than one concatenated prompt:
+
+1. code-owned system and safety instructions;
+2. authenticated user objective and explicitly authored preferences;
+3. control metadata such as schemas, capability contracts, and budgets; and
+4. untrusted evidence from providers, files, messages, feeds, pages, prior
+   model output, and tool output.
+
+Every untrusted item carries its source ID, media/content type, bounded excerpt,
+hash, timestamps, and an explicit `untrusted` label. Rendering uses structural
+delimiters and escaping appropriate to the model adapter. Text inside evidence
+that resembles instructions remains evidence. It cannot grant scopes, select
+an unavailable capability, change a budget, alter approval requirements,
+request secrets, or change system/user instruction priority.
+
+Planner and model output is also untrusted until it passes strict versioned
+schema validation, capability registration, policy evaluation, and plan-graph
+validation. Prompt injection that produces a valid-looking request still
+cannot cross tenant, consent, capability, policy, approval, or Go dispatch
+boundaries. Raw provider errors and secrets never enter a package.
+
+### Working-memory and write-back rules
+
+Objective-local working memory exists only to resume and explain one objective.
+It may contain typed intermediate values, bounded derived summaries, selected
+branch conditions, verifier inputs, and references to completed attempts. It
+cannot be searched as general user memory, used by another objective without a
+new authorized context package, or written into source/domain tables directly.
+
+After a run, only these write-backs are allowed:
+
+- Go appends normalized execution evidence and verified domain side-effect
+  receipts under ADR-027.
+- A registered inference producer may create an evidence-linked, expiring
+  inferred-context record through the control-plane contract.
+- The product may append user feedback, rejection, or correction records.
+- An authenticated user action may create a new authored fact/preference from
+  a clearly displayed proposal.
+- A registered capability may mutate its named domain record only after policy,
+  approval where required, idempotent execution, and verification.
+
+Source content, model output, working memory, and adapters cannot write policy,
+consent, approval, capability definitions, authored memory, or completion
+state. Go is the sole writer of V2 execution advancement; the Next.js control
+plane is the sole writer of authored/context-control records as assigned by
+ADR-027.
+
+### Invalidation, deletion, and account erasure
+
+Source update or correction creates a new source version and invalidates
+derived context whose provenance no longer matches. New plans cannot use an
+invalidated package. A running attempt may finish only when its capability and
+policy explicitly permit the stale snapshot; otherwise Go blocks it and
+requests re-planning.
+
+Deleting imported/source data removes raw bodies and copied excerpts from
+context packages and working memory, cascades or invalidates inferred
+projections, and prevents future retrieval. Historical execution evidence
+retains only the minimum source ID/hash, deletion time, and verifier/receipt
+metadata needed to explain an already completed external effect. It cannot
+retain the deleted source body.
+
+Account deletion is an ordered, auditable operation: pause objectives, stop new
+claims, reconcile in-flight external effects, revoke provider credentials,
+delete raw/domain/authored/inferred/working-memory content, then delete or
+cryptographically erase execution evidence and audit tombstones according to
+the account-deletion policy. A partial failure is retryable from durable purge
+state. Backups expire under the documented backup lifecycle and are not used
+for product retrieval after deletion.
+
+All five classes use composite owner/workspace provenance and RLS. Service-role
+workers and maintenance jobs receive explicit tenant scope and use narrow
+database functions; possession of a service credential never authorizes a
+cross-tenant context scan. Consent withdrawal invalidates affected packages
+and stops new planning immediately, then purges copied content according to the
+same source-deletion rules.
+
+**Why:** V1 correctly separates domain truth, timeline, knowledge, activity,
+and context projections, but “AI memory” still risks collapsing authored truth,
+inference, transient planning state, and audit receipts. V2 automation cannot
+plan reproducibly or respect correction and deletion if those lifecycles are
+interchangeable. Typed packages give each objective enough context without
+granting unrestricted access or letting hostile content become instructions.
+
+**Consequences:** V2 schema and contract work must model these classes and
+references explicitly. Context assembly is deterministic, access-scoped, and
+budgeted. Inference never silently becomes a durable fact. Working memory is
+objective-local and expiring. Execution evidence is immutable until a
+documented retention/account-deletion operation removes it. Existing context
+graph rows remain projections and require migration/reconciliation rather than
+being promoted to source truth.
