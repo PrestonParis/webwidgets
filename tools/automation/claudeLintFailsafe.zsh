@@ -112,7 +112,7 @@ Read AGENTS.md, ARCHITECTURE.md, ROADMAP.md, and DEFINITION_OF_DONE.md first. Wo
         --effort high \
         --permission-mode acceptEdits \
         --permission-prompts none \
-        --allowedTools "Read,Edit,Write,Grep,Glob,Bash(git *),Bash(gh pr *),Bash(npm *),Bash(npx *),Bash(jq *)" \
+        --allowedTools "Read,Edit,Write,Grep,Glob,Bash(git status *),Bash(git diff *),Bash(git log *),Bash(git add *),Bash(git commit *),Bash(git push *),Bash(gh pr list *),Bash(gh pr create *),Bash(npm run check *),Bash(npm run linting:*),Bash(npm run test *),Bash(npm test *),Bash(jq *)" \
         --add-dir "$artifact_dir" \
         "$prompt"
 }
