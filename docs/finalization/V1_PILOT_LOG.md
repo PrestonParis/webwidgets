@@ -68,6 +68,20 @@ produce verifiable readiness evidence. These later point-in-time checks cannot
 prove the missing 24-hour categories. Result: **not counted; 0 of 7**. The
 pilot setup requirements remain unresolved.
 
+### 2026-09-03 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicate handling,
+briefings, commitment candidates, action or automation outcomes, pause and
+recovery behavior, security findings, or delivered alerts. The protected
+aggregate operations snapshot for this historical window is also unavailable.
+
+At the next review, on 2026-09-07, production web liveness and readiness and
+Render worker readiness returned HTTP 200; the worker reported Redis and
+Supabase ready after a 22.3-second readiness request. This later point-in-time
+state cannot establish the missing historical categories. Result: **not
+counted; 0 of 7**. The pilot setup requirements remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
