@@ -68,6 +68,23 @@ produce verifiable readiness evidence. These later point-in-time checks cannot
 prove the missing 24-hour categories. Result: **not counted; 0 of 7**. The
 pilot setup requirements remain unresolved.
 
+### 2026-09-03 through 2026-09-05 UTC
+
+No retained full-window evidence or successful daily review is available for
+these windows. They do not start or advance the count. Missing evidence cannot
+be reconstructed from later health probes. Result: **not counted; 0 of 7**.
+
+### 2026-09-06 UTC
+
+The 2026-09-07 00:15 UTC aggregate operations snapshot confirms a healthy
+worker on release `8a2b6357`, Redis and Supabase readiness, 94 timeline events,
+and no persisted duplicate group in the preceding 24 hours. It also reports
+seven dead letters, an oldest queued job age of 1,725,311 seconds, and seven
+degraded sources out of fifteen active sources. Those are automatic `No Go`
+conditions. There was no briefing, inference, action, or successful automation
+evidence in the snapshot, and external alert delivery remains unproven. Result:
+**not counted; 0 of 7**.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
