@@ -82,6 +82,19 @@ Supabase ready after a 22.3-second readiness request. This later point-in-time
 state cannot establish the missing historical categories. Result: **not
 counted; 0 of 7**. The pilot setup requirements remain unresolved.
 
+### 2026-09-04 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts. A safe
+historical aggregate operations snapshot is unavailable as well.
+
+The 2026-09-07 point-in-time production checks recorded above show the web and
+worker ready, but they cannot establish September 4 behavior or fill the
+missing evidence categories. Result: **not counted; 0 of 7**. The pilot setup
+requirements remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
