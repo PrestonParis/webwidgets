@@ -114,8 +114,15 @@ unresolved.
 This window does not start or advance the count. No retained, cohort-scoped
 24-hour evidence is available for source sync/lag, duplicates, briefing
 quality/latency/cost, commitment candidates, action and automation outcomes,
-pause and recovery behavior, security findings, or delivered alerts. A safe
-historical aggregate operations snapshot is unavailable as well.
+pause and recovery behavior, security findings, or delivered alerts.
+
+The 2026-09-07 00:15 UTC aggregate operations snapshot confirms a healthy
+worker on release `8a2b6357`, Redis and Supabase readiness, 94 timeline events,
+and no persisted duplicate group in the preceding 24 hours. It also reports
+seven dead letters, an oldest queued job age of 1,725,311 seconds, and seven
+degraded sources out of fifteen active sources. Those are automatic `No Go`
+conditions. There was no briefing, inference, action, or successful automation
+evidence in the snapshot, and external alert delivery remains unproven.
 
 At the next review, on 2026-09-08, production web liveness and readiness and
 Render worker readiness returned HTTP 200; the worker reported Redis and
