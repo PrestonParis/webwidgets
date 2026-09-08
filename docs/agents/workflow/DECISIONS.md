@@ -616,3 +616,168 @@ observed operational property and needs an accountable decision owner.
 human approval exist. Missing evidence restarts the consecutive-day count.
 Agents can recommend Go, Conditional Go, or No Go but cannot self-certify or
 merge their own release PR.
+
+---
+
+## ADR-027: Separate the V2 Control Plane from Go-Owned Durable Execution
+
+**Status:** Active V2 target
+
+**Decision:** WebWidgets V2 uses three explicit architectural planes:
+
+1. The Next.js/TypeScript application owns the authenticated control plane.
+2. Supabase Postgres owns canonical automation state and immutable evidence.
+3. The Go worker owns durable orchestration and execution advancement.
+
+This decision extends the V1 ownership established by ADR-008 and ADR-010; it
+does not retroactively move V1 job classes before their explicit cutover.
+
+### Responsibility and mutation ownership
+
+| Responsibility or canonical record                               | Sole V2 owner                                                | Required boundary                                                                                  |
+| ---------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Objective creation, edits, submission, pause, resume, archive    | Next.js control plane                                        | Authenticated, tenant-scoped API and transactional database functions                              |
+| Objective and objective-version rows                             | Next.js control plane                                        | A submitted version is immutable; edits create a version                                           |
+| Capability discovery and plan construction                       | Next.js control plane                                        | Uses only registered versioned capabilities; emits data, never provider calls                      |
+| Plan, plan-step, dependency, and plan-version rows               | Next.js control plane                                        | Validate the complete graph before atomic publication                                              |
+| Policy evaluation and policy-decision rows                       | Next.js control plane                                        | Deterministic evaluation binds user, tenant, capability version, payload hash, consent, and budget |
+| Approval request and approval-decision rows                      | Next.js control plane                                        | Approval covers one normalized payload/version and cannot be broadened by a worker                 |
+| Domain/webhook intake and transactional outbox creation          | Next.js or the owning domain transaction                     | Verify the caller or provider first; commit domain state and outbox atomically                     |
+| V2 outbox consumption and event correlation                      | Go execution plane                                           | At-least-once intake; canonical event identity makes replay safe                                   |
+| Run and attempt lifecycle after submission                       | Go execution plane                                           | State transitions use leases and compare-and-set database functions                                |
+| Leases, heartbeats, timers, dependency readiness, fan-out/fan-in | Go execution plane                                           | Durable database state; process memory and queue delays are advisory                               |
+| Capability dispatch and retry decisions                          | Go execution plane                                           | A pinned capability version and current allow decision are required                                |
+| External side-effect reservation                                 | Go execution plane                                           | Reserve an idempotency key canonically before invoking an adapter                                  |
+| Capability implementation                                        | Registered bounded executor                                  | Invoked only by Go for V2; returns a typed result and cannot advance workflow state                |
+| Attempt results, side-effect receipts, normalized errors         | Go execution plane                                           | Go validates adapter output and is the only canonical writer                                       |
+| Postcondition verification and verification rows                 | Go execution plane                                           | A registered verifier may perform the read, but Go persists the verdict                            |
+| Re-planning trigger and invalidation evidence                    | Go execution plane                                           | Records the observed mismatch and blocks affected pending steps                                    |
+| Replacement plan publication and policy evaluation               | Next.js control plane                                        | Creates a new immutable plan version; never rewrites the active version                            |
+| Cancellation request                                             | Next.js control plane                                        | Durable user/policy intent with an idempotent request key                                          |
+| Cancellation propagation and terminal execution state            | Go execution plane                                           | Stops eligible work, preserves completed effects, and reconciles in-flight effects                 |
+| Execution audit and immutable evidence                           | Go execution plane through append-only database functions    | Content-minimized, tenant-scoped, versioned, and never rewritten by adapters                       |
+| Control-plane audit                                              | Next.js control plane through append-only database functions | Records intent, policy, approval, and plan publication separately from execution evidence          |
+
+The database functions that enforce these transitions are part of the
+Supabase truth boundary. Service-role access does not confer ownership: only
+the named control-plane or Go operation may call its corresponding mutation.
+RLS protects user reads and writes, while narrow service functions enforce
+cross-record invariants for privileged transitions.
+
+### Component boundaries
+
+- `apps/web` owns customer APIs, the capability registry, deterministic policy,
+  approval, plan validation/publication, queries, and control-plane audit. API
+  routes remain adapters over server services and cannot contain planning or
+  execution logic.
+- `services/go_services/worker` becomes a separately deployed, continuously
+  running execution service. It must expose health/readiness, use bounded
+  database credentials, maintain durable leases and heartbeats, and shut down
+  by relinquishing or allowing leases to expire safely.
+- `services/sync-worker` continues to own non-cut-over V1 classes. After a class
+  is activated for Go it cannot scan, claim, enqueue, retry, or reconcile that
+  class. Shared provider code may be retained behind an internal capability
+  endpoint, but it has no scheduling authority.
+- `services/ml_service` may classify, extract, rank, or propose plan material.
+  It is stateless, receives a bounded context package, and cannot authorize,
+  persist canonical automation state, dispatch, or claim completion.
+- `services/conversion` executes bounded conversion capabilities and may retain
+  its existing internal job database. The V2 result is not complete until Go
+  records and verifies the canonical receipt in Supabase.
+- Redis/BullMQ may carry wakeups, work references, concurrency signals, and
+  backpressure. Loss, duplication, or expiry in Redis cannot lose or mutate
+  canonical work; reconciliation starts from Supabase.
+- n8n may execute only an allowlisted, versioned capability through signed
+  requests and correlated callbacks. It never owns triggers, plans, approvals,
+  retries, timers, or V2 run state.
+
+### Planning, execution, verification, and re-planning
+
+The planner consumes an immutable objective version, task-scoped context
+package, available capability versions, policy inputs, and resource budget. It
+produces a typed dependency graph. The control plane validates the whole graph,
+persists its policy decisions, and publishes it atomically. Publication makes
+the plan eligible for Go; it does not execute it.
+
+Go pins every run to the published plan and capability versions. Immediately
+before dispatch it confirms the bound policy decision is still applicable and
+that approval, consent, connection scope, cancellation state, and budget have
+not become stale. It reserves an attempt and any external side effect before
+calling the registered executor. Provider acceptance is not completion. Go
+records a successful step only after the registered verifier establishes its
+postcondition or policy explicitly permits an accepted-unverifiable terminal
+result.
+
+When observed state invalidates a pending plan, Go records immutable
+invalidation evidence and requests re-planning. Next.js constructs, validates,
+and publishes a new plan version that references completed effects and blocked
+steps. Go never authors a plan; Next.js never dispatches one. A revision cannot
+silently repeat a completed or ambiguously completed side effect.
+
+### Failure domains
+
+- A Next.js outage blocks new control-plane commands but does not erase or
+  transfer ownership of running work. Go may continue only steps whose policy,
+  approval, connection, and plan validity can still be established.
+- A Go outage leaves canonical attempts, leases, timers, and ready steps in
+  Supabase. A restarted replica resumes only after acquiring the canonical
+  lease and reconciling ambiguous effects.
+- A Supabase outage stops state advancement and external dispatch. No component
+  may execute from queue state alone.
+- Redis/BullMQ loss delays wakeups. A Go reconciliation scan recovers ready,
+  expired-lease, and timer work from canonical state without duplicate effects.
+- Executor failure returns a normalized typed error. Retry, compensation,
+  decision request, or failure is chosen by Go from the pinned policy.
+- Provider timeout after a possible side effect creates an unknown outcome.
+  The verifier or reconciliation path must resolve it; blind retry is forbidden.
+
+### Versioning and deployment
+
+Objectives, plans, capability contracts, events, policy decisions, and
+verification contracts carry explicit versions. Published plan and capability
+versions are immutable while referenced by an active or retained run. Web and
+Go deployments must pass shared fixture compatibility tests before rollout.
+Unknown versions fail closed before dispatch.
+
+Next.js, Go, TypeScript worker, Python, and conversion deploy independently.
+Go deploys dark before a cutover: it may validate connectivity, compatibility,
+and reconciliation queries but cannot claim the target class. Deployment
+success does not alter job ownership.
+
+### V1-to-V2 job-class transition
+
+Each schedulable or executable job class has one canonical ownership record
+with `v1_typescript` or `v2_go` as its active owner and an epoch used in claims.
+No `dual` state exists.
+
+1. Inventory the V1 trigger, scanner, queue, handler, idempotency key, receipt,
+   and recovery path for the class.
+2. Implement the V2 contract, Go handler/orchestration path, verifier,
+   reconciliation, telemetry, and compatibility tests.
+3. Deploy Go dark and replay production-shaped fixtures without claims or side
+   effects.
+4. Pause new V1 scheduling for the class and drain or reconcile its in-flight
+   jobs.
+5. Atomically advance the ownership epoch to `v2_go`. Go may then claim; V1
+   entry points must reject the new epoch.
+6. Observe the class against release thresholds before retiring its V1 code.
+
+Rollback disables new Go claims, drains or expires Go leases, reconciles every
+reserved external effect, and atomically advances a new epoch back to
+`v1_typescript`. It never runs both owners to discover which works. Schema and
+immutable evidence remain forward-compatible; rollback changes the active
+owner, not historical records.
+
+**Why:** V1 safely centralizes work in a TypeScript/BullMQ worker, but V2
+objectives span restarts, timers, dependencies, callbacks, verification, and
+re-planning. Assigning Go sole execution ownership makes that complexity one
+program's responsibility while retaining the working provider and inference
+components as bounded adapters. Exact mutation ownership prevents queue state,
+provider success, or competing schedulers from becoming conflicting truth.
+
+**Consequences:** Go is mandatory for V2 execution and must be deployed as a
+real continuously running service before any V2 class is activated. The first
+implementation work must establish versioned contracts, canonical schema,
+ownership gates, compatibility tests, and a dark Go runtime. V1 continues
+unchanged until each class meets its cutover gate. The context and memory
+lifecycle remains a separate decision in ADR-028.

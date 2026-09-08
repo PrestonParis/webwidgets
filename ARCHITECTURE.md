@@ -123,6 +123,47 @@ The complete lifecycle, responsibility matrices, retention policy, and
 migration sequence are in
 [`docs/finalization/OWNERSHIP_PROPOSAL.md`](docs/finalization/OWNERSHIP_PROPOSAL.md).
 
+### Accepted V2 automation ownership target
+
+ADR-027 defines a separate control plane and execution plane for V2. This is
+the required target, not an optional Go experiment:
+
+- The Next.js application owns the authenticated control plane. It validates
+  objective intent, constructs and publishes immutable plan versions from the
+  production capability registry, evaluates policy, binds approvals, exposes
+  inspection and cancellation APIs, and requests re-planning. Planning may
+  propose data only; it cannot invoke a capability or mutate external state.
+- Supabase Postgres is the canonical source of truth for objectives, plans,
+  policy decisions, approvals, runs, attempts, side-effect reservations,
+  results, verification, plan revisions, cancellation, and audit evidence.
+  Queue state, worker memory, and provider responses are never sufficient to
+  claim progress or completion.
+- The Go worker is the sole durable orchestrator for each V2 job class after
+  that class is cut over. It consumes canonical events, owns leases,
+  heartbeats, timers, dependency readiness, dispatch, retry, cancellation
+  propagation, verification coordination, and execution-state transitions.
+- Capability implementations may remain behind bounded TypeScript, Python,
+  conversion, or n8n adapters, but Go is their only V2 caller and the only
+  writer of canonical attempt/result/verification state. Adapters return typed
+  results and safe provider references; they do not schedule continuation or
+  declare an objective complete.
+- Re-planning is a handshake: Go records why the pinned plan is no longer
+  executable and requests a revision; the Next.js control plane publishes the
+  replacement immutable plan after validation and policy evaluation; Go then
+  resumes from the new version without replaying completed side effects.
+- A job-class ownership record gates cutover. Before activation, the V1
+  TypeScript worker is the only owner; during a dark Go deployment it may
+  observe but not claim; after atomic activation, Go is the only owner and V1
+  entry points reject the class. Rollback reverses that gate only after Go
+  leases drain or expire and in-flight external effects are reconciled.
+
+Redis/BullMQ is an at-least-once delivery and backpressure mechanism only. The
+Python service remains stateless inference, the conversion service remains a
+bounded file-operation executor with its own internal storage, and n8n remains
+an allowlisted external adapter. None is a V2 source of truth, policy owner, or
+workflow scheduler. The complete responsibility, failure, versioning, and
+cutover rules are in ADR-027.
+
 ---
 
 ## 3. Frontend structure and feature catalog
@@ -703,9 +744,11 @@ silently pick an interpretation when working in these areas — ask, or scope
 the task narrower to avoid guessing:
 
 - **Legacy runtime cutover** — widget hydration remains client-side, the Go
-  worker is deferred, n8n is an adapter, and the TypeScript worker owns V1
-  background work. The source-by-source order for retiring duplicate Vercel
-  cron and provider-processing paths still requires implementation evidence.
+  worker is deferred for V1, n8n is an adapter, and the TypeScript worker owns
+  V1 background work. ADR-027 resolves V2 ownership: every V2 job class moves
+  atomically from its V1 owner to the Go orchestrator through a canonical
+  ownership gate. The class-by-class order and production evidence remain
+  delivery work, not an ownership ambiguity.
 - **`docs/blueprint/CURRENT_STATE.md`, `docs/blueprint/DEPLOYMENT.md`, and
   `docs/blueprint/AUTOMATION_GUIDE.md` are empty files.** Treat any claim
   that depends on them as unverified — `docs/blueprint/CURRENT_STATE.md` now
