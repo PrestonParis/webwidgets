@@ -109,6 +109,20 @@ Supabase ready. These later point-in-time checks cannot establish September 5
 behavior. Result: **not counted; 0 of 7**. The pilot setup requirements remain
 unresolved.
 
+### 2026-09-06 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts. A safe
+historical aggregate operations snapshot is unavailable as well.
+
+At the next review, on 2026-09-08, production web liveness and readiness and
+Render worker readiness returned HTTP 200; the worker reported Redis and
+Supabase ready after a 13.3-second readiness request. These later point-in-time
+checks cannot establish September 6 behavior. Result: **not counted; 0 of 7**.
+The pilot setup requirements remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
