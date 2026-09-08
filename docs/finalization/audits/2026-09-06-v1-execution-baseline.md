@@ -1,7 +1,9 @@
 # V1 execution baseline — 2026-09-06
 
-Evidence captured: 2026-09-07 00:11–00:15 UTC  
-Release branch revision: `8a2b6357e787ef5fc847c39c9b97288af68f6c6d`  
+Evidence captured: 2026-09-07 00:11–00:15 UTC
+
+Release branch revision: `8a2b6357e787ef5fc847c39c9b97288af68f6c6d`
+
 Decision: **No Go; V2-004 remains in progress**
 
 ## Result

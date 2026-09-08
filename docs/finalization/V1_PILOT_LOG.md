@@ -68,13 +68,53 @@ produce verifiable readiness evidence. These later point-in-time checks cannot
 prove the missing 24-hour categories. Result: **not counted; 0 of 7**. The
 pilot setup requirements remain unresolved.
 
-### 2026-09-03 through 2026-09-05 UTC
+### 2026-09-03 UTC
 
-No retained full-window evidence or successful daily review is available for
-these windows. They do not start or advance the count. Missing evidence cannot
-be reconstructed from later health probes. Result: **not counted; 0 of 7**.
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicate handling,
+briefings, commitment candidates, action or automation outcomes, pause and
+recovery behavior, security findings, or delivered alerts. The protected
+aggregate operations snapshot for this historical window is also unavailable.
+
+At the next review, on 2026-09-07, production web liveness and readiness and
+Render worker readiness returned HTTP 200; the worker reported Redis and
+Supabase ready after a 22.3-second readiness request. This later point-in-time
+state cannot establish the missing historical categories. Result: **not
+counted; 0 of 7**. The pilot setup requirements remain unresolved.
+
+### 2026-09-04 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts. A safe
+historical aggregate operations snapshot is unavailable as well.
+
+The 2026-09-07 point-in-time production checks recorded above show the web and
+worker ready, but they cannot establish September 4 behavior or fill the
+missing evidence categories. Result: **not counted; 0 of 7**. The pilot setup
+requirements remain unresolved.
+
+### 2026-09-05 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts. A safe
+historical aggregate operations snapshot is unavailable as well.
+
+At the next review, on 2026-09-07, production web liveness and readiness and
+Render worker readiness returned HTTP 200; the worker reported Redis and
+Supabase ready. These later point-in-time checks cannot establish September 5
+behavior. Result: **not counted; 0 of 7**. The pilot setup requirements remain
+unresolved.
 
 ### 2026-09-06 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts.
 
 The 2026-09-07 00:15 UTC aggregate operations snapshot confirms a healthy
 worker on release `8a2b6357`, Redis and Supabase readiness, 94 timeline events,
@@ -82,8 +122,13 @@ and no persisted duplicate group in the preceding 24 hours. It also reports
 seven dead letters, an oldest queued job age of 1,725,311 seconds, and seven
 degraded sources out of fifteen active sources. Those are automatic `No Go`
 conditions. There was no briefing, inference, action, or successful automation
-evidence in the snapshot, and external alert delivery remains unproven. Result:
-**not counted; 0 of 7**.
+evidence in the snapshot, and external alert delivery remains unproven.
+
+At the next review, on 2026-09-08, production web liveness and readiness and
+Render worker readiness returned HTTP 200; the worker reported Redis and
+Supabase ready after a 13.3-second readiness request. These later point-in-time
+checks cannot establish September 6 behavior. Result: **not counted; 0 of 7**.
+The pilot setup requirements remain unresolved.
 
 ## Release-suite environment
 
