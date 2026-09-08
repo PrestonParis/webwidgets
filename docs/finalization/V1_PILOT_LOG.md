@@ -10,6 +10,8 @@
 - Release suite: `npm run test:v1` with the environment described below.
 - Start: not yet recorded.
 - Consecutive qualifying days: 0 of 7.
+- Status: blocked until continuous cohort telemetry and verifiable alert
+  delivery are established before a new UTC window begins.
 
 ## Preflight evidence
 
@@ -122,6 +124,21 @@ Render worker readiness returned HTTP 200; the worker reported Redis and
 Supabase ready after a 13.3-second readiness request. These later point-in-time
 checks cannot establish September 6 behavior. Result: **not counted; 0 of 7**.
 The pilot setup requirements remain unresolved.
+
+### 2026-09-07 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+24-hour evidence is available for source sync/lag, duplicates, briefing
+quality/latency/cost, commitment candidates, action and automation outcomes,
+pause and recovery behavior, security findings, or delivered alerts. A safe
+historical aggregate operations snapshot is unavailable as well.
+
+The 2026-09-08 point-in-time checks recorded above show the production web and
+worker ready, but they cannot establish September 7 behavior or fill the
+missing evidence categories. Result: **not counted; 0 of 7**. Eight reviewed
+UTC windows have now failed to start the pilot for the same missing-evidence
+condition; a new qualifying attempt requires the blocked setup work before
+00:00 UTC.
 
 ## Release-suite environment
 
