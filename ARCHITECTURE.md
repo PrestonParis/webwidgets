@@ -471,9 +471,10 @@ Client (FinanceWidget) → /api/finance/accounts (manual balances, Supabase)
 
 ## 6. Context / knowledge system
 
-`features/context/` (~37 importers) is the context graph — knowledge nodes,
-AI memory, and permissions. Backed by the single tracked Supabase migration
-in the repo, `202605300001_context_substrate.sql`. This is the newest major
+`features/context/` (~37 importers) is the rebuildable entity and retrieval
+graph, including permissions and inferred relationships. It is not a general
+AI memory store or source of durable user truth. It is backed by the tracked
+`202605300001_context_substrate.sql` migration. This is the newest major
 subsystem and the one most likely to still be evolving; treat changes here as
 higher-risk/needs-care by default.
 
@@ -488,6 +489,33 @@ The normalized V1 timeline owns meaningful user-scoped facts and provenance.
 knowledge, timeline, and verified outcome records may project one way into
 activity and context; those projections must not republish themselves as new
 timeline facts.
+
+ADR-028 defines five V2 data lifecycles that must remain distinguishable in
+storage, contracts, context assembly, and UI:
+
+| Data class                          | Source of truth                                                   | Lifecycle                                                                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Raw source/domain records           | Owning provider or WebWidgets domain table                        | Preserve provider identity, observation time, and content hash; private raw payload expires after normalization under the source policy |
+| User-authored facts and preferences | Explicit authenticated user write and immutable versions          | Durable until corrected, deleted, or expired by an explicit user/domain rule; never inferred implicitly                                 |
+| Inferred context                    | Evidence-linked projection with rule/model version and confidence | Rebuildable and expiring; rejection invalidates it rather than changing source truth                                                    |
+| Objective-local working memory      | One objective/run and its immutable context package               | Bounded, resumable scratch state; expires 30 days after terminal state and cannot become general memory                                 |
+| Execution evidence                  | Go-owned append-only receipts and verification records            | Content-minimized and immutable for the documented audit-retention period, then deleted only by the retention/account-deletion process  |
+
+Every plan is pinned to one immutable task-scoped context package. The package
+is assembled server-side from explicitly permitted source classes, consent,
+freshness limits, and a resource budget. It contains references and bounded
+excerpts, not unrestricted account data. Code-owned instructions, authenticated
+user intent/preferences, control metadata, and untrusted source evidence remain
+separate typed fields throughout model use. Source content and model output can
+never alter policy, approval, capability selection constraints, or instruction
+priority.
+
+Packages use owner/workspace-matched references and RLS, record exclusions and
+their reasons, and retain the exact source versions used by a plan or attempt.
+Deletion purges copied source content and invalidates packages for future use;
+historical execution traces retain only content-minimized tombstones until
+their documented deletion process runs. The complete provenance, correction,
+retention, context-budget, and write-back rules are in ADR-028.
 
 ---
 
