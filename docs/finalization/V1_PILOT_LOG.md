@@ -147,6 +147,25 @@ UTC windows have now failed to start the pilot for the same missing-evidence
 condition; a new qualifying attempt requires the blocked setup work before
 00:00 UTC.
 
+### 2026-09-08 UTC
+
+This window does not start or advance the count. The review has no retained,
+cohort-scoped evidence covering the exact UTC window for source sync/lag,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+The 2026-09-09 14:30 UTC aggregate snapshot reported no canonical duplicate
+groups or failures/dead letters in its rolling 24-hour view, but it also showed
+an unhealthy stale worker with no active instance, one queued job aged
+1,949,433 seconds, all 15 active sources overdue, seven degraded sources, and
+no timeline, briefing, inference, action, or successful automation activity.
+After a readiness request, the production web and worker endpoints returned
+HTTP 200 and the worker reported Redis and Supabase ready; the worker request
+took 14.4 seconds. The inference endpoint produced no verifiable readiness
+response. These are operational `No Go` conditions and still do not supply the
+missing full-window evidence. Result: **not counted; 0 of 7**.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
