@@ -251,6 +251,20 @@ checks cannot establish September 14 behavior. Result: **not counted; 0 of
 7**. The operational `No Go` conditions and pilot setup blocker remain
 unresolved.
 
+### 2026-09-15 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The September 17 production review confirmed only web liveness and readiness;
+it produced no verifiable worker or aggregate-operations evidence. Those later
+checks cannot establish September 15 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
