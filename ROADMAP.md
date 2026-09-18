@@ -13,6 +13,10 @@ in — it now points here) and reconciles that gap against
 docs for later-stage work — this file is the prioritized, maturity-rated
 summary that sits above them.
 
+V2 automation status and the remaining implementation program are tracked in
+[docs/finalization/V2_IMPLEMENTATION_STATUS.md](docs/finalization/V2_IMPLEMENTATION_STATUS.md).
+The numbered V2 issues are delivery slices, not a completeness checklist.
+
 **Stated target:** "Fully functional Website App V1" by **August 25, 2026**
 (`VISION.md`). That date has passed. As of 2026-08-30, Prompts 001–018 are
 implemented, and all three deployed Prompt 19 journeys passed on 2026-08-30.
