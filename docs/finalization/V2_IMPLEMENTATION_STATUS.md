@@ -101,7 +101,8 @@ thresholds.
 ## Current implementation order
 
 1. Merge V2-008 after independent review.
-2. V2-009: deterministic automation policy evaluation.
+2. V2-009: deterministic automation policy evaluation (implemented on the
+   `codex/v2-009-policy-engine` branch; review and merge remain).
 3. Add narrow policy-decision persistence and exact approval creation.
 4. Add full plan-graph validation and atomic publication.
 5. Establish Go contract bindings and the dark durable execution runtime.
