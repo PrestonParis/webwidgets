@@ -10,7 +10,7 @@ proposed capability call and returns a versioned `policyDecisionSchema` value.
 It does not persist the decision, create an approval, enqueue work, call a
 provider, or advance objective state.
 
-Callers must construct consent, connection, delegation, objective, and budget
+Callers must construct consent, connection, delegation, objective, allowlist, and budget
 snapshots from authenticated canonical records. Request bodies, source content,
 working memory, planner output, and model output cannot supply or modify those
 authority inputs. The evaluator accepts the proposed capability name, version,
@@ -26,16 +26,20 @@ A call is denied when any of these conditions holds:
   capability allowlist;
 - the payload fails the registered input schema;
 - consent is revoked, stale, or does not include the exact capability version;
-- the connection snapshot is stale or lacks a required normalized scope;
+- the connection snapshot is stale or lacks the required provider, account,
+  and normalized scope;
 - the budget is closed, exhausted, or cannot cover the next attempt; or
 - the registered risk class is prohibited.
 
 Every decision binds the owner, objective, plan, step, budget, immutable
 capability version, normalized payload and hash, registry-owned risk class,
-canonical hashes computed from the normalized consent and connection snapshots,
-policy version, evaluation time, and expiry. Denials expose stable reason codes
+canonical hashes computed from the normalized consent, connection, budget,
+delegation, and allowlist snapshots, policy version, evaluation time, and
+expiry. Denials expose stable reason codes
 rather than rejected input details or provider diagnostics.
-Decision validity is capped at five minutes; execution must still revalidate
+The evaluator creates timestamps from its trusted clock and rejects
+caller-supplied timestamps. Decision validity is capped at five minutes;
+execution must still revalidate
 current authority immediately before dispatch.
 
 ## Risk rules

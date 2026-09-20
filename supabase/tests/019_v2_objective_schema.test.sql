@@ -174,7 +174,8 @@ select throws_ok($$update public.objective_step_results set output='{"ok":false}
 insert into public.objective_policy_decisions(
     id,objective_id,plan_id,step_id,budget_id,user_id,risk_class,
     payload_hash,policy_version,consent_snapshot_hash,
-    connection_snapshot_hash,decision,requires_approval,expires_at
+    connection_snapshot_hash,budget_snapshot_hash,delegation_snapshot_hash,
+    allowlist_snapshot_hash,decision,requires_approval,expires_at
 ) values (
     'f1000000-0000-4000-8000-000000000080',
     'f1000000-0000-4000-8000-000000000010',
@@ -182,7 +183,8 @@ insert into public.objective_policy_decisions(
     'f1000000-0000-4000-8000-000000000040',
     'f1000000-0000-4000-8000-000000000050',
     'f1111111-1111-4111-8111-111111111111','external','5555555555555555',
-    'policy-v1','6666666666666666','7777777777777777',
+    'policy-v1','6666666666666666','7777777777777777','8888888888888888',
+    '9999999999999999','aaaaaaaaaaaaaaaa',
     'require_approval',true,now()+interval '1 hour'
 );
 select throws_ok($$insert into public.objective_approvals(

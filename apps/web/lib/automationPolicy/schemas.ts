@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
     contractVersionSchema,
     jsonObjectSchema,
-    timestampSchema,
 } from '@/lib/automationContracts/primitives';
 
 const capabilityKeySchema = z
@@ -11,22 +10,22 @@ const capabilityKeySchema = z
     .max(450)
     .regex(/^[a-z0-9][a-z0-9_.-]+@[1-9][0-9]*$/u);
 
-const MAX_POLICY_DECISION_TTL_MS = 5 * 60 * 1000;
+const safeCounterSchema = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 
 const resourceBudgetSchema = z
     .object({
         id: z.string().uuid(),
         status: z.enum(['active', 'exhausted', 'closed']),
-        maxAttempts: z.number().int().min(1),
-        maxProviderCalls: z.number().int().min(0),
-        maxModelTokens: z.number().int().min(0),
-        maxCostMicrounits: z.number().int().min(0),
-        maxActiveSeconds: z.number().int().min(1),
-        attemptsUsed: z.number().int().min(0),
-        providerCallsUsed: z.number().int().min(0),
-        modelTokensUsed: z.number().int().min(0),
-        costMicrounitsUsed: z.number().int().min(0),
-        activeSecondsUsed: z.number().int().min(0),
+        maxAttempts: safeCounterSchema.min(1),
+        maxProviderCalls: safeCounterSchema,
+        maxModelTokens: safeCounterSchema,
+        maxCostMicrounits: safeCounterSchema,
+        maxActiveSeconds: safeCounterSchema.min(1),
+        attemptsUsed: safeCounterSchema,
+        providerCallsUsed: safeCounterSchema,
+        modelTokensUsed: safeCounterSchema,
+        costMicrounitsUsed: safeCounterSchema,
+        activeSecondsUsed: safeCounterSchema,
     })
     .strict();
 
@@ -44,6 +43,8 @@ const connectionGrantSchema = z
             'google_mail',
             'microsoft_mail',
         ]),
+        provider: z.enum(['google', 'microsoft']),
+        accountId: z.string().uuid(),
         scopes: z.array(z.string().min(1).max(240)),
     })
     .strict();
@@ -90,28 +91,8 @@ export const automationPolicyRequestSchema = z
         connections: connectionSnapshotSchema,
         delegation: delegationSnapshotSchema,
         budget: resourceBudgetSchema,
-        evaluatedAt: timestampSchema,
-        expiresAt: timestampSchema,
     })
-    .strict()
-    .refine(
-        ({ evaluatedAt, expiresAt }) =>
-            Date.parse(expiresAt) > Date.parse(evaluatedAt),
-        {
-            message: 'Policy decision expiry must follow evaluation time',
-            path: ['expiresAt'],
-        },
-    )
-    .refine(
-        ({ evaluatedAt, expiresAt }) =>
-            Date.parse(expiresAt) - Date.parse(evaluatedAt) <=
-            MAX_POLICY_DECISION_TTL_MS,
-        {
-            message:
-                'Policy decisions may remain current for at most 5 minutes',
-            path: ['expiresAt'],
-        },
-    );
+    .strict();
 
 export type AutomationPolicyRequest = z.infer<
     typeof automationPolicyRequestSchema

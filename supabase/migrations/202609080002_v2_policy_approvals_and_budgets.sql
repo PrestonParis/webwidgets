@@ -65,6 +65,9 @@ create table public.objective_policy_decisions (
     policy_version text not null,
     consent_snapshot_hash text not null,
     connection_snapshot_hash text not null,
+    budget_snapshot_hash text not null,
+    delegation_snapshot_hash text not null,
+    allowlist_snapshot_hash text not null,
     decision text not null,
     reason_codes text[] not null default '{}',
     requires_approval boolean not null default false,
@@ -105,6 +108,9 @@ create table public.objective_policy_decisions (
         and length(policy_version) between 1 and 200
         and length(consent_snapshot_hash) between 16 and 200
         and length(connection_snapshot_hash) between 16 and 200
+        and length(budget_snapshot_hash) between 16 and 200
+        and length(delegation_snapshot_hash) between 16 and 200
+        and length(allowlist_snapshot_hash) between 16 and 200
         and (capability_name is null or length(capability_name) between 1 and 240)
         and (capability_version is null or length(capability_version) between 1 and 200)
     ),

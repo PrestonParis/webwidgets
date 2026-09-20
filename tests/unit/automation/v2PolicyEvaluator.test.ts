@@ -71,8 +71,6 @@ function requestFor(
             costMicrounitsUsed: 0,
             activeSecondsUsed: 0,
         },
-        evaluatedAt: '2026-09-18T12:00:00.000Z',
-        expiresAt: '2026-09-18T12:05:00.000Z',
     };
 }
 
@@ -198,10 +196,27 @@ describe('V2 policy fail-closed gates', () => {
         await expect(evaluateAutomationPolicy(invalid)).rejects.toThrow();
     });
 
-    it('rejects policy decisions with an excessive validity window', async () => {
-        const input = requestFor();
-        input.expiresAt = '2026-09-18T12:05:01.000Z';
+    it('uses a trusted clock and rejects caller-controlled timestamps', async () => {
+        const evaluator = createAutomationPolicyEvaluator(
+            productionCapabilityRegistry,
+            { now: () => new Date('2026-09-18T12:00:00.000Z') },
+        );
+        const decision = await evaluator(requestFor());
+        expect(decision.evaluatedAt).toBe('2026-09-18T12:00:00.000Z');
+        expect(decision.expiresAt).toBe('2026-09-18T12:05:00.000Z');
 
+        await expect(
+            evaluator({
+                ...requestFor(),
+                evaluatedAt: '2099-01-01T00:00:00.000Z',
+                expiresAt: '2099-01-01T00:05:00.000Z',
+            }),
+        ).rejects.toThrow();
+    });
+
+    it('rejects counters outside JavaScript safe integer precision', async () => {
+        const input = requestFor();
+        input.budget.maxModelTokens = Number.MAX_SAFE_INTEGER + 1;
         await expect(evaluateAutomationPolicy(input)).rejects.toThrow();
     });
 });
@@ -231,6 +246,8 @@ describe('V2 policy provider gates', () => {
         input.connections.grants = [
             {
                 integration: 'google_calendar',
+                provider: 'google',
+                accountId: '77777777-7777-4777-8777-777777777777',
                 scopes: ['calendar:write'],
             },
         ];
@@ -243,6 +260,39 @@ describe('V2 policy provider gates', () => {
         };
         const delegatedDecision = await evaluateAutomationPolicy(input);
         expect(delegatedDecision.decision).toBe('allow');
+    });
+
+    it('denies a grant for a different provider or account', async () => {
+        const input = requestFor('email.draft', '1');
+        input.payload = {
+            provider: 'microsoft',
+            accountId: '77777777-7777-4777-8777-777777777777',
+            from: 'owner@example.com',
+            to: ['recipient@example.com'],
+            cc: [],
+            bcc: [],
+            subject: 'Project update',
+            body: 'The project is on track.',
+            reply: null,
+        };
+        input.connections.grants = [
+            {
+                integration: 'google_mail',
+                provider: 'google',
+                accountId: '77777777-7777-4777-8777-777777777777',
+                scopes: ['email:write'],
+            },
+            {
+                integration: 'microsoft_mail',
+                provider: 'microsoft',
+                accountId: '88888888-8888-4888-8888-888888888888',
+                scopes: ['email:write'],
+            },
+        ];
+
+        const decision = await evaluateAutomationPolicy(input);
+        expect(decision.decision).toBe('deny');
+        expect(decision.reasonCodes).toContain('connection_scope_missing');
     });
 });
 
@@ -259,6 +309,9 @@ describe('V2 policy risk contract', () => {
         const second = await evaluateAutomationPolicy(input);
 
         expect(second.payloadHash).toBe(first.payloadHash);
+        expect(first.budgetSnapshotHash).toMatch(/^[a-f0-9]{64}$/u);
+        expect(first.delegationSnapshotHash).toMatch(/^[a-f0-9]{64}$/u);
+        expect(first.allowlistSnapshotHash).toMatch(/^[a-f0-9]{64}$/u);
     });
 
     it.each(['read', 'draft'] as const)(

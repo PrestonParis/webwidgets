@@ -31,18 +31,44 @@ interface RuleResult {
 interface SnapshotHashes {
     consent: string;
     connections: string;
+    budget: string;
+    delegation: string;
+    allowlist: string;
+}
+
+interface DecisionTiming {
+    evaluatedAt: string;
+    expiresAt: string;
+}
+
+interface EvaluatorOptions {
+    now?: () => Date;
 }
 
 const runnableObjectiveStates = new Set(['submitted', 'active']);
+const policyDecisionTtlMs = 5 * 60 * 1000;
+
+function integrationProvider(integration: string) {
+    return integration.startsWith('google_') ? 'google' : 'microsoft';
+}
 
 function hasRequiredConnection(
     registration: CapabilityRegistration,
     request: AutomationPolicyRequest,
 ) {
     if (registration.requiredIntegrations.includes('none')) return true;
+    const provider = request.payload.provider;
+    const accountId = request.payload.accountId;
+    if (typeof provider !== 'string' || typeof accountId !== 'string') {
+        return false;
+    }
     return registration.requiredIntegrations.some((integration) => {
         const grant = request.connections.grants.find(
-            (candidate) => candidate.integration === integration,
+            (candidate) =>
+                candidate.integration === integration &&
+                candidate.provider === provider &&
+                candidate.provider === integrationProvider(integration) &&
+                candidate.accountId === accountId,
         );
         if (!grant) return false;
         const requiredScopes = registration.requiredScopes[integration] ?? [];
@@ -140,15 +166,28 @@ async function snapshotHashes(
         grants: request.connections.grants
             .map((grant) => ({
                 integration: grant.integration,
+                provider: grant.provider,
+                accountId: grant.accountId,
                 scopes: [...grant.scopes].sort(),
             }))
             .sort((left, right) =>
-                left.integration.localeCompare(right.integration),
+                `${left.integration}:${left.accountId}`.localeCompare(
+                    `${right.integration}:${right.accountId}`,
+                ),
             ),
+    };
+    const delegation = {
+        state: request.delegation.state,
+        capabilityKeys: [...request.delegation.capabilityKeys].sort(),
     };
     return {
         consent: await sha256Text(serializeJson(consent)),
         connections: await sha256Text(serializeJson(connections)),
+        budget: await sha256Text(serializeJson(request.budget)),
+        delegation: await sha256Text(serializeJson(delegation)),
+        allowlist: await sha256Text(
+            serializeJson([...request.permittedCapabilityKeys].sort()),
+        ),
     };
 }
 
@@ -156,6 +195,7 @@ function unknownCapabilityDecision(
     request: AutomationPolicyRequest,
     payloadHash: string,
     hashes: SnapshotHashes,
+    timing: DecisionTiming,
 ) {
     return policyDecisionSchema.parse({
         contractVersion: request.contractVersion,
@@ -173,11 +213,14 @@ function unknownCapabilityDecision(
         policyVersion: AUTOMATION_POLICY_VERSION,
         consentSnapshotHash: hashes.consent,
         connectionSnapshotHash: hashes.connections,
+        budgetSnapshotHash: hashes.budget,
+        delegationSnapshotHash: hashes.delegation,
+        allowlistSnapshotHash: hashes.allowlist,
         decision: 'deny',
         reasonCodes: ['capability_version_unknown'],
         requiresApproval: false,
-        evaluatedAt: request.evaluatedAt,
-        expiresAt: request.expiresAt,
+        evaluatedAt: timing.evaluatedAt,
+        expiresAt: timing.expiresAt,
     });
 }
 
@@ -195,9 +238,22 @@ function finalRule(
     return riskDecision(registration.riskClass, delegated);
 }
 
-export function createAutomationPolicyEvaluator(registry: CapabilityRegistry) {
+export function createAutomationPolicyEvaluator(
+    registry: CapabilityRegistry,
+    options: EvaluatorOptions = {},
+) {
     return async (input: unknown) => {
         const request = automationPolicyRequestSchema.parse(input);
+        const evaluatedAt = (options.now ?? (() => new Date()))();
+        if (Number.isNaN(evaluatedAt.getTime())) {
+            throw new Error('Policy evaluator clock returned an invalid date');
+        }
+        const timing = {
+            evaluatedAt: evaluatedAt.toISOString(),
+            expiresAt: new Date(
+                evaluatedAt.getTime() + policyDecisionTtlMs,
+            ).toISOString(),
+        };
         const rawPayloadHash = await sha256Text(serializeJson(request.payload));
         const hashes = await snapshotHashes(request);
         const registration = registry.get(
@@ -205,7 +261,12 @@ export function createAutomationPolicyEvaluator(registry: CapabilityRegistry) {
             request.capabilityVersion,
         );
         if (!registration) {
-            return unknownCapabilityDecision(request, rawPayloadHash, hashes);
+            return unknownCapabilityDecision(
+                request,
+                rawPayloadHash,
+                hashes,
+                timing,
+            );
         }
 
         const parsedPayload = registration.inputSchema.safeParse(
@@ -229,11 +290,14 @@ export function createAutomationPolicyEvaluator(registry: CapabilityRegistry) {
                 policyVersion: AUTOMATION_POLICY_VERSION,
                 consentSnapshotHash: hashes.consent,
                 connectionSnapshotHash: hashes.connections,
+                budgetSnapshotHash: hashes.budget,
+                delegationSnapshotHash: hashes.delegation,
+                allowlistSnapshotHash: hashes.allowlist,
                 decision: 'deny',
                 reasonCodes: ['capability_input_invalid'],
                 requiresApproval: false,
-                evaluatedAt: request.evaluatedAt,
-                expiresAt: request.expiresAt,
+                evaluatedAt: timing.evaluatedAt,
+                expiresAt: timing.expiresAt,
             });
         }
 
@@ -261,11 +325,14 @@ export function createAutomationPolicyEvaluator(registry: CapabilityRegistry) {
             policyVersion: AUTOMATION_POLICY_VERSION,
             consentSnapshotHash: hashes.consent,
             connectionSnapshotHash: hashes.connections,
+            budgetSnapshotHash: hashes.budget,
+            delegationSnapshotHash: hashes.delegation,
+            allowlistSnapshotHash: hashes.allowlist,
             decision: rule.decision,
             reasonCodes: rule.reasonCodes,
             requiresApproval: rule.decision === 'require_approval',
-            evaluatedAt: request.evaluatedAt,
-            expiresAt: request.expiresAt,
+            evaluatedAt: timing.evaluatedAt,
+            expiresAt: timing.expiresAt,
         });
     };
 }

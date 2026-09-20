@@ -1,6 +1,6 @@
 # V2 automation implementation status
 
-**Status date:** 2026-09-18  
+**Status date:** 2026-09-19
 **Program target:** dependable, policy-bounded level-4 objective execution
 
 ## Completion rule
@@ -30,7 +30,7 @@ goal-driven execution. They are not the full V2 backlog.
 | V2-005 | Automation evaluation thresholds              | Merged                                        |
 | V2-006 | Canonical objective and execution schema      | Merged                                        |
 | V2-007 | Versioned automation contracts and validators | Merged                                        |
-| V2-008 | Production capability registry                | Implemented in PR 37; review and merge remain |
+| V2-008 | Production capability registry                | PR 37 updated after independent review         |
 
 This batch supplies the ownership model, lifecycle boundaries, evidence-based
 inventory, evaluation contract, canonical database model, runtime contracts,
@@ -100,10 +100,10 @@ thresholds.
 
 ## Current implementation order
 
-1. Merge V2-008 after independent review.
-2. V2-009: deterministic automation policy evaluation (implemented on the
-   `codex/v2-009-policy-engine` branch; review and merge remain).
-3. Add narrow policy-decision persistence and exact approval creation.
+1. Merge V2-008 after its independent-review findings are rechecked.
+2. Merge V2-009 after its independent-review findings are rechecked.
+3. V2-010: add narrow policy-decision persistence and exact approval creation
+   (implementation in progress in issue 40).
 4. Add full plan-graph validation and atomic publication.
 5. Establish Go contract bindings and the dark durable execution runtime.
 6. Cut over one level-1 capability class and build the evaluation harness.
