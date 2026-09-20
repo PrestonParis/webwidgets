@@ -102,8 +102,8 @@ thresholds.
 
 1. Merge V2-008 after its independent-review findings are rechecked.
 2. Merge V2-009 after its independent-review findings are rechecked.
-3. V2-010: add narrow policy-decision persistence and exact approval creation
-   (implementation in progress in issue 40).
+3. V2-010: narrow policy-decision persistence and exact approval creation
+   (implemented on `codex/v2-010-policy-persistence`; review remains).
 4. Add full plan-graph validation and atomic publication.
 5. Establish Go contract bindings and the dark durable execution runtime.
 6. Cut over one level-1 capability class and build the evaluation harness.
