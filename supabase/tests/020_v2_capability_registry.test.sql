@@ -89,6 +89,26 @@ insert into public.objective_plan_steps(
     'c1111111-1111-4111-8111-111111111111','create-task',0,
     'tasks.create','1','reversible_write','3333333333333333',30,'objective-step'
 );
+insert into public.objective_plans(
+    id,objective_id,objective_version_id,user_id,version,maturity_level,
+    planner_version,capability_registry_version,graph_hash
+) values (
+    'c1000000-0000-4000-8000-000000000031',
+    'c1000000-0000-4000-8000-000000000010',
+    'c1000000-0000-4000-8000-000000000020',
+    'c1111111-1111-4111-8111-111111111111',2,2,
+    'planner-v1','registry-v1','2222222222222223'
+);
+insert into public.objective_plan_steps(
+    id,plan_id,objective_id,user_id,step_key,position,capability_name,
+    capability_version,risk_class,input_hash,timeout_seconds,idempotency_scope
+) values (
+    'c1000000-0000-4000-8000-000000000041',
+    'c1000000-0000-4000-8000-000000000031',
+    'c1000000-0000-4000-8000-000000000010',
+    'c1111111-1111-4111-8111-111111111111','draft-task',0,
+    'tasks.create','1','reversible_write','3333333333333334',30,'objective-step'
+);
 select throws_ok(
     $$insert into public.objective_plan_steps(
         plan_id,objective_id,user_id,step_key,position,capability_name,
@@ -123,6 +143,12 @@ select is(
     (select status from public.automation_capability_versions
      where name='tasks.create' and version='1'),
     'retired','retirement preserves the immutable version record'
+);
+select throws_ok(
+    $$update public.objective_plans
+      set status='published',published_at=now()
+      where id='c1000000-0000-4000-8000-000000000031'$$,
+    'P0001', null, 'draft plans cannot publish after a capability retires'
 );
 select throws_ok(
     $$insert into public.objective_plan_steps(

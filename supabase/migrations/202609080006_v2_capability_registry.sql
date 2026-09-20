@@ -68,6 +68,32 @@ create trigger objective_plan_steps_active_capability_guard
     on public.objective_plan_steps
     for each row execute function public.guard_active_automation_capability_version();
 
+create function public.guard_published_plan_capabilities()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+    if new.status <> 'published'
+       or (tg_op = 'UPDATE' and old.status = 'published') then
+        return new;
+    end if;
+    if exists (
+        select 1
+        from public.objective_plan_steps step
+        left join public.automation_capability_versions capability
+          on capability.name = step.capability_name
+         and capability.version = step.capability_version
+        where step.plan_id = new.id
+          and (capability.status is distinct from 'active')
+    ) then
+        raise exception 'plan_contains_inactive_capability_version';
+    end if;
+    return new;
+end;
+$$;
+
+create trigger objective_plans_active_capability_guard
+    before insert or update of status on public.objective_plans
+    for each row execute function public.guard_published_plan_capabilities();
+
 create function public.guard_automation_capability_version()
 returns trigger language plpgsql set search_path = '' as $$
 begin
