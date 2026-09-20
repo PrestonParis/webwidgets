@@ -72,6 +72,7 @@ export interface CapabilityRegistration {
 
 export interface CapabilityDiscoveryContext {
     connections: ReadonlyMap<CapabilityIntegration, ReadonlySet<string>>;
+    activeCapabilityKeys: ReadonlySet<string>;
     policyEligibleKeys: ReadonlySet<string>;
 }
 

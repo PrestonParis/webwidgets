@@ -26,11 +26,11 @@ create table public.automation_capability_versions (
 
 insert into public.automation_capability_versions(name, version, definition_hash)
 values
-    ('tasks.create', '1', 'a4b509058e3156ef8676bf7e7f77c36fe4ddaa0346b439800b1d891bfeae11cf'),
-    ('tasks.update', '1', 'a7633d0b4c2c83afcd331b86801ab0a22f62f5179682603cabcc5716af00ab9f'),
-    ('tasks.complete', '1', 'c449aa0cd88d286e9a1192698621a9ab40b48b99789bbd15809ed5934cfbc022'),
-    ('calendar.create_event', '1', '8c38cbc4754a0ebad5d4cf92eff651b3677af89cedd24a90ce2b3f4792e94ab8'),
-    ('email.draft', '1', '95a46be20e445bce283d0d3e37c6ec1813864d6e240ecce7664edb4937ac6aba');
+    ('tasks.create', '1', '29b499596a05cd60b0f060a7707c1e198b6863a773ad7b26b0efed3eedca71cb'),
+    ('tasks.update', '1', '1587a764c17d7a19eaf899d2f0239276ad703bd47fdb5681bc1e1025160edba9'),
+    ('tasks.complete', '1', '104276336687c1c3b94c53f5a9efcee0f46fb0c831daa3572406a79f941f452e'),
+    ('calendar.create_event', '1', '1d36c6e5c4aa1220a1063b941f7fd8a7a902bf536cbd60c31029df390a3b254b'),
+    ('email.draft', '1', '41be79f62f241118b3ec37cb3757028de69465bc1c6a0a09513ec0d58cf8b659');
 
 alter table public.automation_capability_versions enable row level security;
 revoke all on table public.automation_capability_versions from public, anon, authenticated;
@@ -41,6 +41,32 @@ alter table public.objective_plan_steps
     foreign key (capability_name, capability_version)
     references public.automation_capability_versions(name, version)
     not valid;
+
+create function public.guard_active_automation_capability_version()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+    if tg_op = 'UPDATE'
+       and new.capability_name = old.capability_name
+       and new.capability_version = old.capability_version then
+        return new;
+    end if;
+    if not exists (
+        select 1
+        from public.automation_capability_versions capability
+        where capability.name = new.capability_name
+          and capability.version = new.capability_version
+          and capability.status = 'active'
+    ) then
+        raise exception 'active_capability_version_not_found';
+    end if;
+    return new;
+end;
+$$;
+
+create trigger objective_plan_steps_active_capability_guard
+    before insert or update of capability_name, capability_version
+    on public.objective_plan_steps
+    for each row execute function public.guard_active_automation_capability_version();
 
 create function public.guard_automation_capability_version()
 returns trigger language plpgsql set search_path = '' as $$

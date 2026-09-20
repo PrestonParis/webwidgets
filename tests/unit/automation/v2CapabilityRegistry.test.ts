@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
+import { access, readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { z } from 'zod';
 import { productionBindingCatalog } from '@/lib/capabilityRegistry/bindings';
 import {
@@ -8,6 +11,7 @@ import {
 import {
     CapabilityRegistry,
     CapabilityRegistryError,
+    capabilityDefinitionManifest,
 } from '@/lib/capabilityRegistry/registry';
 import { taskCapabilities } from '@/lib/capabilityRegistry/taskCapabilities';
 import type { CapabilityRegistration } from '@/lib/capabilityRegistry/types';
@@ -16,6 +20,17 @@ function taskRegistration(overrides: Partial<CapabilityRegistration> = {}) {
     const registration = taskCapabilities[0];
     if (!registration) throw new Error('missing test registration');
     return { ...registration, ...overrides };
+}
+
+function canonical(value: unknown): string {
+    if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+    if (value !== null && typeof value === 'object') {
+        return `{${Object.entries(value)
+            .sort(([left], [right]) => left.localeCompare(right))
+            .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+            .join(',')}}`;
+    }
+    return JSON.stringify(value);
 }
 
 describe('V2 production capability registry', () => {
@@ -93,6 +108,7 @@ describe('V2 production capability registry', () => {
     it('filters discovery by policy, connection, and normalized scope', () => {
         const allKeys = new Set(PRODUCTION_CAPABILITY_KEYS);
         const noConnections = productionCapabilityRegistry.discover({
+            activeCapabilityKeys: allKeys,
             policyEligibleKeys: allKeys,
             connections: new Map(),
         });
@@ -103,6 +119,7 @@ describe('V2 production capability registry', () => {
         ]);
 
         const withCalendar = productionCapabilityRegistry.discover({
+            activeCapabilityKeys: allKeys,
             policyEligibleKeys: new Set(['calendar.create_event@1']),
             connections: new Map([
                 ['google_calendar', new Set(['calendar:write'])],
@@ -113,6 +130,13 @@ describe('V2 production capability registry', () => {
         expect(withCalendar[0]).not.toHaveProperty('inputSchema');
         expect(withCalendar[0]).not.toHaveProperty('fixture');
         expect(withCalendar[0]).not.toHaveProperty('owner');
+        expect(
+            productionCapabilityRegistry.discover({
+                activeCapabilityKeys: new Set(),
+                policyEligibleKeys: allKeys,
+                connections: new Map(),
+            }),
+        ).toEqual([]);
     });
 
     it('keeps registered metadata immutable at runtime', () => {
@@ -129,6 +153,81 @@ describe('V2 production capability registry', () => {
             Object.isFrozen(registration?.requiredScopes.google_calendar),
         ).toBe(true);
         expect(Object.isFrozen(registration?.fixture.input)).toBe(true);
+    });
+
+    it('pins each version and database row to its executable definition', async () => {
+        const hashes = Object.fromEntries(
+            PRODUCTION_CAPABILITY_KEYS.map((key) => {
+                const [name, version] = key.split('@');
+                const registration = productionCapabilityRegistry.get(
+                    name!,
+                    version!,
+                );
+                const digest = createHash('sha256')
+                    .update(
+                        canonical(capabilityDefinitionManifest(registration!)),
+                    )
+                    .digest('hex');
+                return [key, digest];
+            }),
+        );
+        expect(hashes).toEqual(
+            Object.fromEntries(
+                PRODUCTION_CAPABILITY_KEYS.map((key) => {
+                    const [name, version] = key.split('@');
+                    return [
+                        key,
+                        productionCapabilityRegistry.get(name!, version!)!
+                            .definitionHash,
+                    ];
+                }),
+            ),
+        );
+        const migration = await readFile(
+            path.resolve(
+                process.cwd(),
+                'supabase/migrations/202609080006_v2_capability_registry.sql',
+            ),
+            'utf8',
+        );
+        for (const [key, hash] of Object.entries(hashes)) {
+            const [name, version] = key.split('@');
+            expect(migration).toContain(`('${name}', '${version}', '${hash}')`);
+        }
+    });
+
+    it('resolves every module binding and fixture test reference in CI', async () => {
+        const catalogs = [
+            productionBindingCatalog.executors,
+            productionBindingCatalog.verifiers,
+            productionBindingCatalog.compensations,
+        ];
+        for (const catalog of catalogs) {
+            for (const binding of catalog.values()) {
+                if (binding.kind !== 'module_export') continue;
+                const [file, exportName] = z
+                    .tuple([z.string(), z.string()])
+                    .parse(binding.reference.split('#'));
+                const loaded = z
+                    .record(z.string(), z.unknown())
+                    .parse(await import(path.resolve(process.cwd(), file)));
+                expect(loaded[exportName]).toBeTypeOf('function');
+            }
+        }
+        for (const key of PRODUCTION_CAPABILITY_KEYS) {
+            const [name, version] = key.split('@');
+            const registration = productionCapabilityRegistry.get(
+                name!,
+                version!,
+            );
+            for (const file of registration!.fixture.testReference.split(
+                '; ',
+            )) {
+                await expect(
+                    access(path.resolve(process.cwd(), file)),
+                ).resolves.toBeUndefined();
+            }
+        }
     });
 
     it('validates inputs before estimating and blocks active-plan removal', () => {

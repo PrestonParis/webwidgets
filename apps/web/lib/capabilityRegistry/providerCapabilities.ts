@@ -12,7 +12,7 @@ export const providerCapabilities: readonly CapabilityRegistration[] = [
         name: 'calendar.create_event',
         version: '1',
         definitionHash:
-            '8c38cbc4754a0ebad5d4cf92eff651b3677af89cedd24a90ce2b3f4792e94ab8',
+            '1d36c6e5c4aa1220a1063b941f7fd8a7a902bf536cbd60c31029df390a3b254b',
         owner: 'nextjs_provider_adapter',
         inputSchema: calendarCreateInputSchema,
         outputSchema: calendarCreateOutputSchema,
@@ -76,7 +76,7 @@ export const providerCapabilities: readonly CapabilityRegistration[] = [
         name: 'email.draft',
         version: '1',
         definitionHash:
-            '95a46be20e445bce283d0d3e37c6ec1813864d6e240ecce7664edb4937ac6aba',
+            '41be79f62f241118b3ec37cb3757028de69465bc1c6a0a09513ec0d58cf8b659',
         owner: 'nextjs_provider_adapter',
         inputSchema: emailDraftInputSchema,
         outputSchema: emailDraftOutputSchema,

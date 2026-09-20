@@ -18,9 +18,14 @@ const resourceEstimateSchema = z
     .strict();
 
 export interface CapabilityBindingCatalog {
-    executors: ReadonlySet<string>;
-    verifiers: ReadonlySet<string>;
-    compensations: ReadonlySet<string>;
+    executors: ReadonlyMap<string, CapabilityBindingTarget>;
+    verifiers: ReadonlyMap<string, CapabilityBindingTarget>;
+    compensations: ReadonlyMap<string, CapabilityBindingTarget>;
+}
+
+export interface CapabilityBindingTarget {
+    kind: 'module_export' | 'sql_function';
+    reference: string;
 }
 
 export class CapabilityRegistryError extends Error {
@@ -32,6 +37,42 @@ export class CapabilityRegistryError extends Error {
 
 function keyOf(name: string, version: string) {
     return `${name}@${version}`;
+}
+
+export function capabilityDefinitionManifest(
+    registration: CapabilityRegistration,
+) {
+    return {
+        name: registration.name,
+        version: registration.version,
+        owner: registration.owner,
+        inputSchema: z.toJSONSchema(registration.inputSchema, {
+            unrepresentable: 'any',
+        }),
+        outputSchema: z.toJSONSchema(registration.outputSchema, {
+            unrepresentable: 'any',
+        }),
+        errorSchema: z.toJSONSchema(registration.errorSchema, {
+            unrepresentable: 'any',
+        }),
+        requiredIntegrations: registration.requiredIntegrations,
+        requiredScopes: registration.requiredScopes,
+        riskClass: registration.riskClass,
+        reversibility: registration.reversibility,
+        idempotencyStrategy: registration.idempotencyStrategy,
+        executionPolicy: registration.executionPolicy,
+        binding: registration.binding,
+        observability: registration.observability,
+        redactedInputFields: registration.redactedInputFields,
+        fixture: {
+            id: registration.fixture.id,
+            input: registration.fixture.input,
+            output: registration.fixture.output,
+        },
+        fixtureResourceEstimate: registration.estimateResources(
+            registration.fixture.input,
+        ),
+    };
 }
 
 function validateBindings(
@@ -107,6 +148,7 @@ function isDiscoverable(
     context: CapabilityDiscoveryContext,
 ) {
     const key = keyOf(registration.name, registration.version);
+    if (!context.activeCapabilityKeys.has(key)) return false;
     if (!context.policyEligibleKeys.has(key)) return false;
     return registration.requiredIntegrations.some((integration) =>
         hasIntegration(integration, registration, context.connections),

@@ -124,6 +124,18 @@ select is(
      where name='tasks.create' and version='1'),
     'retired','retirement preserves the immutable version record'
 );
+select throws_ok(
+    $$insert into public.objective_plan_steps(
+        plan_id,objective_id,user_id,step_key,position,capability_name,
+        capability_version,risk_class,input_hash,timeout_seconds,idempotency_scope
+      ) values (
+        'c1000000-0000-4000-8000-000000000030',
+        'c1000000-0000-4000-8000-000000000010',
+        'c1111111-1111-4111-8111-111111111111','retired',2,
+        'tasks.create','1','reversible_write','5555555555555555',30,'objective-step'
+      )$$,
+    'P0001', null, 'retired versions cannot be added to future plan steps'
+);
 reset role;
 
 select * from finish();

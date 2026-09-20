@@ -49,7 +49,7 @@ export const taskCapabilities: readonly CapabilityRegistration[] = [
         name: 'tasks.create',
         version: '1',
         definitionHash:
-            'a4b509058e3156ef8676bf7e7f77c36fe4ddaa0346b439800b1d891bfeae11cf',
+            '29b499596a05cd60b0f060a7707c1e198b6863a773ad7b26b0efed3eedca71cb',
         inputSchema: taskCreateInputSchema,
         outputSchema: taskReceiptSchema,
         riskClass: 'reversible_write',
@@ -77,7 +77,7 @@ export const taskCapabilities: readonly CapabilityRegistration[] = [
         name: 'tasks.update',
         version: '1',
         definitionHash:
-            'a7633d0b4c2c83afcd331b86801ab0a22f62f5179682603cabcc5716af00ab9f',
+            '1587a764c17d7a19eaf899d2f0239276ad703bd47fdb5681bc1e1025160edba9',
         inputSchema: taskUpdateInputSchema,
         outputSchema: taskReceiptSchema,
         riskClass: 'reversible_write',
@@ -104,7 +104,7 @@ export const taskCapabilities: readonly CapabilityRegistration[] = [
         name: 'tasks.complete',
         version: '1',
         definitionHash:
-            'c449aa0cd88d286e9a1192698621a9ab40b48b99789bbd15809ed5934cfbc022',
+            '104276336687c1c3b94c53f5a9efcee0f46fb0c831daa3572406a79f941f452e',
         inputSchema: taskCompleteInputSchema,
         outputSchema: taskReceiptSchema,
         riskClass: 'sensitive',
