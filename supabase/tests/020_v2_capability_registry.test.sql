@@ -55,11 +55,11 @@ insert into auth.users(id,instance_id,aud,role,email) values
  '00000000-0000-0000-0000-000000000000',
  'authenticated','authenticated','registry@example.invalid');
 insert into public.objectives(
-    id,user_id,client_request_key,title,maturity_level,status,submitted_at
+    id,user_id,client_request_key,title,maturity_level,status
 ) values (
     'c1000000-0000-4000-8000-000000000010',
     'c1111111-1111-4111-8111-111111111111',
-    'registry-request','Create task',2,'submitted',now()
+    'registry-request','Create task',2,'draft'
 );
 insert into public.objective_versions(
     id,objective_id,user_id,version,intent,policy_version,content_hash,published_at
@@ -119,7 +119,7 @@ select throws_ok(
         'c1111111-1111-4111-8111-111111111111','unknown',1,
         'placeholder.action','1','draft','4444444444444444',30,'objective-step'
       )$$,
-    '23503', null, 'plans cannot reference an unregistered capability version'
+    'P0001', null, 'plans cannot reference an unregistered capability version'
 );
 update public.objective_plans set status='published',published_at=now()
 where id='c1000000-0000-4000-8000-000000000030';
@@ -127,12 +127,12 @@ where id='c1000000-0000-4000-8000-000000000030';
 set local role service_role;
 select throws_ok(
     $$select public.retire_automation_capability_version('tasks.create','1')$$,
-    'P0001', null, 'active published plans prevent capability retirement'
+    'P0001', null, 'published plans on draft objectives prevent retirement'
 );
 reset role;
 
 update public.objectives
-set status='failed',completed_at=now(),state_version=2
+set status='cancelled',completed_at=now(),state_version=2
 where id='c1000000-0000-4000-8000-000000000010';
 set local role service_role;
 select lives_ok(

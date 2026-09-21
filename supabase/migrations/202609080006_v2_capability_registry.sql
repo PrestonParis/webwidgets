@@ -75,6 +75,14 @@ begin
        or (tg_op = 'UPDATE' and old.status = 'published') then
         return new;
     end if;
+    perform 1
+    from public.automation_capability_versions capability
+    join public.objective_plan_steps step
+      on step.capability_name = capability.name
+     and step.capability_version = capability.version
+    where step.plan_id = new.id
+    order by capability.name, capability.version
+    for share of capability;
     if exists (
         select 1
         from public.objective_plan_steps step
@@ -121,7 +129,8 @@ begin
           and step.capability_version = old.version
           and plan.status = 'published'
           and objective.status in (
-              'submitted', 'active', 'paused', 'blocked', 'cancel_requested'
+              'draft', 'submitted', 'active', 'paused', 'blocked',
+              'cancel_requested'
           )
     ) then
         raise exception 'capability_version_in_active_plan';
