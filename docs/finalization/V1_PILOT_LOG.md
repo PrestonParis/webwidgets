@@ -363,6 +363,21 @@ protected aggregate snapshot could not be retrieved. Those later checks cannot
 establish September 22 behavior. Result: **not counted; 0 of 7**. The
 operational `No Go` conditions and pilot setup blocker remain unresolved.
 
+### 2026-09-23 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-24, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved. Those later
+checks cannot establish September 23 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
