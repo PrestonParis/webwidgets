@@ -448,6 +448,21 @@ protected aggregate snapshot could not be retrieved. Those later checks cannot
 establish September 28 behavior. Result: **not counted; 0 of 7**. The
 operational `No Go` conditions and pilot setup blocker remain unresolved.
 
+### 2026-09-29 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-10-01, the production web probes produced no
+verifiable response because name resolution failed. The worker probe also
+produced no verifiable response, and the protected aggregate snapshot could
+not be retrieved. Those later checks cannot establish September 29 behavior.
+Result: **not counted; 0 of 7**. The operational `No Go` conditions and pilot
+setup blocker remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
