@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import type { SynthesizedWidgetDefinition } from '@/features/widgets/synthesis/widgetDefinitionInterfaces';
+import { toText } from '@/lib/utils/utils';
 import {
     BarChartComponent,
     LineChartComponent,
@@ -87,14 +88,14 @@ function renderComponent(
             return (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
                     {data.slice(0, 10).map((row, i) => {
-                        const label = String(
+                        const label = toText(
                             row['name'] ??
                                 row['title'] ??
                                 row['text'] ??
                                 row['label'] ??
                                 `Row ${i + 1}`,
                         );
-                        const sub = String(
+                        const sub = toText(
                             row['date'] ??
                                 row['created_at'] ??
                                 row['description'] ??
@@ -152,7 +153,7 @@ function renderComponent(
                                             key={c}
                                             className="py-1.5 pr-3 text-zinc-300 truncate max-w-[80px]"
                                         >
-                                            {String(row[c] ?? '')}
+                                            {toText(row[c] ?? '')}
                                         </td>
                                     ))}
                                 </tr>
@@ -194,7 +195,7 @@ function renderComponent(
                             key={i}
                             className="rounded-full bg-emerald-900/40 border border-emerald-700 px-2.5 py-1 text-[10px] text-emerald-300"
                         >
-                            {String(
+                            {toText(
                                 row['name'] ??
                                     row['label'] ??
                                     row['status'] ??
@@ -208,7 +209,7 @@ function renderComponent(
         case 'heading':
             return (
                 <p className="text-sm text-zinc-300">
-                    {String(
+                    {toText(
                         props['content'] ??
                             data[0]?.['content'] ??
                             'Widget content',
