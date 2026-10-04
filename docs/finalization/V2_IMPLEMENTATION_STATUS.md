@@ -1,6 +1,6 @@
 # V2 automation implementation status
 
-**Status date:** 2026-09-19
+**Status date:** 2026-09-21
 **Program target:** dependable, policy-bounded level-4 objective execution
 
 ## Completion rule
@@ -21,16 +21,16 @@ does not establish objective completion.
 The first eight delivery slices establish decisions and contracts needed before
 goal-driven execution. They are not the full V2 backlog.
 
-| Slice  | Scope                                         | Status on 2026-09-18                          |
-| ------ | --------------------------------------------- | --------------------------------------------- |
-| V2-001 | Automation control and execution ownership    | Merged                                        |
-| V2-002 | Context and memory lifecycles                 | Merged                                        |
-| V2-003 | Executable-capability inventory               | Merged                                        |
-| V2-004 | V1 execution baseline                         | Merged                                        |
-| V2-005 | Automation evaluation thresholds              | Merged                                        |
-| V2-006 | Canonical objective and execution schema      | Merged                                        |
-| V2-007 | Versioned automation contracts and validators | Merged                                        |
-| V2-008 | Production capability registry                | PR 37 updated after independent review         |
+| Slice  | Scope                                         | Status on 2026-09-18                   |
+| ------ | --------------------------------------------- | -------------------------------------- |
+| V2-001 | Automation control and execution ownership    | Merged                                 |
+| V2-002 | Context and memory lifecycles                 | Merged                                 |
+| V2-003 | Executable-capability inventory               | Merged                                 |
+| V2-004 | V1 execution baseline                         | Merged                                 |
+| V2-005 | Automation evaluation thresholds              | Merged                                 |
+| V2-006 | Canonical objective and execution schema      | Merged                                 |
+| V2-007 | Versioned automation contracts and validators | Merged                                 |
+| V2-008 | Production capability registry                | PR 37 updated after independent review |
 
 This batch supplies the ownership model, lifecycle boundaries, evidence-based
 inventory, evaluation contract, canonical database model, runtime contracts,
@@ -100,14 +100,19 @@ thresholds.
 
 ## Current implementation order
 
-1. Merge V2-008 after its independent-review findings are rechecked.
-2. Merge V2-009 after its independent-review findings are rechecked.
-3. V2-010: narrow policy-decision persistence and exact approval creation
-   (implemented on `codex/v2-010-policy-persistence`; review remains).
-4. Add full plan-graph validation and atomic publication.
-5. Establish Go contract bindings and the dark durable execution runtime.
-6. Cut over one level-1 capability class and build the evaluation harness.
-7. Advance through fixed, branching, and goal-driven proving objectives only
+1. Merge V2-008 after its concurrency fix is independently rechecked.
+2. Merge V2-009, whose policy evaluator passed independent review.
+3. Merge V2-010 after its exact payload, authority serialization, and direct
+   ownership tests are independently rechecked.
+4. Review and merge V2-011: complete plan-graph validation and atomic
+   publication (implemented on `codex/v2-011-plan-publication`).
+5. Construct bounded, provenance-carrying context packages for planning and
+   execution.
+6. Expose objective state, required decisions, evidence, and failures through
+   the product surface, with control-plane metrics.
+7. Establish Go contract bindings and the dark durable execution runtime.
+8. Cut over one level-1 capability class and build the evaluation harness.
+9. Advance through fixed, branching, and goal-driven proving objectives only
    when each lower-level gate passes.
 
 The issue tracker is the execution queue. This document is the program ledger;
