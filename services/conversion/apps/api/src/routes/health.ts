@@ -2,8 +2,8 @@ import type { FastifyInstance } from 'fastify';
 import { pool } from '../db/client.js';
 import { redisConnection } from '../services/queue.js';
 
-export async function healthRoutes(app: FastifyInstance) {
-    app.get('/health', async () => ({
+export function healthRoutes(app: FastifyInstance) {
+    app.get('/health', () => ({
         ok: true,
         service: 'webwidgets-conversion-api',
     }));
