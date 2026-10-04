@@ -25,6 +25,7 @@ scripts/*
 out/
 .vercel/
 build/
+dist/
 
 # =========================
 # TypeScript
