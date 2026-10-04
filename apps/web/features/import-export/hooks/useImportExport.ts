@@ -1,6 +1,6 @@
 'use client';
 
-import { apiRouteFetch } from '@/lib/api/client';
+import { apiRouteFetch, readApiJson } from '@/lib/api/client';
 import { useState, useEffect, useCallback } from 'react';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type {
@@ -9,6 +9,8 @@ import type {
     ImportJob,
     ExportJob,
     ContextExportRecord,
+    ImportWizardParseResult,
+    ImportWizardExecuteResult,
 } from '@/features/import-export/types/importExport';
 
 export function useImportExport() {
@@ -29,37 +31,41 @@ export function useImportExport() {
         try {
             const [capsRes, healthRes, importsRes, exportsRes, ctxRes] =
                 await Promise.allSettled([
-                    apiRouteFetch('/api/import-export/capabilities').then((r) =>
-                        r.json(),
+                    apiRouteFetch('/api/import-export/capabilities').then(
+                        readApiJson,
                     ),
-                    apiRouteFetch('/api/import-export/health').then((r) =>
-                        r.json(),
+                    apiRouteFetch('/api/import-export/health').then(
+                        readApiJson,
                     ),
-                    apiRouteFetch('/api/import-export/imports').then((r) =>
-                        r.json(),
+                    apiRouteFetch('/api/import-export/imports').then(
+                        readApiJson,
                     ),
-                    apiRouteFetch('/api/import-export/exports').then((r) =>
-                        r.json(),
+                    apiRouteFetch('/api/import-export/exports').then(
+                        readApiJson,
                     ),
                     apiRouteFetch('/api/import-export/context-export').then(
-                        (r) => r.json(),
+                        readApiJson,
                     ),
                 ]);
 
-            if (capsRes.status === 'fulfilled' && capsRes.value?.ok) {
-                setCapabilities(capsRes.value.capabilities ?? []);
+            if (capsRes.status === 'fulfilled' && capsRes.value.ok) {
+                setCapabilities(
+                    (capsRes.value.capabilities as AdapterCapability[]) ?? [],
+                );
             }
-            if (healthRes.status === 'fulfilled' && healthRes.value?.ok) {
-                setHealth(healthRes.value.health ?? null);
+            if (healthRes.status === 'fulfilled' && healthRes.value.ok) {
+                setHealth((healthRes.value.health as ServiceHealth) ?? null);
             }
-            if (importsRes.status === 'fulfilled' && importsRes.value?.ok) {
-                setImportJobs(importsRes.value.jobs ?? []);
+            if (importsRes.status === 'fulfilled' && importsRes.value.ok) {
+                setImportJobs((importsRes.value.jobs as ImportJob[]) ?? []);
             }
-            if (exportsRes.status === 'fulfilled' && exportsRes.value?.ok) {
-                setExportJobs(exportsRes.value.jobs ?? []);
+            if (exportsRes.status === 'fulfilled' && exportsRes.value.ok) {
+                setExportJobs((exportsRes.value.jobs as ExportJob[]) ?? []);
             }
-            if (ctxRes.status === 'fulfilled' && ctxRes.value?.ok) {
-                setContextExports(ctxRes.value.exports ?? []);
+            if (ctxRes.status === 'fulfilled' && ctxRes.value.ok) {
+                setContextExports(
+                    (ctxRes.value.exports as ContextExportRecord[]) ?? [],
+                );
             }
         } catch (e) {
             const msg =
@@ -89,7 +95,7 @@ export function useImportExport() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
-            const json = await res.json();
+            const json = await readApiJson(res);
             if (!res.ok || !json.ok) {
                 toast.error(json.message ?? 'Failed to create import job');
                 return null;
@@ -111,12 +117,12 @@ export function useImportExport() {
                     body: JSON.stringify({ content, filename }),
                 },
             );
-            const json = await res.json();
+            const json = await readApiJson(res);
             if (!res.ok || !json.ok) {
                 toast.error(json.message ?? 'Failed to parse file');
                 return null;
             }
-            return json;
+            return json as unknown as ImportWizardParseResult;
         },
         [toast],
     );
@@ -138,22 +144,24 @@ export function useImportExport() {
                     body: JSON.stringify(data),
                 },
             );
-            const json = await res.json();
+            const json = await readApiJson(res);
             if (!res.ok || !json.ok) {
                 toast.error(json.message ?? 'Import execution failed');
                 return null;
             }
-            if (json.errorCount > 0) {
+            const errorCount = Number(json.errorCount ?? 0);
+            const successCount = Number(json.successCount ?? 0);
+            if (errorCount > 0) {
                 toast.warning(
-                    `Import completed with ${json.errorCount} error(s) and ${json.successCount} success(es)`,
+                    `Import completed with ${errorCount} error(s) and ${successCount} success(es)`,
                 );
             } else {
                 toast.success(
-                    `Import complete. ${json.successCount} rows imported.`,
+                    `Import complete. ${successCount} rows imported.`,
                 );
             }
             void refresh();
-            return json;
+            return json as unknown as ImportWizardExecuteResult;
         },
         [toast, refresh],
     );
@@ -169,7 +177,7 @@ export function useImportExport() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
-            const json = await res.json();
+            const json = await readApiJson(res);
             if (!res.ok || !json.ok) {
                 toast.error(json.message ?? 'Export failed');
                 return null;
@@ -193,7 +201,7 @@ export function useImportExport() {
         const res = await apiRouteFetch('/api/import-export/context-export', {
             method: 'POST',
         });
-        const json = await res.json();
+        const json = await readApiJson(res);
         if (!res.ok || !json.ok) {
             toast.error(json.message ?? 'Context export failed');
             return null;

@@ -57,7 +57,7 @@ export const collaborationHandoffsAdapter: ImportExportAdapter = {
         let query = supabase
             .from('collaboration_handoffs')
             .select(
-                'id,workspace_id,title,owner,priority,due,complete,scope,created_at,updated_at',
+                'id,workspace_id,title,owner,priority,due,complete,scope,created_at',
             )
             .eq('owner', userId)
             .order('created_at', { ascending: false });

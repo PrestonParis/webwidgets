@@ -9,10 +9,7 @@ import { AdapterRegistryPanel } from './AdapterRegistryPanel';
 import { ImportWizard } from './ImportWizard';
 import { ExportPanel } from './ExportPanel';
 import { ContextExportPanel } from './ContextExportPanel';
-import type {
-    ImportJob,
-    ExportJob,
-} from '@/features/import-export/types/importExport';
+import type { ExportJob } from '@/features/import-export/types/importExport';
 
 type Tab = 'overview' | 'import' | 'export' | 'context' | 'registry';
 

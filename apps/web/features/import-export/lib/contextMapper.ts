@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ImportExportAdapter } from './adapterInterface';
+import { toText } from './coerce';
 import type { MappedRow, SourceDestinationType } from '../types/importExport';
 import {
     ingestContextEdges,
@@ -19,17 +20,21 @@ export type AdapterContextMapper = (
     row: MappedRow,
 ) => AdapterContextMapping | null;
 
-const mappers = new Map<SourceDestinationType | string, AdapterContextMapper>();
+// A known source type, or any other adapter-supplied string. The `& {}` keeps
+// literal autocomplete while still accepting arbitrary strings.
+type SourceTypeKey = SourceDestinationType | (string & {});
+
+const mappers = new Map<SourceTypeKey, AdapterContextMapper>();
 
 export function registerContextMapper(
-    sourceType: SourceDestinationType | string,
+    sourceType: SourceTypeKey,
     mapper: AdapterContextMapper,
 ): void {
     mappers.set(sourceType, mapper);
 }
 
 export function getContextMapper(
-    sourceType: SourceDestinationType | string,
+    sourceType: SourceTypeKey,
 ): AdapterContextMapper | undefined {
     return mappers.get(sourceType);
 }
@@ -37,7 +42,7 @@ export function getContextMapper(
 export async function ingestContextFromAdapterPayload(
     db: SupabaseClient,
     userId: string,
-    sourceType: SourceDestinationType | string,
+    sourceType: SourceTypeKey,
     rows: MappedRow[],
 ): Promise<{ nodeCount: number; edgeCount: number }> {
     const mapper = getContextMapper(sourceType);
@@ -70,9 +75,9 @@ export async function ingestContextFromAdapter(
 }
 
 registerContextMapper('todos', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const text = String(data.text ?? data.title ?? 'Untitled task');
-    const id = String(data.id ?? slugSourceId(text, row.rowIndex));
+    const data = row.data;
+    const text = toText(data.text ?? data.title ?? 'Untitled task');
+    const id = toText(data.id ?? slugSourceId(text, row.rowIndex));
     return {
         nodes: [
             {
@@ -96,20 +101,20 @@ registerContextMapper('todos', (row) => {
 });
 
 registerContextMapper('files', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.name ?? 'file'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.name ?? 'file'), row.rowIndex),
     );
-    const name = String(data.name ?? 'Uploaded file');
+    const name = toText(data.name ?? 'Uploaded file');
     return {
         nodes: [
             {
                 entityId: `file:${id}`,
                 type: 'file',
                 label: name,
-                summary: String(data.mime_type ?? ''),
+                summary: toText(data.mime_type ?? ''),
                 data,
-                tags: ['file', String(data.mime_type ?? '')].filter(Boolean),
+                tags: ['file', toText(data.mime_type ?? '')].filter(Boolean),
                 sourceType: 'files',
                 sourceId: id,
                 sourceTable: 'file_uploads',
@@ -121,18 +126,18 @@ registerContextMapper('files', (row) => {
 });
 
 registerContextMapper('calendar_events', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.title ?? 'event'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.title ?? 'event'), row.rowIndex),
     );
-    const title = String(data.title ?? 'Calendar event');
+    const title = toText(data.title ?? 'Calendar event');
     return {
         nodes: [
             {
                 entityId: `calendar_event:${id}`,
                 type: 'calendar_event',
                 label: title,
-                summary: String(data.description ?? ''),
+                summary: toText(data.description ?? ''),
                 data,
                 tags: ['calendar'],
                 sourceType: 'calendar_events',
@@ -146,17 +151,17 @@ registerContextMapper('calendar_events', (row) => {
 });
 
 registerContextMapper('documents', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.title ?? 'document'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.title ?? 'document'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `document:${id}`,
                 type: 'document',
-                label: String(data.title ?? 'Document'),
-                summary: String(data.content ?? '').slice(0, 280),
+                label: toText(data.title ?? 'Document'),
+                summary: toText(data.content ?? '').slice(0, 280),
                 data: {
                     format: data.format,
                     sourceFileId: data.source_file_id,
@@ -177,7 +182,7 @@ registerContextMapper('documents', (row) => {
                 ? [
                       {
                           fromEntityId: `document:${id}`,
-                          toEntityId: `file:${String(data.source_file_id)}`,
+                          toEntityId: `file:${toText(data.source_file_id)}`,
                           kind: 'derived_from' as const,
                           label: 'document from file',
                           sourceType: 'documents',
@@ -190,7 +195,7 @@ registerContextMapper('documents', (row) => {
                 ? [
                       {
                           fromEntityId: `document:${id}`,
-                          toEntityId: `artifact:${String(data.source_artifact_id)}`,
+                          toEntityId: `artifact:${toText(data.source_artifact_id)}`,
                           kind: 'derived_from' as const,
                           label: 'document from artifact',
                           sourceType: 'documents',
@@ -204,18 +209,18 @@ registerContextMapper('documents', (row) => {
 });
 
 registerContextMapper('journals', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.title ?? 'journal'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.title ?? 'journal'), row.rowIndex),
     );
-    const type = String(data.type ?? 'journal');
+    const type = toText(data.type ?? 'journal');
     return {
         nodes: [
             {
                 entityId: `${type === 'note' ? 'memory' : 'journal_entry'}:${id}`,
                 type: type === 'note' ? 'memory' : 'journal_entry',
-                label: String(data.title ?? 'Journal entry'),
-                summary: String(data.content ?? '').slice(0, 280),
+                label: toText(data.title ?? 'Journal entry'),
+                summary: toText(data.content ?? '').slice(0, 280),
                 data: {
                     entryType: type,
                     createdAt: data.created_at,
@@ -232,16 +237,16 @@ registerContextMapper('journals', (row) => {
 });
 
 registerContextMapper('mood_logs', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(data.id ?? data.logged_date ?? row.rowIndex);
-    const label = `Mood ${String(data.mood ?? '')}`.trim();
+    const data = row.data;
+    const id = toText(data.id ?? data.logged_date ?? row.rowIndex);
+    const label = `Mood ${toText(data.mood ?? '')}`.trim();
     return {
         nodes: [
             {
                 entityId: `mood_entry:${id}`,
                 type: 'mood_entry',
                 label,
-                summary: String(data.note ?? '').slice(0, 220),
+                summary: toText(data.note ?? '').slice(0, 220),
                 data: {
                     mood: data.mood,
                     loggedDate: data.logged_date,
@@ -259,16 +264,16 @@ registerContextMapper('mood_logs', (row) => {
 });
 
 registerContextMapper('habits', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.name ?? 'habit'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.name ?? 'habit'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `habit_entry:${id}`,
                 type: 'habit_entry',
-                label: String(data.name ?? 'Habit'),
+                label: toText(data.name ?? 'Habit'),
                 summary: `${Number(data.completions_last_30d ?? 0)} completions in last 30 days`,
                 data: {
                     emoji: data.emoji,
@@ -287,17 +292,17 @@ registerContextMapper('habits', (row) => {
 });
 
 registerContextMapper('recovery_records', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.name ?? 'recovery'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.name ?? 'recovery'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `recovery_entry:${id}`,
                 type: 'recovery_entry',
-                label: String(data.name ?? data.category ?? 'Recovery tracker'),
-                summary: String(data.category ?? data.addiction ?? '').slice(
+                label: toText(data.name ?? data.category ?? 'Recovery tracker'),
+                summary: toText(data.category ?? data.addiction ?? '').slice(
                     0,
                     220,
                 ),
@@ -306,7 +311,7 @@ registerContextMapper('recovery_records', (row) => {
                     startTime: data.start_time,
                     createdAt: data.created_at,
                 },
-                tags: ['recovery', String(data.category ?? '')].filter(Boolean),
+                tags: ['recovery', toText(data.category ?? '')].filter(Boolean),
                 sourceType: 'recovery_records',
                 sourceId: id,
                 sourceTable: 'recovery_profiles',
@@ -318,9 +323,9 @@ registerContextMapper('recovery_records', (row) => {
 });
 
 registerContextMapper('finance_records', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const recordType = String(data.record_type ?? 'finance');
-    const id = String(data.id ?? slugSourceId(recordType, row.rowIndex));
+    const data = row.data;
+    const recordType = toText(data.record_type ?? 'finance');
+    const id = toText(data.id ?? slugSourceId(recordType, row.rowIndex));
     const isAccount = recordType === 'account';
     return {
         nodes: [
@@ -328,11 +333,11 @@ registerContextMapper('finance_records', (row) => {
                 entityId: `finance:${recordType}:${id}`,
                 type: isAccount ? 'insight' : 'widget_activity',
                 label: isAccount
-                    ? `Finance account: ${String(data.name ?? 'Account')}`
-                    : `Finance activity: ${String(data.category ?? data.transaction_type ?? 'transaction')}`,
+                    ? `Finance account: ${toText(data.name ?? 'Account')}`
+                    : `Finance activity: ${toText(data.category ?? data.transaction_type ?? 'transaction')}`,
                 summary: isAccount
-                    ? `Account type ${String(data.type ?? '')}`
-                    : `Transaction category ${String(data.category ?? '')}`,
+                    ? `Account type ${toText(data.type ?? '')}`
+                    : `Transaction category ${toText(data.category ?? '')}`,
                 data: {
                     recordType,
                     currency: data.currency,
@@ -355,7 +360,7 @@ registerContextMapper('finance_records', (row) => {
                 ? [
                       {
                           fromEntityId: `finance:transaction:${id}`,
-                          toEntityId: `finance:account:${String(data.account_id)}`,
+                          toEntityId: `finance:account:${toText(data.account_id)}`,
                           kind: 'belongs_to' as const,
                           label: 'transaction account',
                           sourceType: 'finance_records',
@@ -368,17 +373,17 @@ registerContextMapper('finance_records', (row) => {
 });
 
 registerContextMapper('countdowns', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.name ?? 'countdown'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.name ?? 'countdown'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `todo:countdown:${id}`,
                 type: 'todo',
-                label: String(data.name ?? 'Countdown'),
-                summary: `Target date ${String(data.target_date ?? '')}`,
+                label: toText(data.name ?? 'Countdown'),
+                summary: `Target date ${toText(data.target_date ?? '')}`,
                 data,
                 tags: ['countdown'],
                 sourceType: 'countdowns',
@@ -392,18 +397,19 @@ registerContextMapper('countdowns', (row) => {
 });
 
 registerContextMapper('memory_decks', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.title ?? 'deck'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.title ?? 'deck'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `memory:${id}`,
                 type: 'memory',
-                label: String(data.title ?? 'Memory deck'),
-                summary: String(
-                    data.description ?? `Due cards: ${data.due_count ?? 0}`,
+                label: toText(data.title ?? 'Memory deck'),
+                summary: toText(
+                    data.description ??
+                        `Due cards: ${toText(data.due_count) || 0}`,
                 ),
                 data: {
                     domain: data.domain,
@@ -412,7 +418,7 @@ registerContextMapper('memory_decks', (row) => {
                     dueCount: data.due_count,
                     masteredCount: data.mastered_count,
                 },
-                tags: ['memorization', String(data.domain ?? '')].filter(
+                tags: ['memorization', toText(data.domain ?? '')].filter(
                     Boolean,
                 ),
                 sourceType: 'memory_decks',
@@ -426,22 +432,22 @@ registerContextMapper('memory_decks', (row) => {
 });
 
 registerContextMapper('collaboration_handoffs', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(
-        data.id ?? slugSourceId(String(data.title ?? 'handoff'), row.rowIndex),
+    const data = row.data;
+    const id = toText(
+        data.id ?? slugSourceId(toText(data.title ?? 'handoff'), row.rowIndex),
     );
     return {
         nodes: [
             {
                 entityId: `agent_action:handoff:${id}`,
                 type: 'agent_action',
-                label: String(data.title ?? 'Collaboration handoff'),
-                summary: `Priority ${String(data.priority ?? '')} due ${String(data.due ?? '')}`,
+                label: toText(data.title ?? 'Collaboration handoff'),
+                summary: `Priority ${toText(data.priority ?? '')} due ${toText(data.due ?? '')}`,
                 data,
                 tags: [
                     'collaboration',
                     'handoff',
-                    String(data.priority ?? ''),
+                    toText(data.priority ?? ''),
                 ].filter(Boolean),
                 sourceType: 'collaboration_handoffs',
                 sourceId: id,
@@ -454,7 +460,7 @@ registerContextMapper('collaboration_handoffs', (row) => {
             ? [
                   {
                       fromEntityId: `agent_action:handoff:${id}`,
-                      toEntityId: `project:workspace:${String(data.workspace_id)}`,
+                      toEntityId: `project:workspace:${toText(data.workspace_id)}`,
                       kind: 'belongs_to' as const,
                       label: 'workspace handoff',
                       sourceType: 'collaboration_handoffs',
@@ -467,17 +473,17 @@ registerContextMapper('collaboration_handoffs', (row) => {
 });
 
 registerContextMapper('tracking_entries', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(data.id ?? slugSourceId('tracking-entry', row.rowIndex));
-    const category = String(data.category ?? 'tracking');
-    const date = String(data.entry_date ?? data.logged_at ?? '');
+    const data = row.data;
+    const id = toText(data.id ?? slugSourceId('tracking-entry', row.rowIndex));
+    const category = toText(data.category ?? 'tracking');
+    const date = toText(data.entry_date ?? data.logged_at ?? '');
     return {
         nodes: [
             {
                 entityId: `widget_activity:tracking:${id}`,
                 type: 'widget_activity',
                 label: `${category} tracking${date ? ` · ${date}` : ''}`,
-                summary: String(data.notes ?? '').slice(0, 220),
+                summary: toText(data.notes ?? '').slice(0, 220),
                 data: {
                     category,
                     entryDate: data.entry_date,
@@ -485,7 +491,7 @@ registerContextMapper('tracking_entries', (row) => {
                     source: data.source,
                     tags: data.tags,
                 },
-                tags: ['tracking', category, String(data.source ?? '')].filter(
+                tags: ['tracking', category, toText(data.source ?? '')].filter(
                     Boolean,
                 ),
                 sourceType: 'tracking_entries',
@@ -499,17 +505,17 @@ registerContextMapper('tracking_entries', (row) => {
 });
 
 registerContextMapper('activity_events', (row) => {
-    const data = row.data as Record<string, unknown>;
-    const id = String(data.id ?? slugSourceId('activity-event', row.rowIndex));
-    const source = String(data.source ?? 'platform');
-    const eventType = String(data.event_type ?? 'activity');
-    const sourceId = String(data.source_id ?? '');
-    const sourceTable = String(data.source_table ?? '');
+    const data = row.data;
+    const id = toText(data.id ?? slugSourceId('activity-event', row.rowIndex));
+    const source = toText(data.source ?? 'platform');
+    const eventType = toText(data.event_type ?? 'activity');
+    const sourceId = toText(data.source_id ?? '');
+    const sourceTable = toText(data.source_table ?? '');
     const node = {
         entityId: `agent_action:activity:${id}`,
         type: 'agent_action' as const,
-        label: String(data.title ?? eventType),
-        summary: String(data.body ?? '').slice(0, 240),
+        label: toText(data.title ?? eventType),
+        summary: toText(data.body ?? '').slice(0, 240),
         data: {
             source,
             eventType,

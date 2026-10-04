@@ -178,7 +178,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                     // deep-merge metadata, preserve notes when incoming is empty.
                     const { data: existing } = await supabase
                         .from('tracking_entries')
-                        .select('notes, tags, metadata')
+                        .select('notes,tags,metadata')
                         .eq('user_id', userId)
                         .eq('category', record.category)
                         .eq('entry_date', record.entry_date)

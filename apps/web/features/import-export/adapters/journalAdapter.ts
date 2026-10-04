@@ -2,6 +2,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { sanitizeRichText } from '@/features/view/security/contentSecurity';
 import type { ImportExportAdapter } from '@/features/import-export/lib/adapterInterface';
+import { toText } from '@/features/import-export/lib/coerce';
 import type {
     AdapterAvailability,
     ExportOptions,
@@ -115,7 +116,7 @@ export const journalAdapter: ImportExportAdapter = {
 
         for (const row of rows) {
             try {
-                const d = row.data as Record<string, unknown>;
+                const d = row.data;
 
                 if (!d['content']) {
                     errors.push({
@@ -131,11 +132,11 @@ export const journalAdapter: ImportExportAdapter = {
                     const { data: existing } = await supabase
                         .from('journals')
                         .select('id')
-                        .eq('id', String(d['id']))
+                        .eq('id', toText(d['id']))
                         .single();
                     if (existing) {
                         warnings.push(
-                            `Row ${row.rowIndex}: skipped existing journal entry (id=${String(d['id'])})`,
+                            `Row ${row.rowIndex}: skipped existing journal entry (id=${toText(d['id'])})`,
                         );
                         continue;
                     }
@@ -143,9 +144,9 @@ export const journalAdapter: ImportExportAdapter = {
 
                 const record = {
                     user_id: userId,
-                    title: d['title'] ? String(d['title']) : '',
-                    content: String(d['content']),
-                    type: d['type'] ? String(d['type']) : 'journal',
+                    title: d['title'] ? toText(d['title']) : '',
+                    content: toText(d['content']),
+                    type: d['type'] ? toText(d['type']) : 'journal',
                 };
 
                 const { error } = await supabase
