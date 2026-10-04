@@ -5,7 +5,6 @@ import {
     saveModelKey,
     listSavedProviders,
 } from '@/features/chatbot/services/chatService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
     ModelProvider,
     ModelProviderAvailability,
@@ -19,10 +18,7 @@ const saveSchema = z.object({
 export async function GET() {
     try {
         const { supabaseAdmin, userId } = await createCredentialClients();
-        const providers = await listSavedProviders(
-            supabaseAdmin as unknown as SupabaseClient,
-            userId,
-        );
+        const providers = await listSavedProviders(supabaseAdmin, userId);
         const availability: ModelProviderAvailability[] = (
             ['anthropic', 'openai', 'google'] as ModelProvider[]
         ).map((provider) => {
@@ -60,7 +56,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         await saveModelKey(
-            supabaseAdmin as unknown as SupabaseClient,
+            supabaseAdmin,
             userId,
             body.data.provider as ModelProvider,
             body.data.apiKey,

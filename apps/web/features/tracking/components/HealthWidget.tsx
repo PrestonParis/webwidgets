@@ -25,7 +25,6 @@ import { WeightLogForm } from '@/features/tracking/health/components/WeightLogFo
 import { useInjuryLogs } from '@/features/tracking/health/hooks/useInjuryLogs';
 import { useBodyIssues } from '@/features/tracking/health/hooks/useBodyIssues';
 import type { BodyIssueDraft } from '@/features/tracking/health/lib/bodyIssues';
-import { getRegionLabel } from '@/features/tracking/health/lib/bodyRegions';
 import type { BiometricWindow } from '@/features/tracking/health/types/health';
 import { formatDate } from '@/features/tracking/lib/trackingUtils';
 import { MiniHistoryChart } from '@/features/tracking/components/MiniHistoryChart';
@@ -100,9 +99,6 @@ export default function HealthWidget() {
     } = useBodyIssues();
 
     const today = new Date().toISOString().slice(0, 10);
-    const mostSevereLabel = bodyMapAnalytics.mostSevereRegion
-        ? getRegionLabel(bodyMapAnalytics.mostSevereRegion.regionId)
-        : null;
     const activeIssueCount = issues.filter(
         (issue) => issue.status !== 'resolved',
     ).length;

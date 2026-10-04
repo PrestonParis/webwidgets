@@ -2,7 +2,6 @@
 
 import { ChevronRight, Heart } from 'lucide-react';
 import { useWidgetData } from '@/features/dashboard/runtime/useWidgetData';
-import type { Tracker } from '@/features/recovery/types/recovery';
 
 // Row shape returned by recoveryAdapter (flat MappedRow.data)
 interface TrackerRow {

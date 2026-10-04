@@ -334,7 +334,7 @@ export async function runResearchPipeline(
     });
     if (input.destination !== 'zip' || !result.ok) return result;
 
-    const zipResult = await prepareArtifactZip(paths.root!, input.topic);
+    const zipResult = await prepareArtifactZip(paths.root, input.topic);
     return {
         ...result,
         output: `${result.output}\n${zipResult}`,

@@ -56,7 +56,7 @@ export function RecommendationStep({
                         </h2>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
                             These will appear on your dashboard. Uncheck
-                            anything you don't want.
+                            anything you don&apos;t want.
                         </p>
                     </div>
                     <span className="text-sm font-medium text-[#4f6ef7]">

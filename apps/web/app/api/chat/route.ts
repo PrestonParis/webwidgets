@@ -369,7 +369,7 @@ export async function POST(req: Request) {
         const systemMsg = await buildSystemMessage(userId, clientDb, content);
 
         const attempts = await buildFallbackAttempts(
-            supabaseAdmin as unknown as SupabaseClient,
+            supabaseAdmin,
             userId,
             provider,
             model,

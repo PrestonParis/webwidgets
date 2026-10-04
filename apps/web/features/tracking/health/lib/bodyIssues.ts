@@ -136,7 +136,7 @@ export const SEVERITY_LABELS: Record<number, string> = {
     10: 'Debilitating',
 };
 
-interface BodyIssueRow {
+export interface BodyIssueRow {
     id: string;
     user_id: string;
     region_id: string;
@@ -155,7 +155,7 @@ interface BodyIssueRow {
     updated_at: string;
 }
 
-interface BodyIssueHistoryRow {
+export interface BodyIssueHistoryRow {
     id: string;
     issue_id: string;
     severity: number;

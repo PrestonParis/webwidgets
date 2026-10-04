@@ -6,7 +6,6 @@ import {
     listWatchlistItems,
     addWatchlistItem,
 } from '@/features/finance/services/watchlistService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const addSchema = z.object({
     assetType: z.enum([
@@ -28,10 +27,7 @@ export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const items = await listWatchlistItems(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const items = await listWatchlistItems(supabase, userId);
         return NextResponse.json({ items });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -50,7 +46,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const item = await addWatchlistItem(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             body.data as Parameters<typeof addWatchlistItem>[2],
         );

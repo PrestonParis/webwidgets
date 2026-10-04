@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { deleteGoal } from '@/features/tracking/services/goalService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 export async function DELETE(
@@ -15,11 +14,7 @@ export async function DELETE(
         const userId = await getRequestUserId(supabase);
         const decoded = decodeURIComponent(category);
 
-        await deleteGoal(
-            supabase as unknown as SupabaseClient,
-            userId,
-            decoded,
-        );
+        await deleteGoal(supabase, userId, decoded);
 
         const formatted = decoded
             .split('_')

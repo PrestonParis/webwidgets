@@ -268,12 +268,10 @@ function LibrarySection({ onOpen }: { onOpen: (id: string) => void }) {
 
 function BibleSection({
     documents,
-    onOpen,
     onNavigate,
     onLibraryChange,
 }: {
     documents: ReadingDocument[];
-    onOpen: (id: string) => void;
     onNavigate: (docId: string, book: string, chapter: number) => void;
     onLibraryChange: () => void;
 }) {
@@ -761,7 +759,6 @@ export function ReadingPage() {
                     <div className="hidden w-80 shrink-0 flex-col gap-5 overflow-y-auto p-6 md:flex lg:w-90">
                         <BibleSection
                             documents={documents}
-                            onOpen={openDocument}
                             onNavigate={handleNavigate}
                             onLibraryChange={() => void reload()}
                         />

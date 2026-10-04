@@ -167,16 +167,8 @@ export function EmailCard({
     onConfirmAll: () => void;
     onRejectAction: (id: string) => void;
 }) {
-    const {
-        open,
-        setOpen,
-        bodyOpen,
-        body,
-        bodyLoading,
-        showActions,
-        setShowActions,
-        handleReadEmail,
-    } = useEmailCard(emailActions, extracting);
+    const { open, setOpen, bodyOpen, body, bodyLoading, handleReadEmail } =
+        useEmailCard(emailActions, extracting);
 
     const [expanded, setExpanded] = useState(false);
 

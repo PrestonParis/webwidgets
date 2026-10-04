@@ -408,12 +408,8 @@ export function ActivityPage() {
     const queryOpts = useMemo(() => {
         const base = {
             limit: 100,
-            ...(sourceFilter
-                ? { source: sourceFilter as ActivityEventSource }
-                : {}),
-            ...(categoryFilter
-                ? { category: categoryFilter as ActivityEventCategory }
-                : {}),
+            ...(sourceFilter ? { source: sourceFilter } : {}),
+            ...(categoryFilter ? { category: categoryFilter } : {}),
             ...(debouncedSearch ? { search: debouncedSearch } : {}),
         };
         if (activeTab === 'unread') return { ...base, unreadOnly: true };
@@ -667,7 +663,7 @@ export function ActivityPage() {
                     )}
                     {debouncedSearch && (
                         <span className="text-xs text-indigo-500 dark:text-indigo-400">
-                            Searching: "{debouncedSearch}"
+                            Searching: &quot;{debouncedSearch}&quot;
                         </span>
                     )}
                 </div>

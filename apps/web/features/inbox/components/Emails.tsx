@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ChevronDown, RefreshCw, Users, Zap } from 'lucide-react';
 import { computePriorityScore } from '@/features/inbox/lib/priorityScore';
 import { useEmails } from '@/features/inbox/hooks/useEmails';
-import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useEmailActions } from '@/features/inbox/hooks/useEmailActions';
 import { useEmailConnection } from '@/features/inbox/hooks/useEmailConnection';
 import {
@@ -615,8 +614,6 @@ export default function Emails() {
         emailIdsWithDeadlines,
         emailIdsWithMeetings,
     ]);
-
-    const { connectCalendar } = useAuth();
 
     if (isUnauthorized) return <EmailUnauthorized />;
 

@@ -34,7 +34,7 @@ export default function HabitWidget() {
     const [tab, setTab] = useState<Tab>('add');
     const [panel, setPanel] = useState<Panel>(null);
     const [showArchive, setShowArchive] = useState(false);
-    const [showRepeat, setShowRepeat] = useState(false);
+    const [showRepeat] = useState(false);
     const [newHabitFreq, setNewHabitFreq] = useState<HabitFrequency>('daily');
 
     const {
