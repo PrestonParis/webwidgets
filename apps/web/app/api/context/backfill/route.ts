@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { runContextBackfill } from '@/features/context/services/contextBackfillService';
@@ -12,10 +11,7 @@ export async function POST(req: Request) {
         const includeDiagnostics =
             url.searchParams.get('diagnostics') === 'true';
 
-        const summary = await runContextBackfill(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const summary = await runContextBackfill(supabase, userId);
 
         if (includeDiagnostics) {
             return NextResponse.json({

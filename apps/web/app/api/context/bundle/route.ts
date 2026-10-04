@@ -4,7 +4,6 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { buildContextBundle } from '@/features/context/services/contextBundleService';
 import type { ContextBundleOptions } from '@/features/context/services/contextBundleService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const bodySchema = z.object({
     query: z.string().optional(),
@@ -43,7 +42,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const bundle = await buildContextBundle(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             cleanBundleOptions(parsed.data),
         );

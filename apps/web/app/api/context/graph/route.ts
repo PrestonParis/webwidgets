@@ -6,7 +6,6 @@ import {
     listEdges,
 } from '@/features/context/services/contextService';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ContextEntry } from '@/features/context/types/context';
 
 export async function GET(req: Request) {
@@ -17,15 +16,8 @@ export async function GET(req: Request) {
         const includeDiagnostics =
             url.searchParams.get('diagnostics') === 'true';
 
-        const entries = await listEntries(
-            supabase as unknown as SupabaseClient,
-            userId,
-            { limit: 2000 },
-        );
-        const edges = await listEdges(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const entries = await listEntries(supabase, userId, { limit: 2000 });
+        const edges = await listEdges(supabase, userId);
 
         // Add widget catalog nodes
         try {

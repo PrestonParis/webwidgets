@@ -10,6 +10,7 @@ import {
     type ContextTraversalFilters,
 } from './contextTraversalService';
 import { getContextPermissions } from './contextPermissionsService';
+import { toText } from '@/lib/utils/utils';
 
 export interface ContextBundle {
     nodes: ContextEntry[];
@@ -202,7 +203,7 @@ export function buildContextPromptFromBundle(bundle: ContextBundle): string {
 function summarizeNode(node: ContextEntry): string {
     const summary =
         node.summary ||
-        String(
+        toText(
             node.data.description ??
                 node.data.note ??
                 node.data.text ??

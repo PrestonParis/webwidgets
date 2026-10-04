@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ContextNodeCardProps } from '@/features/context/types/context';
-import { NODE_COLORS, NODE_SIZES } from '@/features/context/lib/graphBuilder';
+import { NODE_COLORS } from '@/features/context/lib/graphBuilder';
+import { toText } from '@/lib/utils/utils';
 
 const TYPE_ICON: Record<string, LucideIcon> = {
     profile: User,
@@ -42,7 +43,7 @@ export function ContextNodeCard({
 }: ContextNodeCardProps) {
     const color = NODE_COLORS[node.entryType] ?? '#6b7280';
     const Icon = TYPE_ICON[node.entryType] ?? Network;
-    const source = String(
+    const source = toText(
         node.sourceType ?? node.data.category ?? node.entryType,
     );
     const connections = node.connectionCount ?? 0;

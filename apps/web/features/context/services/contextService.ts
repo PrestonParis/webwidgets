@@ -1,8 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database, Json } from '@/types/supabase';
 import type {
     ContextEntry,
     ContextEdge,
     ContextEntryRow,
+    ContextEdgeRow,
     UpsertEntryPayload,
 } from '@/features/context/types/context';
 import { rowToEntry } from '@/features/context/types/context';
@@ -18,6 +20,7 @@ import {
     permissionAllowsCapture,
 } from './contextPermissionsService';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 
 const ENTRY_SELECT =
     'id,user_id,entity_id,entry_type,label,data,linked_to,summary,tags,source_type,source_id,source_table,source_collection,created_by,created_by_type,confidence,status,visibility,permissions,last_observed_at,last_verified_at,metadata,created_at,updated_at';
@@ -172,23 +175,24 @@ export async function deleteEntry(
     if (error) throw new Error(error.message);
 }
 
-export function edgeRowToEdge(row: Record<string, any>): ContextEdge {
-    return {
+export function edgeRowToEdge(row: ContextEdgeRow): ContextEdge {
+    return omitUndefined({
         id: row.id,
         from: row.from_entity_id,
         to: row.to_entity_id,
-        kind: row.kind,
+        kind: (row.kind as ContextEdge['kind']) ?? undefined,
         label: row.label ?? undefined,
         weight: Number(row.weight ?? 1),
         confidence: Number(row.confidence ?? 1),
-        sourceType: row.source_type,
-        sourceId: row.source_id,
-        createdBy: row.created_by,
-        createdByType: row.created_by_type,
-        metadata: row.metadata ?? {},
+        sourceType: row.source_type ?? undefined,
+        sourceId: row.source_id ?? undefined,
+        createdBy: row.created_by ?? undefined,
+        createdByType:
+            (row.created_by_type as ContextEdge['createdByType']) ?? undefined,
+        metadata: (row.metadata as Record<string, unknown>) ?? {},
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-    };
+    });
 }
 
 export async function listEdges(
@@ -201,7 +205,7 @@ export async function listEdges(
         minConfidence?: number;
     },
 ): Promise<ContextEdge[]> {
-    let query = (db as any)
+    let query = db
         .from('context_edges')
         .select(EDGE_SELECT)
         .eq('user_id', userId);
@@ -222,7 +226,7 @@ export async function listEdges(
         }
         throw new Error(error.message);
     }
-    return ((data ?? []) as Record<string, any>[]).map(edgeRowToEdge);
+    return ((data ?? []) as unknown as ContextEdgeRow[]).map(edgeRowToEdge);
 }
 
 async function listLegacyEdges(
@@ -235,7 +239,7 @@ async function listLegacyEdges(
         minConfidence?: number;
     },
 ): Promise<ContextEdge[]> {
-    let query = (db as any)
+    let query = db
         .from('context_edges')
         .select(LEGACY_EDGE_SELECT)
         .eq('user_id', userId);
@@ -251,7 +255,7 @@ async function listLegacyEdges(
         if (isMissingTableError(error)) return [];
         throw new Error(error.message);
     }
-    return ((data ?? []) as Record<string, any>[]).map((row) =>
+    return ((data ?? []) as unknown as ContextEdgeRow[]).map((row) =>
         edgeRowToEdge({
             ...row,
             label: null,
@@ -269,18 +273,19 @@ export async function deleteContextEdge(
     userId: string,
     edgeId: string,
 ): Promise<boolean> {
-    const { data, error: readError } = await (db as any)
+    const { data, error: readError } = await db
         .from('context_edges')
         .select('id,kind')
         .eq('user_id', userId)
         .eq('id', edgeId)
         .maybeSingle();
     if (readError) throw new Error(readError.message);
-    if (!data) return false;
-    if (data.kind !== 'explicit') {
+    const edge = data as { id: string; kind: string } | null;
+    if (!edge) return false;
+    if (edge.kind !== 'explicit') {
         throw new Error('Only explicit edges can be deleted');
     }
-    const { error } = await (db as any)
+    const { error } = await db
         .from('context_edges')
         .delete()
         .eq('user_id', userId)
@@ -290,7 +295,7 @@ export async function deleteContextEdge(
 }
 
 export async function ingestContextNode(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: CanonicalContextNodeInput,
 ): Promise<ContextEntry | null> {
@@ -322,7 +327,7 @@ export async function ingestContextNode(
 }
 
 export async function ingestContextNodes(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     inputs: CanonicalContextNodeInput[],
 ): Promise<ContextEntry[]> {
@@ -333,7 +338,7 @@ export async function ingestContextNodes(
 }
 
 export async function ingestContextEdge(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: CanonicalContextEdgeInput,
 ): Promise<ContextEdge | null> {
@@ -346,10 +351,10 @@ export async function ingestContextEdge(
     const sourceId =
         parsed.sourceId ??
         `${parsed.sourceType}:${parsed.fromEntityId}:${parsed.toEntityId}:${parsed.kind}`;
-    const { data, error } = await (db as any)
+    const { data, error } = await db
         .from('context_edges')
         .upsert(
-            {
+            omitUndefined({
                 user_id: userId,
                 from_entity_id: normalizeEntityId(parsed.fromEntityId),
                 to_entity_id: normalizeEntityId(parsed.toEntityId),
@@ -361,9 +366,9 @@ export async function ingestContextEdge(
                 created_by_type: parsed.createdByType,
                 source_type: parsed.sourceType,
                 source_id: sourceId,
-                metadata: parsed.metadata,
+                metadata: parsed.metadata as Json,
                 updated_at: now,
-            },
+            }),
             {
                 onConflict:
                     'user_id,from_entity_id,to_entity_id,kind,source_type,source_id',
@@ -372,11 +377,11 @@ export async function ingestContextEdge(
         .select(EDGE_SELECT)
         .single();
     if (error) throw new Error(error.message);
-    return edgeRowToEdge(data);
+    return edgeRowToEdge(data as unknown as ContextEdgeRow);
 }
 
 export async function ingestContextEdges(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     inputs: CanonicalContextEdgeInput[],
 ): Promise<ContextEdge[]> {
@@ -387,7 +392,7 @@ export async function ingestContextEdges(
 }
 
 export async function upsertContextFromSource(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     sourceType: string,
     sourceId: string,
@@ -407,7 +412,7 @@ export async function archiveContextFromSource(
     sourceType: string,
     sourceId: string,
 ): Promise<void> {
-    const { error } = await (db as any)
+    const { error } = await db
         .from('context_entries')
         .update({ status: 'archived', updated_at: new Date().toISOString() })
         .eq('user_id', userId)
@@ -421,7 +426,7 @@ export async function markContextStale(
     userId: string,
     entityId: string,
 ): Promise<void> {
-    const { error } = await (db as any)
+    const { error } = await db
         .from('context_entries')
         .update({ status: 'stale', updated_at: new Date().toISOString() })
         .eq('user_id', userId)
@@ -430,7 +435,7 @@ export async function markContextStale(
 }
 
 export async function linkContextEntities(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     fromEntityId: string,
     toEntityId: string,
@@ -462,7 +467,7 @@ export async function markContextStatus(
     entityId: string,
     status: 'active' | 'archived' | 'stale' | 'deleted',
 ): Promise<void> {
-    const { error } = await (db as any)
+    const { error } = await db
         .from('context_entries')
         .update({ status, updated_at: new Date().toISOString() })
         .eq('user_id', userId)

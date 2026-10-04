@@ -4,7 +4,6 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { traverseContextGraph } from '@/features/context/services/contextTraversalService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const bodySchema = z.object({
     startEntityId: z.string().min(1),
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const graph = await traverseContextGraph(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             parsed.data.startEntityId,
             omitUndefined({

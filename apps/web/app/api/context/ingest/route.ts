@@ -4,7 +4,6 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
 import type { MappedRow } from '@/features/import-export/types/importExport';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const bodySchema = z.object({
     sourceType: z.string().min(1),
@@ -27,7 +26,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const result = await ingestContextFromAdapterPayload(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             parsed.data.sourceType,
             parsed.data.rows as MappedRow[],

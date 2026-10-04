@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import type { Artifact } from '@/features/artifacts/types/artifact';
 import type { FileTextExtraction } from '@/features/extraction/types/extraction';
 import type { FileUpload } from '@/features/uploads/types/upload';
@@ -25,7 +26,7 @@ function contextSlug(value: string): string {
 }
 
 export async function ingestFileUploadContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     file: FileUpload,
 ): Promise<void> {
     await ingestContextNode(db, file.userId, {
@@ -46,7 +47,7 @@ export async function ingestFileUploadContext(
 }
 
 export async function markFileUploadContextDeleted(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     fileId: string,
 ): Promise<void> {
@@ -54,7 +55,7 @@ export async function markFileUploadContextDeleted(
 }
 
 export async function ingestExtractionContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         fileId: string;
@@ -98,7 +99,7 @@ export async function ingestExtractionContext(
 }
 
 export async function ingestArtifactContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     artifact: Artifact,
 ): Promise<void> {
     await ingestContextNode(db, artifact.userId, {
@@ -159,7 +160,7 @@ export async function ingestArtifactContext(
 }
 
 export async function ingestJournalContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         id: string;
@@ -189,7 +190,7 @@ export async function ingestJournalContext(
 }
 
 export async function ingestAutomationRunContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         automationConfigId: string;
@@ -240,7 +241,7 @@ export async function ingestAutomationRunContext(
 }
 
 export async function ingestEmailActionTodoContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         actionId: string;
@@ -311,7 +312,7 @@ export async function ingestEmailActionTodoContext(
 }
 
 export async function ingestEmailActionCalendarContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         actionId: string;
@@ -367,7 +368,7 @@ export async function ingestEmailActionCalendarContext(
 }
 
 export async function ingestCalendarEventContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: {
         id: string;

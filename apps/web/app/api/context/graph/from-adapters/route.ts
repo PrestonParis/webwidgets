@@ -10,7 +10,6 @@ import {
     ingestContextNodes,
     ingestContextEdges,
 } from '@/features/context/services/contextService';
-import type { MappedRow } from '@/features/import-export/types/importExport';
 import type {
     CanonicalContextNodeInput,
     CanonicalContextEdgeInput,
@@ -56,11 +55,7 @@ export async function GET(req: Request) {
         const sourceResults: SourceResult[] = [];
 
         for (const source of ADAPTER_GRAPH_SOURCES) {
-            const result = await loadFromAdapter(
-                supabase as unknown as SupabaseClient,
-                userId,
-                source,
-            );
+            const result = await loadFromAdapter(supabase, userId, source);
             sourceResults.push(result);
 
             if (result.status === 'loaded') {
@@ -203,17 +198,9 @@ export async function GET(req: Request) {
         // Optionally persist to DB
         if (persist && allNodes.length > 0) {
             try {
-                await ingestContextNodes(
-                    supabase as unknown as SupabaseClient,
-                    userId,
-                    allNodes,
-                );
+                await ingestContextNodes(supabase, userId, allNodes);
                 if (allEdges.length > 0) {
-                    await ingestContextEdges(
-                        supabase as unknown as SupabaseClient,
-                        userId,
-                        allEdges,
-                    );
+                    await ingestContextEdges(supabase, userId, allEdges);
                 }
             } catch (error) {
                 console.error('Error persisting adapter data:', error);
