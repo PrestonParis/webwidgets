@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GOOGLE_SHEETS_SPREADSHEET_ID: 1JwrbXWGUYuyZKvhMjddsRymVpETyKRhJvcCPDEaqnlA
+      GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +35,19 @@ jobs:
         id: checks
         continue-on-error: true
         run: npm run check
+
+      - name: Upload lint report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports-${{ github.run_id }}
+          path: |
+            reports/lint/latest.json
+            reports/ts/latest.json
+            reports/smells/latest.json
+            reports/stats/latest.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Publish reports to Google Sheets
         env:

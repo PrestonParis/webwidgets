@@ -1,21 +1,19 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { google, sheets_v4 } from 'googleapis';
+import { google } from 'googleapis';
 import { z } from 'zod';
 import { ROOT } from './lib/paths';
 import {
     buildReportRows,
     REPORT_SHEETS,
     type ReportInputs,
-    type SheetValue,
 } from './googleSheetsReport';
-
-const credentialsSchema = z
-    .object({
-        client_email: z.string().email(),
-        private_key: z.string().min(1),
-    })
-    .passthrough();
+import {
+    appendRunRows,
+    ensureHeader,
+    ensureSheets,
+    parseServiceAccountCredentials,
+} from './googleSheetsPublisher';
 
 const environmentSchema = z.object({
     GITHUB_REF_NAME: z.string().default('local'),
@@ -27,9 +25,6 @@ const environmentSchema = z.object({
     GOOGLE_SHEETS_SPREADSHEET_ID: z.string().min(1),
     LINT_REPORT_RUN_ID: z.string().optional(),
 });
-
-type SheetsClient = sheets_v4.Sheets;
-type SheetDefinition = (typeof REPORT_SHEETS)[keyof typeof REPORT_SHEETS];
 
 function readJson(path: string): unknown {
     return JSON.parse(readFileSync(path, 'utf8')) as unknown;
@@ -44,103 +39,10 @@ function loadReports(): ReportInputs {
     };
 }
 
-function quoteSheet(title: string): string {
-    return `'${title.replaceAll("'", "''")}'`;
-}
-
-async function ensureSheets(
-    client: SheetsClient,
-    spreadsheetId: string,
-): Promise<void> {
-    const response = await client.spreadsheets.get({
-        spreadsheetId,
-        fields: 'sheets.properties.title',
-    });
-    const existing = new Set(
-        response.data.sheets?.flatMap((sheet) =>
-            sheet.properties?.title ? [sheet.properties.title] : [],
-        ) ?? [],
-    );
-    const missing = Object.values(REPORT_SHEETS).filter(
-        (definition) => !existing.has(definition.title),
-    );
-    if (missing.length === 0) return;
-    await client.spreadsheets.batchUpdate({
-        spreadsheetId,
-        requestBody: {
-            requests: missing.map((definition) => ({
-                addSheet: { properties: { title: definition.title } },
-            })),
-        },
-    });
-}
-
-async function ensureHeader(
-    client: SheetsClient,
-    spreadsheetId: string,
-    definition: SheetDefinition,
-): Promise<void> {
-    const range = `${quoteSheet(definition.title)}!1:1`;
-    const response = await client.spreadsheets.values.get({
-        spreadsheetId,
-        range,
-    });
-    const existing = response.data.values?.[0]?.map(String) ?? [];
-    if (existing.length === 0) {
-        await client.spreadsheets.values.update({
-            spreadsheetId,
-            range: `${quoteSheet(definition.title)}!A1`,
-            valueInputOption: 'RAW',
-            requestBody: { values: [[...definition.headers]] },
-        });
-        return;
-    }
-    if (existing.join('\u0000') !== definition.headers.join('\u0000')) {
-        throw new Error(`${definition.title} has an unexpected header row`);
-    }
-}
-
-async function hasRun(
-    client: SheetsClient,
-    spreadsheetId: string,
-    title: string,
-    runId: string,
-): Promise<boolean> {
-    const response = await client.spreadsheets.values.get({
-        spreadsheetId,
-        range: `${quoteSheet(title)}!A2:A`,
-    });
-    return (
-        response.data.values?.some((row) => String(row[0] ?? '') === runId) ??
-        false
-    );
-}
-
-async function appendRunRows(
-    client: SheetsClient,
-    spreadsheetId: string,
-    definition: SheetDefinition,
-    rows: SheetValue[][],
-    runId: string,
-): Promise<void> {
-    if (
-        rows.length === 0 ||
-        (await hasRun(client, spreadsheetId, definition.title, runId))
-    )
-        return;
-    await client.spreadsheets.values.append({
-        spreadsheetId,
-        range: `${quoteSheet(definition.title)}!A:${String.fromCharCode(64 + definition.headers.length)}`,
-        insertDataOption: 'INSERT_ROWS',
-        valueInputOption: 'RAW',
-        requestBody: { values: rows },
-    });
-}
-
 async function publish(): Promise<void> {
     const env = environmentSchema.parse(process.env);
-    const credentials = credentialsSchema.parse(
-        JSON.parse(env.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON) as unknown,
+    const credentials = parseServiceAccountCredentials(
+        env.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON,
     );
     const runAt = new Date().toISOString();
     const runId =

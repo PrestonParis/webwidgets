@@ -29,6 +29,11 @@ interface Smell {
     detail: string;
 }
 
+interface SourceCounts {
+    consoleLogs: number;
+    todos: number;
+}
+
 export interface SmellsPhaseResult {
     count: number;
     durationMs: number;
@@ -55,6 +60,86 @@ function maxNestingDepth(sourceFile: SourceFile): number {
     return max;
 }
 
+function scanSourceFile(
+    sourceFile: SourceFile,
+    smells: Smell[],
+    anyCounts: Map<string, number>,
+): SourceCounts {
+    const file = relative(ROOT, sourceFile.getFilePath());
+    const lineCount = sourceFile.getEndLineNumber();
+    if (lineCount > LONG_FILE_LINES) {
+        smells.push({
+            rule: 'long-file',
+            file,
+            line: 1,
+            detail: `${lineCount} lines`,
+        });
+    }
+    let consoleLogs = 0;
+    sourceFile.forEachDescendant((node) => {
+        if (Node.isFunctionLikeDeclaration(node)) {
+            const start = node.getStartLineNumber();
+            const length = node.getEndLineNumber() - start;
+            const name = getFunctionName(node);
+            if (length > LONG_FUNCTION_LINES) {
+                smells.push({
+                    rule: 'long-function',
+                    file,
+                    line: start,
+                    detail: `${name} — ${length} lines`,
+                });
+            }
+            const paramCount = node.getParameters().length;
+            if (paramCount > TOO_MANY_PARAMS) {
+                smells.push({
+                    rule: 'too-many-params',
+                    file,
+                    line: start,
+                    detail: `${name} — ${paramCount} params`,
+                });
+            }
+        }
+        if (node.getKind() === SyntaxKind.AnyKeyword) {
+            anyCounts.set(file, (anyCounts.get(file) ?? 0) + 1);
+        }
+        if (
+            Node.isCallExpression(node) &&
+            node.getExpression().getText() === 'console.log'
+        ) {
+            consoleLogs += 1;
+        }
+    });
+    const depth = maxNestingDepth(sourceFile);
+    if (depth > MAX_NESTING_DEPTH) {
+        smells.push({
+            rule: 'deep-nesting',
+            file,
+            line: 1,
+            detail: `max block depth ${depth}`,
+        });
+    }
+    return {
+        consoleLogs,
+        todos: sourceFile.getFullText().match(/\b(TODO|FIXME)\b/g)?.length ?? 0,
+    };
+}
+
+function addAnyUsageSmells(
+    smells: Smell[],
+    anyCounts: Map<string, number>,
+): void {
+    for (const [file, count] of anyCounts) {
+        if (count > TOO_MANY_ANY) {
+            smells.push({
+                rule: 'any-usage',
+                file,
+                line: 1,
+                detail: `${count} uses of \`any\``,
+            });
+        }
+    }
+}
+
 export function runSmellsPhase(scopes: string[]): SmellsPhaseResult {
     const startedAt = performance.now();
     phaseStart('Code smells', 'advisory');
@@ -77,75 +162,11 @@ export function runSmellsPhase(scopes: string[]): SmellsPhaseResult {
     let todoCount = 0;
 
     for (const sourceFile of project.getSourceFiles()) {
-        const filePath = relative(ROOT, sourceFile.getFilePath());
-        const lineCount = sourceFile.getEndLineNumber();
-        if (lineCount > LONG_FILE_LINES) {
-            smells.push({
-                rule: 'long-file',
-                file: filePath,
-                line: 1,
-                detail: `${lineCount} lines`,
-            });
-        }
-
-        sourceFile.forEachDescendant((node) => {
-            if (Node.isFunctionLikeDeclaration(node)) {
-                const start = node.getStartLineNumber();
-                const length = node.getEndLineNumber() - start;
-                const name = getFunctionName(node);
-                if (length > LONG_FUNCTION_LINES) {
-                    smells.push({
-                        rule: 'long-function',
-                        file: filePath,
-                        line: start,
-                        detail: `${name} — ${length} lines`,
-                    });
-                }
-                const paramCount = node.getParameters().length;
-                if (paramCount > TOO_MANY_PARAMS) {
-                    smells.push({
-                        rule: 'too-many-params',
-                        file: filePath,
-                        line: start,
-                        detail: `${name} — ${paramCount} params`,
-                    });
-                }
-            }
-            if (node.getKind() === SyntaxKind.AnyKeyword) {
-                anyCounts.set(filePath, (anyCounts.get(filePath) ?? 0) + 1);
-            }
-            if (
-                Node.isCallExpression(node) &&
-                node.getExpression().getText() === 'console.log'
-            ) {
-                consoleLogCount += 1;
-            }
-        });
-
-        const depth = maxNestingDepth(sourceFile);
-        if (depth > MAX_NESTING_DEPTH) {
-            smells.push({
-                rule: 'deep-nesting',
-                file: filePath,
-                line: 1,
-                detail: `max block depth ${depth}`,
-            });
-        }
-
-        const todoMatches = sourceFile.getFullText().match(/\b(TODO|FIXME)\b/g);
-        if (todoMatches) todoCount += todoMatches.length;
+        const counts = scanSourceFile(sourceFile, smells, anyCounts);
+        consoleLogCount += counts.consoleLogs;
+        todoCount += counts.todos;
     }
-
-    for (const [file, count] of anyCounts) {
-        if (count > TOO_MANY_ANY) {
-            smells.push({
-                rule: 'any-usage',
-                file,
-                line: 1,
-                detail: `${count} uses of \`any\``,
-            });
-        }
-    }
+    addAnyUsageSmells(smells, anyCounts);
 
     const ruleCounts = new Map<string, number>();
     for (const smell of smells) {

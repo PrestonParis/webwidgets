@@ -58,6 +58,44 @@ function projectCachePath(project: string): string {
     return join(ROOT, '.cache', 'typecheck', `${name}.tsbuildinfo`);
 }
 
+function runTypecheckProject(
+    tscBin: string,
+    project: string,
+    cache: boolean,
+): ProjectResult {
+    const projectName = relative(ROOT, project);
+    progress(projectName);
+    const args = ['--noEmit', '--pretty', 'false', '-p', project];
+    if (cache) {
+        const cachePath = projectCachePath(project);
+        mkdirSync(join(ROOT, '.cache', 'typecheck'), { recursive: true });
+        args.push('--incremental', '--tsBuildInfoFile', cachePath);
+    }
+    const run = spawnSync(tscBin, args, {
+        cwd: ROOT,
+        encoding: 'utf8',
+        maxBuffer: 256 * 1024 * 1024,
+        env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' },
+    });
+    if (run.error) {
+        throw new Error(
+            `tsc failed to start for ${project}: ${run.error.message}`,
+        );
+    }
+    const output = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
+    const errors = output
+        .split('\n')
+        .map((line) => line.match(TS_ERROR_LINE))
+        .filter((match): match is RegExpMatchArray => match !== null)
+        .map((match) => ({
+            file: relative(ROOT, match[1] ?? ''),
+            line: Number(match[2] ?? '0'),
+            code: match[4] ?? '',
+            message: match[5] ?? '',
+        }));
+    return { project: projectName, errorCount: errors.length, errors };
+}
+
 export function runTsPhase(scopes: string[], cache = true): TsPhaseResult {
     const startedAt = performance.now();
     const projects = projectsForScopes(scopes);
@@ -66,46 +104,9 @@ export function runTsPhase(scopes: string[], cache = true): TsPhaseResult {
         `${projects.length} project${projects.length === 1 ? '' : 's'}`,
     );
     const tscBin = join(ROOT, 'node_modules', '.bin', 'tsc');
-    const projectResults: ProjectResult[] = [];
-
-    for (const project of projects) {
-        const projectName = relative(ROOT, project);
-        progress(projectName);
-        const args = ['--noEmit', '--pretty', 'false', '-p', project];
-        if (cache) {
-            const cachePath = projectCachePath(project);
-            mkdirSync(join(ROOT, '.cache', 'typecheck'), { recursive: true });
-            args.push('--incremental', '--tsBuildInfoFile', cachePath);
-        }
-        const run = spawnSync(tscBin, args, {
-            cwd: ROOT,
-            encoding: 'utf8',
-            maxBuffer: 256 * 1024 * 1024,
-            env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' },
-        });
-        if (run.error) {
-            throw new Error(
-                `tsc failed to start for ${project}: ${run.error.message}`,
-            );
-        }
-        const output = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
-        const errors = output
-            .split('\n')
-            .map((line) => line.match(TS_ERROR_LINE))
-            .filter((match): match is RegExpMatchArray => match !== null)
-            .map((match) => ({
-                file: relative(ROOT, match[1] ?? ''),
-                line: Number(match[2] ?? '0'),
-                code: match[4] ?? '',
-                message: match[5] ?? '',
-            }));
-
-        projectResults.push({
-            project: relative(ROOT, project),
-            errorCount: errors.length,
-            errors,
-        });
-    }
+    const projectResults = projects.map((project) =>
+        runTypecheckProject(tscBin, project, cache),
+    );
 
     const totalErrors = projectResults.reduce(
         (sum, p) => sum + p.errorCount,
