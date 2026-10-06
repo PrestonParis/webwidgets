@@ -89,7 +89,7 @@ insert into public.objective_plan_steps(
     'f1000000-0000-4000-8000-000000000040',
     'f1000000-0000-4000-8000-000000000030',
     'f1000000-0000-4000-8000-000000000010',auth.uid(),'draft-report',0,
-    'documents.create','1','draft','3333333333333333',60,'objective-step'
+    'tasks.create','1','reversible_write','3333333333333333',60,'objective-step'
 );
 
 update public.objective_versions set published_at=now()
