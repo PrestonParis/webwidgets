@@ -654,6 +654,22 @@ cannot establish October 11 behavior or satisfy the missing evidence
 categories. Result: **not counted; 0 of 7**. The operational `No Go`
 conditions and pilot setup blocker remain unresolved.
 
+### 2026-10-12 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-14, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. Those
+later checks cannot establish October 12 behavior or satisfy the missing
+evidence categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
 ## Release-suite environment
 
 Set `BASE_URL`, `V1_E2E_SUPABASE_URL`, and
