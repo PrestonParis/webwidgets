@@ -4,6 +4,7 @@ import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 import { ingestJournalContext } from '@/features/context/services/contextProducerService';
+import type { Json, TablesUpdate } from '@/types/supabase';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -25,12 +26,12 @@ export async function PATCH(
             metadata?: Record<string, unknown> | null;
         };
 
-        const update: Record<string, unknown> = {
+        const update: TablesUpdate<'journals'> = {
             updated_at: new Date().toISOString(),
         };
         if (body.title !== undefined) update.title = body.title.trim();
         if (body.content !== undefined) update.content = body.content;
-        if (body.metadata !== undefined) update.metadata = body.metadata;
+        if (body.metadata !== undefined) update.metadata = body.metadata as Json;
 
         const { data, error } = await supabase
             .from('journals')

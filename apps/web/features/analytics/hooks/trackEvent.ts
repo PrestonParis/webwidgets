@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/adminClient';
 import type { TrackEventOptions } from '../types/analytics';
+import type { Json } from '@/types/supabase';
 
 // Module-level singleton — reused across warm lambda invocations
 const admin = createAdminClient();
@@ -10,7 +11,7 @@ export async function trackEventServer(opts: TrackEventOptions): Promise<void> {
             user_id: opts.userId ?? null,
             type: opts.type,
             source: opts.source ?? null,
-            metadata: opts.metadata ?? null,
+            metadata: (opts.metadata ?? null) as Json,
             created_at: new Date().toISOString(),
         });
     } catch (err) {

@@ -39,6 +39,7 @@ describe('inference service outcomes', () => {
     it('returns a typed provider failure after bounded retry', async () => {
         vi.stubEnv('INFERENCE_SERVICE_URL', 'https://ml.example.com');
         vi.stubEnv('ML_SERVICE_TOKEN', 'secret');
+        vi.stubEnv('ALLOW_SHARED_LLM_KEYS', 'true');
         const fetchMock = vi
             .fn()
             .mockResolvedValue(new Response(null, { status: 503 }));

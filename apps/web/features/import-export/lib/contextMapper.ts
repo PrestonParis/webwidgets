@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import type { ImportExportAdapter } from './adapterInterface';
 import { toText } from './coerce';
 import type { MappedRow, SourceDestinationType } from '../types/importExport';
@@ -40,7 +41,7 @@ export function getContextMapper(
 }
 
 export async function ingestContextFromAdapterPayload(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     sourceType: SourceTypeKey,
     rows: MappedRow[],
@@ -59,7 +60,7 @@ export async function ingestContextFromAdapterPayload(
 }
 
 export async function ingestContextFromAdapter(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     adapter: ImportExportAdapter,
     options?: { limit?: number },

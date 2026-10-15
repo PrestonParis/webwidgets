@@ -79,7 +79,7 @@ export function useImportExport() {
     }, []);
 
     useEffect(() => {
-        void refresh();
+        void Promise.resolve().then(refresh);
     }, [refresh]);
 
     const createImportJob = useCallback(

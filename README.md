@@ -41,11 +41,11 @@ The Next.js application owns the product surface, authenticated APIs, and exact-
 
 ## Engineering highlights
 
-- **Defense-in-depth data isolation.** Client reads use the Supabase anonymous client and RLS; service-role access stays in server-only API routes.
+- **Defense-in-depth data isolation.** Row Level Security is enabled on every application table, and browser reads go through the anonymous key. Service-role access is confined to server-only code. OAuth and provider credentials are column-restricted, so browsers see only connection metadata.
 - **Bounded inference.** Classification and suggestion workloads run outside the web process so provider failures degrade individual features instead of the dashboard runtime.
 - **Durable background work.** PostgreSQL owns lifecycle truth while BullMQ owns delivery, concurrency, retry timing, and delayed execution.
 - **Adapter-driven portability.** Import/export capabilities normalize feature data behind typed adapters, allowing validation and previews before writes occur.
-- **Feature boundaries at scale.** More than 60 feature modules are isolated from one another; shared dependencies flow through a deliberately small `lib/` surface.
+- **Feature modules at scale.** 71 domain feature modules live under `features/`, and shared code belongs in `lib/`. Some cross-feature imports remain and are being reduced toward that boundary.
 
 ## Testing
 
@@ -56,7 +56,7 @@ npm run check            # ESLint, TypeScript, code-smell checks, repository sta
 npm run py:test          # FastAPI service tests
 ```
 
-The automated suite covers widget persistence and runtime behavior, API authorization, import/export coercion, provider failure handling, job execution, and critical browser journeys.
+The Vitest suite has 525 passing unit tests. Alongside it are pytest suites for the ML service, conversion-service and sync-worker tests, pgTAP tests for RLS and credential boundaries, and Playwright journeys. Together they cover widget persistence and runtime behavior, API authorization, import/export coercion, provider failure handling, job execution, and critical browser flows.
 
 ## Running locally
 
@@ -76,9 +76,15 @@ npm run dev
 
 For the web app plus supporting services, use `npm run dev:full`. The ML sidecar runs separately with `npm run dev:ml`. See [docs/agents/workflow/CLI.md](docs/agents/workflow/CLI.md) for the broader command reference.
 
-## Status and next steps
+## Status
 
-WebWidgets is live and under active development. The core dashboard and feature catalog are usable; production hardening remains for the continuously running worker topology and the standalone conversion service. Repository-wide lint and type debt is tracked openly and is being reduced incrementally.
+WebWidgets is live at [webwidgets.me](https://webwidgets.me) and in a monitored pilot. It is a personal project, not yet a production service for other people's data. [ROADMAP.md](ROADMAP.md) lists what remains before a V1 release.
+
+- **Tests:** the 525 Vitest unit tests pass. CI also runs the pytest, conversion-service, and sync-worker suites; the pgTAP RLS tests run locally against Supabase.
+- **Lint and type debt:** the repository-wide checker reports 540 ESLint errors, most of them `no-unsafe-*` from older untyped Supabase access, and 49 TypeScript errors. CI lints and type-checks only the files a change touches, so new code meets a clean bar while the backlog shrinks.
+- **Why `main` shows a red scheduled run:** the *Daily lint report* workflow publishes the repository-wide numbers and deliberately exits non-zero while any debt remains. It will stay red until the backlog reaches zero. Pull-request checks gate new code.
+- **AI features need your own key:** server-owned LLM keys are disabled until per-user quotas exist, so chat and email intelligence use keys users add in Settings.
+- **Not yet production-hardened:** the continuously running worker topology, external alerting, and the standalone conversion service, which is not deployed.
 
 **Demo video:** TODO — add a short authenticated product walkthrough.
 

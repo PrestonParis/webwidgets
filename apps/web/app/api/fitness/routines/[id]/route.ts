@@ -2,25 +2,17 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 
-export async function DELETE(
-    _req: Request,
-    { params }: { params: Promise<{ id: string }> },
-) {
-    const { id } = await params;
+// See ../route.ts: the routines table does not exist in the deployed schema.
+const ROUTINES_UNAVAILABLE = {
+    error: 'Workout routines are not available yet.',
+};
+
+export async function DELETE() {
     const { supabase } = await createClients();
-    let userId: string;
     try {
-        userId = await getRequestUserId(supabase);
+        await getRequestUserId(supabase);
     } catch {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { error } = await supabase
-        .from('fitness_workout_routines')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', userId);
-    if (error)
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    return new Response(null, { status: 204 });
+    return NextResponse.json(ROUTINES_UNAVAILABLE, { status: 503 });
 }

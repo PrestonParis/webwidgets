@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { EmailCategory, EMAIL_CATEGORIES } from '@/features/inbox/types/inbox';
 import { EmailInput } from '@/features/inbox/types/inbox';
 import { z } from 'zod';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const claudePredictionSchema = z.object({
     idx: z.number(),
@@ -10,7 +11,9 @@ const claudePredictionSchema = z.object({
 
 const claudePredictionsSchema = z.array(claudePredictionSchema);
 
-const defaultClient = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
+const defaultClient = sharedLlmKey('ANTHROPIC_API_KEY')
+    ? new Anthropic()
+    : null;
 
 export async function classifyWithClaude(
     emails: EmailInput[],

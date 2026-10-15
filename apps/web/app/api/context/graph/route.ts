@@ -7,6 +7,9 @@ import {
 } from '@/features/context/services/contextService';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
 import type { ContextEntry } from '@/features/context/types/context';
+import { getWidgetMeta } from '@/features/context/lib/widgetContextMap';
+import { getAllManifests } from '@/features/dashboard/runtime/widgetManifestRegistry';
+import type { WidgetType } from '@/features/dashboard/types/dashboard';
 
 export async function GET(req: Request) {
     try {
@@ -21,17 +24,12 @@ export async function GET(req: Request) {
 
         // Add widget catalog nodes
         try {
-            const { getAllManifests } =
-                await import('@/features/dashboard/runtime/widgetManifestRegistry');
-            const { getWidgetMeta } =
-                await import('@/features/context/lib/widgetContextMap');
-
             const manifests = getAllManifests().filter(
-                (m: any) => m.widgetType !== 'context-diagram',
+                (manifest) => manifest.widgetType !== 'context-diagram',
             );
 
             for (const manifest of manifests) {
-                const meta = getWidgetMeta(manifest.widgetType as any);
+                const meta = getWidgetMeta(manifest.widgetType as WidgetType);
                 const widgetEntry: ContextEntry = {
                     id: `widget-catalog-${manifest.widgetType}`,
                     userId,

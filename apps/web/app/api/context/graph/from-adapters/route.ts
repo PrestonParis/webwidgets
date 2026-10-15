@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import { listAdapters } from '@/features/import-export/lib/adapterRegistry';
 import { getContextMapper } from '@/features/import-export/lib/contextMapper';
 import { buildContextGraph } from '@/features/context/lib/graphBuilder';
+import type { ContextEdge } from '@/features/context/types/context';
+import { getWidgetMeta } from '@/features/context/lib/widgetContextMap';
+import { getAllManifests } from '@/features/dashboard/runtime/widgetManifestRegistry';
+import type { WidgetType } from '@/features/dashboard/types/dashboard';
 import {
     ingestContextNodes,
     ingestContextEdges,
@@ -88,17 +93,12 @@ export async function GET(req: Request) {
 
         // Also add widget catalog and instances
         try {
-            const { getAllManifests } =
-                await import('@/features/dashboard/runtime/widgetManifestRegistry');
-            const { getWidgetMeta } =
-                await import('@/features/context/lib/widgetContextMap');
-
             const manifests = getAllManifests().filter(
-                (m: any) => m.widgetType !== 'context-diagram',
+                (manifest) => manifest.widgetType !== 'context-diagram',
             );
 
             for (const manifest of manifests) {
-                const meta = getWidgetMeta(manifest.widgetType as any);
+                const meta = getWidgetMeta(manifest.widgetType as WidgetType);
                 allNodes.push({
                     entityId: `widget-${manifest.widgetType}`,
                     type: 'widget',
@@ -172,19 +172,31 @@ export async function GET(req: Request) {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             })),
-            allEdges.map((edge) => {
-                const edgeObj: any = {
+            allEdges.map((edge): ContextEdge => {
+                const edgeObj: ContextEdge = {
                     id: `adapter-edge-${edge.fromEntityId}-${edge.toEntityId}-${edge.kind}`,
                     from: edge.fromEntityId,
                     to: edge.toEntityId,
                     kind: edge.kind,
-                    weight: edge.weight,
-                    confidence: edge.confidence,
-                    sourceType: edge.sourceType,
-                    sourceId: edge.sourceId,
-                    createdBy: edge.createdBy,
-                    createdByType: edge.createdByType,
-                    metadata: edge.metadata,
+                    ...(edge.weight !== undefined && { weight: edge.weight }),
+                    ...(edge.confidence !== undefined && {
+                        confidence: edge.confidence,
+                    }),
+                    ...(edge.sourceType !== undefined && {
+                        sourceType: edge.sourceType,
+                    }),
+                    ...(edge.sourceId !== undefined && {
+                        sourceId: edge.sourceId,
+                    }),
+                    ...(edge.createdBy !== undefined && {
+                        createdBy: edge.createdBy,
+                    }),
+                    ...(edge.createdByType !== undefined && {
+                        createdByType: edge.createdByType,
+                    }),
+                    ...(edge.metadata !== undefined && {
+                        metadata: edge.metadata,
+                    }),
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
                 };
@@ -238,7 +250,7 @@ export async function GET(req: Request) {
 }
 
 async function loadFromAdapter(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     source: string,
 ): Promise<SourceResult> {

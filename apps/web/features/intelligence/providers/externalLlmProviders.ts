@@ -16,6 +16,7 @@ import type {
 } from '@/features/intelligence/types/inference';
 import type { LLMProvider } from '@/features/intelligence/types/provider';
 import type { Json } from '@/types/supabase';
+import { sharedLlmKeysEnabled } from '@/lib/llm/sharedKeys';
 
 const serviceResponseSchema = z.discriminatedUnion('status', [
     z.object({
@@ -48,9 +49,11 @@ const serviceResponseSchema = z.discriminatedUnion('status', [
 ]);
 
 export function createAnthropicProvider(): LLMProvider {
-    const configured = Boolean(
-        process.env.INFERENCE_SERVICE_URL && process.env.ML_SERVICE_TOKEN,
-    );
+    const configured =
+        sharedLlmKeysEnabled() &&
+        Boolean(
+            process.env.INFERENCE_SERVICE_URL && process.env.ML_SERVICE_TOKEN,
+        );
     return {
         id: 'anthropic',
         kind: 'llm',
@@ -137,7 +140,7 @@ async function callInferenceService<TInput>(
 ) {
     const baseUrl = process.env.INFERENCE_SERVICE_URL;
     const token = process.env.ML_SERVICE_TOKEN;
-    if (!baseUrl || !token)
+    if (!sharedLlmKeysEnabled() || !baseUrl || !token)
         throw new InferenceProviderError('provider_unavailable', true);
     const response = await fetch(`${baseUrl.replace(/\/$/, '')}/v1/inference`, {
         method: 'POST',

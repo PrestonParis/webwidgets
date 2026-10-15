@@ -9,6 +9,7 @@ import type {
     ModelProvider,
     ModelProviderAvailability,
 } from '@/features/chatbot/types/chat';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const saveSchema = z.object({
     provider: z.enum(['anthropic', 'openai', 'google']),
@@ -25,12 +26,12 @@ export async function GET() {
             const hasUserKey = providers.includes(provider);
             const hasServerKey =
                 provider === 'anthropic'
-                    ? Boolean(process.env.ANTHROPIC_API_KEY)
+                    ? Boolean(sharedLlmKey('ANTHROPIC_API_KEY'))
                     : provider === 'openai'
-                      ? Boolean(process.env.OPENAI_API_KEY)
+                      ? Boolean(sharedLlmKey('OPENAI_API_KEY'))
                       : Boolean(
-                            process.env.GEMINI_API_KEY ??
-                            process.env.GOOGLE_API_KEY,
+                            sharedLlmKey('GEMINI_API_KEY') ??
+                            sharedLlmKey('GOOGLE_API_KEY'),
                         );
             return {
                 provider,
