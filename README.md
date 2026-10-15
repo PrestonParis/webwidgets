@@ -81,8 +81,9 @@ For the web app plus supporting services, use `npm run dev:full`. The ML sidecar
 WebWidgets is live at [webwidgets.me](https://webwidgets.me) and in a monitored pilot. It is a personal project, not yet a production service for other people's data. [ROADMAP.md](ROADMAP.md) lists what remains before a V1 release.
 
 - **Tests:** the 525 Vitest unit tests pass. CI also runs the pytest, conversion-service, and sync-worker suites; the pgTAP RLS tests run locally against Supabase.
-- **Lint and type debt:** the repository-wide checker reports 540 ESLint errors, most of them `no-unsafe-*` from older untyped Supabase access, and 75 TypeScript errors. CI lints and type-checks only the files a change touches, so new code meets a clean bar while the backlog shrinks.
+- **Lint and type debt:** the repository-wide checker reports 540 ESLint errors, most of them `no-unsafe-*` from older untyped Supabase access, and 49 TypeScript errors. CI lints and type-checks only the files a change touches, so new code meets a clean bar while the backlog shrinks.
 - **Why `main` shows a red scheduled run:** the *Daily lint report* workflow publishes the repository-wide numbers and deliberately exits non-zero while any debt remains. It will stay red until the backlog reaches zero. Pull-request checks gate new code.
+- **AI features need your own key:** server-owned LLM keys are disabled until per-user quotas exist, so chat and email intelligence use keys users add in Settings.
 - **Not yet production-hardened:** the continuously running worker topology, external alerting, and the standalone conversion service, which is not deployed.
 
 **Demo video:** TODO — add a short authenticated product walkthrough.

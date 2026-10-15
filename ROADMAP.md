@@ -144,12 +144,12 @@ Should happen before or shortly after V1, not hard-blocking.
 - **Production deploy path for the conversion service** — it remains a
   specialized adapter whose V1 hosting requirement is not yet proven. The
   sync worker is V1-required; Go is explicitly deferred by ADR-011.
-- **Existing lint/type debt** — 540 ESLint errors and 75 TypeScript errors
+- **Existing lint/type debt** — 540 ESLint errors and 49 TypeScript errors
   across the repo as of the 2026-10-15 `npm run check` snapshot. That compares
   with 1,603 / 54 on 2026-08-09: lint debt fell, while typing the Supabase
-  client surfaced more type errors. The remaining `apps/web` type errors are schema drift: `user_files`
-  and `fitness_routines` are queried but exist in no migration, and
-  `collaboration_workspaces.updated_at` is missing from the generated types.
+  client surfaced more type errors. `apps/web` itself now type-checks clean;
+  all 49 remaining errors are in the undeployed conversion service. `fitness_workout_routines`
+  still needs a tracked migration before workout routines can be saved.
   See DEFINITION_OF_DONE.md for how new work avoids adding to this debt.
 - **Reconcile the local prompt-queue workflow with the new GitHub-based
   one** — `docs/agents/workflow/GEMINI.md` describes a `docs/agents/prompts/`
