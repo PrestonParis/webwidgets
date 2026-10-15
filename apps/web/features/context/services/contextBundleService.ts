@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import type {
     ContextEdge,
     ContextEntry,
@@ -41,7 +42,7 @@ export interface ContextBundleOptions extends ContextTraversalFilters {
 }
 
 export async function buildContextBundle(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     options?: ContextBundleOptions,
 ): Promise<ContextBundle> {
@@ -123,7 +124,7 @@ export async function buildContextBundle(
 }
 
 export function buildContextBundleForChat(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: Omit<ContextBundleOptions, 'consumer'> = {},
 ): Promise<ContextBundle> {
@@ -131,7 +132,7 @@ export function buildContextBundleForChat(
 }
 
 export function buildContextBundleForWidget(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     widgetIdOrType: string,
     input: Omit<ContextBundleOptions, 'consumer'> = {},
@@ -144,7 +145,7 @@ export function buildContextBundleForWidget(
 }
 
 export function buildContextBundleForAutomation(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     automationId: string,
     input: Omit<ContextBundleOptions, 'consumer'> = {},
@@ -157,7 +158,7 @@ export function buildContextBundleForAutomation(
 }
 
 export function buildContextBundleForFile(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     fileId: string,
     input: Omit<ContextBundleOptions, 'consumer'> = {},

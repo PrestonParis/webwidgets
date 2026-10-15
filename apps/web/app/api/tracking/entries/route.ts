@@ -5,6 +5,7 @@ import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 import { toText } from '@/lib/utils/utils';
+import type { Json } from '@/types/supabase';
 
 export async function GET(req: Request): Promise<Response> {
     try {
@@ -64,7 +65,7 @@ export async function POST(req: Request): Promise<Response> {
                 user_id: userId,
                 category: body.category,
                 entry_date: body.entryDate,
-                metadata: body.metadata ?? {},
+                metadata: (body.metadata ?? {}) as Json,
                 tags: body.tags ?? [],
                 source: body.source ?? 'manual',
                 ...(body.notes !== undefined ? { notes: body.notes } : {}),

@@ -23,7 +23,7 @@ export async function persistProviderAccount(
             p_subject: account.subject,
             p_scopes: account.scopes,
             p_access_token: account.accessToken,
-            p_refresh_token: account.refreshToken ?? null,
+            p_refresh_token: account.refreshToken ?? (null as never),
             p_expires_at: account.expiresAt,
         },
     );

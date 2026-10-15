@@ -23,16 +23,23 @@ export async function POST(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const raw = await req.json();
+        const raw: unknown = await req.json();
         const parsed = contextSavedViewInputSchema.safeParse(raw);
         if (!parsed.success)
             return NextResponse.json(
                 { error: 'Invalid payload' },
                 { status: 400 },
             );
+        const id =
+            typeof raw === 'object' &&
+            raw !== null &&
+            'id' in raw &&
+            typeof raw.id === 'string'
+                ? raw.id
+                : undefined;
         const view = await saveContextView(supabase, userId, {
             ...parsed.data,
-            id: raw.id,
+            ...(id ? { id } : {}),
         });
         return NextResponse.json({ view });
     } catch (err) {

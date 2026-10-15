@@ -16,6 +16,7 @@ import {
     ingestContextNode,
 } from '@/features/context/services/contextService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import type { ModelProvider } from '@/features/chatbot/types/chat';
 import { DEFAULT_MODEL_BY_PROVIDER } from '@/features/chatbot/lib/modelProviders';
 
@@ -43,7 +44,7 @@ async function* readStreamChunks(
 
 async function buildSystemMessage(
     userId: string,
-    clientDb: SupabaseClient,
+    clientDb: SupabaseClient<Database>,
     query: string,
 ): Promise<string> {
     try {
