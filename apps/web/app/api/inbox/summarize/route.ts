@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const requestSchema = z.object({
     emailId: z.string(),
@@ -34,7 +35,7 @@ const summarySchema = z.object({
 
 export type EmailSummary = z.infer<typeof summarySchema>;
 
-const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
+const client = sharedLlmKey('ANTHROPIC_API_KEY') ? new Anthropic() : null;
 
 const SYSTEM_PROMPT = `You are an email intelligence assistant. Analyze emails and extract structured information concisely.
 Always respond with valid JSON only. No markdown fences, no explanation text.`;

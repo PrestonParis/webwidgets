@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import type { TablesUpdate } from '@/types/supabase';
 
 const ALLOWED_UPDATE_FIELDS = [
     'name',
@@ -29,20 +30,19 @@ export async function PATCH(
         }
 
         const body = (await req.json()) as Record<string, unknown>;
-        const patch: Record<string, unknown> = {
-            updated_at: new Date().toISOString(),
-        };
+        // The deployed collaboration_workspaces table has no updated_at column.
+        const patch: TablesUpdate<'collaboration_workspaces'> = {};
         for (const field of ALLOWED_UPDATE_FIELDS) {
-            if (field in body) patch[field] = body[field];
+            const value = body[field];
+            if (typeof value === 'string') patch[field] = value;
         }
+        if (body.description === null) patch.description = null;
 
         const { data, error } = await supabase
             .from('collaboration_workspaces')
             .update(patch)
             .eq('id', id)
-            .select(
-                'id,user_id,name,scope,description,status,created_at,updated_at',
-            )
+            .select('id,user_id,name,scope,description,status,created_at')
             .single();
         if (error) throw error;
         return NextResponse.json(data);

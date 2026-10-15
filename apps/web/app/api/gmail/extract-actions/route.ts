@@ -14,6 +14,7 @@ import {
     ingestContextEdge,
     ingestContextNode,
 } from '@/features/context/services/contextService';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const emailInputSchema = z.object({
     id: z.string().min(1),
@@ -281,7 +282,7 @@ async function processEmails(
     // (so extraction works for all users without manual profile setup).
     const apiKey =
         profile?.anthropic_api_key ||
-        process.env.ANTHROPIC_API_KEY ||
+        sharedLlmKey('ANTHROPIC_API_KEY') ||
         undefined;
     if (force || profile?.use_ai_email || apiKey) {
         await addClaudeExtractions(extractedMap, emailsWithBody, apiKey);

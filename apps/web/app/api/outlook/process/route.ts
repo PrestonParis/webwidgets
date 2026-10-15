@@ -21,6 +21,7 @@ import {
 import { getLogger } from '@/lib/observability/logger';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { EmailSnapshotRow } from '@/features/inbox/types/inbox';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const BATCH_SIZE = 20;
 
@@ -75,7 +76,7 @@ async function processForUser(
     } | null;
     const apiKey =
         profile?.anthropic_api_key ||
-        process.env.ANTHROPIC_API_KEY ||
+        sharedLlmKey('ANTHROPIC_API_KEY') ||
         undefined;
 
     const snapshots = await getUnprocessedOutlookSnapshots(supabase, userId);
