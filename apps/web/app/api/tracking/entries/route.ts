@@ -4,6 +4,8 @@ import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { toText } from '@/lib/utils/utils';
+import type { Json } from '@/types/supabase';
 
 export async function GET(req: Request): Promise<Response> {
     try {
@@ -63,7 +65,7 @@ export async function POST(req: Request): Promise<Response> {
                 user_id: userId,
                 category: body.category,
                 entry_date: body.entryDate,
-                metadata: body.metadata ?? {},
+                metadata: (body.metadata ?? {}) as Json,
                 tags: body.tags ?? [],
                 source: body.source ?? 'manual',
                 ...(body.notes !== undefined ? { notes: body.notes } : {}),
@@ -137,10 +139,10 @@ function getValueLabel(
         meta['weight'];
     const unit = meta['unit'] ?? meta['units'] ?? '';
     if (val !== undefined)
-        return `: ${String(val)}${unit ? ' ' + String(unit) : ''}`;
+        return `: ${toText(val)}${unit ? ' ' + toText(unit) : ''}`;
     if (category === 'sleep' && meta['hours'])
-        return `: ${String(meta['hours'])}h`;
+        return `: ${toText(meta['hours'])}h`;
     if (category === 'mood' && meta['rating'])
-        return `: ${String(meta['rating'])}/10`;
+        return `: ${toText(meta['rating'])}/10`;
     return '';
 }

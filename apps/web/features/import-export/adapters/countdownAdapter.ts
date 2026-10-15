@@ -1,6 +1,7 @@
 import { createClients } from '@/lib/supabase/serverClient';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import type { ImportExportAdapter } from '@/features/import-export/lib/adapterInterface';
+import { toText } from '@/features/import-export/lib/coerce';
 import type {
     AdapterAvailability,
     ExportOptions,
@@ -103,7 +104,7 @@ export const countdownAdapter: ImportExportAdapter = {
 
         for (const row of rows) {
             try {
-                const d = row.data as Record<string, unknown>;
+                const d = row.data;
 
                 if (!d['name']) {
                     errors.push({
@@ -129,11 +130,11 @@ export const countdownAdapter: ImportExportAdapter = {
                         .from('countdowns')
                         .select('id')
                         .eq('user_id', userId)
-                        .ilike('name', String(d['name']))
+                        .ilike('name', toText(d['name']))
                         .single();
                     if (existing) {
                         warnings.push(
-                            `Row ${row.rowIndex}: skipped existing countdown (name=${String(d['name'])})`,
+                            `Row ${row.rowIndex}: skipped existing countdown (name=${toText(d['name'])})`,
                         );
                         continue;
                     }
@@ -141,9 +142,9 @@ export const countdownAdapter: ImportExportAdapter = {
 
                 const record = {
                     user_id: userId,
-                    name: String(d['name']).trim(),
-                    target_date: String(d['target_date']),
-                    emoji: d['emoji'] ? String(d['emoji']) : '⏳',
+                    name: toText(d['name']).trim(),
+                    target_date: toText(d['target_date']),
+                    emoji: d['emoji'] ? toText(d['emoji']) : '⏳',
                 };
 
                 const { error } = await supabase

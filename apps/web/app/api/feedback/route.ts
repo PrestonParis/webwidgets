@@ -1,22 +1,33 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/adminClient';
 
-interface FeedbackBody {
-    feedbackType?: string;
-    featureArea?: string;
-    satisfactionRating?: number;
-    whatIDid?: string;
-    whatIWanted?: string;
-    whatHappened?: string;
-    wantToSee?: string;
-    whatConfused?: string;
-    bugsFound?: string;
-    generalComment?: string;
-    howHeard?: string;
-}
+// Anonymous submissions are intentional (public /feedback page), so bound
+// every field to keep the service-role insert from being used as free storage.
+const shortText = z.string().max(200).optional();
+const longText = z.string().max(5000).optional();
+
+const feedbackSchema = z.object({
+    feedbackType: shortText,
+    featureArea: shortText,
+    satisfactionRating: z.number().int().min(1).max(5).optional(),
+    whatIDid: longText,
+    whatIWanted: longText,
+    whatHappened: longText,
+    wantToSee: longText,
+    whatConfused: longText,
+    bugsFound: longText,
+    generalComment: longText,
+    howHeard: shortText,
+});
 
 export async function POST(req: Request): Promise<Response> {
-    const body = (await req.json()) as FeedbackBody;
+    const parsed = feedbackSchema.safeParse(
+        await req.json().catch(() => null),
+    );
+    if (!parsed.success)
+        return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+    const body = parsed.data;
 
     const supabase = createAdminClient();
     const { error } = await supabase.from('user_feedback').insert({
@@ -37,7 +48,11 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error('[feedback] insert failed', error.code);
+        return NextResponse.json(
+            { error: 'Could not save feedback' },
+            { status: 500 },
+        );
     }
 
     return NextResponse.json({ ok: true });

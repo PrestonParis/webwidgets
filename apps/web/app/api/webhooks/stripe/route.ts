@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     }
 
     const { supabaseAdmin } = await createClients();
-    const adminDb = supabaseAdmin as unknown as SupabaseClient;
+    const adminDb = supabaseAdmin;
 
     try {
         switch (event.type) {

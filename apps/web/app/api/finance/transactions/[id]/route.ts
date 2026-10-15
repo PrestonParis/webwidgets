@@ -6,7 +6,6 @@ import {
     deleteFinanceTransactionForUser,
     updateFinanceTransactionForUser,
 } from '@/features/finance/services/financeTransactionService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const patchSchema = z.object({
     accountId: z.string().optional(),
@@ -38,7 +37,7 @@ export async function PATCH(
                 { status: 400 },
             );
         const transaction = await updateFinanceTransactionForUser(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             body.data as unknown as Parameters<
@@ -60,11 +59,7 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        await deleteFinanceTransactionForUser(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        await deleteFinanceTransactionForUser(supabase, userId, id);
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

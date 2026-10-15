@@ -5,6 +5,21 @@ export function apiRouteFetch(
     return fetch(input, init);
 }
 
+/**
+ * Shared shape for internal `/api/*` JSON responses: an `{ ok, message, ... }`
+ * envelope. Known payload keys are read with a cast at the call site.
+ */
+export interface ApiJsonEnvelope {
+    ok?: boolean;
+    message?: string;
+    [key: string]: unknown;
+}
+
+/** `res.json()` typed as {@link ApiJsonEnvelope} instead of `any`. */
+export async function readApiJson(res: Response): Promise<ApiJsonEnvelope> {
+    return (await res.json()) as ApiJsonEnvelope;
+}
+
 export async function chessGameFetch<T>(
     url: string,
     options?: RequestInit,

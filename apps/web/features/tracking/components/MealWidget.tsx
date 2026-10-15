@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Repeat2, ScanBarcode, Utensils } from 'lucide-react';
+import { ScanBarcode, Utensils } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';

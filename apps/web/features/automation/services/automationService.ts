@@ -1,6 +1,7 @@
 import { db } from '@/lib/db/supabase';
 import type { AutomationConfig } from '@/features/automation/types/automation';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 import { omitUndefined } from '@/features/backend/lib/exactOptional';
 import { buildContextBundleForAutomation } from '@/features/context/services/contextBundleService';
@@ -12,7 +13,7 @@ export async function listAutomationConfigs(userId: string) {
         .select('*')
         .eq('user_id', userId);
     if (result.error) throw result.error;
-    return (result.data ?? []) as AutomationConfig[];
+    return (result.data ?? []) as unknown as AutomationConfig[];
 }
 
 export async function createAutomationConfig(
@@ -39,7 +40,7 @@ export async function createAutomationConfig(
 }
 
 export async function listAutomationConfigsForUser(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
 ) {
     const result = await supabase
@@ -47,11 +48,11 @@ export async function listAutomationConfigsForUser(
         .select('*')
         .eq('user_id', userId);
     if (result.error) throw result.error;
-    return (result.data ?? []) as AutomationConfig[];
+    return (result.data ?? []) as unknown as AutomationConfig[];
 }
 
 export async function logAutomationRun(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     automationConfigId: string,
     status = 'queued',

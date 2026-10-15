@@ -3,8 +3,6 @@ import type {
     TimerState,
     TimerAction,
     TimerSubMode,
-    PomodoroStep,
-    PomodoroStepKind,
 } from '../types/timekeeping';
 import {
     clampDuration,

@@ -38,10 +38,10 @@ export default function PrivacyPage() {
                     <p className="text-sm text-gray-500 dark:text-zinc-400">
                         Questions? Contact{' '}
                         <a
-                            href="mailto:privacy@webwidgets.com"
+                            href="mailto:privacy@webwidgets.me"
                             className="text-[#4f6ef7] hover:underline"
                         >
-                            privacy@webwidgets.com
+                            privacy@webwidgets.me
                         </a>
                     </p>
                 </div>

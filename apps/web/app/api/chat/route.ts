@@ -16,8 +16,10 @@ import {
     ingestContextNode,
 } from '@/features/context/services/contextService';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import type { ModelProvider } from '@/features/chatbot/types/chat';
 import { DEFAULT_MODEL_BY_PROVIDER } from '@/features/chatbot/lib/modelProviders';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const bodySchema = z.object({
     conversationId: z.string().uuid(),
@@ -43,7 +45,7 @@ async function* readStreamChunks(
 
 async function buildSystemMessage(
     userId: string,
-    clientDb: SupabaseClient,
+    clientDb: SupabaseClient<Database>,
     query: string,
 ): Promise<string> {
     try {
@@ -178,9 +180,11 @@ async function* generateGoogle(
 }
 
 function getProviderEnvKey(provider: ModelProvider): string {
-    if (provider === 'anthropic') return process.env.ANTHROPIC_API_KEY ?? '';
-    if (provider === 'openai') return process.env.OPENAI_API_KEY ?? '';
-    return process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY ?? '';
+    if (provider === 'anthropic') return sharedLlmKey('ANTHROPIC_API_KEY') ?? '';
+    if (provider === 'openai') return sharedLlmKey('OPENAI_API_KEY') ?? '';
+    return (
+        sharedLlmKey('GEMINI_API_KEY') ?? sharedLlmKey('GOOGLE_API_KEY') ?? ''
+    );
 }
 
 async function getProviderApiKey(
@@ -369,7 +373,7 @@ export async function POST(req: Request) {
         const systemMsg = await buildSystemMessage(userId, clientDb, content);
 
         const attempts = await buildFallbackAttempts(
-            supabaseAdmin as unknown as SupabaseClient,
+            supabaseAdmin,
             userId,
             provider,
             model,

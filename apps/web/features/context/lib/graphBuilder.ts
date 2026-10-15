@@ -4,6 +4,7 @@ import type {
     ContextGraph,
     ContextNode,
 } from '@/features/context/types/context';
+import { toText } from '@/lib/utils/utils';
 
 const CANVAS_CX = 500;
 const CANVAS_CY = 380;
@@ -191,7 +192,7 @@ function layoutNodes(entries: ContextEntry[]): ContextNode[] {
 
 function nodeGroup(entry: ContextEntry) {
     if (entry.entryType !== 'widget') return entry.entryType;
-    const category = String(entry.data.category ?? '').trim();
+    const category = toText(entry.data.category ?? '').trim();
     return category ? `widget:${category}` : 'widget';
 }
 
@@ -199,7 +200,7 @@ function inferCategoryEdges(entries: ContextEntry[]): ContextEdge[] {
     const widgets = entries.filter((entry) => entry.entryType === 'widget');
     const byCategory = new Map<string, ContextEntry[]>();
     widgets.forEach((widget) => {
-        const category = String(widget.data.category ?? '').trim();
+        const category = toText(widget.data.category ?? '').trim();
         if (!category) return;
         byCategory.set(category, [...(byCategory.get(category) ?? []), widget]);
     });

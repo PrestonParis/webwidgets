@@ -42,14 +42,14 @@ export const trackingResolvers: DataResolver[] = [
             if (error) throw error;
 
             const entries = (data ?? []).map((row) => ({
-                id: row.id as string,
-                category: row.category as string,
-                entryDate: row.entry_date as string,
-                loggedAt: row.logged_at as string,
+                id: row.id,
+                category: row.category,
+                entryDate: row.entry_date,
+                loggedAt: row.logged_at,
                 metadata: (row.metadata as Record<string, unknown>) ?? {},
-                tags: (row.tags as string[]) ?? [],
-                notes: (row.notes as string | null) ?? undefined,
-                source: row.source as string,
+                tags: row.tags ?? [],
+                notes: row.notes ?? undefined,
+                source: row.source,
             }));
 
             const categoryCounts: Record<string, number> = {};

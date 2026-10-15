@@ -283,6 +283,11 @@ export function DashboardRuntimeProvider({
                 if (record.metadata.defaultLoad === 'manual') {
                     return record.id === preferredId;
                 }
+                const inLoadWindow =
+                    record.id === preferredId ||
+                    next.visibleIds.has(record.id) ||
+                    next.nearVisibleIds.has(record.id);
+                if (!inLoadWindow) return false;
                 // Under high pressure, skip heavy widgets
                 if (
                     pressureLevel === 'high' &&
@@ -433,8 +438,16 @@ export function DashboardRuntimeProvider({
     const unregisterWidget = useCallback((id: string) => {
         setState((current) => {
             const next = cloneState(current);
+            next.records.delete(id);
+            next.loadedIds.delete(id);
             next.visibleIds.delete(id);
+            next.nearVisibleIds.delete(id);
+            next.offscreenIds.delete(id);
+            next.backgroundIds.delete(id);
+            next.hydratedIds.delete(id);
             next.activeHydrationIds.delete(id);
+            next.failedIds.delete(id);
+            next.cooldownIds.delete(id);
             return next;
         });
     }, []);
@@ -831,13 +844,7 @@ export function useDashboardRuntimeWidget({
             offscreenObserver.disconnect();
             setWidgetVisible(metadata.id, false);
         };
-    }, [
-        eager,
-        metadata.id,
-        setWidgetVisible,
-        setWidgetVisibilityLevel,
-        visible,
-    ]);
+    }, [eager, metadata.id, setWidgetVisible, setWidgetVisibilityLevel]);
 
     const loaded = runtime.isWidgetLoaded(metadata.id);
     const status = runtime.getWidgetStatus(metadata.id);

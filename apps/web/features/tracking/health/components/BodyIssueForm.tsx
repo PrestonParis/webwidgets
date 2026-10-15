@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-    SEVERITY_LABELS,
     severityColor,
     type BodyIssueDraft,
     type DurationType,

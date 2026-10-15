@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { ingestDocumentContext } from '@/features/context/services/contextProducerServiceServer';
+import type { Json } from '@/types/supabase';
 
 export async function GET(): Promise<Response> {
     try {
@@ -50,7 +51,7 @@ export async function POST(req: Request): Promise<Response> {
                 title,
                 content,
                 type,
-                metadata: body.metadata ?? null,
+                metadata: (body.metadata ?? null) as Json,
             })
             .select('id, title, content, type, created_at, metadata')
             .single();

@@ -1,0 +1,26 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "SQL fixture uses a deliberately fake provider key."
+  condition = "AND"
+  regexTarget = "line"
+  paths = ['''^supabase/tests/017_provider_key_boundary\.test\.sql$''']
+  regexes = ['''Key Owner''', '''^\s*anthropic_api_key\s*=''', '''^\s*insert into public\.user_integration_keys''']
+
+  [[rules.allowlists]]
+  description = "Cron authentication unit test uses a fixed fake secret."
+  condition = "AND"
+  regexTarget = "line"
+  paths = ['''^tests/unit/inbox/cronAuth\.test\.ts$''']
+  regexes = ['''^\s*const SECRET\s*=''' ]
+
+  [[rules.allowlists]]
+  description = "Local-storage namespace is an identifier, not a credential."
+  condition = "AND"
+  regexTarget = "line"
+  paths = ['''^apps/web/features/tracking/lib/meal/nutrition/savedMealStore\.ts$''']
+  regexes = ['''^\s*const STORAGE_KEY\s*=''' ]

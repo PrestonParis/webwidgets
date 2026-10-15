@@ -6,7 +6,6 @@ import {
     createConversation,
     listConversations,
 } from '@/features/chatbot/services/chatService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ModelProvider } from '@/features/chatbot/types/chat';
 
 const createSchema = z.object({
@@ -19,10 +18,7 @@ export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const conversations = await listConversations(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const conversations = await listConversations(supabase, userId);
         return NextResponse.json({ conversations });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -41,7 +37,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         const conversation = await createConversation(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             body.data.model,
             body.data.provider as ModelProvider,

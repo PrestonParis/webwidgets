@@ -176,7 +176,6 @@ function EventFormFields({
     setStartTime,
     error,
     onSubmit,
-    defaultDuration,
 }: FormFieldsProps) {
     const { settings } = useCalendarSettings();
 

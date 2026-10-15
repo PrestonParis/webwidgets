@@ -7,7 +7,6 @@ import {
     listGoals,
     upsertGoal,
 } from '@/features/tracking/services/goalService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const upsertSchema = z.object({
@@ -21,10 +20,7 @@ export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const goals = await listGoals(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const goals = await listGoals(supabase, userId);
         return NextResponse.json({ goals });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -44,7 +40,7 @@ export async function POST(req: Request) {
             );
 
         const goal = await upsertGoal(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             body.data as unknown as Omit<
                 import('@/features/tracking/types/goals').TrackingGoal,

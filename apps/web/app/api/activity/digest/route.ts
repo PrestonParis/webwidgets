@@ -6,6 +6,7 @@ import { isMissingTableError } from '@/lib/supabase/missingTable';
 import { listActivityEvents } from '@/features/activity/services/activityService';
 import { createArtifact } from '@/features/artifacts/services/artifactService';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 // POST /api/activity/digest
 // Generates a structured digest from recent activity.
@@ -96,7 +97,7 @@ export async function POST(req: Request): Promise<Response> {
         const rangeLabel = rangeLabels[range] ?? range;
 
         // Check for API key — Claude is optional
-        const apiKey = process.env.ANTHROPIC_API_KEY;
+        const apiKey = sharedLlmKey('ANTHROPIC_API_KEY');
         let digestContent = '';
 
         if (apiKey) {

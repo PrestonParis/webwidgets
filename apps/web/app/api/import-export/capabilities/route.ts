@@ -5,7 +5,7 @@ import type { AdapterCapability } from '@/features/import-export/types/importExp
 
 // GET /api/import-export/capabilities
 // Public capability discovery — no auth required
-export async function GET() {
+export function GET() {
     registerCoreImportExportAdapters();
 
     const adapters = listAdapters();

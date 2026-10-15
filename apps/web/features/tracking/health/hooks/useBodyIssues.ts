@@ -7,6 +7,8 @@ import {
     type BodyIssue,
     type BodyIssueHistory,
     type BodyIssueDraft,
+    type BodyIssueRow,
+    type BodyIssueHistoryRow,
     type IssueStatus,
     packIssueNotes,
     rowToIssue,
@@ -31,9 +33,7 @@ export interface UseBodyIssuesResult {
 export function useBodyIssues(): UseBodyIssuesResult {
     const { user } = useAuthContext();
     const userId = user?.id ?? null;
-    // body_issues / body_issue_history are not yet in the generated Supabase types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = supabase as any;
+    const db = supabase;
     const [issues, setIssues] = useState<BodyIssue[]>([]);
     const [history, setHistory] = useState<Map<string, BodyIssueHistory[]>>(
         new Map(),
@@ -62,10 +62,12 @@ export function useBodyIssues(): UseBodyIssuesResult {
                         .order('recorded_at', { ascending: true }),
                 ],
             );
-            const parsed = (issueRows ?? []).map(rowToIssue);
+            const parsed = ((issueRows ?? []) as BodyIssueRow[]).map(
+                rowToIssue,
+            );
             setIssues(parsed);
             const histMap = new Map<string, BodyIssueHistory[]>();
-            for (const row of histRows ?? []) {
+            for (const row of (histRows ?? []) as BodyIssueHistoryRow[]) {
                 const h = rowToHistory(row);
                 const arr = histMap.get(h.issueId) ?? [];
                 arr.push(h);
@@ -107,7 +109,7 @@ export function useBodyIssues(): UseBodyIssuesResult {
                 .select()
                 .single();
             if (error) throw error;
-            const issue = rowToIssue(data);
+            const issue = rowToIssue(data as BodyIssueRow);
             setIssues((prev) => [issue, ...prev]);
             return issue;
         },

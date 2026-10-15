@@ -82,10 +82,10 @@ export default function TermsPage() {
                     <p className="text-sm text-gray-500 dark:text-zinc-400">
                         Questions? Contact{" "}
                         <a
-                            href="mailto:legal@webwidgets.com"
+                            href="mailto:legal@webwidgets.me"
                             className="text-[#4f6ef7] hover:underline"
                         >
-                            legal@webwidgets.com
+                            legal@webwidgets.me
                         </a>
                     </p>
                 </div> */}

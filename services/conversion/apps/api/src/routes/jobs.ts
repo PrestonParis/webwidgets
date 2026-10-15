@@ -18,8 +18,8 @@ const paramsSchema = z.object({
     jobId: z.string().uuid(),
 });
 
-export async function jobRoutes(app: FastifyInstance) {
-    app.get('/v1/conversions', async () => ({
+export function jobRoutes(app: FastifyInstance) {
+    app.get('/v1/conversions', () => ({
         conversions: supportedConversions,
     }));
 

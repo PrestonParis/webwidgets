@@ -12,6 +12,7 @@ import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { extractEmailActions } from '@/features/inbox/lib/extractActions';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const emailInputSchema = z.object({
     id: z.string().min(1), // snapshot id or raw Outlook message id
@@ -118,7 +119,7 @@ export async function POST(req: Request) {
 
         const apiKey =
             profile?.anthropic_api_key ||
-            process.env.ANTHROPIC_API_KEY ||
+            sharedLlmKey('ANTHROPIC_API_KEY') ||
             undefined;
 
         if (apiKey) {

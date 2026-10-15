@@ -397,6 +397,7 @@ export function ActivityPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [showClusters, setShowClusters] = useState(false);
+    const [attentionCutoff] = useState(() => Date.now() - 72 * 3_600_000);
     const bulkMutation = useActivityBulkMutation();
 
     const handleSearchChange = useCallback((val: string) => {
@@ -408,12 +409,8 @@ export function ActivityPage() {
     const queryOpts = useMemo(() => {
         const base = {
             limit: 100,
-            ...(sourceFilter
-                ? { source: sourceFilter as ActivityEventSource }
-                : {}),
-            ...(categoryFilter
-                ? { category: categoryFilter as ActivityEventCategory }
-                : {}),
+            ...(sourceFilter ? { source: sourceFilter } : {}),
+            ...(categoryFilter ? { category: categoryFilter } : {}),
             ...(debouncedSearch ? { search: debouncedSearch } : {}),
         };
         if (activeTab === 'unread') return { ...base, unreadOnly: true };
@@ -445,17 +442,16 @@ export function ActivityPage() {
     );
 
     const needsAttention = useMemo(() => {
-        const h72 = Date.now() - 72 * 3_600_000;
         return (rawEvents ?? [])
             .filter(
                 (e) =>
                     !e.readAt &&
                     !e.isArchived &&
                     (e.severity === 'critical' || e.severity === 'warning') &&
-                    new Date(e.occurredAt).getTime() > h72,
+                    new Date(e.occurredAt).getTime() > attentionCutoff,
             )
             .slice(0, 5);
-    }, [rawEvents]);
+    }, [rawEvents, attentionCutoff]);
 
     const { clusters, unclustered } = useMemo(
         () => buildActivityClusters(events),
@@ -667,7 +663,7 @@ export function ActivityPage() {
                     )}
                     {debouncedSearch && (
                         <span className="text-xs text-indigo-500 dark:text-indigo-400">
-                            Searching: "{debouncedSearch}"
+                            Searching: &quot;{debouncedSearch}&quot;
                         </span>
                     )}
                 </div>

@@ -215,11 +215,8 @@ export class RuntimeManager {
                 },
             });
 
-            let output = '';
-
             this.serverProcess.stdout?.on('data', (data) => {
                 const text = data.toString();
-                output += text;
                 console.log(text);
 
                 // Check for ready signal
@@ -234,7 +231,6 @@ export class RuntimeManager {
 
             this.serverProcess.stderr?.on('data', (data) => {
                 const text = data.toString();
-                output += text;
                 console.error(text);
             });
 

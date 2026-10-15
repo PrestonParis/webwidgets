@@ -100,6 +100,19 @@ describe('V1 default layout', () => {
 
         expect(result).toEqual([existing]);
     });
+
+    it('treats a saved layout as authoritative without injecting defaults', () => {
+        const selected: WidgetConfig = {
+            id: 'widget-todo',
+            type: 'todo',
+            visible: true,
+            columnSpan: 1,
+            containerId: 'main',
+            order: 0,
+        };
+
+        expect(reconcileLayout([selected], [], false)).toEqual([selected]);
+    });
 });
 
 describe('makePersistKey', () => {

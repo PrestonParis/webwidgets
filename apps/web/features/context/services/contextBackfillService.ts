@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import { toText } from '@/lib/utils/utils';
 import { listAdapters } from '@/features/import-export/lib/adapterRegistry';
 import {
     getContextMapper,
@@ -88,7 +90,7 @@ export const MANUAL_BACKFILL_SOURCES = [
 const BACKFILL_LIMIT = 750;
 
 export async function runContextBackfill(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSummary> {
     registerCoreImportExportAdapters();
@@ -148,7 +150,7 @@ export async function runContextBackfill(
 }
 
 export async function backfillContextRowsForSource(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     source: string,
     rows: MappedRow[],
@@ -164,7 +166,7 @@ export async function backfillContextRowsForSource(
 }
 
 async function backfillWidgetCatalog(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'widget_catalog';
@@ -206,7 +208,7 @@ async function backfillWidgetCatalog(
 }
 
 async function backfillWidgetInstances(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'widget_instances';
@@ -219,13 +221,13 @@ async function backfillWidgetInstances(
                 row.feature_id !== 'context-diagram',
         )
         .map((row) => {
-            const widgetType = String(row.feature_id ?? row.widget_id);
+            const widgetType = toText(row.feature_id ?? row.widget_id);
             const meta = getWidgetMeta(widgetType as WidgetType);
             return {
-                entityId: `widget_instance:${String(row.id)}`,
+                entityId: `widget_instance:${toText(row.id)}`,
                 type: 'widget' as const,
                 label: `${meta.label || widgetType} instance`,
-                summary: `Widget instance ${String(row.active === false ? 'inactive' : 'active')}`,
+                summary: `Widget instance ${toText(row.active === false ? 'inactive' : 'active')}`,
                 data: {
                     widgetId: row.widget_id,
                     widgetType,
@@ -234,7 +236,7 @@ async function backfillWidgetInstances(
                 },
                 tags: ['widget', 'instance', widgetType],
                 sourceType: source,
-                sourceId: String(row.id),
+                sourceId: toText(row.id),
                 sourceTable: source,
                 createdByType: 'system' as const,
                 permissions: [
@@ -264,7 +266,7 @@ async function backfillWidgetInstances(
 }
 
 async function backfillAdapterSource(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     source: string,
 ): Promise<ContextBackfillSourceSummary> {
@@ -306,7 +308,7 @@ async function backfillAdapterSource(
 }
 
 async function ingestMappedRows(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     source: string,
     rows: MappedRow[],
@@ -319,7 +321,7 @@ async function ingestMappedRows(
 }
 
 async function ingestMappedContext(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     source: string,
     recordsFound: number,
@@ -376,17 +378,17 @@ async function ingestMappedContext(
 }
 
 async function backfillAutomationConfigs(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'automation_configs';
     const rows = await selectUserRows(db, source, userId, BACKFILL_LIMIT);
     if (!rows.ok) return skippedOrErroredSource(source, rows);
     const nodes = rows.rows.map((row) => ({
-        entityId: `automation:${String(row.id)}`,
+        entityId: `automation:${toText(row.id)}`,
         type: 'automation' as const,
-        label: String(row.name ?? row.title ?? 'Automation'),
-        summary: `Trigger ${String(row.trigger_type ?? 'unknown')} · ${String(row.state ?? 'unknown')}`,
+        label: toText(row.name ?? row.title ?? 'Automation'),
+        summary: `Trigger ${toText(row.trigger_type ?? 'unknown')} · ${toText(row.state ?? 'unknown')}`,
         data: {
             triggerType: row.trigger_type,
             conditionTypes: row.condition_types,
@@ -395,9 +397,9 @@ async function backfillAutomationConfigs(
             schedule: row.schedule,
             serviceRequirements: row.service_requirements,
         },
-        tags: ['automation', String(row.state ?? '')].filter(Boolean),
+        tags: ['automation', toText(row.state ?? '')].filter(Boolean),
         sourceType: source,
-        sourceId: String(row.id),
+        sourceId: toText(row.id),
         sourceTable: source,
         createdByType: 'system' as const,
         permissions: ['private' as const, 'ai' as const, 'automation' as const],
@@ -406,26 +408,26 @@ async function backfillAutomationConfigs(
 }
 
 async function backfillAutomationRuns(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'automation_runs';
     const rows = await selectUserRows(db, source, userId, BACKFILL_LIMIT);
     if (!rows.ok) return skippedOrErroredSource(source, rows);
     const nodes = rows.rows.map((row) => ({
-        entityId: `automation_run:${String(row.id)}`,
+        entityId: `automation_run:${toText(row.id)}`,
         type: 'automation_run' as const,
-        label: `Automation run ${String(row.status ?? 'unknown')}`,
-        summary: `Run status: ${String(row.status ?? 'unknown')}`,
+        label: `Automation run ${toText(row.status ?? 'unknown')}`,
+        summary: `Run status: ${toText(row.status ?? 'unknown')}`,
         data: {
             automationConfigId: row.automation_config_id,
             startedAt: row.started_at,
             completedAt: row.completed_at,
             result: row.result,
         },
-        tags: ['automation', 'run', String(row.status ?? '')].filter(Boolean),
+        tags: ['automation', 'run', toText(row.status ?? '')].filter(Boolean),
         sourceType: source,
-        sourceId: String(row.id),
+        sourceId: toText(row.id),
         sourceTable: source,
         createdByType: 'system' as const,
         permissions: ['private' as const, 'ai' as const, 'automation' as const],
@@ -433,12 +435,12 @@ async function backfillAutomationRuns(
     const edges = rows.rows
         .filter((row) => row.automation_config_id)
         .map((row) => ({
-            fromEntityId: `automation_run:${String(row.id)}`,
-            toEntityId: `automation:${String(row.automation_config_id)}`,
+            fromEntityId: `automation_run:${toText(row.id)}`,
+            toEntityId: `automation:${toText(row.automation_config_id)}`,
             kind: 'triggered_by' as const,
             label: 'run triggered by automation',
             sourceType: source,
-            sourceId: String(row.id),
+            sourceId: toText(row.id),
             createdByType: 'system' as const,
         }));
     return ingestMappedContext(
@@ -452,26 +454,26 @@ async function backfillAutomationRuns(
 }
 
 async function backfillEmailActions(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'email_actions';
     const rows = await selectUserRows(db, source, userId, BACKFILL_LIMIT);
     if (!rows.ok) return skippedOrErroredSource(source, rows);
     const nodes = rows.rows.map((row) => {
-        const title = String(
+        const title = toText(
             row.title ??
                 row.subject ??
                 row.action_text ??
                 row.description ??
                 'Email action',
         );
-        const emailId = String(row.email_id ?? row.message_id ?? row.id);
+        const emailId = toText(row.email_id ?? row.message_id ?? row.id);
         return {
-            entityId: `agent_action:email:${String(row.id)}`,
+            entityId: `agent_action:email:${toText(row.id)}`,
             type: 'agent_action' as const,
             label: title,
-            summary: String(row.description ?? row.summary ?? title).slice(
+            summary: toText(row.description ?? row.summary ?? title).slice(
                 0,
                 280,
             ),
@@ -482,11 +484,11 @@ async function backfillEmailActions(
                 dueDate: row.due_date,
                 provider: row.provider ?? 'email',
             },
-            tags: ['email', 'action', String(row.action_type ?? '')].filter(
+            tags: ['email', 'action', toText(row.action_type ?? '')].filter(
                 Boolean,
             ),
             sourceType: source,
-            sourceId: String(row.id),
+            sourceId: toText(row.id),
             sourceTable: source,
             createdByType: 'agent' as const,
             permissions: [
@@ -499,12 +501,12 @@ async function backfillEmailActions(
     const edges = rows.rows
         .filter((row) => row.email_id || row.message_id)
         .map((row) => ({
-            fromEntityId: `agent_action:email:${String(row.id)}`,
-            toEntityId: `email:${String(row.email_id ?? row.message_id)}`,
+            fromEntityId: `agent_action:email:${toText(row.id)}`,
+            toEntityId: `email:${toText(row.email_id ?? row.message_id)}`,
             kind: 'derived_from' as const,
             label: 'extracted from email',
             sourceType: source,
-            sourceId: String(row.id),
+            sourceId: toText(row.id),
             createdByType: 'agent' as const,
         }));
     return ingestMappedContext(
@@ -518,17 +520,17 @@ async function backfillEmailActions(
 }
 
 async function backfillFileTextExtractions(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'file_text_extractions';
     const rows = await selectUserRows(db, source, userId, BACKFILL_LIMIT);
     if (!rows.ok) return skippedOrErroredSource(source, rows);
     const nodes = rows.rows.map((row) => ({
-        entityId: `artifact:extraction:${String(row.id)}`,
+        entityId: `artifact:extraction:${toText(row.id)}`,
         type: 'artifact' as const,
-        label: `Text extraction ${String(row.id).slice(0, 8)}`,
-        summary: String(row.extracted_text ?? row.summary ?? '').slice(0, 280),
+        label: `Text extraction ${toText(row.id).slice(0, 8)}`,
+        summary: toText(row.extracted_text ?? row.summary ?? '').slice(0, 280),
         data: {
             fileId: row.file_id,
             conversionId: row.conversion_id,
@@ -540,10 +542,10 @@ async function backfillFileTextExtractions(
         tags: [
             'artifact',
             'text-extraction',
-            String(row.text_format ?? ''),
+            toText(row.text_format ?? ''),
         ].filter(Boolean),
         sourceType: source,
-        sourceId: String(row.id),
+        sourceId: toText(row.id),
         sourceTable: source,
         createdByType: 'system' as const,
         permissions: [
@@ -555,12 +557,12 @@ async function backfillFileTextExtractions(
     const edges = rows.rows
         .filter((row) => row.file_id)
         .map((row) => ({
-            fromEntityId: `artifact:extraction:${String(row.id)}`,
-            toEntityId: `file:${String(row.file_id)}`,
+            fromEntityId: `artifact:extraction:${toText(row.id)}`,
+            toEntityId: `file:${toText(row.file_id)}`,
             kind: 'derived_from' as const,
             label: 'extracted from file',
             sourceType: source,
-            sourceId: String(row.id),
+            sourceId: toText(row.id),
             createdByType: 'system' as const,
         }));
     return ingestMappedContext(
@@ -574,17 +576,17 @@ async function backfillFileTextExtractions(
 }
 
 async function backfillJobArtifacts(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextBackfillSourceSummary> {
     const source = 'job_artifacts';
     const rows = await selectUserRows(db, source, userId, BACKFILL_LIMIT);
     if (!rows.ok) return skippedOrErroredSource(source, rows);
     const nodes = rows.rows.map((row) => ({
-        entityId: `artifact:job:${String(row.id)}`,
+        entityId: `artifact:job:${toText(row.id)}`,
         type: 'artifact' as const,
-        label: `Job artifact ${String(row.artifact_type ?? 'artifact')}`,
-        summary: String(row.storage_path ?? row.artifact_type ?? '').slice(
+        label: `Job artifact ${toText(row.artifact_type ?? 'artifact')}`,
+        summary: toText(row.storage_path ?? row.artifact_type ?? '').slice(
             0,
             280,
         ),
@@ -594,11 +596,11 @@ async function backfillJobArtifacts(
             storagePath: row.storage_path,
             metadata: row.metadata,
         },
-        tags: ['artifact', 'job', String(row.artifact_type ?? '')].filter(
+        tags: ['artifact', 'job', toText(row.artifact_type ?? '')].filter(
             Boolean,
         ),
         sourceType: source,
-        sourceId: String(row.id),
+        sourceId: toText(row.id),
         sourceTable: source,
         createdByType: 'system' as const,
         permissions: [
@@ -610,12 +612,12 @@ async function backfillJobArtifacts(
     const edges = rows.rows
         .filter((row) => row.job_id)
         .map((row) => ({
-            fromEntityId: `artifact:job:${String(row.id)}`,
-            toEntityId: `agent_action:job:${String(row.job_id)}`,
+            fromEntityId: `artifact:job:${toText(row.id)}`,
+            toEntityId: `agent_action:job:${toText(row.job_id)}`,
             kind: 'produced_by' as const,
             label: 'produced by job',
             sourceType: source,
-            sourceId: String(row.id),
+            sourceId: toText(row.id),
             createdByType: 'system' as const,
         }));
     return ingestMappedContext(
@@ -634,10 +636,10 @@ async function selectUserRows(
     userId: string,
     limit: number,
 ): Promise<
-    | { ok: true; rows: Record<string, any>[] }
+    | { ok: true; rows: Record<string, unknown>[] }
     | { ok: false; skippedReason?: string; error?: string }
 > {
-    const { data, error } = await (db as any)
+    const { data, error } = await db
         .from(table)
         .select('*')
         .eq('user_id', userId)
@@ -648,7 +650,7 @@ async function selectUserRows(
         }
         return { ok: false, error: error.message };
     }
-    return { ok: true, rows: data ?? [] };
+    return { ok: true, rows: (data ?? []) as Record<string, unknown>[] };
 }
 
 function skippedOrErroredSource(
@@ -670,13 +672,15 @@ async function getExistingEntityIds(
 ): Promise<Set<string>> {
     const unique = [...new Set(entityIds)].filter(Boolean);
     if (unique.length === 0) return new Set();
-    const { data, error } = await (db as any)
+    const { data, error } = await db
         .from('context_entries')
         .select('entity_id')
         .eq('user_id', userId)
         .in('entity_id', unique);
     if (error) throw new Error(error.message);
-    return new Set((data ?? []).map((row: any) => String(row.entity_id)));
+    return new Set(
+        ((data ?? []) as { entity_id: string }[]).map((row) => row.entity_id),
+    );
 }
 
 async function getExistingEdgeKeys(
@@ -688,14 +692,18 @@ async function getExistingEdgeKeys(
         ...new Set(edges.map((edge) => edge.sourceType ?? 'manual')),
     ];
     if (edges.length === 0) return new Set();
-    let query = (db as any)
+    let query = db
         .from('context_edges')
         .select('from_entity_id,to_entity_id,kind,source_type,source_id')
         .eq('user_id', userId);
     if (sourceTypes.length) query = query.in('source_type', sourceTypes);
     const { data, error } = await query;
     if (error) throw new Error(error.message);
-    return new Set((data ?? []).map(edgeKeyFromRow));
+    return new Set(
+        ((data ?? []) as Parameters<typeof edgeKeyFromRow>[0][]).map(
+            edgeKeyFromRow,
+        ),
+    );
 }
 
 function edgeKeyFromEdge(edge: {
@@ -714,13 +722,19 @@ function edgeKeyFromEdge(edge: {
     ].join('|');
 }
 
-function edgeKeyFromRow(row: Record<string, any>) {
+function edgeKeyFromRow(row: {
+    from_entity_id: string;
+    to_entity_id: string;
+    kind: string;
+    source_type: string | null;
+    source_id: string | null;
+}) {
     return [
-        normalizeEntityId(String(row.from_entity_id)),
-        normalizeEntityId(String(row.to_entity_id)),
-        String(row.kind),
-        String(row.source_type ?? 'manual'),
-        String(row.source_id ?? ''),
+        normalizeEntityId(row.from_entity_id),
+        normalizeEntityId(row.to_entity_id),
+        row.kind,
+        row.source_type ?? 'manual',
+        row.source_id ?? '',
     ].join('|');
 }
 

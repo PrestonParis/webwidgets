@@ -17,7 +17,7 @@ const batchParamsSchema = z.object({
     batchId: z.string().uuid(),
 });
 
-export async function batchRoutes(app: FastifyInstance) {
+export function batchRoutes(app: FastifyInstance) {
     /**
      * POST /v1/jobs/batch
      *

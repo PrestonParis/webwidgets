@@ -56,7 +56,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
         // Fetch all decks for the user
         let deckQuery = supabase
             .from('memory_decks')
-            .select('id, title, domain, description, status, created_at')
+            .select('id,title,domain,description,status,created_at')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
@@ -75,7 +75,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
             return { rows: [], totalCount: 0, warnings };
         }
 
-        const deckIds = decks.map((d) => d.id as string);
+        const deckIds = decks.map((d) => d.id);
         const now = new Date().toISOString();
 
         // Fetch card counts and due counts in one query per deck would be N+1.
@@ -84,7 +84,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
         // 2. Due cards (due_date <= now) per deck
         const { data: allCards, error: cardError } = await supabase
             .from('memory_cards')
-            .select('deck_id, due_date, status')
+            .select('deck_id,due_date,status')
             .in('deck_id', deckIds)
             .eq('user_id', userId);
 
@@ -121,7 +121,7 @@ export const memoryDecksAdapter: ImportExportAdapter = {
         }
 
         const rows: MappedRow[] = decks.map((deck, i) => {
-            const stats = deckStats[deck.id as string] ?? {
+            const stats = deckStats[deck.id] ?? {
                 card_count: 0,
                 due_count: 0,
                 mastered_count: 0,

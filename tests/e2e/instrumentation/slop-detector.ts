@@ -208,7 +208,7 @@ export class SlopDetector {
                 if (!acc[key]) {
                     acc[key] = [];
                 }
-                acc[key]!.push(d);
+                acc[key].push(d);
                 return acc;
             },
             {} as Record<string, SlopDetection[]>,

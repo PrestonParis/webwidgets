@@ -25,17 +25,18 @@ describe('provider error isolation', () => {
         resolverMap.clear();
         resolverMap.set('inbox.messages', {
             key: 'inbox.messages',
-            resolve: async () => {
-                throw new ProviderError(
-                    'PROVIDER_NOT_CONFIGURED',
-                    'Gmail not connected',
-                );
-            },
+            resolve: () =>
+                Promise.reject(
+                    new ProviderError(
+                        'PROVIDER_NOT_CONFIGURED',
+                        'Gmail not connected',
+                    ),
+                ),
         });
         resolverMap.set('finance.summary', {
             key: 'finance.summary',
             schema: z.object({ total: z.number() }),
-            resolve: async () => ({ total: 42 }),
+            resolve: () => Promise.resolve({ total: 42 }),
         });
 
         const { resolveWidgetData } =
@@ -60,17 +61,15 @@ describe('provider error isolation', () => {
         ];
         resolverMap.set(resolverKeys[0]!, {
             key: resolverKeys[0]!,
-            resolve: async () => ({ items: [] }),
+            resolve: () => Promise.resolve({ items: [] }),
         });
         resolverMap.set(resolverKeys[1]!, {
             key: resolverKeys[1]!,
-            resolve: async () => {
-                throw new Error('calendar unavailable');
-            },
+            resolve: () => Promise.reject(new Error('calendar unavailable')),
         });
         resolverMap.set(resolverKeys[2]!, {
             key: resolverKeys[2]!,
-            resolve: async () => ({ trackers: [] }),
+            resolve: () => Promise.resolve({ trackers: [] }),
         });
 
         const { resolveWidgetData } =
@@ -86,12 +85,13 @@ describe('provider error isolation', () => {
         resolverMap.clear();
         resolverMap.set('developer.activity', {
             key: 'developer.activity',
-            resolve: async () => {
-                throw new ProviderError(
-                    'PROVIDER_UNAUTHORIZED',
-                    'secret token abc123 is invalid',
-                );
-            },
+            resolve: () =>
+                Promise.reject(
+                    new ProviderError(
+                        'PROVIDER_UNAUTHORIZED',
+                        'secret token abc123 is invalid',
+                    ),
+                ),
         });
 
         const { resolveWidgetData } =

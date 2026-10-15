@@ -6,7 +6,6 @@ import {
     deleteFinanceSubscriptionForUser,
     updateFinanceSubscriptionForUser,
 } from '@/features/finance/services/financeSubscriptionService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const patchSchema = z.object({
@@ -37,7 +36,7 @@ export async function PATCH(
                 { status: 400 },
             );
         const subscription = await updateFinanceSubscriptionForUser(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             body.data as unknown as Parameters<
@@ -92,11 +91,7 @@ export async function DELETE(
             .eq('user_id', userId)
             .maybeSingle();
 
-        await deleteFinanceSubscriptionForUser(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        await deleteFinanceSubscriptionForUser(supabase, userId, id);
 
         const name =
             (existing as { name?: string } | null)?.name ?? 'Subscription';

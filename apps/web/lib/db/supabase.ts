@@ -13,4 +13,4 @@ export const supabase = createBrowserClient<Database>(
 );
 
 // Untyped client for tables not yet reflected in the generated schema (e.g. new migrations).
-export const db: SupabaseClient = supabase as unknown as SupabaseClient;
+export const db: SupabaseClient = supabase;

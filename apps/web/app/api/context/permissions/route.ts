@@ -7,16 +7,12 @@ import {
     upsertContextPermissions,
 } from '@/features/context/services/contextPermissionsService';
 import { contextPermissionsSchema } from '@/features/context/types/schemas';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const permissions = await getContextPermissions(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const permissions = await getContextPermissions(supabase, userId);
         return NextResponse.json({ permissions });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -37,7 +33,7 @@ export async function PUT(req: Request) {
                 { status: 400 },
             );
         const permissions = await upsertContextPermissions(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             omitUndefined(parsed.data),
         );

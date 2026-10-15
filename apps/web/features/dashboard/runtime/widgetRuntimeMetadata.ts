@@ -106,7 +106,7 @@ function estimateCost(
 }
 
 export function getWidgetRuntimeMetadata(
-    config: WidgetConfig,
+    config: Pick<WidgetConfig, 'id' | 'type'>,
 ): WidgetRuntimeMetadata {
     const weight = determineWeight(config.type);
     const priority = determinePriority(config.type);
@@ -117,6 +117,7 @@ export function getWidgetRuntimeMetadata(
     // Fall back to DATA_KEYS for widget types not yet in the manifest registry.
     const manifestDataKeys = getDataKeysFromManifest(config.type);
     const legacyDataKeys = DATA_KEYS[config.type] ?? [];
+    const dataKeys = [...new Set([...manifestDataKeys, ...legacyDataKeys])];
     const manifest = getWidgetManifest(config.type);
     // Override priority from manifest if specified
     const effectivePriority = manifest?.priority ?? priority;
@@ -126,8 +127,7 @@ export function getWidgetRuntimeMetadata(
         priority: effectivePriority,
         weight,
         defaultLoad,
-        dataKeys:
-            manifestDataKeys.length > 0 ? manifestDataKeys : legacyDataKeys,
+        dataKeys,
         estimatedCost,
     };
 

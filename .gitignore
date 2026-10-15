@@ -6,7 +6,9 @@ node_modules/
 # =========================
 # Private / local-only
 # =========================
-scripts/
+scripts/*
+!scripts/linting/
+!scripts/linting/**
 
 # =========================
 # Environment variables
@@ -23,6 +25,7 @@ scripts/
 out/
 .vercel/
 build/
+dist/
 
 # =========================
 # TypeScript
@@ -82,9 +85,11 @@ coverage/
 !apps/web/app/api/context/coverage/route.ts
 .nyc_output/
 .pytest_cache/
+.ruff_cache/
 junit.xml
 test-results/
 playwright-report/
+reports/
 
 # =========================
 # Tooling
@@ -94,6 +99,7 @@ playwright-report/
 .cache/
 .webwidgets-dispatcher/
 .worktrees/
+.codex-worktrees/
 CLAUDE.md
 /infra/supabase
 supabase/.temp

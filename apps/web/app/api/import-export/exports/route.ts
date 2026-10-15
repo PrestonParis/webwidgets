@@ -21,26 +21,10 @@ import {
 import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
 import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
+import { rowsToCSV } from '@/features/import-export/lib/csvSerialization';
 
 function ensureAdapters() {
     registerCoreImportExportAdapters();
-}
-
-// ── CSV serialization ─────────────────────────────────────────────────────────
-function rowsToCSV(rows: Array<{ data: Record<string, unknown> }>): string {
-    if (rows.length === 0) return '';
-    const headers = Object.keys(rows[0]?.data ?? {});
-    const escape = (v: unknown) => {
-        const s = v == null ? '' : String(v);
-        return s.includes(',') || s.includes('"') || s.includes('\n')
-            ? `"${s.replace(/"/g, '""')}"`
-            : s;
-    };
-    const lines = [
-        headers.join(','),
-        ...rows.map((r) => headers.map((h) => escape(r.data[h])).join(',')),
-    ];
-    return lines.join('\n');
 }
 
 // GET /api/import-export/exports — list export jobs
