@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
+import type { TablesUpdate } from '@/types/supabase';
 
 export async function GET() {
     try {
@@ -78,10 +79,7 @@ export async function PATCH(req: Request) {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const body = (await req.json()) as { id: string } & Record<
-            string,
-            unknown
-        >;
+        const body = (await req.json()) as { id: string } & TablesUpdate<'memory_routines'>;
         const { id, ...updates } = body;
         const { data, error } = await supabase
             .from('memory_routines')

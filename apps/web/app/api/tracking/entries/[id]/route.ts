@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import type { Json, TablesUpdate } from '@/types/supabase';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -22,10 +23,10 @@ export async function PATCH(
             notes?: string;
         };
 
-        const patch: Record<string, unknown> = {};
+        const patch: TablesUpdate<'tracking_entries'> = {};
         if (body.category !== undefined) patch.category = body.category;
         if (body.entryDate !== undefined) patch.entry_date = body.entryDate;
-        if (body.metadata !== undefined) patch.metadata = body.metadata;
+        if (body.metadata !== undefined) patch.metadata = body.metadata as Json;
         if (body.tags !== undefined) patch.tags = body.tags;
         if (body.notes !== undefined) patch.notes = body.notes;
 

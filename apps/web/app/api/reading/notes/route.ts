@@ -4,6 +4,7 @@ import { getUserOrThrow } from '@/lib/supabase/getUser';
 import type { ReadingPosition } from '@/features/reading/types/positions';
 import { rowToNote } from '@/features/reading/types/annotations';
 import type { NoteRow } from '@/features/reading/types/annotations';
+import type { Json } from '@/types/supabase';
 
 export async function GET(req: Request) {
     try {
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
             .insert({
                 user_id: user.id,
                 document_id: body.documentId,
-                position: body.position,
+                position: body.position as unknown as Json,
                 content: body.content,
             })
             .select()

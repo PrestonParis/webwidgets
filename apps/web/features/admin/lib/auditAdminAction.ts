@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/adminClient';
+import type { Json } from '@/types/supabase';
 
 export type AdminResourceType =
     | 'user'
@@ -33,8 +34,8 @@ export async function auditAdminAction(payload: AuditPayload): Promise<void> {
         action: payload.action,
         resource_type: payload.resourceType,
         resource_id: payload.resourceId ?? null,
-        before: payload.before ?? null,
-        after: payload.after ?? null,
+        before: (payload.before ?? null) as Json,
+        after: (payload.after ?? null) as Json,
         ip: payload.ip ?? null,
         user_agent: payload.userAgent ?? null,
     });
