@@ -62,7 +62,7 @@ function ConnectColumn() {
                 <SocialLink href="#">
                     <GitBranch className="w-4 h-4 text-gray-500" />
                 </SocialLink>
-                <SocialLink href="mailto:hello@webwidgets.com">
+                <SocialLink href="mailto:hello@webwidgets.me">
                     <Mail className="w-4 h-4 text-gray-500" />
                 </SocialLink>
             </div>
