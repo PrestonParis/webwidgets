@@ -82,10 +82,7 @@ async function scheduleCanonicalSync(
         .eq('provider', 'google')
         .ilike('email', emailAddress)
         .maybeSingle();
-    const connectionId = account.data?.integration_connection_id as
-        | string
-        | null
-        | undefined;
+    const connectionId = account.data?.integration_connection_id;
     if (!connectionId) return false;
     const scheduled = await supabase
         .from('integration_connections')
@@ -138,8 +135,8 @@ export async function POST(req: Request): Promise<Response> {
         return NextResponse.json({ ok: true });
     }
 
-    const userId = tokenRow.user_id as string;
-    const lastHistoryId = tokenRow.last_history_id as string | null;
+    const userId = tokenRow.user_id;
+    const lastHistoryId = tokenRow.last_history_id;
     await scheduleCanonicalSync(supabase, userId, notification.emailAddress);
 
     if (!lastHistoryId) {

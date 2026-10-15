@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { Database } from '@/types/supabase';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { applyGrade } from '@/features/memorization/lib/sm2';
@@ -31,9 +32,9 @@ export async function PATCH(
             if (card) {
                 const result = applyGrade(
                     {
-                        interval_days: (card.interval_days as number) ?? 1,
-                        ease: (card.ease as number) ?? 2.5,
-                        repetitions: (card.repetitions as number) ?? 0,
+                        interval_days: card.interval_days ?? 1,
+                        ease: card.ease ?? 2.5,
+                        repetitions: card.repetitions ?? 0,
                     },
                     body.grade,
                 );
@@ -46,8 +47,8 @@ export async function PATCH(
                 };
 
                 // Publish activity event for card review
-                const front = (card.front as string | undefined) ?? '';
-                const deckId = card.deck_id as string | undefined;
+                const front = card.front ?? '';
+                const deckId = card.deck_id;
                 await publishActivityEventSafe(supabase, {
                     userId,
                     source: 'memory',
@@ -76,7 +77,9 @@ export async function PATCH(
 
         const { data, error } = await supabase
             .from('memory_cards')
-            .update(updates)
+            .update(
+                updates as Database['public']['Tables']['memory_cards']['Update'],
+            )
             .eq('id', id)
             .eq('user_id', userId)
             .select(

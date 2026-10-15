@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { getContextNeighborhood } from '@/features/context/services/contextTraversalService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function GET(req: Request) {
     try {
@@ -16,7 +15,7 @@ export async function GET(req: Request) {
                 { status: 400 },
             );
         const graph = await getContextNeighborhood(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             entityId,
             Number(searchParams.get('depth') ?? 1),

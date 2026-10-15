@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import type { TablesUpdate } from '@/types/supabase';
 
 export async function PATCH(
     req: Request,
@@ -10,7 +11,7 @@ export async function PATCH(
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const { id } = await params;
-        const body = (await req.json()) as Record<string, unknown>;
+        const body = (await req.json()) as TablesUpdate<'command_workstreams'>;
         const { data, error } = (await supabase
             .from('command_workstreams')
             .update(body)

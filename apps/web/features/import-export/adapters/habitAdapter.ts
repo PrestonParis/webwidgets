@@ -60,7 +60,7 @@ export const habitAdapter: ImportExportAdapter = {
         // Fetch habits
         let habitQuery = supabase
             .from('habits')
-            .select('id, name, emoji, created_at')
+            .select('id,name,emoji,created_at')
             .eq('user_id', userId)
             .order('created_at', { ascending: true });
 
@@ -85,7 +85,7 @@ export const habitAdapter: ImportExportAdapter = {
 
         const { data: completions, error: completionError } = await supabase
             .from('habit_completions')
-            .select('id, habit_id, completed_date')
+            .select('id,habit_id,completed_date')
             .eq('user_id', userId)
             .gte('completed_date', windowStart ?? '');
 
@@ -118,7 +118,7 @@ export const habitAdapter: ImportExportAdapter = {
                 id: habit.id,
                 name: habit.name ?? '',
                 emoji: habit.emoji ?? '',
-                completions_last_30d: completionCounts[habit.id as string] ?? 0,
+                completions_last_30d: completionCounts[habit.id] ?? 0,
                 created_at: habit.created_at ?? '',
             },
         }));

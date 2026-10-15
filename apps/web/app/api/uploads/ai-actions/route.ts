@@ -19,6 +19,7 @@ import {
 import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
 import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const requestSchema = z.object({
     actionType: z.enum([
@@ -297,7 +298,7 @@ async function generateArtifactContent(
 ): Promise<string> {
     const apiKey =
         (await getModelKey(supabase, userId, 'anthropic').catch(() => null)) ??
-        process.env.ANTHROPIC_API_KEY ??
+        sharedLlmKey('ANTHROPIC_API_KEY') ??
         null;
     if (!apiKey) throw new Error('NO_MODEL_KEY');
 

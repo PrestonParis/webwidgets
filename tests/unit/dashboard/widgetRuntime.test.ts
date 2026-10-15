@@ -20,10 +20,10 @@ function widget(type: WidgetConfig['type']): WidgetConfig {
 }
 
 describe('widget runtime metadata', () => {
-    it('marks heavy widgets as manual by default', () => {
+    it('defers heavy widgets by default', () => {
         expect(getWidgetRuntimeMetadata(widget('developer'))).toMatchObject({
             weight: 'heavy',
-            defaultLoad: 'manual',
+            defaultLoad: 'deferred',
         });
     });
 

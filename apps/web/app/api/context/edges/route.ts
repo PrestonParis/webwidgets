@@ -6,7 +6,6 @@ import {
     listEdges,
 } from '@/features/context/services/contextService';
 import { contextEdgeInputSchema } from '@/features/context/types/schemas';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function GET(req: Request) {
     try {
@@ -16,15 +15,11 @@ export async function GET(req: Request) {
         const fromEntityId = searchParams.get('from');
         const toEntityId = searchParams.get('to');
         const kinds = searchParams.getAll('kind');
-        const edges = await listEdges(
-            supabase as unknown as SupabaseClient,
-            userId,
-            {
-                ...(fromEntityId ? { fromEntityId } : {}),
-                ...(toEntityId ? { toEntityId } : {}),
-                ...(kinds.length > 0 ? { kinds } : {}),
-            },
-        );
+        const edges = await listEdges(supabase, userId, {
+            ...(fromEntityId ? { fromEntityId } : {}),
+            ...(toEntityId ? { toEntityId } : {}),
+            ...(kinds.length > 0 ? { kinds } : {}),
+        });
         return NextResponse.json({ edges });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -42,11 +37,7 @@ export async function POST(req: Request) {
                 { error: 'Invalid payload' },
                 { status: 400 },
             );
-        const edge = await ingestContextEdge(
-            supabase as unknown as SupabaseClient,
-            userId,
-            body.data,
-        );
+        const edge = await ingestContextEdge(supabase, userId, body.data);
         return NextResponse.json({ edge });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

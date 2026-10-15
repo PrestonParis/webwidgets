@@ -9,10 +9,7 @@ import { AdapterRegistryPanel } from './AdapterRegistryPanel';
 import { ImportWizard } from './ImportWizard';
 import { ExportPanel } from './ExportPanel';
 import { ContextExportPanel } from './ContextExportPanel';
-import type {
-    ImportJob,
-    ExportJob,
-} from '@/features/import-export/types/importExport';
+import type { ExportJob } from '@/features/import-export/types/importExport';
 
 type Tab = 'overview' | 'import' | 'export' | 'context' | 'registry';
 
@@ -73,7 +70,7 @@ export function ImportExportPage() {
                         <ServiceHealthPanel
                             health={health}
                             loading={loading}
-                            onRefresh={refresh}
+                            onRefresh={() => void refresh()}
                         />
                         <div className="grid grid-cols-3 gap-4">
                             <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-4 text-center">

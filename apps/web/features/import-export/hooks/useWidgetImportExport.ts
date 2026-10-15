@@ -1,6 +1,6 @@
 'use client';
 
-import { apiRouteFetch } from '@/lib/api/client';
+import { apiRouteFetch, readApiJson } from '@/lib/api/client';
 import { useState, useCallback } from 'react';
 import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type { SourceDestinationType } from '@/features/import-export/types/importExport';
@@ -38,7 +38,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ source_type: sourceType, format }),
                 });
-                const json = await res.json();
+                const json = await readApiJson(res);
                 if (!res.ok || !json.ok) {
                     toast.error(json.message ?? 'Export failed');
                     return;
@@ -82,14 +82,14 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                         }),
                     },
                 );
-                const jobJson = await jobRes.json();
+                const jobJson = await readApiJson(jobRes);
                 if (!jobRes.ok || !jobJson.ok) {
                     toast.error(
                         jobJson.message ?? 'Failed to create import job',
                     );
                     return null;
                 }
-                const jobId = jobJson.job.id as string;
+                const jobId = (jobJson.job as { id: string }).id;
 
                 const parseRes = await apiRouteFetch(
                     `/api/import-export/imports/${jobId}/parse`,
@@ -99,7 +99,7 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                         body: JSON.stringify({ content, filename: file.name }),
                     },
                 );
-                const parseJson = await parseRes.json();
+                const parseJson = await readApiJson(parseRes);
                 if (!parseRes.ok || !parseJson.ok) {
                     toast.error(parseJson.message ?? 'Failed to parse file');
                     return null;
@@ -107,10 +107,14 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
 
                 return {
                     jobId,
-                    headers: parseJson.headers ?? [],
-                    totalRows: parseJson.totalRows ?? 0,
-                    sampleRows: parseJson.sampleRows ?? [],
-                    fieldTypes: parseJson.fieldTypes ?? [],
+                    headers: (parseJson.headers as string[]) ?? [],
+                    totalRows: Number(parseJson.totalRows ?? 0),
+                    sampleRows:
+                        (parseJson.sampleRows as WidgetParseResult['sampleRows']) ??
+                        [],
+                    fieldTypes:
+                        (parseJson.fieldTypes as WidgetParseResult['fieldTypes']) ??
+                        [],
                 };
             } catch {
                 toast.error('Failed to read file');
@@ -143,17 +147,19 @@ export function useWidgetImportExport(sourceType: SourceDestinationType) {
                         }),
                     },
                 );
-                const json = await res.json();
+                const json = await readApiJson(res);
                 if (!res.ok || !json.ok) {
                     toast.error(json.message ?? 'Import execution failed');
                     return null;
                 }
-                if (json.errorCount > 0) {
+                const errorCount = Number(json.errorCount ?? 0);
+                const successCount = Number(json.successCount ?? 0);
+                if (errorCount > 0) {
                     toast.warning(
-                        `Import done with ${json.errorCount} error(s). ${json.successCount} rows imported.`,
+                        `Import done with ${errorCount} error(s). ${successCount} rows imported.`,
                     );
                 } else {
-                    toast.success(`${json.successCount} rows imported`);
+                    toast.success(`${successCount} rows imported`);
                 }
                 return json as {
                     status: string;

@@ -90,10 +90,7 @@ export function ActivityWidget({
 }: ActivityWidgetProps) {
     const snapshot = useWidgetSnapshot<ActivityWidgetData>(widgetId);
     const isLoading = !snapshot || snapshot.status === 'loading';
-    const data =
-        snapshot?.status === 'ready'
-            ? (snapshot.data as ActivityWidgetData | undefined)
-            : undefined;
+    const data = snapshot?.status === 'ready' ? snapshot.data : undefined;
 
     const events = data?.events ?? [];
     const unreadCount = data?.unreadCount ?? 0;

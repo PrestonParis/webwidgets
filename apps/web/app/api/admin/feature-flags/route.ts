@@ -10,6 +10,7 @@ import {
     auditAdminAction,
     getClientIp,
 } from '@/features/admin/lib/auditAdminAction';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 
 interface FeatureFlag {
     id: string;
@@ -130,7 +131,7 @@ export async function PATCH(req: Request) {
     const { data, error } = (await admin
         .from('feature_flags')
         .update({
-            ...updates,
+            ...omitUndefined(updates),
             updated_by: actor.id,
             updated_at: new Date().toISOString(),
         })

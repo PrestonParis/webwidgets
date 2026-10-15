@@ -1,6 +1,7 @@
 import { createClients } from '@/lib/supabase/serverClient';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import type { ImportExportAdapter } from '@/features/import-export/lib/adapterInterface';
+import { toText } from '@/features/import-export/lib/coerce';
 import type {
     AdapterAvailability,
     ExportOptions,
@@ -104,9 +105,9 @@ export const moodAdapter: ImportExportAdapter = {
 
         for (const row of rows) {
             try {
-                const d = row.data as Record<string, unknown>;
+                const d = row.data;
                 const logged_date = d['logged_date']
-                    ? String(d['logged_date'])
+                    ? toText(d['logged_date'])
                     : null;
 
                 if (!d['mood'] && d['mood'] !== 0) {
@@ -146,10 +147,10 @@ export const moodAdapter: ImportExportAdapter = {
                 const record = {
                     user_id: userId,
                     mood: Number(d['mood']),
-                    note: d['note'] ? String(d['note']) : null,
+                    note: d['note'] ? toText(d['note']) : null,
                     logged_date,
                     logged_at: d['logged_at']
-                        ? String(d['logged_at'])
+                        ? toText(d['logged_at'])
                         : new Date().toISOString(),
                 };
 

@@ -72,19 +72,22 @@ function ContinueReadingBanner({
     } | null>(null);
 
     useEffect(() => {
-        if (documents.length === 0) return;
-        for (const doc of documents) {
-            const pos = loadLastPosition(doc.id);
-            if (!pos) continue;
-            let label = doc.title;
-            if (pos.type === 'canonical') {
-                label = `${pos.book} ${pos.chapter}`;
-            } else if (pos.type === 'page') {
-                label = `${doc.title}, page ${pos.page}`;
+        const timer = window.setTimeout(() => {
+            if (documents.length === 0) return;
+            for (const doc of documents) {
+                const pos = loadLastPosition(doc.id);
+                if (!pos) continue;
+                let label = doc.title;
+                if (pos.type === 'canonical') {
+                    label = `${pos.book} ${pos.chapter}`;
+                } else if (pos.type === 'page') {
+                    label = `${doc.title}, page ${pos.page}`;
+                }
+                setLastDoc({ document: doc, label });
+                return;
             }
-            setLastDoc({ document: doc, label });
-            return;
-        }
+        }, 0);
+        return () => window.clearTimeout(timer);
     }, [documents]);
 
     if (!lastDoc) return null;
@@ -268,12 +271,10 @@ function LibrarySection({ onOpen }: { onOpen: (id: string) => void }) {
 
 function BibleSection({
     documents,
-    onOpen,
     onNavigate,
     onLibraryChange,
 }: {
     documents: ReadingDocument[];
-    onOpen: (id: string) => void;
     onNavigate: (docId: string, book: string, chapter: number) => void;
     onLibraryChange: () => void;
 }) {
@@ -282,12 +283,9 @@ function BibleSection({
     const [bookId, setBookId] = useState('JHN');
     const [chapter, setChapter] = useState(1);
     const [showPicker, setShowPicker] = useState(false);
-
-    useEffect(() => {
-        if (selectedDocId || bibles.length === 0) return;
-        const eng = bibles.find((b) => b.language === 'eng') ?? bibles[0]!;
-        setSelectedDocId(eng.id);
-    }, [bibles, selectedDocId]);
+    const defaultDocument =
+        bibles.find((b) => b.language === 'eng') ?? bibles[0];
+    const activeDocumentId = selectedDocId || defaultDocument?.id || '';
 
     const selectedBook =
         ALL_BOOKS.find((b) => b.id === bookId) ?? ALL_BOOKS[0]!;
@@ -344,7 +342,7 @@ function BibleSection({
                                 Translation
                             </label>
                             <select
-                                value={selectedDocId}
+                                value={activeDocumentId}
                                 onChange={(e) =>
                                     setSelectedDocId(e.target.value)
                                 }
@@ -413,14 +411,14 @@ function BibleSection({
                         <button
                             type="button"
                             onClick={() =>
-                                selectedDocId &&
+                                activeDocumentId &&
                                 onNavigate(
-                                    selectedDocId,
+                                    activeDocumentId,
                                     selectedBook.name,
                                     chapter,
                                 )
                             }
-                            disabled={!selectedDocId}
+                            disabled={!activeDocumentId}
                             className="flex w-full items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-40"
                         >
                             <Book size={14} />
@@ -761,7 +759,6 @@ export function ReadingPage() {
                     <div className="hidden w-80 shrink-0 flex-col gap-5 overflow-y-auto p-6 md:flex lg:w-90">
                         <BibleSection
                             documents={documents}
-                            onOpen={openDocument}
                             onNavigate={handleNavigate}
                             onLibraryChange={() => void reload()}
                         />

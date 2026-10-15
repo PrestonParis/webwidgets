@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import { isMissingTableError } from '@/lib/supabase/missingTable';
 import {
     DEFAULT_CONTEXT_PERMISSIONS,
@@ -88,10 +89,10 @@ export function rowToContextPermissions(
 }
 
 export async function getContextPermissions(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextPermissionSettings> {
-    const { data, error } = await (db as any)
+    const { data, error } = await db
         .from('context_permissions')
         .select(
             'capture_widget_interactions,capture_chat_memory,capture_files,capture_documents,capture_integrations,allow_ai_personalization,allow_automation_context_access,allow_cross_widget_context,allow_inferred_relationships',
@@ -102,17 +103,17 @@ export async function getContextPermissions(
         if (isMissingTableError(error)) return DEFAULT_CONTEXT_PERMISSIONS;
         throw new Error(error.message);
     }
-    return rowToContextPermissions(data as PermissionRow | null);
+    return rowToContextPermissions(data);
 }
 
 export async function upsertContextPermissions(
-    db: SupabaseClient,
+    db: SupabaseClient<Database>,
     userId: string,
     input: Partial<ContextPermissionSettings>,
 ): Promise<ContextPermissionSettings> {
     const current = await getContextPermissions(db, userId);
     const next = contextPermissionsSchema.parse({ ...current, ...input });
-    const { data, error } = await (db as any)
+    const { data, error } = await db
         .from('context_permissions')
         .upsert(
             {
@@ -127,7 +128,7 @@ export async function upsertContextPermissions(
         )
         .single();
     if (error) throw new Error(error.message);
-    return rowToContextPermissions(data as PermissionRow);
+    return rowToContextPermissions(data);
 }
 
 export function permissionAllowsCapture(

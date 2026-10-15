@@ -2485,6 +2485,51 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_widgets: {
+        Row: {
+          category: string
+          created_at: string
+          definition: Json
+          description: string
+          icon: string | null
+          id: string
+          name: string
+          status: string
+          tags: string[]
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          definition?: Json
+          description?: string
+          icon?: string | null
+          id?: string
+          name: string
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          definition?: Json
+          description?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       dashboard_layouts: {
         Row: {
           id: string
@@ -4058,9 +4103,11 @@ export type Database = {
           created_at: string
           deck_id: string
           due_date: string
+          ease: number
           front: string
           id: string
           interval_days: number
+          repetitions: number
           status: string
           user_id: string
         }
@@ -4069,9 +4116,11 @@ export type Database = {
           created_at?: string
           deck_id: string
           due_date?: string
+          ease?: number
           front: string
           id?: string
           interval_days?: number
+          repetitions?: number
           status?: string
           user_id: string
         }
@@ -4080,9 +4129,11 @@ export type Database = {
           created_at?: string
           deck_id?: string
           due_date?: string
+          ease?: number
           front?: string
           id?: string
           interval_days?: number
+          repetitions?: number
           status?: string
           user_id?: string
         }
@@ -4757,22 +4808,28 @@ export type Database = {
       recovery_profiles: {
         Row: {
           addiction: string | null
+          category: string | null
           created_at: string | null
           id: string
+          name: string | null
           start_time: string | null
           user_id: string | null
         }
         Insert: {
           addiction?: string | null
+          category?: string | null
           created_at?: string | null
           id?: string
+          name?: string | null
           start_time?: string | null
           user_id?: string | null
         }
         Update: {
           addiction?: string | null
+          category?: string | null
           created_at?: string | null
           id?: string
+          name?: string | null
           start_time?: string | null
           user_id?: string | null
         }
@@ -5485,6 +5542,39 @@ export type Database = {
         }
         Relationships: []
       }
+      worker_runtime_heartbeats: {
+        Row: {
+          instance_id: string
+          metadata: Json
+          ready: boolean
+          redis_ready: boolean
+          release_id: string | null
+          seen_at: string
+          started_at: string
+          supabase_ready: boolean
+        }
+        Insert: {
+          instance_id: string
+          metadata?: Json
+          ready: boolean
+          redis_ready: boolean
+          release_id?: string | null
+          seen_at?: string
+          started_at?: string
+          supabase_ready: boolean
+        }
+        Update: {
+          instance_id?: string
+          metadata?: Json
+          ready?: boolean
+          redis_ready?: boolean
+          release_id?: string | null
+          seen_at?: string
+          started_at?: string
+          supabase_ready?: boolean
+        }
+        Relationships: []
+      }
       workflow_action_callbacks: {
         Row: {
           action_request_id: string
@@ -6026,6 +6116,45 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      create_v1_automation_template: {
+        Args: {
+          p_approval_mode?: string
+          p_definition_id: string
+          p_dry_run?: boolean
+          p_local_time?: string
+          p_timezone?: string
+        }
+        Returns: {
+          action_types: string[]
+          approval_mode: string
+          archived_at: string | null
+          condition_types: string[]
+          config: Json
+          consent_requirements: string[]
+          cost_budget_cents: number
+          created_at: string
+          definition_id: string | null
+          id: string
+          last_triggered_at: string | null
+          name: string
+          next_run_at: string | null
+          rate_limit_per_hour: number
+          requires_approval: boolean
+          schedule: string | null
+          service_requirements: string[]
+          state: string
+          trigger_type: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "automation_configs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_v1_task_automation: {
         Args: {
           p_name: string
@@ -6232,6 +6361,7 @@ export type Database = {
       }
       expire_candidate_actions: { Args: never; Returns: number }
       get_month_day: { Args: { ts: string }; Returns: string }
+      get_v1_operations_snapshot: { Args: never; Returns: Json }
       grant_admin: { Args: { target_email: string }; Returns: undefined }
       is_company_leader: {
         Args: { allowed_roles?: string[]; target_company_id: string }
@@ -6249,6 +6379,7 @@ export type Database = {
         Args: { p_workspace_id: string }
         Returns: boolean
       }
+      mark_command_center_seen: { Args: never; Returns: string }
       materialize_approved_task_action: {
         Args: {
           p_candidate_id: string
@@ -6523,6 +6654,50 @@ export type Database = {
         }
         Returns: undefined
       }
+      trigger_v1_automation_template: {
+        Args: {
+          p_config_id: string
+          p_dry_run?: boolean
+          p_service_user_id?: string
+          p_trigger_key: string
+          p_trigger_payload?: Json
+        }
+        Returns: {
+          action_payload: Json
+          action_payload_hash: string | null
+          action_payload_version: number
+          approval_state: string | null
+          attempt: number
+          automation_config_id: string | null
+          completed_at: string | null
+          created_at: string
+          dry_run: boolean
+          evaluation: Json
+          expires_at: string
+          failure_code: string | null
+          failure_detail: string | null
+          id: string
+          idempotency_key: string | null
+          job_id: string | null
+          max_attempts: number
+          policy_version: string | null
+          result: Json | null
+          started_at: string | null
+          state_version: number
+          status: string
+          trigger_key: string | null
+          trigger_payload: Json
+          trigger_timeline_event_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "automation_runs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       trigger_v1_task_automation: {
         Args: {
           p_config_id: string
@@ -6585,12 +6760,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6614,11 +6789,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6639,11 +6814,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6664,11 +6839,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6681,11 +6856,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

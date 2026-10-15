@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { Json } from '@/types/supabase';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
+import { omitUndefined } from '@/features/backend/lib/exactOptional';
 
 const updateSchema = z.object({
     name: z.string().min(1).max(60).optional(),
@@ -56,7 +58,12 @@ export async function PUT(
         );
     const { data, error } = await supabase
         .from('custom_widgets')
-        .update(body.data)
+        .update(
+            omitUndefined({
+                ...body.data,
+                definition: body.data.definition as Json | undefined,
+            }),
+        )
         .eq('id', id)
         .eq('user_id', userId)
         .select()

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Repeat2, ScanBarcode, Utensils } from 'lucide-react';
+import { ScanBarcode, Utensils } from 'lucide-react';
 import WidgetShell from '@/features/widgets/components/WidgetShell';
 import { WidgetImportExportControls } from '@/features/import-export/components/WidgetImportExportControls';
 import { useTrackingEntries } from '@/features/tracking/hooks/useTrackingEntries';
@@ -224,8 +224,8 @@ export default function MealWidget() {
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={async () => {
-                                            await handleAdd({
+                                        onClick={() => {
+                                            void handleAdd({
                                                 category: 'meal',
                                                 entryDate: todayKey,
                                                 metadata: {
@@ -237,8 +237,7 @@ export default function MealWidget() {
                                                     undefined && {
                                                     notes: record.raw.notes,
                                                 }),
-                                            });
-                                            setTab('history');
+                                            }).then(() => setTab('history'));
                                         }}
                                         className="shrink-0 ml-2 rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:text-green-300"
                                     >

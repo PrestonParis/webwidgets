@@ -78,7 +78,7 @@ export function ImportCardsPanel({
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
-            const raw = String(reader.result ?? '');
+            const raw = typeof reader.result === 'string' ? reader.result : '';
             if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
                 void saveRows(parseMarkdownCards(raw), 'Markdown notes');
                 return;

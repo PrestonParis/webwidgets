@@ -8,6 +8,9 @@ import {
     markContextStatus,
 } from '@/features/context/services/contextService';
 import { z } from 'zod';
+import type { Database } from '@/types/supabase';
+
+type TodoUpdate = Database['public']['Tables']['todos']['Update'];
 
 const updateTodoSchema = z
     .object({
@@ -36,7 +39,7 @@ export async function PATCH(
             );
         const body = parsed.data;
 
-        const update: Record<string, unknown> = {};
+        const update: TodoUpdate = {};
         if (body.text !== undefined) update.text = body.text.trim();
         if (body.completed !== undefined) {
             update.completed = body.completed;

@@ -5,11 +5,11 @@ import {
     saveModelKey,
     listSavedProviders,
 } from '@/features/chatbot/services/chatService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
     ModelProvider,
     ModelProviderAvailability,
 } from '@/features/chatbot/types/chat';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const saveSchema = z.object({
     provider: z.enum(['anthropic', 'openai', 'google']),
@@ -19,22 +19,19 @@ const saveSchema = z.object({
 export async function GET() {
     try {
         const { supabaseAdmin, userId } = await createCredentialClients();
-        const providers = await listSavedProviders(
-            supabaseAdmin as unknown as SupabaseClient,
-            userId,
-        );
+        const providers = await listSavedProviders(supabaseAdmin, userId);
         const availability: ModelProviderAvailability[] = (
             ['anthropic', 'openai', 'google'] as ModelProvider[]
         ).map((provider) => {
             const hasUserKey = providers.includes(provider);
             const hasServerKey =
                 provider === 'anthropic'
-                    ? Boolean(process.env.ANTHROPIC_API_KEY)
+                    ? Boolean(sharedLlmKey('ANTHROPIC_API_KEY'))
                     : provider === 'openai'
-                      ? Boolean(process.env.OPENAI_API_KEY)
+                      ? Boolean(sharedLlmKey('OPENAI_API_KEY'))
                       : Boolean(
-                            process.env.GEMINI_API_KEY ??
-                            process.env.GOOGLE_API_KEY,
+                            sharedLlmKey('GEMINI_API_KEY') ??
+                            sharedLlmKey('GOOGLE_API_KEY'),
                         );
             return {
                 provider,
@@ -60,7 +57,7 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         await saveModelKey(
-            supabaseAdmin as unknown as SupabaseClient,
+            supabaseAdmin,
             userId,
             body.data.provider as ModelProvider,
             body.data.apiKey,

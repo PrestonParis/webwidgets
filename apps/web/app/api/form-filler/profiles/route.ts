@@ -68,8 +68,8 @@ export async function PATCH(req: Request): Promise<Response> {
     const { data, error } = (await supabase
         .from('form_filler_profiles')
         .update({
-            name: body.name,
-            fields: body.fields,
+            ...(body.name !== undefined && { name: body.name }),
+            ...(body.fields !== undefined && { fields: body.fields }),
             updated_at: new Date().toISOString(),
         })
         .eq('id', body.id)

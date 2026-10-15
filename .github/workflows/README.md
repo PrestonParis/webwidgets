@@ -13,9 +13,8 @@ protection rule for `main` → "Require status checks to pass"), the job
 names to select are:
 
 - `Lint + typecheck (changed files)` — skipped (shows as passing/neutral)
-  when the PR touches nothing under `apps/web/`, `tests/`, or root TS/lint
-  config. (The scope check also matches `scripts/`, but nothing there can
-  ever appear in a PR diff — see below.)
+  when the PR touches nothing under `apps/web/`, `scripts/linting/`, `tests/`,
+  or root TS/lint config.
 - `Unit tests (Vitest)` — always runs.
 - `Python (ML service)` — skipped unless `services/ml_service/**` changed.
 - `Conversion service` — skipped unless `services/conversion/**` changed.
@@ -29,24 +28,18 @@ subset.
 
 ### Why "changed files," not "whole repo"
 
-**Important constraint this workflow works around:** `scripts/` is listed in
-`.gitignore` as "Private / local-only" — `scripts/linting/` (the `npm run
-check` tooling, and everything that writes to `reports/`) exists only on
-whichever machine has it locally; it is **not committed to any branch** and
-will not exist on a fresh checkout, including every CI run. The 1,603
-lint-error / 54 TS-error snapshot cited in ROADMAP.md and
-DEFINITION_OF_DONE.md came from a local run of that private tooling — treat
-those specific numbers as a point-in-time estimate from one contributor's
-machine, not something CI can reproduce or verify. This workflow therefore
-does **not** call `npm run check` or any `linting:*` script anywhere — every
-check below is either a direct `eslint`/`tsc` invocation or a service's own
-`package.json` script, all of which are fully committed and work from a
-clean clone.
+Most of `scripts/` remains private/local-only, but `scripts/linting/` is
+versioned because the scheduled lint-report workflow must reproduce the same
+complete repository report on a clean runner. The baseline PR workflow below
+still uses direct changed-file `eslint`/`tsc` commands so existing repository
+debt does not block unrelated PRs. The scheduled `daily-lint-report.yml`
+workflow intentionally runs the complete `npm run check`, publishes every
+finding, and then preserves its failing status when the full check finds
+gating errors.
 
 - **ESLint** runs directly against the list of changed `.ts`/`.tsx` files
   under `apps/web/` (via `npx eslint <files>`) — a lightweight, self-contained
-  invocation chosen specifically so this workflow has no dependency on the
-  private `scripts/linting/` runner.
+  invocation chosen to keep pull-request gating scoped to changed files.
 - **TypeScript** doesn't support checking a file in isolation with full type
   accuracy, so this workflow runs `tsc --noEmit` for the whole project (as
   it must) and then greps the output for lines matching a changed file. Only
@@ -79,6 +72,40 @@ captures JUnit output. Four pre-existing failures discovered when the dormant
 job first ran are explicitly named in `tools/ci/checkPythonTestResults.py`;
 every other failure gates the PR. Fixing one of those tests requires removing
 its allowlist entry in the same change.
+
+## `daily-lint-report.yml` — Google Sheets reporting
+
+Runs the complete repository check every day at 11:00 PM in
+`America/New_York`, including daylight-saving changes, and can also be started
+manually. Scheduled workflows run from the default branch, so the workflow and
+versioned `scripts/linting/` directory must be merged before the schedule is
+active.
+
+The repository must define this Actions secret:
+
+- `GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON` — the complete JSON key for the Google
+  service account that has Editor access to the reporting spreadsheet.
+
+Set it without printing the key:
+
+```bash
+gh secret set GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON < /absolute/path/to/service-account.json
+```
+
+The publisher maintains these tabs and validates their header rows before
+writing:
+
+- `Daily Runs`
+- `Lint Findings`
+- `TypeScript Findings`
+- `Code Smells`
+- `Repository Stats`
+
+Rows use the GitHub run ID for idempotency. A rerun does not append the same
+run to a tab twice. Findings are sent with the Sheets API `RAW` input mode so a
+lint message beginning with a formula character cannot execute as a formula.
+The workflow publishes a report even when the repository check finds errors,
+then fails the Actions run to preserve the actual check status.
 
 ### What's intentionally not gated here
 

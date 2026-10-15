@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { toText } from '@/features/import-export/lib/coerce';
 import type {
     ParseResult,
     ParsedRow,
@@ -29,12 +30,10 @@ export function parseCSV(content: string): ParseResult {
     }
 
     const headers = result.meta.fields ?? [];
-    const rows: ParsedRow[] = (result.data as Record<string, string>[]).map(
-        (raw, index) => ({
-            rowIndex: index,
-            raw,
-        }),
-    );
+    const rows: ParsedRow[] = result.data.map((raw, index) => ({
+        rowIndex: index,
+        raw,
+    }));
 
     return {
         headers,
@@ -104,8 +103,7 @@ export function parseJSON(content: string): ParseResult {
     const rows: ParsedRow[] = items.map((item, index) => {
         const raw: Record<string, string> = {};
         headers.forEach((h) => {
-            const val = (item as Record<string, unknown>)[h];
-            raw[h] = val == null ? '' : String(val);
+            raw[h] = toText(item[h]);
         });
         return { rowIndex: index, raw };
     });

@@ -6,7 +6,6 @@ import {
     listWatchlistReadings,
     addWatchlistReading,
 } from '@/features/finance/services/watchlistService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const addSchema = z.object({
     value: z.number(),
@@ -22,11 +21,7 @@ export async function GET(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const readings = await listWatchlistReadings(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        const readings = await listWatchlistReadings(supabase, userId, id);
         return NextResponse.json({ readings });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -49,7 +44,7 @@ export async function POST(
                 { status: 400 },
             );
         const reading = await addWatchlistReading(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             body.data.value,

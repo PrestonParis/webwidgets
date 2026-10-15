@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database, Json } from '@/types/supabase';
 import type {
     ImportJob,
     ExportJob,
@@ -109,7 +110,7 @@ function rowToAuditEvent(row: Record<string, unknown>): AuditEvent {
 // ── Import jobs ───────────────────────────────────────────────────────────────
 
 export async function createImportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     data: {
         title?: string;
@@ -142,7 +143,7 @@ export async function createImportJob(
 }
 
 export async function getImportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     id: string,
 ): Promise<ImportJob | null> {
@@ -157,7 +158,7 @@ export async function getImportJob(
 }
 
 export async function listImportJobs(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
 ): Promise<ImportJob[]> {
     const { data, error } = await supabase
@@ -176,7 +177,7 @@ export async function listImportJobs(
 export const listImportJobsForUser = listImportJobs;
 
 export async function updateImportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     id: string,
     patch: Record<string, unknown>,
@@ -192,27 +193,27 @@ export async function updateImportJob(
     return rowToImportJob(row as Record<string, unknown>);
 }
 
-export async function addImportJobLog(
-    supabase: SupabaseClient,
+export function addImportJobLog(
+    supabase: SupabaseClient<Database>,
     jobId: string,
     level: ImportJobLog['level'],
     message: string,
     rowNumber?: number,
     metadata?: Record<string, unknown>,
-): Promise<void> {
+): void {
     void supabase.from('import_job_logs').insert({
         import_job_id: jobId,
         level,
         message,
         row_number: rowNumber ?? null,
-        metadata: metadata ?? {},
+        metadata: (metadata ?? {}) as Json,
     });
 }
 
 // ── Export jobs ───────────────────────────────────────────────────────────────
 
 export async function createExportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     data: {
         title: string;
@@ -229,7 +230,7 @@ export async function createExportJob(
             source_type: data.source_type,
             format: data.format,
             status: 'requested',
-            metadata: data.metadata ?? {},
+            metadata: (data.metadata ?? {}) as Json,
         })
         .select('*')
         .single();
@@ -238,7 +239,7 @@ export async function createExportJob(
 }
 
 export async function getExportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     id: string,
 ): Promise<ExportJob | null> {
@@ -253,7 +254,7 @@ export async function getExportJob(
 }
 
 export async function listExportJobs(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
 ): Promise<ExportJob[]> {
     const { data, error } = await supabase
@@ -269,7 +270,7 @@ export async function listExportJobs(
 }
 
 export async function updateExportJob(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     id: string,
     patch: Record<string, unknown>,
@@ -288,7 +289,7 @@ export async function updateExportJob(
 // ── Context exports ───────────────────────────────────────────────────────────
 
 export async function createContextExport(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     data: {
         scope?: string;
@@ -307,7 +308,7 @@ export async function createContextExport(
             user_id: userId,
             scope: data.scope ?? 'personal',
             status: data.status ?? 'requested',
-            sources: data.sources ?? [],
+            sources: (data.sources ?? []) as Json,
             system_prompt_content: data.system_prompt_content ?? null,
             warnings: data.warnings ?? [],
             errors: data.errors ?? [],
@@ -321,7 +322,7 @@ export async function createContextExport(
 }
 
 export async function getContextExport(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     id: string,
 ): Promise<ContextExportRecord | null> {
@@ -336,7 +337,7 @@ export async function getContextExport(
 }
 
 export async function listContextExports(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
 ): Promise<ContextExportRecord[]> {
     const { data, error } = await supabase
@@ -353,26 +354,26 @@ export async function listContextExports(
 
 // ── Audit events ──────────────────────────────────────────────────────────────
 
-export async function addAuditEvent(
-    supabase: SupabaseClient,
+export function addAuditEvent(
+    supabase: SupabaseClient<Database>,
     userId: string,
     action: string,
     resourceType: string,
     resourceId?: string,
     metadata?: Record<string, unknown>,
-): Promise<void> {
+): void {
     // Fire and forget — never block the main operation on audit logging
     void supabase.from('import_export_audit_events').insert({
         user_id: userId,
         action,
         resource_type: resourceType,
         resource_id: resourceId ?? null,
-        metadata: metadata ?? {},
+        metadata: (metadata ?? {}) as Json,
     });
 }
 
 export async function listAuditEvents(
-    supabase: SupabaseClient,
+    supabase: SupabaseClient<Database>,
     userId: string,
     limit = 50,
 ): Promise<AuditEvent[]> {

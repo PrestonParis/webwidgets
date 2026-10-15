@@ -21,7 +21,7 @@ describe('resolveWidgetData', () => {
         resolverMap.set('demo.value', {
             key: 'demo.value',
             schema: z.object({ count: z.number() }),
-            resolve: async () => ({ count: 3 }),
+            resolve: () => Promise.resolve({ count: 3 }),
         });
         const { resolveWidgetData } =
             await import('@/features/widgets/server/resolveWidgetData');
@@ -41,13 +41,11 @@ describe('resolveWidgetData', () => {
     it('isolates resolver failures', async () => {
         resolverMap.set('demo.good', {
             key: 'demo.good',
-            resolve: async () => ({ ok: true }),
+            resolve: () => Promise.resolve({ ok: true }),
         });
         resolverMap.set('demo.bad', {
             key: 'demo.bad',
-            resolve: async () => {
-                throw new Error('boom');
-            },
+            resolve: () => Promise.reject(new Error('boom')),
         });
         const { resolveWidgetData } =
             await import('@/features/widgets/server/resolveWidgetData');
@@ -69,7 +67,7 @@ describe('resolveWidgetData', () => {
         resolverMap.set('demo.invalid', {
             key: 'demo.invalid',
             schema: z.object({ count: z.number() }),
-            resolve: async () => ({ count: 'nope' }),
+            resolve: () => Promise.resolve({ count: 'nope' }),
         });
         const { resolveWidgetData } =
             await import('@/features/widgets/server/resolveWidgetData');

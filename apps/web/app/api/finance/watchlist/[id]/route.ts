@@ -6,7 +6,6 @@ import {
     deleteWatchlistItem,
     updateWatchlistItem,
 } from '@/features/finance/services/watchlistService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const patchSchema = z.object({
     assetType: z
@@ -41,7 +40,7 @@ export async function PATCH(
                 { status: 400 },
             );
         const item = await updateWatchlistItem(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             body.data as unknown as Parameters<typeof updateWatchlistItem>[3],
@@ -61,11 +60,7 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        await deleteWatchlistItem(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        await deleteWatchlistItem(supabase, userId, id);
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

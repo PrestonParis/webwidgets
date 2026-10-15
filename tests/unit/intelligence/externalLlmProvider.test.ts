@@ -23,9 +23,18 @@ function request(
 describe('Anthropic inference adapter', () => {
     afterEach(() => vi.unstubAllGlobals());
 
+    it('is unavailable while shared LLM keys are disabled', () => {
+        vi.stubEnv('INFERENCE_SERVICE_URL', 'https://ml.example.com');
+        vi.stubEnv('ML_SERVICE_TOKEN', 'secret');
+        vi.stubEnv('ALLOW_SHARED_LLM_KEYS', 'false');
+
+        expect(createAnthropicProvider().availability).toBe('missing_config');
+    });
+
     it('returns typed success with model, cost, and redacted audit metadata', async () => {
         vi.stubEnv('INFERENCE_SERVICE_URL', 'https://ml.example.com');
         vi.stubEnv('ML_SERVICE_TOKEN', 'secret');
+        vi.stubEnv('ALLOW_SHARED_LLM_KEYS', 'true');
         vi.stubGlobal(
             'fetch',
             vi.fn().mockResolvedValue(
@@ -59,6 +68,7 @@ describe('Anthropic inference adapter', () => {
     it('keeps hostile source text inside data and cannot alter the task', async () => {
         vi.stubEnv('INFERENCE_SERVICE_URL', 'https://ml.example.com');
         vi.stubEnv('ML_SERVICE_TOKEN', 'secret');
+        vi.stubEnv('ALLOW_SHARED_LLM_KEYS', 'true');
         const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
             Response.json({
                 status: 'abstained',
@@ -90,6 +100,7 @@ describe('Anthropic inference adapter', () => {
     it('rejects malformed provider output', async () => {
         vi.stubEnv('INFERENCE_SERVICE_URL', 'https://ml.example.com');
         vi.stubEnv('ML_SERVICE_TOKEN', 'secret');
+        vi.stubEnv('ALLOW_SHARED_LLM_KEYS', 'true');
         vi.stubGlobal(
             'fetch',
             vi.fn().mockResolvedValue(Response.json({ status: 'success' })),

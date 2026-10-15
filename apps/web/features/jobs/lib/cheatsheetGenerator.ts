@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { getModelKey } from '@/features/jobs/lib/modelKeyHelper';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 export interface CheatsheetInput {
     title: string;
@@ -58,7 +59,7 @@ export async function generateCheatsheet(
             (await getModelKey(supabase, input.userId, 'anthropic').catch(
                 () => null,
             )) ??
-            process.env.ANTHROPIC_API_KEY ??
+            sharedLlmKey('ANTHROPIC_API_KEY') ??
             null;
 
         if (!apiKey) {

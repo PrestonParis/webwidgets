@@ -57,21 +57,38 @@ export async function POST(
                 { status: 200 },
             );
 
-        // Insert member row
-        await supabaseAdmin.from('workspace_members').insert({
-            workspace_id: invite.workspace_id,
-            user_id: userId,
-            email: acceptorEmail,
-            role: invite.role,
-            status: 'active',
-            joined_at: new Date().toISOString(),
-        });
-
-        // Mark invite accepted
-        await supabaseAdmin
+        // Claim the invite with a conditional update so two concurrent
+        // accepts cannot both pass the pending check above.
+        const { data: claimed } = await supabaseAdmin
             .from('workspace_invites')
             .update({ status: 'accepted' })
-            .eq('id', invite.id);
+            .eq('id', invite.id)
+            .eq('status', 'pending')
+            .select('id')
+            .maybeSingle();
+        if (!claimed)
+            return NextResponse.json(
+                { error: 'Invite already used or revoked' },
+                { status: 410 },
+            );
+
+        const { error: memberError } = await supabaseAdmin
+            .from('workspace_members')
+            .insert({
+                workspace_id: invite.workspace_id,
+                user_id: userId,
+                email: acceptorEmail,
+                role: invite.role,
+                status: 'active',
+                joined_at: new Date().toISOString(),
+            });
+        if (memberError) {
+            await supabaseAdmin
+                .from('workspace_invites')
+                .update({ status: 'pending' })
+                .eq('id', invite.id);
+            throw memberError;
+        }
 
         await logActivity(supabase, {
             workspaceId: invite.workspace_id,

@@ -5,6 +5,7 @@ import type { ReadingPosition } from '@/features/reading/types/positions';
 import { rowToHighlight } from '@/features/reading/types/annotations';
 import type { HighlightRow } from '@/features/reading/types/annotations';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
+import type { Json } from '@/types/supabase';
 
 export async function GET(req: Request) {
     try {
@@ -55,8 +56,8 @@ export async function POST(req: Request) {
             .insert({
                 user_id: user.id,
                 document_id: body.documentId,
-                position_start: body.positionStart,
-                position_end: body.positionEnd,
+                position_start: body.positionStart as unknown as Json,
+                position_end: body.positionEnd as unknown as Json,
                 text_snippet: body.textSnippet,
                 color: body.color,
             })

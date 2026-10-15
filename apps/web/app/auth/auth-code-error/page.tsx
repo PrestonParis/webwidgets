@@ -86,7 +86,7 @@ export default function AuthCodeError() {
                         Try signing in again
                     </Link>
                     <a
-                        href="mailto:hello@webwidgets.com"
+                        href="mailto:hello@webwidgets.me"
                         className="w-full px-4 py-2.5 rounded-lg border border-zinc-800 text-zinc-400 text-sm font-medium hover:border-zinc-600 hover:text-zinc-200 transition-colors text-center"
                     >
                         Contact support

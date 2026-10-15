@@ -6,7 +6,6 @@ import {
     updateFinanceAccountForUser,
     deleteFinanceAccountForUser,
 } from '@/features/finance/services/financeAccountService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const patchSchema = z.object({
@@ -42,7 +41,7 @@ export async function PATCH(
                 { status: 400 },
             );
         const account = await updateFinanceAccountForUser(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             body.data as unknown as Partial<
@@ -92,11 +91,7 @@ export async function DELETE(
             .eq('user_id', userId)
             .maybeSingle();
 
-        await deleteFinanceAccountForUser(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        await deleteFinanceAccountForUser(supabase, userId, id);
 
         const name = (existing as { name?: string } | null)?.name ?? 'Account';
         await publishActivityEventSafe(supabase, {

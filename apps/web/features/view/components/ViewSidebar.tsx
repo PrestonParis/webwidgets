@@ -7,7 +7,7 @@ import type { ViewFolder } from '@/features/view/types/viewFile';
 
 interface ViewSidebarProps {
     folders: ViewFolder[];
-    activeSection: 'all' | 'recent' | 'favorites' | string; // string = folderId
+    activeSection: 'all' | 'recent' | 'favorites' | (string & {}); // string = folderId
     onSectionChange: (section: string) => void;
     onCreateFolder: (name: string) => void;
 }

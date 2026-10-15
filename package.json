@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev:web",
-    "dev:web": "npm run clean:next-cache && cd apps/web && NEXT_DISABLE_SENTRY=1 NEXT_PUBLIC_DISABLE_SENTRY=1 NODE_OPTIONS=--max-old-space-size=2048 next dev",
-    "dev:web:sentry": "npm run clean:next-cache && cd apps/web && NODE_OPTIONS=--max-old-space-size=2048 next dev",
+    "dev:web": "cd apps/web && NEXT_DISABLE_SENTRY=1 NEXT_PUBLIC_DISABLE_SENTRY=1 NODE_OPTIONS=--max-old-space-size=2048 next dev --port 3000",
+    "dev:web:sentry": "cd apps/web && NODE_OPTIONS=--max-old-space-size=2048 next dev --port 3000",
     "dev:api": "cd services/conversion && npm run dev:api",
     "dev:sync": "cd services/sync-worker && npm run dev",
     "dev:infra": "open -a Docker && until docker info > /dev/null 2>&1; do sleep 1; done && (supabase status > /dev/null 2>&1 || supabase start || true) && until supabase status > /dev/null 2>&1; do sleep 2; done && npm run conversion:up",
@@ -43,6 +43,7 @@
     "linting:ts": "tsx scripts/linting/index.ts --ts-only",
     "linting:smells": "tsx scripts/linting/index.ts --smells-only",
     "linting:stats": "tsx scripts/linting/index.ts --stats-only",
+    "linting:publish-sheets": "tsx scripts/linting/publishToGoogleSheets.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "dispatcher": "tsx tools/claude-dispatcher/cli.ts",
