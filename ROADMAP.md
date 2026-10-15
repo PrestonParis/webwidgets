@@ -13,12 +13,22 @@ in — it now points here) and reconciles that gap against
 docs for later-stage work — this file is the prioritized, maturity-rated
 summary that sits above them.
 
-**Stated target:** "Fully functional Website App V1" by **August 25, 2026**
-(`VISION.md`). That date has passed. As of 2026-08-30, Prompts 001–018 are
-implemented, and all three deployed Prompt 19 journeys passed on 2026-08-30.
-The seven-day pilot, production worker/queue and alerting cutover, enforced
-required checks, and human release-owner approval remain. Treat the release as
-`No Go` until the remaining gates in §3 are closed.
+**Current status (October 2026):** WebWidgets is deployed at
+[webwidgets.me](https://webwidgets.me) and in a monitored pilot. It is not yet
+a production service for other people's data. The original V1 target
+(August 25, 2026, from `VISION.md`) has passed. Feature breadth landed ahead of
+plan. The V1 implementation work is complete, and all three end-to-end release
+journeys passed against the deployed site on 2026-08-30.
+
+What remains is the operational bar set for V1, not more features:
+
+- seven consecutive days of monitored pilot operation
+- a continuously running production worker and queue
+- external alert delivery
+- CI checks enforced on `main`
+
+Each item is detailed in §3. Until those are met, treat WebWidgets as a working
+personal project rather than a launched product.
 
 ---
 
@@ -134,10 +144,13 @@ Should happen before or shortly after V1, not hard-blocking.
 - **Production deploy path for the conversion service** — it remains a
   specialized adapter whose V1 hosting requirement is not yet proven. The
   sync worker is V1-required; Go is explicitly deferred by ADR-011.
-- **Existing lint/type debt** — 1,603 lint errors and 54 TypeScript errors
-  across the repo as of the last `npm run check` snapshot (2026-08-09; see
-  DEFINITION_OF_DONE.md for how new agent work should avoid adding to this
-  without being blocked by it).
+- **Existing lint/type debt** — 540 ESLint errors and 75 TypeScript errors
+  across the repo as of the 2026-10-15 `npm run check` snapshot. That compares
+  with 1,603 / 54 on 2026-08-09: lint debt fell, while typing the Supabase
+  client surfaced more type errors. The remaining `apps/web` type errors are schema drift: `user_files`
+  and `fitness_routines` are queried but exist in no migration, and
+  `collaboration_workspaces.updated_at` is missing from the generated types.
+  See DEFINITION_OF_DONE.md for how new work avoids adding to this debt.
 - **Reconcile the local prompt-queue workflow with the new GitHub-based
   one** — `docs/agents/workflow/GEMINI.md` describes a `docs/agents/prompts/`
   → `docs/agents/completions/` queue that this bootstrap's GitHub Issues
@@ -184,7 +197,7 @@ not a general cleanup wishlist.
   (921 lines, 513-line function), `ContextDiagramPage.tsx` (1029 lines),
   `CollaborationWorkspacePage.tsx` (862 lines, 639-line function) — worth
   breaking up opportunistically when touched, not as a standalone project.
-- **`no-unsafe-*` ESLint findings** (~1,200 of the 1,603 current lint
+- **`no-unsafe-*` ESLint findings** (~480 of the 540 current lint
   errors) represent real type-safety erosion despite a strict
   `tsconfig.base.json` — likely concentrated in a few files; worth a
   targeted pass rather than a blanket sweep.
