@@ -5,7 +5,6 @@ import {
     listMessages,
     deleteConversation,
 } from '@/features/chatbot/services/chatService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function GET(
     _req: Request,
@@ -15,11 +14,7 @@ export async function GET(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const messages = await listMessages(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        const messages = await listMessages(supabase, userId, id);
         return NextResponse.json({ messages });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -35,11 +30,7 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        await deleteConversation(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        await deleteConversation(supabase, userId, id);
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

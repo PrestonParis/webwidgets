@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import {
@@ -27,7 +27,14 @@ export function ViewportWidgetMount({
     emoji,
     eager = false,
 }: ViewportWidgetMountProps) {
-    const metadata = useMemo(() => getWidgetRuntimeMetadata(config), [config]);
+    const metadata = useMemo(
+        () =>
+            getWidgetRuntimeMetadata({
+                id: widgetId,
+                type: config.type,
+            }),
+        [widgetId, config.type],
+    );
     const { markWidgetFailed } = useDashboardRuntime();
     const { ref, loaded, visible, canHydrate, status, retry } =
         useDashboardRuntimeWidget({ metadata, eager });
@@ -35,9 +42,8 @@ export function ViewportWidgetMount({
     // Once a widget has been hydrated, keep it mounted even when scrolled out of
     // view. Toggling canHydrate causes unmount → remount which re-runs all hooks
     // and triggers fresh API fetches. Use CSS visibility instead.
-    const everHydratedRef = useRef(false);
-    if (canHydrate) everHydratedRef.current = true;
-    const keepMounted = everHydratedRef.current;
+    const [keepMounted, setKeepMounted] = useState(canHydrate);
+    if (canHydrate && !keepMounted) setKeepMounted(true);
 
     const unavailable =
         status === 'failed' || status === 'cooldown' || status === 'disabled';
@@ -82,8 +88,6 @@ export function ViewportWidgetMount({
                             : {
                                   visibility: 'hidden',
                                   pointerEvents: 'none',
-                                  height: 0,
-                                  overflow: 'hidden',
                               }
                     }
                 >

@@ -1,15 +1,23 @@
-import { z } from 'zod';
+import { createClients } from '@/lib/supabase/serverClient';
+import { timelineFeedResponseSchema } from '@/features/news/schemas/timelineFeedSchemas';
+import { queryTimelineFeed } from '@/features/news/server/timelineFeedServer';
 import type { DataResolver } from '@/features/widgets/types/snapshot';
 
-const rankedFeedSchema = z.array(z.unknown());
-
-export const newsResolvers: DataResolver<unknown[]>[] = [
+export const newsResolvers: DataResolver[] = [
     {
-        key: 'events.feed.ranked',
-        cachePolicy: { ttlSeconds: 30 },
-        schema: rankedFeedSchema,
-        resolve() {
-            return Promise.resolve([]);
+        key: 'events.timeline',
+        cachePolicy: { ttlSeconds: 60 },
+        schema: timelineFeedResponseSchema,
+        async resolve(ctx) {
+            if (!ctx.userId)
+                throw new Error('Missing userId for timeline resolver');
+            const { supabase } = await createClients();
+            const result = await queryTimelineFeed(supabase, ctx.userId, {
+                limit: 10,
+                sourceTypes: [],
+                eventTypes: [],
+            });
+            return timelineFeedResponseSchema.parse(result);
         },
     },
 ];

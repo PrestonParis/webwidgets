@@ -1,5 +1,4 @@
-import { createClients } from '@/lib/supabase/serverClient';
-import { getCalendarSnapshot } from '@/features/calendar/server/calendarService';
+import { loadCredentialCalendarSnapshot } from '@/app/api/auth/_lib/providerSnapshots';
 import { calendarSnapshotSchema } from '@/features/calendar/lib/calendarSchemas';
 import type { DataResolver } from '@/features/widgets/types/snapshot';
 
@@ -12,8 +11,7 @@ export const calendarResolvers: DataResolver[] = [
         async resolve(ctx) {
             if (!ctx.userId)
                 throw new Error('Missing userId for calendar resolver');
-            const { supabaseAdmin } = await createClients();
-            return getCalendarSnapshot(supabaseAdmin, ctx.userId, 7);
+            return loadCredentialCalendarSnapshot(ctx.userId, 7);
         },
     },
 ];

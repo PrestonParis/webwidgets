@@ -1,0 +1,3 @@
+-- Historical production seeded a specific administrator here. The repository
+-- baseline intentionally omits account identities. Grant roles through the
+-- service-role-only grant_admin(target_email) operation instead.

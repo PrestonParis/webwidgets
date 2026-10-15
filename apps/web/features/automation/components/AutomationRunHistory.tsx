@@ -1,6 +1,5 @@
 'use client';
 
-import { apiRouteFetch } from '@/lib/api/client';
 import { useState } from 'react';
 import {
     AlertCircle,
@@ -29,6 +28,7 @@ import {
     relativeTime,
     widgetEmoji,
 } from '@/features/automation/lib/automationDisplay';
+import { retryAutomationRun } from '@/features/automation/services/automationCenterService';
 
 const RUN_STATUS_ICONS: Record<AutomationRunStatus, LucideIcon> = {
     queued: Clock,
@@ -144,39 +144,35 @@ function RunRow({
                             {run.errorMessage}
                         </p>
                     )}
+                    {run.warnings?.map((warning) => (
+                        <p
+                            key={warning}
+                            className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+                        >
+                            Source warning: {warning}
+                        </p>
+                    ))}
                     {run.status === 'failed' && (
                         <button
                             type="button"
-                            onClick={async () => {
-                                setRetrying((s) => new Set(s).add(run.id));
-                                try {
-                                    await apiRouteFetch(
-                                        `/api/command/workstreams`,
-                                        {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type':
-                                                    'application/json',
-                                            },
-                                            body: JSON.stringify({
-                                                automationName:
-                                                    run.automationName,
-                                                widgetName: run.widgetName,
-                                            }),
-                                        },
-                                    );
-                                    toast.success(
-                                        `Retry queued for "${run.automationName}"`,
-                                    );
-                                } catch {
-                                    toast.error('Retry failed');
-                                } finally {
-                                    setRetrying((s) => {
-                                        const n = new Set(s);
-                                        n.delete(run.id);
-                                        return n;
-                                    });
-                                }
+                            onClick={() => {
+                                void (async () => {
+                                    setRetrying((s) => new Set(s).add(run.id));
+                                    try {
+                                        await retryAutomationRun(run.id);
+                                        toast.success(
+                                            `Retry queued for "${run.automationName}"`,
+                                        );
+                                    } catch {
+                                        toast.error('Retry failed');
+                                    } finally {
+                                        setRetrying((s) => {
+                                            const n = new Set(s);
+                                            n.delete(run.id);
+                                            return n;
+                                        });
+                                    }
+                                })();
                             }}
                             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                         >

@@ -77,15 +77,6 @@ export function ReviewSession({
         return () => document.removeEventListener('keydown', onKey);
     }, [session]);
 
-    const cardNum = Math.min(
-        session.queueLength,
-        session.queueLength -
-            (session.queueLength -
-                (session.stats.again +
-                    session.stats.hard +
-                    session.stats.good +
-                    session.stats.easy)),
-    );
     const reviewed =
         session.stats.again +
         session.stats.hard +

@@ -16,7 +16,7 @@ const resolverKeys = [
     'recovery.trackers',
     'tasks.open',
     'weather.current',
-    'events.feed.ranked',
+    'events.timeline',
     'activity.recent',
 ] as const;
 
@@ -42,7 +42,7 @@ const resolverLoaders: Record<(typeof resolverKeys)[number], ResolverLoader> = {
     'tasks.open': () => import('@/features/todo/server/todoResolvers'),
     'weather.current': () =>
         import('@/features/weather/server/weatherResolvers'),
-    'events.feed.ranked': () => import('@/features/news/server/newsResolvers'),
+    'events.timeline': () => import('@/features/news/server/newsResolvers'),
     'activity.recent': () =>
         import('@/features/activity/server/activityResolvers'),
 };

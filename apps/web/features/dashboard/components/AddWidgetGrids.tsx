@@ -13,6 +13,7 @@ import {
     WIDGET_CATEGORIES,
     type WidgetCategory,
 } from '@/features/dashboard/lib/addWidgetConstants';
+import { V1ReleaseBadge } from '@/lib/product/V1ReleaseBadge';
 
 interface WidgetGridProps {
     presentTypes: Set<string>;
@@ -114,6 +115,7 @@ export function WidgetGrid({
                                         {category.label}
                                     </span>
                                 )}
+                                <V1ReleaseBadge state={entry.betaState} />
                                 <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 leading-tight">
                                     {entry.name}
                                 </p>

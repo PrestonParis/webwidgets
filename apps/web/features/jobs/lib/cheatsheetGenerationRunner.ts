@@ -14,7 +14,11 @@ import type { JobRecord } from '@/features/jobs/types/jobs';
 registerJobRunner({
     canRun: (job: JobRecord) => job.type === 'cheatsheet_generation',
 
-    async run(job: JobRecord, supabase: SupabaseClient): Promise<void> {
+    async run(
+        job: JobRecord,
+        supabase: SupabaseClient,
+        credentialDb: SupabaseClient,
+    ): Promise<void> {
         await updateJobStatus(supabase, job.userId, job.id, 'running');
 
         try {
@@ -42,7 +46,7 @@ registerJobRunner({
             }
 
             // Step 2: Generate cheatsheet
-            const result = await generateCheatsheet(supabase, {
+            const result = await generateCheatsheet(credentialDb, {
                 title,
                 sourceText: extraction.extractedText,
                 userId: job.userId,

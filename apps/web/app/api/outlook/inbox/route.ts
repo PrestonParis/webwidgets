@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { resolveClassifications } from '@/features/inbox/lib/dbClassifications';
@@ -35,7 +34,7 @@ export async function GET(_req: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await (supabaseAdmin as SupabaseClient)
+    const { data, error } = await supabaseAdmin
         .from('email_snapshots')
         .select(
             'id,account_email,subject,sender_email,sender_name,snippet,received_at,raw_date',

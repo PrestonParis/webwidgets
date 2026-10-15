@@ -118,6 +118,12 @@ export type ActivityEventCategory =
     | 'automation'
     | 'system';
 
+export type ActivityEventOrigin =
+    | 'domain'
+    | 'system'
+    | 'external'
+    | 'timeline_projection';
+
 // ── Related entity reference ──────────────────────────────────────────────────
 export interface RelatedEntity {
     type: string;
@@ -156,13 +162,14 @@ export interface ActivityEvent {
     relatedEntities: RelatedEntity[];
     metadata: Record<string, unknown>;
     actionUrl?: string;
+    origin: ActivityEventOrigin;
 }
 
 // ── Input shape for publishing ────────────────────────────────────────────────
 export interface ActivityEventInput {
     userId: string;
     source: ActivityEventSource;
-    eventType?: ActivityEventType | string;
+    eventType?: string;
     sourceId?: string;
     sourceTable?: string;
     severity?: ActivityEventSeverity;
@@ -174,6 +181,7 @@ export interface ActivityEventInput {
     relatedEntities?: RelatedEntity[];
     metadata?: Record<string, unknown>;
     actionUrl?: string;
+    origin?: ActivityEventOrigin;
 }
 
 // ── Query options ─────────────────────────────────────────────────────────────

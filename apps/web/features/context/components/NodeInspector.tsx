@@ -7,6 +7,7 @@ import type {
     ContextGraph,
     ContextNode,
 } from '@/features/context/types/context';
+import { toText } from '@/lib/utils/utils';
 
 interface NodeInspectorProps {
     node: ContextNode;
@@ -36,8 +37,8 @@ export function NodeInspector({
     );
     const tags = [
         node.entryType,
-        String(node.data.category ?? ''),
-        ...String(node.data.tags ?? '')
+        toText(node.data.category ?? ''),
+        ...toText(node.data.tags ?? '')
             .split(',')
             .map((tag) => tag.trim()),
     ].filter(Boolean);
@@ -85,7 +86,7 @@ export function NodeInspector({
                 />
                 <Stat
                     label="Alerts"
-                    value={String(node.data.unread ?? node.data.alerts ?? 0)}
+                    value={toText(node.data.unread ?? node.data.alerts ?? 0)}
                     icon={Bell}
                 />
             </section>

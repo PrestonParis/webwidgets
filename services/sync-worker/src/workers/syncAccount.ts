@@ -1,4 +1,5 @@
-import { env } from '../env.js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { WorkerEnv } from '../env.js';
 import {
     upsertSnapshots,
     markAccountSynced,
@@ -11,50 +12,43 @@ import {
 import { fetchGmailSnapshots } from '../lib/gmailFetch.js';
 import { fetchOutlookSnapshots } from '../lib/outlookFetch.js';
 
-export interface SyncAccountJobData {
-    userId: string;
-    accountId: string;
-    provider: 'google' | 'microsoft';
-    email: string;
-    accessToken: string;
-    refreshToken: string | null;
-    expiresAt: number | null;
+interface SyncDependencies {
+    client: SupabaseClient;
+    env: WorkerEnv;
 }
 
 export async function syncAccount(
     account: EmailAccount,
+    dependencies: SyncDependencies,
 ): Promise<{ synced: number }> {
-    let snapshots;
-
-    if (account.provider === 'google') {
-        const token = await getValidGoogleToken(
-            account.id,
-            account.access_token,
-            account.refresh_token,
-            account.expires_at,
-        );
-        snapshots = await fetchGmailSnapshots(
-            account.user_id,
-            account.email,
-            token,
-            env.SYNC_BATCH_SIZE,
-        );
-    } else {
-        const token = await getValidMicrosoftToken(
-            account.id,
-            account.access_token,
-            account.refresh_token,
-            account.expires_at,
-        );
-        snapshots = await fetchOutlookSnapshots(
-            account.user_id,
-            account.email,
-            token,
-            env.SYNC_BATCH_SIZE,
-        );
-    }
-
-    await upsertSnapshots(snapshots);
-    await markAccountSynced(account.id);
+    const tokenInput = {
+        client: dependencies.client,
+        env: dependencies.env,
+        userId: account.user_id,
+        accountId: account.id,
+        accessToken: account.access_token,
+        refreshToken: account.refresh_token,
+        expiresAt: account.expires_at,
+    };
+    const token =
+        account.provider === 'google'
+            ? await getValidGoogleToken(tokenInput)
+            : await getValidMicrosoftToken(tokenInput);
+    const snapshots =
+        account.provider === 'google'
+            ? await fetchGmailSnapshots(
+                  account.user_id,
+                  account.email,
+                  token,
+                  dependencies.env.SYNC_BATCH_SIZE,
+              )
+            : await fetchOutlookSnapshots(
+                  account.user_id,
+                  account.email,
+                  token,
+                  dependencies.env.SYNC_BATCH_SIZE,
+              );
+    await upsertSnapshots(dependencies.client, snapshots);
+    await markAccountSynced(dependencies.client, account.user_id, account.id);
     return { synced: snapshots.length };
 }

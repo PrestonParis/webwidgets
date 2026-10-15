@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
-import { createClients } from '@/lib/supabase/serverClient';
+import { createCredentialClients as createClients } from '@/app/api/auth/_lib/credentialClients';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
@@ -14,6 +14,7 @@ import {
     ingestContextEdge,
     ingestContextNode,
 } from '@/features/context/services/contextService';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const emailInputSchema = z.object({
     id: z.string().min(1),
@@ -281,7 +282,7 @@ async function processEmails(
     // (so extraction works for all users without manual profile setup).
     const apiKey =
         profile?.anthropic_api_key ||
-        process.env.ANTHROPIC_API_KEY ||
+        sharedLlmKey('ANTHROPIC_API_KEY') ||
         undefined;
     if (force || profile?.use_ai_email || apiKey) {
         await addClaudeExtractions(extractedMap, emailsWithBody, apiKey);

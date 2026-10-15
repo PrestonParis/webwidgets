@@ -6,7 +6,6 @@ import {
     addWatchlistReading,
 } from '@/features/finance/services/watchlistService';
 import { fetchLatestValue } from '@/features/finance/lib/watchlist/watchlistProviderRegistry';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 const STALE_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -19,10 +18,7 @@ export async function POST(
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
 
-        const items = await listWatchlistItems(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const items = await listWatchlistItems(supabase, userId);
         const item = items.find((i) => i.id === id);
         if (!item)
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -44,7 +40,7 @@ export async function POST(
         }
 
         const reading = await addWatchlistReading(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
             id,
             result.value,

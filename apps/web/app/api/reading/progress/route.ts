@@ -3,6 +3,7 @@ import { createClients } from '@/lib/supabase/serverClient';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import type { ReadingPosition } from '@/features/reading/types/positions';
 import type { ReadingProgress } from '@/features/reading/types/plans';
+import type { Json } from '@/types/supabase';
 
 function rowToProgress(r: Record<string, unknown>): ReadingProgress {
     return {
@@ -74,7 +75,7 @@ export async function POST(req: Request) {
                 {
                     user_id: user.id,
                     document_id: body.documentId,
-                    position: body.position,
+                    position: body.position as unknown as Json,
                     percent_complete: body.percentComplete,
                     updated_at: new Date().toISOString(),
                     ...(body.versionId !== undefined && {

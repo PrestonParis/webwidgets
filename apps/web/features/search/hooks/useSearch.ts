@@ -8,6 +8,7 @@ import {
 } from '../store/useFolderRegistry';
 import { synthesizeWidgetFromQuery } from '@/features/widgets/synthesis/widgetSearchSynthesis';
 import type { WidgetSynthesisCandidate } from '@/features/widgets/synthesis/widgetBuilderInterfaces';
+import { isV1DefaultWidget } from '@/lib/product/v1FeaturePolicy';
 
 export interface NlpSuggestion {
     widget: string;
@@ -82,7 +83,11 @@ export function useSearch(query: string, taskQuery: string): SearchResults {
                             suggestions: NlpSuggestion[];
                             suggest_ai: boolean;
                         };
-                        setNlpSuggestions(data.suggestions);
+                        setNlpSuggestions(
+                            data.suggestions.filter((suggestion) =>
+                                isV1DefaultWidget(suggestion.widget),
+                            ),
+                        );
                         setSuggestAi(data.suggest_ai);
                     } else {
                         setSuggestAi(true);

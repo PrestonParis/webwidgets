@@ -47,13 +47,13 @@ export function useMoodMutation(onSuccess?: (entry: MoodEntry) => void) {
 
                 if (!error && data) {
                     const entry: MoodEntry = {
-                        id: data.id as string,
+                        id: data.id,
                         user_id: user.id,
-                        mood: data.mood as number,
-                        score: data.mood as number,
-                        note: (data.note as string | null) ?? null,
-                        logged_date: data.logged_date as string,
-                        logged_at: data.logged_at as string,
+                        mood: data.mood,
+                        score: data.mood,
+                        note: data.note ?? null,
+                        logged_date: data.logged_date,
+                        logged_at: data.logged_at,
                     };
                     onSuccess?.(entry);
                 }

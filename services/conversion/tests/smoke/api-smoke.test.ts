@@ -87,6 +87,19 @@ describe('assertJobAllowed (no infra)', () => {
         ).toThrow(HttpError);
     });
 
+    it('rejects unsanitized HTML input', () => {
+        expect(() =>
+            assertJobAllowed(
+                validJobPayload({
+                    originalFileName: 'sample.html',
+                    sourceMime: 'text/html',
+                    sourceExtension: 'html',
+                    targetExtension: 'md',
+                }) as Parameters<typeof assertJobAllowed>[0],
+            ),
+        ).toThrow(/disabled until active sanitization/i);
+    });
+
     it('rejects double extension filename', () => {
         expect(() =>
             assertJobAllowed(
@@ -164,7 +177,10 @@ describe('API HTTP endpoints (no infra)', () => {
             }),
         });
         expect(res.statusCode).toBe(400);
-        expect(res.json().error).toBeTruthy();
+        const body: unknown = res.json();
+        expect(
+            typeof body === 'object' && body !== null && 'error' in body,
+        ).toBe(true);
     });
 
     it('POST /v1/jobs with double extension → 400', async () => {
@@ -222,7 +238,7 @@ describe('API key authentication (no infra)', () => {
     const MOCK_KEY = 'smoke-test-secret';
 
     it('returns 401 when key is missing and CONVERSION_API_KEY is set', async () => {
-        await vi.resetModules();
+        vi.resetModules();
         process.env.CONVERSION_API_KEY = MOCK_KEY;
         vi.doMock('../../apps/api/src/env.js', () => ({
             env: {
@@ -255,14 +271,14 @@ describe('API key authentication (no infra)', () => {
             payload: validJobPayload(),
         });
         await securedApp.close();
-        await vi.resetModules();
+        vi.resetModules();
         delete process.env.CONVERSION_API_KEY;
 
         expect(res.statusCode).toBe(401);
     });
 
     it('passes auth gate when correct key is sent', async () => {
-        await vi.resetModules();
+        vi.resetModules();
         vi.doMock('../../apps/api/src/env.js', () => ({
             env: {
                 CONVERSION_API_PORT: 4010,
@@ -295,7 +311,7 @@ describe('API key authentication (no infra)', () => {
             headers: { 'x-conversion-api-key': MOCK_KEY },
         });
         await securedApp.close();
-        await vi.resetModules();
+        vi.resetModules();
 
         // Auth passed — may fail at DB (500), but not at auth (401).
         expect(res.statusCode).not.toBe(401);

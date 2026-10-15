@@ -4,7 +4,7 @@
 
 ## ADR-001: ML-First, Claude as Paid Fallback
 
-**Status:** Active
+**Status:** Active production target; development deployment amended by ADR-015
 
 **Decision:** In-house TF-IDF + Logistic Regression models run for all users. Claude (Anthropic API) is reserved as a fallback for paid tier only.
 
@@ -83,3 +83,536 @@
 **Why:** Initial threshold of 0.45 dropped legitimate payment emails (Klarna-style) that scored ~0.37. The `ignore` class acts as a safety net — lowering the threshold to 0.35 doesn't increase false positives meaningfully because genuinely irrelevant emails are still classified as `ignore`.
 
 **Consequences:** As training data grows, the threshold may need revisiting. Monitor false positive rate for new email types.
+
+---
+
+## ADR-008: One Durable TypeScript Worker for V1 Background Work
+
+**Status:** Active
+
+**Decision:** Extend `services/sync-worker` into the one continuously running
+V1 TypeScript/BullMQ worker. It owns source polling, normalization, analysis
+jobs, recurring schedules, provider action execution, retries, dead letters,
+and worker health. Next.js owns authenticated UI/API, webhook validation,
+source configuration, and exact-payload approval. Vercel crons are temporary
+cutover fallbacks and must not schedule work also owned by the worker.
+
+If activated, this ADR narrowly amends ADR-005: the Supabase service-role
+client may also run inside the dedicated server-only worker. Every operation
+must carry an explicit user scope, validate the owning connection or record,
+and remain unavailable to browser and shared client-safe modules.
+
+**Why:** The repository has working pieces split across Vercel cron routes,
+the sync worker, and undispatched news/action worker factories. A single boot
+owner and lifecycle contract prevents duplicate schedules, missing consumers,
+and provider work tied to request duration. The existing sync worker has the
+strongest reusable BullMQ, token refresh, and shutdown foundation.
+
+**Consequences:** Prompt 005 must select and document a production container
+host, add all V1 processors to one explicit entrypoint, implement health and
+dead-letter behavior, and cut over schedules one source at a time. The worker
+name may remain temporarily even as its role broadens. Service-role access
+becomes a reviewed server-runtime exception, not a general shared library.
+
+---
+
+## ADR-009: Separate Source Truth, Timeline, Activity, Knowledge, and Context
+
+**Status:** Active
+
+**Decision:** Provider/domain records and `knowledge_items` remain source truth
+for current domain state and user-authored content. A normalized, user-scoped
+timeline becomes the canonical history of meaningful facts. `activity_events`
+is a recent-activity/notification projection, while `context_entries` and
+edges are rebuildable entity/retrieval projections. Projections flow one way
+from domain, timeline, knowledge, and verified outcomes and cannot republish
+themselves as new timeline facts.
+
+Derived insights and candidate actions must reference their evidence and
+model/policy version. Existing `action_requests`, `action_results`, `jobs`,
+and automation records should be reused or evolved after the live-schema audit
+rather than duplicated solely to match new terminology.
+
+**Why:** Activity is mutable and pruned, context is rewritten by backfills and
+entity upserts, and knowledge represents authored content rather than provider
+or action events. Treating any one of them as all three roles loses provenance,
+creates feedback loops, or duplicates private source bodies.
+
+**Consequences:** Prompt 004 adds only the missing canonical concepts and
+relations after Prompt 003 verifies the live schema. Timeline rows minimize
+content and reference knowledge/domain bodies. Activity and context can be
+rebuilt and must never outlive their source. Existing compatibility reads stay
+in place during migration.
+
+---
+
+## ADR-010: Supabase Is Durable Truth; BullMQ Provides At-Least-Once Delivery
+
+**Status:** Active
+
+**Decision:** Supabase Postgres owns canonical lifecycle state, provenance,
+user scope, approvals, and verified outcomes. BullMQ/Redis owns delivery,
+concurrency, retry timing, and delayed schedules only. Queue jobs reference a
+canonical record and deterministic idempotency key. Duplicate delivery is
+expected; externally visible effects must remain once from the product's
+perspective.
+
+Use proposed V1 defaults of 30 days for raw private payload after successful
+normalization, 365 days for normalized timeline events and content-minimized
+approval/action/automation history, 30 days for successful job diagnostics,
+and 90 days for failed/dead-letter diagnostics. Existing activity archive and
+90-day deletion behavior remains a projection policy. Disconnect stops work
+and revokes credentials but preserves normalized history by default; removing
+imported source data cascades through dependent projections and derived work.
+
+**Why:** Redis retention or restart cannot erase product history. Stable source
+identity and persisted state are required to coalesce webhook redelivery,
+cursor replay, polling overlap, worker restart, and provider retry safely.
+Explicit retention and deletion rules prevent context or derived records from
+silently outliving private source data.
+
+**Consequences:** Every processor persists state before acknowledging work,
+checks permission immediately before external effects, and records a verified
+result rather than treating queue acceptance as success. Prompt 004 must add
+constraints, RLS, retention metadata, and cascade/invalidation behavior. The
+retention defaults require human approval and later operational enforcement.
+
+---
+
+## ADR-011: Bound Python, n8n, Go, Conversion, and Dashboard Runtime Roles
+
+**Status:** Active
+
+**Decision:** Python serves versioned, bounded, stateless inference requests
+and owns no schedules, authorization policy, queues, or product state. n8n is
+an optional executor for explicitly configured, validated, approved workflows
+and is not an ingestion owner or approval/run database. The Go worker is
+disabled and deferred for V1. The conversion service remains a specialized
+file-conversion boundary. The dashboard runtime owns rendering and local UI
+state only.
+
+**Why:** These components have useful bounded capabilities, but promoting any
+of them to general orchestration would create another state machine or depend
+on incomplete infrastructure. The Go paths are in-memory stubs, current n8n
+callbacks do not reliably transition the originating job, and client runtime
+cannot provide durable background execution.
+
+**Consequences:** Prompt 010 must expose Python through one authenticated
+container deployment path and exclude fabricated fallbacks from decisions.
+Prompt 014 must correlate n8n callbacks to canonical action/job records with
+idempotency. Go cannot be a dependency of a V1 acceptance journey and should
+only return after a measured requirement and separate decision.
+
+---
+
+## ADR-012: Recover Remote Migration History Without a Squashed Live Dump
+
+**Status:** Active
+
+**Decision:** Establish the WebWidgets schema baseline by recovering and
+reviewing the 46 migrations already recorded by `webwidgets-dev`, committing
+sanitized historical files under their original versions, and keeping a
+schema inventory plus checksum manifest as non-executable evidence. Do not
+commit the raw live schema dump as a migration and do not mark historical
+objects for recreation. Reconcile the local-only context migration as the next
+reviewed successor, then use new additive migrations for remediation.
+
+**Why:** Remote history is recoverable through supported Supabase tooling, but
+is absent from the repository. A squashed schema dump would be easy to apply
+accidentally, would obscure migration order, and contains environment-specific
+function/policy detail. Two recovered historical files also contain email
+literals that must not be copied into source control verbatim.
+
+**Consequences:** Baseline recovery is a repository-only task until separately
+approved migrations begin. Recovered SQL requires manual security and privacy
+review, and sanitized files may intentionally differ from remote checksums with
+that difference documented. Type generation happens only after migration
+history, live context state, and critical RLS remediation agree.
+
+---
+
+## ADR-013: One Canonical Lifecycle With Existing Execution Ledgers
+
+**Status:** Active
+
+**Decision:** Add only the missing observation, timeline, evidence-linked
+insight, and candidate-action records. Evolve `integration_connections`,
+`jobs`, `automation_runs`, `action_requests`, and `action_results` in place.
+Every derived record has an owner-matched foreign key to required provenance.
+Approval is an authenticated atomic transition for one exact payload, version,
+permission snapshot, and policy; an action is complete only after a verified
+result. Shared persistence contracts live in `apps/web/lib/lifecycle/`.
+
+**Why:** Prompt 003 confirmed the existing execution and operational ledgers
+have viable ownership and RLS. Parallel tables would split approval,
+idempotency, retry, and provider outcome truth. Composite owner foreign keys
+make cross-user provenance invalid even when a record UUID is known.
+
+**Consequences:** Prompt 005 processors persist canonical IDs before queue
+acknowledgement and treat BullMQ as delivery only. Activity and context remain
+one-way projections. Source-data removal cascades through timeline, insights,
+and candidates while content-minimized approval/outcome receipts remain under
+the 365-day retention policy. The reviewed bundle was deployed to
+`webwidgets-dev` and types were regenerated from live on 2026-08-14.
+
+---
+
+## ADR-014: Render Hosts the Single V1 Worker and Persistent BullMQ Queue
+
+**Status:** Active
+
+**Decision:** Deploy `services/sync-worker` as one Docker background worker on
+Render with one paid, persistent Render Key Value instance configured with
+`noeviction`. The worker starts the four owned V1 BullMQ consumers from one
+entrypoint, exposes container-local liveness/readiness, emits dependency
+heartbeats, and receives up to 120 seconds for graceful shutdown. Supabase
+`jobs` remains durable truth; Render Key Value holds delivery state only.
+
+The initial deployment is dark: V1 queues and the content-free runtime probe
+are enabled, while provider email work is disabled, dry-run is enabled, and
+Vercel remains the temporary schedule owner. Source cutover changes both
+schedule owners atomically after parity evidence; they never run together.
+
+**Why:** Render directly supports Docker background workers, BullMQ, managed
+private Redis-compatible Key Value, infrastructure-as-code Blueprints, and
+bounded SIGTERM handling. It gives this monorepo one reproducible worker path
+without promoting Vercel requests, n8n, Go, or Redis into orchestration truth.
+
+**Consequences:** `render.yaml` is the supported worker deployment manifest.
+Background workers require paid Render resources, so provisioning remains an
+explicit owner billing action. Provider credentials remain disabled until the
+separate server-only credential remediation lands. Prompt 006 and later source
+processors extend the worker registry rather than starting another runtime.
+
+---
+
+## ADR-015: Use Render Free Compatibility Resources During Finalization
+
+**Status:** Active
+
+**Decision:** Until the product is close to release, deploy the same
+`services/sync-worker` Docker image as a free Render web service with `/ready`
+as its health endpoint and one free `noeviction` Render Key Value instance.
+Keep dry-run enabled, provider email work disabled, and Vercel as the schedule
+owner. `render.yaml` describes this temporary development topology.
+
+The free service may sleep when idle and the free Key Value instance has no
+disk persistence. Supabase `jobs` remains durable truth, but delivery may need
+to be re-enqueued after a Key Value restart. This deployment is for integration
+and smoke testing, not a claim of continuous or production-safe automation.
+The free manifest omits the unsupported custom host shutdown delay and bounds
+the process's own shutdown timeout to 25 seconds.
+
+**Why:** The owner explicitly chose the Render free plan during finalization.
+The worker already exposes an HTTP health server on Render's default port, so
+the same container can run as a web service without creating another runtime.
+
+**Consequences:** Before production, replace the web service with the ADR-014
+background worker and use persistent Key Value. Because Render service types
+are immutable and free-to-paid Key Value upgrades lose in-memory data, perform
+that change as an explicit cutover after draining or safely re-enqueuing work.
+
+---
+
+## ADR-016: Worker-Owned RSS Sources Use Canonical Integration State
+
+**Status:** Active
+
+**Decision:** Represent each RSS/Atom feed as an `integration_connections` row
+identified by the owner, provider, and canonical URL hash. Authenticated
+Next.js routes create, list, and disable sources. The V1 worker scans due rows,
+creates canonical ingestion jobs, validates every hostname, resolved address,
+and redirect, then persists minimized observations and timeline events before
+recording success. ETag, Last-Modified, failure count, backoff, and next attempt
+remain source state in Supabase.
+
+Feed bodies are untrusted input. The worker strips markup, stores references
+rather than rendered HTML, and marks the resulting metadata as untrusted. A
+title-and-day related-story hash is a non-destructive link only; it cannot
+collapse events or influence permissions.
+
+**Why:** RSS is the smallest transparent external source that proves the V1
+configuration-to-timeline loop without a publisher API. Canonical connection
+state preserves user control and makes retries, deduplication, and health
+queryable independently of Redis delivery history.
+
+**Consequences:** The prior one-row-per-provider uniqueness rule becomes
+owner/provider/external-account uniqueness while preserving one null external
+account for legacy providers. Production still requires ADR-014's continuous
+worker and persistent queue; the free finalization service may sleep.
+
+---
+
+## ADR-017: Provider Signals Converge on Canonical Connection State
+
+**Status:** Active
+
+**Decision:** Link each Google or Microsoft credential row in
+`user_email_accounts` to one owner-matched `integration_connections` row.
+Canonical connection state owns scheduling, incremental cursor, source health,
+failure backoff, and disconnect status. The V1 worker owns Gmail, Google
+Calendar, and Outlook Mail polling and normalization into `raw_observations`
+and `timeline_events`. Gmail webhooks validate notifications and accelerate the
+same connection schedule; the existing Gmail queue remains a temporary
+projection for established inbox actions during cutover.
+
+Provider object/version identity is account-scoped and idempotent. Disconnect
+is an authenticated atomic operation that disables future scheduling and
+removes credentials while retaining already-normalized history. The worker
+rechecks connection state between signal writes and never records a successful
+cursor advance after an interrupted disconnect.
+
+Outlook Calendar is not part of this contract because the existing Microsoft
+OAuth flow grants mail access only. Adding calendar ingestion requires an
+explicit consent change and separate review.
+
+**Why:** Provider credentials, cursor state, health, webhook scheduling, and
+timeline identity previously lived in overlapping paths. A single connection
+owner permits safe replay, source-health UI, and prompt-level cutover without
+discarding the working inbox-action behavior.
+
+**Consequences:** Render holds the provider OAuth client credentials and runs
+with `PROVIDER_SYNC_ENABLED=true`. Live ingestion, replay deduplication, source
+health, cursor persistence, and restart recovery are proven. Disconnect remains
+an owner-only atomic operation covered by database and worker integration
+tests. Legacy processors retire account by account rather than through an
+unverified global switch.
+
+The initial existing-account backfill required a successor migration because a
+data-changing CTE and its outer update shared one PostgreSQL snapshot. Keeping
+the insert and update as separate statements linked the two live credential
+rows without rewriting deployed migration history.
+
+A back-to-back Render deployment also proved that queue delivery and canonical
+job state need separate recovery. A worker may reclaim a `running` canonical
+job only after the processing timeout plus a lease buffer, and removes a
+failed BullMQ delivery before redelivery.
+
+---
+
+## ADR-018: Internal State Projects into the Timeline at the Database Boundary
+
+**Status:** Active
+
+**Decision:** Use database triggers to project meaningful todo, journal,
+document, artifact, parse, and selected automation transitions into
+`raw_observations` and `timeline_events`. Domain and knowledge rows remain
+source truth. Projection identity includes the source version; content-only
+autosaves share a 15-minute version bucket. No automatic historical backfill
+is performed.
+
+Projection payloads contain source references and bounded change metadata,
+never note, journal, document, extraction, or error bodies. Deletion retracts
+prior active events, clears raw payloads, and records only a minimal tombstone.
+`activity_events.origin` is one-way provenance: records originating from a
+timeline projection cannot generate another timeline event.
+
+**Why:** Internal state has multiple valid write paths. A database boundary
+applies one idempotent contract to UI, API, import, and automation writes while
+avoiding duplicate application emitters and private-content replication.
+
+**Consequences:** Prompt 009 can query one event model without feature joins.
+Any future direct writer inherits the projection contract. A requested
+historical import must be separately bounded and user-authorized.
+
+---
+
+## ADR-019: Timeline Reads Use One Owner-Scoped Canonical API
+
+**Status:** Active
+
+**Decision:** The `/news` route and `news` widget remain stable identifiers,
+but their V1 surface is Timeline Intelligence. They read persisted
+`timeline_events` through one authenticated API with explicit owner scope,
+retention/state constraints, bounded filters, and stable ordering by
+`occurred_at DESC, id DESC`. Opaque cursors carry only that ordering boundary.
+Provider APIs are never called during page render.
+
+Source health is derived from `integration_connections` and returned as a
+separate recoverable result. External titles and summaries render only as
+bounded text; provenance links are limited to HTTP(S). Related-story keys
+expose links among events but do not merge their identity.
+
+**Why:** A canonical read boundary prevents provider availability, demo data,
+or ranking services from changing timeline truth. Separate health failure lets
+healthy-source events remain useful when one connection needs attention.
+
+**Consequences:** Briefing and action prompts can consume the same event model.
+The route retains its historical URL, while catalog, help, widget, and page
+language consistently present Timeline Intelligence.
+
+---
+
+## ADR-020: Govern External Inference at the Next.js Boundary
+
+**Status:** Active
+
+**Decision:** Use one authenticated Python container on Render for bounded
+Anthropic summarization and research synthesis. Next.js determines paid-tier
+eligibility, explicit consent, task schema, and sensitivity before sending any
+source data. Python is stateless and may validate, rate-limit, call the model,
+and return typed output; it may not grant permission, schedule work, persist
+canonical state, or invoke actions. The production container exposes only its
+authenticated V1 inference routes.
+
+**Why:** The existing registry falsely marked configured placeholder providers
+as available, while direct feature-specific vendor clients duplicated policy
+and leaked provider behavior into callers. One narrow boundary makes real
+availability, cost, failure, abstention, and model provenance inspectable.
+
+**Consequences:** Anthropic is the sole external V1 provider and remains a paid
+fallback under ADR-001. OpenAI, Gemini, and local placeholders are unavailable
+until they implement the same contract. Audit and cost records contain hashes
+and metadata, never prompts. Free Render sleep latency is accepted during
+finalization but is not the production availability target.
+
+---
+
+## ADR-021: Persist Briefings as Evidence-Linked Derived Aggregates
+
+**Status:** Active
+
+**Decision:** Persist daily and on-demand briefings separately from canonical
+timeline facts. Deterministic ranking bounds input before governed inference,
+every surfaced item links owner-matched timeline evidence, and unsupported
+output is discarded. Provider failure uses cited deterministic fallback;
+source impairment and empty, stale, partial, or failed output remain explicit
+states. One canonical worker job owns scheduled and on-demand generation.
+
+**Why:** A briefing is an expiring interpretation, not source truth. Separate
+records preserve replay, provenance, honest degradation, feedback, and cost
+measurement without rewriting the timeline.
+
+**Consequences:** Models cannot invent uncited briefing claims. Item feedback
+is measurable without altering evidence. Briefing records can expire or be
+deleted independently of canonical source events.
+
+---
+
+## ADR-022: Candidate Approval Binds an Exact Editable Payload Without Execution
+
+**Status:** Active
+
+**Decision:** Commitment detection creates expiring `candidate_actions` backed
+by an insight and direct timeline evidence. Deterministic extraction handles
+clear dated requests; governed external resolution receives only bounded
+ambiguous signals. Candidate edits atomically increment payload version and
+invalidate approval. Approval stores the exact current payload hash/version
+but creates no action request and invokes no handler.
+
+**Why:** Untrusted mail can suggest work but must never approve or execute it.
+Exact-version review prevents a later edit, retry, or model rerun from reusing a
+stale human decision.
+
+**Consequences:** Prompts 013 and 014 may execute only by creating a separate
+idempotent action request from an approved exact candidate. Dismissed and
+incorrect decisions remain measurable, and cross-owner evidence is rejected by
+composite foreign keys and RLS.
+
+---
+
+## ADR-023: Task Mutations Converge on an Atomic Product Receipt
+
+**Status:** Active
+
+**Decision:** An exact approved task candidate materializes one canonical
+`action_requests` record before delivery. The V1 worker receives only that
+record's ID. A service-only database function revalidates its approval
+hash/version, owner, expiry, and optimistic edit timestamp; performs
+`tasks.create`, `tasks.update`, or `tasks.complete` against `todos`; reads the
+row back; and records one verified `action_results` receipt. A unique
+`todos.source_action_request_id` makes canonical storage the final idempotency
+boundary. Browser sessions may review, read outcomes, retry the same request,
+or request supported compensation, but cannot invoke task mutation directly.
+
+**Why:** BullMQ provides at-least-once delivery. An application-only receipt
+can still duplicate a task if a process stops after insertion but before
+recording success. The atomic database boundary makes approval, execution,
+verification, replay, and traceability agree.
+
+**Consequences:** Create and update expose safe undo only while the verified
+task has not changed again. Completion reversal is deliberately unavailable
+in V1. Direct action envelopes cannot claim task success; they must enter via
+an approved canonical request. Prompt 014 shares the request/result and worker
+contracts but must define connector-specific receipts independently.
+
+---
+
+## ADR-024: Isolate Existing Email Credentials Before Increasing OAuth Capability
+
+**Status:** Active; deployed
+
+**Decision:** Remove browser table/column access to email secrets in both
+credential tables, retaining an explicit owner-only metadata allowlist. Keep
+existing credential rows and legacy mirrors during this access-control cutover.
+API helpers verify the current user before creating a cookie-free service
+client; resolver wrappers return product snapshots, never credentials. Do not
+change the shared cookie-bound Supabase clients globally. Worker reads remain
+account/user scoped.
+
+OAuth account connection uses a one-use user/provider-bound nonce, expiry,
+PKCE, safe local redirects, provider-verified identity and actual scopes.
+Atomic persistence preserves other providers and never pairs one mailbox's
+access token with another mailbox's refresh token. Browser session cookies are
+rebuilt from Supabase-only tokens before being emitted.
+
+**Why:** Sending-capable tokens must not amplify the existing browser-secret
+exposure or query-string OAuth owner binding. Reusing the existing tables with
+restrictive grants avoids a simultaneous credential relocation/rotation.
+
+**Consequences:** Write scopes are requested only from an explicit capability
+upgrade and persisted from the provider's actual grant. This is not encryption/Vault
+migration or resolution of other secret-table findings. See
+`docs/finalization/EMAIL_CREDENTIAL_CUTOVER.md` for evidence and recovery rules.
+
+---
+
+## ADR-025: Reserve External Side Effects Once and Reconcile Canonically
+
+**Status:** Active
+
+**Decision:** Email, calendar, and configured workflow actions enter through a
+canonical action request whose exact provider, account, recipients or event/
+workflow parameters, payload hash, and version are approved by the owner.
+Approval creates a durable worker job. A service-only claim reserves each
+external operation once; retries may inspect provider state but cannot reserve
+or dispatch it again. Safe receipts live in `action_results` and dedicated
+dispatch ledgers. Gmail is primary; Outlook supports the bounded new-message
+draft/send journey. Sending is always a separate action and approval.
+
+Google Calendar uses a deterministic event ID and verified read-back. n8n is
+an optional allowlisted executor whose signed callback must match the canonical
+user, request, job, idempotency key, and provider run. An ambiguous initial n8n
+response can be resolved only by that callback, never by blind retriggering.
+
+**Why:** BullMQ is at-least-once and provider writes are outside the database
+transaction. Approval alone does not prevent duplicates if a process stops
+between a provider response and receipt persistence.
+
+**Consequences:** Provider-specific unknown states remain visible and require
+reconciliation. A draft can never inherit send approval; send has no promised
+undo. Calendar cancellation is a separate explicit action. Legacy direct
+workflow triggering returns a canonical-approval-required error.
+
+---
+
+## ADR-026: Treat Release Readiness as Measured State, Not a Build Flag
+
+**Status:** Active
+
+**Decision:** The V1 release gate combines a disposable-account production-like
+E2E suite, frozen numerical thresholds, seven consecutive daily evidence
+windows, repository enforcement, production topology, and a human release
+owner. The suite uses only synthetic committed fixture content and deletes its
+account. CI configuration without enforced required checks is reported as an
+external blocker, not treated as protection.
+
+**Why:** Durable jobs and exact receipts can be correct in isolation while the
+deployed product still loses data, sleeps through schedules, duplicates an
+effect, or presents an unhealthy source as healthy. Release readiness is an
+observed operational property and needs an accountable decision owner.
+
+**Consequences:** Prompt 19 remains incomplete until all seven pilot days and
+human approval exist. Missing evidence restarts the consecutive-day count.
+Agents can recommend Go, Conditional Go, or No Go but cannot self-certify or
+merge their own release PR.

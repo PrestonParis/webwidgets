@@ -1,3 +1,5 @@
+import { toText } from '@/lib/utils/utils';
+
 export interface ChartSeries {
     label: string;
     data: Array<{ x: string | number; y: number }>;
@@ -26,7 +28,7 @@ const DEFAULT_COLORS = [
 
 export function generateColorTokens(
     count: number,
-    palette?: string[] | undefined,
+    palette?: string[],
 ): string[] {
     const source = palette ?? DEFAULT_COLORS;
     return Array.from(
@@ -40,13 +42,13 @@ export function mapToChartSeries(
     xField: string,
     yField: string,
     label: string,
-    color?: string | undefined,
+    color?: string,
 ): ChartSeries {
     return {
         label,
         color: color ?? DEFAULT_COLORS[0] ?? '#10b981',
         data: rows.map((row) => ({
-            x: String(row[xField] ?? ''),
+            x: toText(row[xField] ?? ''),
             y: Number(row[yField] ?? 0),
         })),
     };
@@ -71,7 +73,7 @@ export function aggregateChartData(
 ): Array<{ label: string; value: number }> {
     const agg = new Map<string, number>();
     for (const row of rows) {
-        const key = String(row[groupField] ?? 'other');
+        const key = toText(row[groupField] ?? 'other');
         agg.set(key, (agg.get(key) ?? 0) + Number(row[valueField] ?? 0));
     }
     return [...agg.entries()]
@@ -103,10 +105,10 @@ export function computeSparklinePoints(
     n = 7,
 ): Array<{ date: string; value: number }> {
     const sorted = [...rows].sort((a, b) =>
-        String(a[dateField] ?? '').localeCompare(String(b[dateField] ?? '')),
+        toText(a[dateField] ?? '').localeCompare(toText(b[dateField] ?? '')),
     );
     return sorted.slice(-n).map((row) => ({
-        date: String(row[dateField] ?? ''),
+        date: toText(row[dateField] ?? ''),
         value: Number(row[valueField] ?? 0),
     }));
 }
@@ -118,7 +120,7 @@ export function computeDonutSlices(
 ): Array<{ label: string; value: number; percent: number; color: string }> {
     const total = rows.reduce((s, r) => s + Number(r[valueField] ?? 0), 0);
     return rows.map((row, i) => ({
-        label: String(row[labelField] ?? ''),
+        label: toText(row[labelField] ?? ''),
         value: Number(row[valueField] ?? 0),
         percent: total > 0 ? (Number(row[valueField] ?? 0) / total) * 100 : 0,
         color: DEFAULT_COLORS[i % DEFAULT_COLORS.length] ?? '#71717a',
@@ -131,12 +133,12 @@ export function computeHeatmapMatrix(
     colField: string,
     valueField: string,
 ): { rowLabels: string[]; colLabels: string[]; matrix: number[][] } {
-    const rowLabels = [...new Set(rows.map((r) => String(r[rowField] ?? '')))];
-    const colLabels = [...new Set(rows.map((r) => String(r[colField] ?? '')))];
+    const rowLabels = [...new Set(rows.map((r) => toText(r[rowField] ?? '')))];
+    const colLabels = [...new Set(rows.map((r) => toText(r[colField] ?? '')))];
     const matrix: number[][] = rowLabels.map(() => colLabels.map(() => 0));
     for (const row of rows) {
-        const ri = rowLabels.indexOf(String(row[rowField] ?? ''));
-        const ci = colLabels.indexOf(String(row[colField] ?? ''));
+        const ri = rowLabels.indexOf(toText(row[rowField] ?? ''));
+        const ci = colLabels.indexOf(toText(row[colField] ?? ''));
         if (ri >= 0 && ci >= 0) {
             const cell = matrix[ri];
             if (cell) cell[ci] = Number(row[valueField] ?? 0);

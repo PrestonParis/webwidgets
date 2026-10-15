@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClients } from '@/lib/supabase/serverClient';
-import { getUserOrThrow } from '@/lib/supabase/getUser';
+import { createCredentialClients as createClients } from '@/app/api/auth/_lib/credentialClients';
 import { getLogger } from '@/lib/observability/logger';
 
 const MS_TOKEN_URL =
@@ -9,7 +8,7 @@ const MS_TOKEN_URL =
 interface StoredTokens {
     microsoft_access_token: string | null;
     microsoft_refresh_token: string | null;
-    expires_at: number | null;
+    microsoft_expires_at: number | null;
 }
 
 interface GraphBodyResponse {
@@ -20,9 +19,11 @@ interface GraphBodyResponse {
     error?: { code: string; message: string };
 }
 
-async function refreshMicrosoftToken(
-    refreshToken: string,
-): Promise<{ access_token: string; expires_in: number } | null> {
+async function refreshMicrosoftToken(refreshToken: string): Promise<{
+    access_token: string;
+    refresh_token?: string;
+    expires_in: number;
+} | null> {
     const clientId = process.env.MICROSOFT_CLIENT_ID;
     const clientSecret = process.env.MICROSOFT_CLIENT_SECRET;
     const tenantId = process.env.MICROSOFT_TENANT_ID ?? 'common';
@@ -33,7 +34,6 @@ async function refreshMicrosoftToken(
         client_secret: clientSecret,
         refresh_token: refreshToken,
         grant_type: 'refresh_token',
-        scope: 'https://graph.microsoft.com/Mail.Read offline_access',
     });
 
     try {
@@ -45,12 +45,16 @@ async function refreshMicrosoftToken(
         const json = (await res.json()) as {
             access_token?: string;
             expires_in?: number;
+            refresh_token?: string;
             error?: string;
         };
-        if (json.error || !json.access_token) return null;
+        if (!res.ok || json.error || !json.access_token) return null;
         return {
             access_token: json.access_token,
             expires_in: json.expires_in ?? 3600,
+            ...(json.refresh_token
+                ? { refresh_token: json.refresh_token }
+                : {}),
         };
     } catch {
         return null;
@@ -78,20 +82,18 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> },
 ) {
     const log = getLogger({ operation: 'GET /api/outlook/email/[id]' });
-    const { supabase, supabaseAdmin } = await createClients();
-    const { id } = await params;
-
-    let userId: string;
-    try {
-        const user = await getUserOrThrow(supabase);
-        userId = user.id;
-    } catch {
+    const clients = await createClients().catch(() => null);
+    if (!clients) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { supabaseAdmin, userId } = clients;
+    const { id } = await params;
 
     const { data: tokenRow } = await supabaseAdmin
         .from('user_tokens')
-        .select('microsoft_access_token, microsoft_refresh_token, expires_at')
+        .select(
+            'microsoft_access_token, microsoft_refresh_token, microsoft_expires_at',
+        )
         .eq('user_id', userId)
         .maybeSingle();
     const tokens = tokenRow as StoredTokens | null;
@@ -105,8 +107,8 @@ export async function GET(
     let accessToken = tokens.microsoft_access_token;
     if (
         tokens.microsoft_refresh_token &&
-        tokens.expires_at &&
-        Date.now() > tokens.expires_at - 5 * 60 * 1000
+        (!tokens.microsoft_expires_at ||
+            Date.now() > tokens.microsoft_expires_at - 5 * 60 * 1000)
     ) {
         const refreshed = await refreshMicrosoftToken(
             tokens.microsoft_refresh_token,
@@ -117,7 +119,11 @@ export async function GET(
                 .from('user_tokens')
                 .update({
                     microsoft_access_token: refreshed.access_token,
-                    expires_at: Date.now() + refreshed.expires_in * 1000,
+                    microsoft_expires_at:
+                        Date.now() + refreshed.expires_in * 1000,
+                    ...(refreshed.refresh_token
+                        ? { microsoft_refresh_token: refreshed.refresh_token }
+                        : {}),
                 })
                 .eq('user_id', userId);
         }

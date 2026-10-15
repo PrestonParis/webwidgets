@@ -121,6 +121,25 @@ export interface ContextEntryRow {
     updated_at: string;
 }
 
+// DB row shape for `context_edges`. Optional/nullable on the columns the
+// schema-drift fallback path fills in synthetically.
+export interface ContextEdgeRow {
+    id: string;
+    from_entity_id: string;
+    to_entity_id: string;
+    kind: string;
+    label?: string | null;
+    weight?: number | null;
+    confidence?: number | null;
+    source_type?: string | null;
+    source_id?: string | null;
+    created_by?: string | null;
+    created_by_type?: string | null;
+    metadata?: Record<string, unknown> | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export function rowToEntry(row: ContextEntryRow): ContextEntry {
     return {
         id: row.id,

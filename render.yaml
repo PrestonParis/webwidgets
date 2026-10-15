@@ -1,0 +1,93 @@
+services:
+  - type: keyvalue
+    name: webwidgets-v1-queue
+    plan: free
+    region: virginia
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+    persistenceMode: 'off'
+
+  - type: web
+    name: webwidgets-v1-worker
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./services/sync-worker/Dockerfile
+    dockerContext: ./services/sync-worker
+    healthCheckPath: /ready
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: webwidgets-v1-queue
+          property: connectionString
+      - key: WEB_APP_URL
+        sync: false
+      - key: WORKER_API_TOKEN
+        sync: false
+      - key: V1_QUEUES_ENABLED
+        value: 'true'
+      - key: WORKER_DRY_RUN
+        value: 'false'
+      - key: EMAIL_SYNC_ENABLED
+        value: 'false'
+      - key: PROVIDER_SYNC_ENABLED
+        value: 'true'
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        value: common
+      - key: SCHEDULE_OWNER
+        value: vercel
+      - key: HEALTH_PORT
+        value: '10000'
+      - key: HEARTBEAT_INTERVAL_MS
+        value: '30000'
+      - key: JOB_TIMEOUT_MS
+        value: '120000'
+      - key: BRIEFING_SCHEDULE_INTERVAL_MS
+        value: '60000'
+      - key: BRIEFING_SCHEDULE_BATCH_SIZE
+        value: '25'
+      - key: SHUTDOWN_TIMEOUT_MS
+        value: '25000'
+
+  - type: web
+    name: webwidgets-v1-inference
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./services/ml_service/Dockerfile
+    dockerContext: ./services/ml_service
+    healthCheckPath: /v1/ready
+    envVars:
+      - key: ML_SERVICE_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: ANTHROPIC_MODEL_VERSION
+        value: '2025-10-01'
+      - key: ANTHROPIC_INPUT_USD_PER_MILLION
+        sync: false
+      - key: ANTHROPIC_OUTPUT_USD_PER_MILLION
+        sync: false
+      - key: LLM_REQUESTS_PER_MINUTE
+        value: '20'
+      - key: LLM_TOKENS_PER_MINUTE
+        value: '80000'
+      - key: LLM_PROVIDER_TIMEOUT_SECONDS
+        value: '10'
+      - key: ENVIRONMENT
+        value: production

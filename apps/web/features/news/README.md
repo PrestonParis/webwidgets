@@ -1,13 +1,20 @@
-# News + Event Intelligence Foundation
+# Timeline Intelligence
 
-Iteration 1 establishes the reusable event path that future widgets, providers, and agents can consume:
+The historical `news` widget type and `/news` route remain stable identifiers,
+but the V1 product surface is Timeline Intelligence.
 
-- `schemas/` owns Zod contracts for raw, normalized, enriched, ranked, timeline, and actionable events. `drizzle-zod` is wired through `normalizedEventTable` so database-facing event records share the same validation posture.
-- `normalization/` uses `neverthrow` to keep malformed external payload handling explicit and composable.
-- `ingestion/` introduces provider adapters. RSS uses `rss-parser` plus `@mozilla/readability`; providers are scheduled behind `bottleneck` so adapter-level rate limits are a first-class concern.
-- `queues/` uses `bullmq` with `ioredis` when `REDIS_URL` is present, and degrades loudly through `pino` logging when Redis is not configured.
-- `ranking/` keeps scoring modular so future personalization or ML rankers can replace the current factors.
-- `search/` uses `flexsearch` for local feed search. Semantic search can later attach beside it through pgvector, Chroma, Pinecone, or another vector backend.
-- `hooks/` uses TanStack Query for feed fetch state, refresh coordination, and stale-cache behavior. `superjson` is used over plain JSON on the API boundary so richer temporal feed state can move across the wire later without changing the client contract.
+The page and widget query persisted `timeline_events` through the authenticated
+`/api/news/feed` boundary. Rendering never contacts RSS, email, or calendar
+providers. The API enforces owner scope, bounded filters, stable cursor
+pagination, current event state, and retention. It returns safe provenance
+references and a separately recoverable view of `integration_connections`
+health.
 
-Library choices were intentionally single-path: BullMQ over workflow engines for a lightweight Redis queue foundation, Bottleneck over p-queue for provider rate limiting, FlexSearch over MiniSearch for fast client indexing, and neverthrow over thrown parser errors for pipeline resilience. Future orchestration candidates such as Trigger.dev, Inngest, LangChain, AI SDK/Instructor enrichment, bull-board queue visibility, OpenTelemetry spans, and pgvector-backed retrieval are extension points, not dependencies in the critical path yet.
+External titles and summaries render as bounded React text. Only HTTP(S)
+provenance links are exposed. Related-story keys reveal relationships without
+merging distinct events. Occurrence time remains primary; ingestion time is
+shown when collection was delayed.
+
+The older normalization, ranking, and search modules remain ingestion-domain
+utilities and regression fixtures. They no longer manufacture page data or
+decide whether the canonical timeline is empty.

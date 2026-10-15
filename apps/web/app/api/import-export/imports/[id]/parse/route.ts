@@ -74,8 +74,7 @@ export async function POST(
         const detectedFormat = body.filename
             ? detectFormat(body.filename, body.mime_type ?? '')
             : null;
-        const format: ImportFormat = (detectedFormat ??
-            job.format) as ImportFormat;
+        const format: ImportFormat = detectedFormat ?? job.format;
 
         if (format === 'xlsx') {
             await updateImportJob(supabase, userId, id, {

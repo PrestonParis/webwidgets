@@ -1,7 +1,7 @@
 'use client';
 
 import { apiRouteFetch } from '@/lib/api/client';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     DatabaseZap,
     Download,
@@ -51,6 +51,34 @@ const DEFAULT_FILTERS: ContextFilterState = {
     connectedOnly: false,
 };
 
+interface ContextDiagnostics {
+    entriesCount: number;
+    edgesCount: number;
+    nodesCount: number;
+    sourceCounts: Record<string, number>;
+    typeCounts: Record<string, number>;
+    sampleEntries: {
+        entityId: string;
+        entryType: string;
+        label: string;
+        sourceType: string | null;
+        sourceId: string | null;
+    }[];
+}
+
+async function fetchContextDiagnostics(): Promise<ContextDiagnostics | null> {
+    try {
+        const res = await apiRouteFetch('/api/context/graph?diagnostics=true');
+        if (!res.ok) return null;
+        const data = (await res.json()) as {
+            diagnostics?: ContextDiagnostics;
+        };
+        return data.diagnostics ?? null;
+    } catch {
+        return null;
+    }
+}
+
 export default function ContextDiagramPage() {
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState<ContextFilterState>(DEFAULT_FILTERS);
@@ -67,7 +95,9 @@ export default function ContextDiagramPage() {
         null,
     );
     const [showDiagnostics, setShowDiagnostics] = useState(false);
-    const [diagnostics, setDiagnostics] = useState<any>(null);
+    const [diagnostics, setDiagnostics] = useState<ContextDiagnostics | null>(
+        null,
+    );
 
     const { graph, loading, error, refresh, remove, upsert } =
         useContextGraph();
@@ -128,16 +158,16 @@ export default function ContextDiagramPage() {
             .then(setCoverage)
             .catch(() => setCoverage(null));
 
-        // Fetch initial diagnostics
-        void apiRouteFetch('/api/context/graph?diagnostics=true')
-            .then((res) => res.json())
-            .then((data) => setDiagnostics(data.diagnostics))
-            .catch(() => setDiagnostics(null));
+        void fetchContextDiagnostics().then(setDiagnostics);
     }, []);
 
-    useEffect(() => {
-        if (selectedId) setInspectorOpen(true);
-    }, [selectedId]);
+    const selectNodeAndInspect = useCallback(
+        (id: string | null) => {
+            selectNode(id);
+            if (id) setInspectorOpen(true);
+        },
+        [selectNode],
+    );
 
     async function syncContext() {
         setSyncing(true);
@@ -148,24 +178,13 @@ export default function ContextDiagramPage() {
             const nextCoverage = await fetchContextCoverage();
             setCoverage(nextCoverage);
 
-            // Fetch diagnostics
-            try {
-                const diagRes = await apiRouteFetch(
-                    '/api/context/graph?diagnostics=true',
-                );
-                if (diagRes.ok) {
-                    const diagData = await diagRes.json();
-                    setDiagnostics(diagData.diagnostics);
-                }
-            } catch (e) {
-                console.error('Failed to fetch diagnostics:', e);
-            }
+            setDiagnostics(await fetchContextDiagnostics());
         } finally {
             setSyncing(false);
         }
     }
 
-    async function exportGraph() {
+    function exportGraph() {
         const exportData = {
             generatedAt: new Date().toISOString(),
             graph: renderedGraph,
@@ -313,14 +332,9 @@ export default function ContextDiagramPage() {
                             onClick={() => {
                                 setShowDiagnostics((open) => !open);
                                 if (!showDiagnostics) {
-                                    void apiRouteFetch(
-                                        '/api/context/graph?diagnostics=true',
-                                    )
-                                        .then((res) => res.json())
-                                        .then((data) =>
-                                            setDiagnostics(data.diagnostics),
-                                        )
-                                        .catch(() => setDiagnostics(null));
+                                    void fetchContextDiagnostics().then(
+                                        setDiagnostics,
+                                    );
                                 }
                             }}
                             className="h-9 rounded-lg border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
@@ -359,7 +373,7 @@ export default function ContextDiagramPage() {
                                 selectedId={selectedId}
                                 viewport={viewport}
                                 lockLayout={lockLayout}
-                                onSelectNode={selectNode}
+                                onSelectNode={selectNodeAndInspect}
                                 onMouseDown={onCanvasMouseDown}
                                 onMouseMove={onCanvasMouseMove}
                                 onMouseUp={onCanvasMouseUp}
@@ -446,8 +460,9 @@ export default function ContextDiagramPage() {
                                             <strong>
                                                 Context tables are empty.
                                             </strong>{' '}
-                                            Click "Sync" to pull platform data
-                                            from import-export adapters.
+                                            Click &quot;Sync&quot; to pull
+                                            platform data from import-export
+                                            adapters.
                                         </div>
                                     )}
                                 </div>
@@ -471,7 +486,7 @@ export default function ContextDiagramPage() {
                             <div className="mt-3">
                                 <GraphAnalyticsPanel
                                     graph={renderedGraph}
-                                    onSelectNode={selectNode}
+                                    onSelectNode={selectNodeAndInspect}
                                 />
                             </div>
                             <div className="mt-3 grid gap-3 lg:grid-cols-2">
@@ -490,7 +505,7 @@ export default function ContextDiagramPage() {
                                 />
                                 <ContextTimeline
                                     graph={graph}
-                                    onSelectNode={selectNode}
+                                    onSelectNode={selectNodeAndInspect}
                                 />
                                 <ContextPermissionsPanel />
                             </div>
@@ -502,7 +517,7 @@ export default function ContextDiagramPage() {
                             <ContextSidebar
                                 node={inspectedNode}
                                 graph={renderedGraph}
-                                onSelectNode={selectNode}
+                                onSelectNode={selectNodeAndInspect}
                                 onUpsert={upsert}
                                 onClose={() => {
                                     setInspectorOpen(false);

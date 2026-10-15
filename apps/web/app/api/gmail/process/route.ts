@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createClients } from '@/lib/supabase/serverClient';
+import { createCredentialClients as createClients } from '@/app/api/auth/_lib/credentialClients';
 import { getUserOrThrow } from '@/lib/supabase/getUser';
 import { getGoogleTokens } from '@/lib/supabase/getGoogleTokens';
 import { createGmailClient } from '@/features/inbox/lib/client';
@@ -14,6 +14,7 @@ import { processQueueItem } from '@/features/inbox/lib/pipeline';
 import { getLogger, runWithContext } from '@/lib/observability/logger';
 import { captureError } from '@/lib/observability/sentry';
 import { createAdminClient } from '@/lib/supabase/adminClient';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 // Queue worker trigger.
 // User-authenticated: drains queue items belonging to the requesting user.
@@ -82,7 +83,7 @@ async function processForUser(
             // extraction runs automatically for all users without manual setup.
             const apiKey =
                 profile?.anthropic_api_key ||
-                process.env.ANTHROPIC_API_KEY ||
+                sharedLlmKey('ANTHROPIC_API_KEY') ||
                 undefined;
             await processQueueItem(item, {
                 gmail,

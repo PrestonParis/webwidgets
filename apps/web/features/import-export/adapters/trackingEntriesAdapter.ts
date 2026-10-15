@@ -9,6 +9,10 @@ import type {
     MappedRow,
     DuplicateStrategy,
 } from '@/features/import-export/types/importExport';
+import type { Database, Json } from '@/types/supabase';
+
+type TrackingEntryInsert =
+    Database['public']['Tables']['tracking_entries']['Insert'];
 
 const coerceStr = (v: unknown): string =>
     typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
@@ -133,7 +137,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                     continue;
                 }
 
-                const record = {
+                const record: TrackingEntryInsert = {
                     user_id: userId,
                     category: coerceStr(d['category']),
                     entry_date: coerceStr(d['entry_date']),
@@ -151,7 +155,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                     metadata:
                         typeof d['metadata'] === 'object' &&
                         d['metadata'] !== null
-                            ? d['metadata']
+                            ? (d['metadata'] as Json)
                             : {},
                 };
 
@@ -178,7 +182,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                     // deep-merge metadata, preserve notes when incoming is empty.
                     const { data: existing } = await supabase
                         .from('tracking_entries')
-                        .select('notes, tags, metadata')
+                        .select('notes,tags,metadata')
                         .eq('user_id', userId)
                         .eq('category', record.category)
                         .eq('entry_date', record.entry_date)
@@ -191,7 +195,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                             tags: Array.from(
                                 new Set([
                                     ...(existing.tags ?? []),
-                                    ...record.tags,
+                                    ...(record.tags ?? []),
                                 ]),
                             ),
                             metadata: {
@@ -203,7 +207,7 @@ export const trackingEntriesAdapter: ImportExportAdapter = {
                                       >)
                                     : {}),
                                 ...(record.metadata as Record<string, unknown>),
-                            },
+                            } as Json,
                         };
                         const { error } = await supabase
                             .from('tracking_entries')

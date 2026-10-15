@@ -1,0 +1,2840 @@
+{
+  "generated_at": "2026-08-13",
+  "project_name": "webwidgets-dev",
+  "project_ref": "cvroudtyxsgllivlrayu",
+  "scope": "public schema metadata only; no row data",
+  "summary": {
+    "live_tables": 107,
+    "rls_enabled_tables": 105,
+    "live_tables_without_rls": ["export_job_logs", "import_job_logs"],
+    "rls_tables_without_policies": ["user_feedback"],
+    "policy_count": 153,
+    "code_referenced_tables_missing_live": [
+      "context_edges",
+      "context_permissions",
+      "context_saved_views",
+      "custom_widgets",
+      "fitness_workout_routines",
+      "journal_entries",
+      "user_files"
+    ],
+    "repository_migration_count": 47,
+    "remote_aligned_migration_count": 46,
+    "local_only_migrations": ["202605300001_context_substrate.sql"]
+  },
+  "tables": [
+    {
+      "table": "accessibility_settings",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own a11y settings",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/accessibility/settings/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "action_requests",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "action_requests_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "actions",
+      "code_references": [
+        "apps/web/features/actions/lib/timeline/actionPersistence.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "action_results",
+      "live": true,
+      "owner_columns": ["action_request_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "action_results_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "actions",
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "activity_events",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "activity_events_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "activity/notifications",
+      "code_references": [
+        "apps/web/app/api/activity/bulk/route.ts",
+        "apps/web/app/api/activity/maintenance/route.ts",
+        "apps/web/features/activity/lib/activityQueries.ts",
+        "apps/web/features/activity/services/activityService.ts",
+        "apps/web/features/import-export/adapters/activityAdapter.ts",
+        "apps/web/features/intelligence/services/smartContextService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "Live columns do not satisfy current V1 application contracts.",
+      "proposed_remediation": "Choose additive compatibility migration or narrow callers; current code expects columns absent from live schema."
+    },
+    {
+      "table": "admin_audit_logs",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "admin_audit_logs_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": "consent/audit",
+      "code_references": [
+        "apps/web/app/api/admin/audit/route.ts",
+        "apps/web/app/api/admin/overview/route.ts",
+        "apps/web/features/admin/lib/auditAdminAction.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "admin_notes",
+      "live": true,
+      "owner_columns": ["author_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "admin_notes_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "analytics_events",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "analytics_events_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": "consent/audit",
+      "code_references": [
+        "apps/web/features/analytics/hooks/trackEvent.ts",
+        "apps/web/features/analytics/lib/analyticsQueries.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "artifacts",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "artifacts_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": [
+        "apps/web/app/api/search/route.ts",
+        "apps/web/features/artifacts/services/artifactService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "audit_events",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "audit_events_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "audit_events_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "consent/audit",
+      "code_references": [
+        "apps/web/features/import-export/lib/auditService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "automation_configs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "automation_configs_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "automation",
+      "code_references": [
+        "apps/web/features/automation/services/automationService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "automation_runs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "automation_runs_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "automation",
+      "code_references": [
+        "apps/web/features/automation/services/automationService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "billing_customers",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users read own customer",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "billing_subscriptions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users read own subscription",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/features/billing/hooks/useBilling.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "body_issue_history",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users manage own issue history",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/tracking/health/hooks/useBodyIssues.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "body_issues",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users manage own body issues",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/tracking/health/hooks/useBodyIssues.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "chat_conversations",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own conversations",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/features/chatbot/services/chatService.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "chat_messages",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own messages",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/features/chatbot/services/chatService.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "chess_games",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "chess_games: delete own",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_games: insert own",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_games: select own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_games: update own",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/chess/latest/route.ts",
+        "apps/web/features/chess/library/api/gameService.ts",
+        "apps/web/features/chess/review/hooks/useChessGame.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "chess_studies",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "chess_studies: delete own",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_studies: insert own",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_studies: select own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_studies: update own",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/chess/studies/api/studyService.ts",
+        "apps/web/features/chess/studies/components/StudiesSidebar.tsx",
+        "apps/web/features/chess/studies/hooks/useStudies.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "chess_variations",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "chess_variations: delete own",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_variations: insert own",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_variations: select own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "chess_variations: update own",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/chess/review/hooks/useChessGame.ts",
+        "apps/web/features/chess/review/hooks/useGameVariations.ts",
+        "apps/web/features/chess/studies/api/studyService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "collaboration_handoffs",
+      "live": true,
+      "owner_columns": ["user_id", "workspace_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "handoff access",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users own handoffs",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/handoffs/[id]/route.ts",
+        "apps/web/app/api/collaboration/handoffs/route.ts",
+        "apps/web/features/import-export/adapters/collaborationHandoffsAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "collaboration_workspaces",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own collab workspaces",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "workspace owner access",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/invites/[token]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/activity/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/[approvalId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/comments/[commentId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/comments/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/[inviteId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/members/[memberId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/members/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/route.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "command_workstreams",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own workstreams",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/command/workstreams/[id]/route.ts",
+        "apps/web/app/api/command/workstreams/route.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "companies",
+      "live": true,
+      "owner_columns": ["owner_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "company members can view companies",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "company owners and admins update companies",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "company owners delete companies",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can create owned companies",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "company_memberships",
+      "live": true,
+      "owner_columns": ["company_id", "user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "company leaders can insert memberships",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "company owners and admins delete memberships",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "company owners and admins update memberships",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "invitees can accept their company role",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "members can view company memberships",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "company_timeclock_entries",
+      "live": true,
+      "owner_columns": ["company_id", "user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "active members clock themselves in",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "members and leaders view timeclock entries",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "members clock themselves out",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/timekeeping/hooks/useCompanyTimeclock.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "consent_records",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "consent_records_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "consent/audit",
+      "code_references": [
+        "apps/web/features/intelligence/services/smartContextService.ts",
+        "apps/web/features/security/services/consentService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "context_edges",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": "context/search",
+      "code_references": [
+        "apps/web/features/context/services/contextBackfillService.ts",
+        "apps/web/features/context/services/contextService.ts",
+        "apps/web/features/import-export/adapters/contextEntriesAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "defined by the local migration but not applied remotely",
+      "risk_severity": "high",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Resolve the source-of-truth table name or add a reviewed tracked migration before relying on this V1 path."
+    },
+    {
+      "table": "context_entries",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own context entries",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "context/search",
+      "code_references": [
+        "apps/web/features/context/services/contextBackfillService.ts",
+        "apps/web/features/context/services/contextService.ts",
+        "apps/web/features/import-export/adapters/contextEntriesAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "base history recovered; local context expansion migration remains unapplied remotely",
+      "risk_severity": "high",
+      "risk": "Live columns do not satisfy current V1 application contracts.",
+      "proposed_remediation": "Reconcile the unapplied context migration against live state before Prompt 004; do not blindly push it."
+    },
+    {
+      "table": "context_exports",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "context_exports_owner",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/import-export/services/importExportService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "context_permissions",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": "context/search",
+      "code_references": [
+        "apps/web/features/context/services/contextPermissionsService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "defined by the local migration but not applied remotely",
+      "risk_severity": "high",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Resolve the source-of-truth table name or add a reviewed tracked migration before relying on this V1 path."
+    },
+    {
+      "table": "context_saved_views",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": "context/search",
+      "code_references": [
+        "apps/web/features/context/services/contextSavedViewsService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "defined by the local migration but not applied remotely",
+      "risk_severity": "high",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Resolve the source-of-truth table name or add a reviewed tracked migration before relying on this V1 path."
+    },
+    {
+      "table": "conversion_jobs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "conversion_jobs_owner_select",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/uploads/[fileId]/extract/route.ts"],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "cost_events",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "cost_events_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/metrics-data/costs/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "countdowns",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own countdowns",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/countdown/hooks/useCountdownMutations.ts",
+        "apps/web/features/countdown/hooks/useCountdowns.ts",
+        "apps/web/features/import-export/adapters/countdownAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "creative_layers",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own layers",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/creative/projects/[id]/layers/[layerId]/route.ts",
+        "apps/web/app/api/creative/projects/[id]/layers/route.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "creative_projects",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own projects",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/creative/projects/[id]/route.ts",
+        "apps/web/app/api/creative/projects/route.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "currency_rates",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "currency_rates_public_read",
+          "command": "SELECT",
+          "scope": "public-read"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/currency/server/currencyService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "custom_widgets",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/widget-builder/[id]/data/route.ts",
+        "apps/web/app/api/widget-builder/[id]/route.ts",
+        "apps/web/app/api/widget-builder/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "no live table and no tracked migration",
+      "risk_severity": "medium",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Defer with its feature or remove the stale query in a separate task."
+    },
+    {
+      "table": "dashboard_layouts",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can read own layout",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can update own layout",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can upsert own layout",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "dashboard/command center",
+      "code_references": [
+        "apps/web/features/dashboard/hooks/useDashboardLayout.ts",
+        "apps/web/features/dashboard/hooks/useLayoutPersistence.ts",
+        "apps/web/features/onboarding/services/onboardingService.ts",
+        "apps/web/features/settings/components/WidgetManagerCard.tsx"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "documents",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "documents_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": [
+        "apps/web/app/api/search/route.ts",
+        "apps/web/features/documents/services/documentService.ts",
+        "apps/web/features/import-export/adapters/documentsAdapter.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "email_actions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can manage own email actions",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "email ingestion/actions",
+      "code_references": [
+        "apps/web/app/api/gmail/actions/confirm/route.ts",
+        "apps/web/app/api/gmail/extract-actions/route.ts",
+        "apps/web/app/api/outlook/extract-actions/route.ts",
+        "apps/web/features/inbox/hooks/useEmailActionLog.ts",
+        "apps/web/features/inbox/hooks/useEmailActions.ts",
+        "apps/web/features/inbox/lib/inboxApiService.ts",
+        "apps/web/features/inbox/server/emailExtractionService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "email_classifications",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users can manage their own classifications",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "email ingestion/actions",
+      "code_references": [
+        "apps/web/features/inbox/hooks/useEmails.ts",
+        "apps/web/features/inbox/lib/dbClassifications.ts",
+        "apps/web/features/inbox/lib/pipeline.ts",
+        "apps/web/features/inbox/server/emailExtractionService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "email_processing_log",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can manage own processing log",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "email ingestion/actions",
+      "code_references": [
+        "apps/web/app/api/gmail/extract-actions/route.ts",
+        "apps/web/app/api/outlook/extract-actions/route.ts",
+        "apps/web/app/api/outlook/process/route.ts",
+        "apps/web/features/inbox/server/emailExtractionService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "email_queue",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Service role only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": "email ingestion/actions",
+      "code_references": [
+        "apps/web/app/api/gmail/poll/route.ts",
+        "apps/web/app/api/gmail/process/route.ts",
+        "apps/web/features/developer/components/DevDeadLetterMonitor.tsx",
+        "apps/web/features/inbox/lib/pipeline.ts",
+        "apps/web/features/inbox/lib/queueManager.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "email_snapshots",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users read own email snapshots",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "email ingestion/actions",
+      "code_references": [
+        "apps/web/app/api/gmail/extract-actions/route.ts",
+        "apps/web/app/api/gmail/inbox/route.ts",
+        "apps/web/app/api/outlook/extract-actions/route.ts",
+        "apps/web/app/api/outlook/inbox/route.ts",
+        "apps/web/app/api/outlook/process/route.ts",
+        "apps/web/features/inbox/lib/pipeline.ts",
+        "services/sync-worker/src/lib/supabase.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "medium",
+      "risk": "User isolation exists, but stored message body content needs explicit minimization and retention.",
+      "proposed_remediation": "Set a body minimization and deletion window before V1 email ingestion cutover."
+    },
+    {
+      "table": "export_job_logs",
+      "live": true,
+      "owner_columns": ["export_job_id"],
+      "rls_enabled": false,
+      "policies": [],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/import-export/exports/[id]/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "RLS is disabled while anon/authenticated roles have table privileges.",
+      "proposed_remediation": "Enable RLS and add parent-job ownership policies in the first security remediation migration; reduce anon/authenticated grants."
+    },
+    {
+      "table": "export_jobs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "export_jobs_owner",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/import-export/services/importExportService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "feature_flags",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "feature_flags_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/admin/feature-flags/route.ts",
+        "apps/web/app/api/admin/overview/route.ts",
+        "apps/web/features/developer/server/infraObservability.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "feature_settings",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "feature_settings_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "dashboard/command center",
+      "code_references": [
+        "apps/web/features/platform/services/platformPersistenceService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "file_folders",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "file_folders_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": ["apps/web/app/api/uploads/folders/route.ts"],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "file_metadata",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "file_metadata_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": [
+        "apps/web/app/api/uploads/[fileId]/favorite/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "file_text_extractions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "file_text_extractions_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": [
+        "apps/web/features/extraction/services/extractionService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "file_uploads",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own uploads",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "documents/files",
+      "code_references": [
+        "apps/web/app/api/search/route.ts",
+        "apps/web/app/api/uploads/[fileId]/extract/route.ts",
+        "apps/web/app/api/uploads/[fileId]/rename/route.ts",
+        "apps/web/app/api/uploads/ai-actions/route.ts",
+        "apps/web/features/import-export/adapters/filesAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "finance_accounts",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "finance_accounts_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/finance/accounts/[id]/route.ts",
+        "apps/web/features/finance/services/financeAccountService.ts",
+        "apps/web/features/import-export/adapters/financeAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "finance_subscriptions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "finance_subscriptions_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/finance/subscriptions/[id]/route.ts",
+        "apps/web/features/finance/services/financeSubscriptionService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "finance_transactions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "finance_transactions_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/finance/services/financeTransactionService.ts",
+        "apps/web/features/import-export/adapters/financeAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "fitness_workout_routines",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/fitness/routines/[id]/route.ts",
+        "apps/web/app/api/fitness/routines/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "no live table and no tracked migration",
+      "risk_severity": "medium",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Defer with its feature or remove the stale query in a separate task."
+    },
+    {
+      "table": "form_filler_jobs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users manage their own jobs",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/form-filler/fill/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "form_filler_profiles",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users manage their own profiles",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/form-filler/fill/route.ts",
+        "apps/web/app/api/form-filler/profiles/route.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "habit_completions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own completions",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/habit/hooks/useHabitActions.ts",
+        "apps/web/features/habit/hooks/useHabitWidgetData.ts",
+        "apps/web/features/habit/hooks/useHabits.ts",
+        "apps/web/features/habit/hooks/useHabits.utils.ts",
+        "apps/web/features/import-export/adapters/habitAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "habits",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own habits",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/habit/hooks/useHabitActions.ts",
+        "apps/web/features/habit/hooks/useHabitWidgetData.ts",
+        "apps/web/features/habit/hooks/useHabits.ts",
+        "apps/web/features/habit/hooks/useHabits.utils.ts",
+        "apps/web/features/import-export/adapters/habitAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "import_export_audit_events",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "audit_events_owner",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/import-export/services/importExportService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "import_job_logs",
+      "live": true,
+      "owner_columns": ["import_job_id"],
+      "rls_enabled": false,
+      "policies": [],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/import-export/services/importExportService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "RLS is disabled while anon/authenticated roles have table privileges.",
+      "proposed_remediation": "Enable RLS and add parent-job ownership policies in the first security remediation migration; reduce anon/authenticated grants."
+    },
+    {
+      "table": "import_jobs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "import_jobs_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/import-export/health/route.ts",
+        "apps/web/features/import-export/services/importExportService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "import_mappings",
+      "live": true,
+      "owner_columns": ["import_job_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "import_mappings_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "integration_connections",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "integration_connections_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "integrations/tokens",
+      "code_references": [
+        "apps/web/features/integrations/services/integrationService.ts",
+        "apps/web/features/intelligence/services/smartContextService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "job_artifacts",
+      "live": true,
+      "owner_columns": ["job_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "job_artifacts_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "jobs",
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "job_logs",
+      "live": true,
+      "owner_columns": ["job_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "job_logs_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "jobs",
+      "code_references": [
+        "apps/web/features/jobs/lib/documentParsingRunner.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "job_steps",
+      "live": true,
+      "owner_columns": ["job_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "job_steps_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "jobs",
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "jobs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "jobs_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "jobs",
+      "code_references": [
+        "apps/web/app/api/admin/overview/route.ts",
+        "apps/web/features/jobs/lib/cheatsheetGenerationRunner.ts",
+        "apps/web/features/jobs/services/jobService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "journal_entries",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": "notes/knowledge",
+      "code_references": ["apps/web/app/api/knowledge/on-this-day/route.ts"],
+      "repository_type_present": false,
+      "migration_coverage": "no live table and no tracked migration",
+      "risk_severity": "high",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Resolve the source-of-truth table name or add a reviewed tracked migration before relying on this V1 path."
+    },
+    {
+      "table": "journals",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can delete their own journals",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can insert their own journals",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can update their own journals",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can view their own non-deleted journals",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "notes/knowledge",
+      "code_references": [
+        "apps/web/app/api/journals/[id]/route.ts",
+        "apps/web/app/api/journals/route.ts",
+        "apps/web/features/import-export/adapters/journalAdapter.ts",
+        "apps/web/features/journal/hooks/useJournalEntries.ts",
+        "apps/web/features/texteditor/hooks/useLatestEntry.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "knowledge_items",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "knowledge_items_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "notes/knowledge",
+      "code_references": [
+        "apps/web/features/knowledge/services/knowledgeService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "memory_cards",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own cards",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/memory/cards/[id]/route.ts",
+        "apps/web/app/api/memory/cards/route.ts",
+        "apps/web/features/import-export/adapters/memoryDecksAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "memory_decks",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own decks",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/memory/decks/[id]/route.ts",
+        "apps/web/app/api/memory/decks/route.ts",
+        "apps/web/features/import-export/adapters/memoryDecksAdapter.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "memory_routines",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users own routines",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/memory/routines/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "metric_snapshots",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "metric_snapshots_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "mood_logs",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own mood logs",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/import-export/adapters/moodAdapter.ts",
+        "apps/web/features/mood/hooks/useMoodLog.ts",
+        "apps/web/features/mood/hooks/useMoodMutation.ts",
+        "apps/web/features/tracking/api/moodMigrationApi.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "notifications",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "notifications_owner_all",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "activity/notifications",
+      "code_references": [
+        "apps/web/features/activity/services/activityNotifications.ts",
+        "apps/web/features/notifications/services/notificationService.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "high",
+      "risk": "V1 table is absent from committed generated types.",
+      "proposed_remediation": "Regenerate and review types after schema reconciliation; add missing migration history to the baseline record."
+    },
+    {
+      "table": "onboarding_profiles",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "onboarding_profiles_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "auth/profile",
+      "code_references": [
+        "apps/web/features/intelligence/services/smartContextService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "performance_events",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "performance_events_service_only",
+          "command": "ALL",
+          "scope": "service-only"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/metrics-data/performance/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "profiles",
+      "live": true,
+      "owner_columns": [],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can insert their profile",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can read their profile",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "Users can update their profile",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "profiles_select_own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "auth/profile",
+      "code_references": [
+        "apps/web/app/api/admin/overview/route.ts",
+        "apps/web/app/api/admin/users/route.ts",
+        "apps/web/app/api/gmail/extract-actions/route.ts",
+        "apps/web/app/api/gmail/process/route.ts",
+        "apps/web/app/api/outlook/extract-actions/route.ts",
+        "apps/web/app/api/outlook/process/route.ts",
+        "apps/web/features/admin/lib/adminPermissions.ts",
+        "apps/web/features/auth/components/AuthContext.tsx",
+        "apps/web/features/datahealth/server/dataHealthService.ts",
+        "apps/web/features/settings/components/SettingsProfilePage.tsx",
+        "apps/web/features/settings/hooks/useSettings.ts",
+        "apps/web/lib/supabase/requireAdmin.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "A user-selectable table contains credential material or a plaintext provider key.",
+      "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
+    },
+    {
+      "table": "quick_notes",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own notes",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "notes/knowledge",
+      "code_references": ["apps/web/features/scratchpad/hooks/useQuickNote.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "reading_bookmarks",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own bookmarks",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/reading/bookmarks/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "reading_documents",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "manage own documents",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "read documents",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "reading_highlights",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own highlights",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/reading/highlights/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "reading_notes",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own notes",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/reading/notes/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "reading_plans",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own plans",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "reading_positions",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own positions",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/reading/progress/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "recovery_profiles",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users can delete own profiles",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can insert own profiles",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can select own profiles",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can update own profiles",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/dashboard/hooks/useTrackers.ts",
+        "apps/web/features/import-export/adapters/recoveryAdapter.ts",
+        "apps/web/features/recovery/components/StartTimeEditor.tsx",
+        "apps/web/features/recovery/hooks/useRecoveryActions.ts",
+        "apps/web/features/recovery/hooks/useRecoveryReviewNotifications.ts",
+        "apps/web/features/recovery/hooks/useTrackers.ts",
+        "apps/web/features/recovery/server/recoveryResolvers.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "relapses",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users can delete own relapses",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can insert own relapses",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can select own relapses",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/dashboard/hooks/useTrackers.ts",
+        "apps/web/features/import-export/adapters/recoveryAdapter.ts",
+        "apps/web/features/recovery/hooks/useRecoveryActions.ts",
+        "apps/web/features/recovery/hooks/useRecoveryHeatmap.ts",
+        "apps/web/features/recovery/hooks/useReviewModal.ts",
+        "apps/web/features/recovery/hooks/useTrackers.ts",
+        "apps/web/features/recovery/lib/relapses.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "study_chapters",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "study_chapters: delete own",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "study_chapters: insert own",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "study_chapters: select own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "study_chapters: update own",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/chess/studies/api/studyService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "supplements",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own_supplements",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/app/api/supplements/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "todos",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage their own todos",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "tasks",
+      "code_references": [
+        "apps/web/app/api/gmail/actions/confirm/route.ts",
+        "apps/web/app/api/todos/[id]/route.ts",
+        "apps/web/app/api/todos/route.ts",
+        "apps/web/features/import-export/adapters/todosAdapter.ts",
+        "apps/web/features/inbox/components/EmailActionsPanel.tsx",
+        "apps/web/features/todo/hooks/useTodos.ts",
+        "apps/web/features/todo/server/todoResolvers.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "tracking_entries",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own entries",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/tracking/entries/[id]/route.ts",
+        "apps/web/app/api/tracking/entries/route.ts",
+        "apps/web/features/import-export/adapters/trackingEntriesAdapter.ts",
+        "apps/web/features/tracking/api/moodMigrationApi.ts",
+        "apps/web/features/tracking/api/trackingApi.ts",
+        "apps/web/features/tracking/server/trackingResolvers.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "tracking_goals",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own goals",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/features/tracking/services/goalService.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "urges",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users can delete own urges",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can insert own urges",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "users can select own urges",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": ["apps/web/features/recovery/api/logUrge.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "user_email_accounts",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can manage own email accounts",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "integrations/tokens",
+      "code_references": [
+        "apps/web/app/api/auth/microsoft/callback/route.ts",
+        "apps/web/app/auth/callback/route.ts",
+        "apps/web/features/inbox/hooks/useEmailConnection.ts",
+        "services/sync-worker/src/lib/supabase.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "A user-selectable table contains credential material or a plaintext provider key.",
+      "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
+    },
+    {
+      "table": "user_feedback",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [],
+      "v1_consumer": "feedback",
+      "code_references": ["apps/web/app/api/feedback/route.ts"],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "medium",
+      "risk": "RLS is enabled with no policy, so non-service clients cannot use the table.",
+      "proposed_remediation": "Confirm API-only or direct-user intent, then add an explicit insert/owner policy or service-only false policy."
+    },
+    {
+      "table": "user_files",
+      "live": false,
+      "owner_columns": [],
+      "rls_enabled": null,
+      "policies": [],
+      "v1_consumer": "documents/files",
+      "code_references": ["apps/web/features/uploads/server/filesResolvers.ts"],
+      "repository_type_present": false,
+      "migration_coverage": "no live table and no tracked migration",
+      "risk_severity": "high",
+      "risk": "Application code references a table that does not exist in the live public schema.",
+      "proposed_remediation": "Resolve the source-of-truth table name or add a reviewed tracked migration before relying on this V1 path."
+    },
+    {
+      "table": "user_integration_keys",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "users manage own integration keys",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "integrations/tokens",
+      "code_references": [
+        "apps/web/features/settings/hooks/useIntegrations.ts",
+        "apps/web/lib/integrations/serverIntegrationKeys.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "A user-selectable table contains credential material or a plaintext provider key.",
+      "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
+    },
+    {
+      "table": "user_model_keys",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own model keys",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "integrations/tokens",
+      "code_references": [
+        "apps/web/features/chatbot/services/chatService.ts",
+        "apps/web/features/jobs/lib/modelKeyHelper.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "user_preferences",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "user_preferences_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "dashboard/command center",
+      "code_references": [
+        "apps/web/features/personalization/services/personalizationService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "user_tokens",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "Users can manage own tokens",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "integrations/tokens",
+      "code_references": [
+        "apps/web/app/api/auth/microsoft/callback/route.ts",
+        "apps/web/app/api/calendar/events/route.ts",
+        "apps/web/app/api/drive/files/route.ts",
+        "apps/web/app/api/gmail/poll/route.ts",
+        "apps/web/app/api/gmail/process/route.ts",
+        "apps/web/app/api/gmail/renew-watch/route.ts",
+        "apps/web/app/api/gmail/watch/route.ts",
+        "apps/web/app/api/gmail/webhook/route.ts",
+        "apps/web/app/api/outlook/email/[id]/route.ts",
+        "apps/web/app/auth/callback/route.ts",
+        "apps/web/features/import-export/adapters/calendarEventsAdapter.ts",
+        "apps/web/features/inbox/hooks/useCalendarConnection.ts",
+        "apps/web/features/onboarding/hooks/useIntegrationRuntime.ts",
+        "apps/web/features/settings/hooks/useIntegrations.ts",
+        "apps/web/features/settings/hooks/useSettings.ts",
+        "apps/web/features/uploads/server/filesResolvers.ts",
+        "apps/web/lib/connectors/google/calendarConnector.ts",
+        "apps/web/lib/connectors/google/gmailConnector.ts",
+        "apps/web/lib/supabase/getGoogleTokens.ts",
+        "apps/web/lib/supabase/getMicrosoftTokens.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "critical",
+      "risk": "A user-selectable table contains credential material or a plaintext provider key.",
+      "proposed_remediation": "Move credential fields behind a server-only store or safe projection; revoke browser SELECT for secret columns and rotate exposed credentials if access logs justify it."
+    },
+    {
+      "table": "watchlist_items",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own items",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/finance/services/watchlistService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "watchlist_readings",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "own readings",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/features/finance/services/watchlistService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "widget_instances",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "widget_instances_own",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "dashboard/command center",
+      "code_references": [
+        "apps/web/features/intelligence/services/smartContextService.ts",
+        "apps/web/features/onboarding/services/onboardingService.ts",
+        "apps/web/features/platform/services/platformPersistenceService.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "widget_settings",
+      "live": true,
+      "owner_columns": ["user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "widget_settings: delete own",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "widget_settings: insert own",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "widget_settings: select own",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "widget_settings: update own",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": "dashboard/command center",
+      "code_references": [
+        "apps/web/features/dashboard/hooks/useFolderSettings.ts",
+        "apps/web/features/widgets/hooks/useWidgetSettings.ts",
+        "apps/web/features/widgets/hooks/useWidgetSettingsStore.ts"
+      ],
+      "repository_type_present": true,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "low",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "Retain policy, add two-user isolation coverage when this V1 path changes."
+    },
+    {
+      "table": "workspace_activity",
+      "live": true,
+      "owner_columns": ["workspace_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "activity insert",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "activity member read",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/workspaces/[id]/activity/route.ts",
+        "apps/web/features/collaboration/lib/activityLogger.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "workspace_approvals",
+      "live": true,
+      "owner_columns": ["workspace_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "approval member access",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "approval write",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/[approvalId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "workspace_comments",
+      "live": true,
+      "owner_columns": ["workspace_id", "author_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "comment delete",
+          "command": "DELETE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "comment edit",
+          "command": "UPDATE",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "comment read",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "comment write",
+          "command": "INSERT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/workspaces/[id]/comments/[commentId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/comments/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "workspace_invites",
+      "live": true,
+      "owner_columns": ["workspace_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "invite editor access",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/invites/[token]/accept/route.ts",
+        "apps/web/app/api/collaboration/invites/[token]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/[inviteId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    },
+    {
+      "table": "workspace_members",
+      "live": true,
+      "owner_columns": ["workspace_id", "user_id"],
+      "rls_enabled": true,
+      "policies": [
+        {
+          "name": "member management",
+          "command": "ALL",
+          "scope": "user-or-membership"
+        },
+        {
+          "name": "member visibility",
+          "command": "SELECT",
+          "scope": "user-or-membership"
+        }
+      ],
+      "v1_consumer": null,
+      "code_references": [
+        "apps/web/app/api/collaboration/invites/[token]/accept/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/activity/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/[approvalId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/approvals/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/comments/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/[inviteId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/invites/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/members/[memberId]/route.ts",
+        "apps/web/app/api/collaboration/workspaces/[id]/members/route.ts"
+      ],
+      "repository_type_present": false,
+      "migration_coverage": "historical remote migration set recovered into repository on 2026-08-14",
+      "risk_severity": "informational",
+      "risk": "No structural RLS gap found in this schema-only audit.",
+      "proposed_remediation": "No V1 remediation scheduled; reassess if the feature returns to scope."
+    }
+  ],
+  "baseline_recovered_at": "2026-08-14"
+}

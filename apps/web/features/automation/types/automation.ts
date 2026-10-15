@@ -22,8 +22,11 @@ export type AutomationActionType =
     | 'request_approval'
     | 'webhook_placeholder';
 export type AutomationConfigState =
+    | 'draft'
+    | 'dry_run'
     | 'disabled'
     | 'enabled'
+    | 'paused'
     | 'requires_connection'
     | 'requires_consent';
 
@@ -197,6 +200,9 @@ export interface AutomationInstance {
     nextRunAt?: string;
     errorMessage?: string;
     approvalRequired: boolean;
+    dryRun: boolean;
+    localTime?: string;
+    timezone?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -219,6 +225,7 @@ export interface AutomationRunRecord {
     triggerInput?: Record<string, unknown>;
     actionsAttempted?: string[];
     outputGenerated?: string;
+    warnings?: string[];
 }
 
 // Pending approval
@@ -231,6 +238,8 @@ export interface AutomationApproval {
     outputPreview?: string;
     createdAt: string;
     widgetName: string;
+    payloadVersion: number;
+    payloadHash: string;
 }
 
 // Deliverable

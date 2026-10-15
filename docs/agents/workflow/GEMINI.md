@@ -1,5 +1,15 @@
 # GEMINI.md — Agent Manager Protocol
 
+> **Superseded for new work.** The prompt-queue coordination model described
+> below (`docs/agents/prompts/` → `docs/agents/completions/`, ad hoc issues
+> in `docs/agents/issues/`) has been replaced by a GitHub Issues/Projects
+> based workflow — see [/AGENTS.md](../../../AGENTS.md) §11. Do not file new
+> prompts or issues here; open a GitHub issue instead. This file is kept as
+> a historical record of how Stage-1 work was coordinated, and its
+> feature-based architecture rules are still accurate (and now also live in
+> `/AGENTS.md`). The ADR log (`Decisions.md`) and command cheatsheet
+> (`CLI.md`) referenced below are still live and still maintained.
+
 ## Role
 
 Gemini is the agent manager for WebWidgets.

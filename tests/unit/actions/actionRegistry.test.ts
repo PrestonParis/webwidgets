@@ -24,4 +24,17 @@ describe('action registry', () => {
         ).toBe(true);
         expect(definition).not.toHaveProperty('execute');
     });
+
+    it('routes all state-changing task actions to the durable worker', () => {
+        for (const actionId of [
+            'tasks.create',
+            'tasks.update',
+            'tasks.complete',
+        ]) {
+            const definition = getActionDefinition(actionId);
+            expect(definition?.queueability).toBe('required');
+            expect(definition?.handlerId).toBe(`worker.${actionId}`);
+            expect(definition?.handlerId).not.toBe('local.echo');
+        }
+    });
 });

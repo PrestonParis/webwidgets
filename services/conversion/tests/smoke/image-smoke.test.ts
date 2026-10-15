@@ -2,10 +2,11 @@ import net from 'node:net';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import sharp from 'sharp';
 import { fileTypeFromFile } from 'file-type';
 import { getConversionKind } from '../../packages/shared/src/conversionMatrix.js';
+import type { ConversionJob } from '../../packages/shared/src/types.js';
 import { assertJobAllowed } from '../../apps/api/src/lib/filePolicy.js';
 import { HttpError } from '../../apps/api/src/lib/errors.js';
 
@@ -281,8 +282,8 @@ describe('Image processor (mocked S3)', () => {
 
     async function runProcessor(
         fixtureFile: string,
-        sourceExtension: string,
-        targetExtension: string,
+        sourceExtension: ConversionJob['sourceExtension'],
+        targetExtension: ConversionJob['targetExtension'],
     ): Promise<{
         outputPath: string;
         uploadedKey: string;
@@ -296,7 +297,7 @@ describe('Image processor (mocked S3)', () => {
             downloadObject: async (_key: string, destPath: string) => {
                 await copyFile(join(fixturesDir, fixtureFile), destPath);
             },
-            uploadObject: async (
+            uploadObject: (
                 key: string,
                 srcPath: string,
                 contentType: string,
@@ -310,7 +311,7 @@ describe('Image processor (mocked S3)', () => {
         const { processImageJob } =
             await import('../../apps/worker-images/src/processors/imageProcessor.js');
 
-        const job = {
+        const job: ConversionJob = {
             id: crypto.randomUUID(),
             status: 'processing' as const,
             kind: 'image' as const,
@@ -325,7 +326,7 @@ describe('Image processor (mocked S3)', () => {
         };
 
         await processImageJob(job);
-        await vi.resetModules();
+        vi.resetModules();
 
         return {
             outputPath: capturedOutputPath,
@@ -411,7 +412,7 @@ describe('Image processor (mocked S3)', () => {
 
         const { processImageJob } =
             await import('../../apps/worker-images/src/processors/imageProcessor.js');
-        const job = {
+        const job: ConversionJob = {
             id: crypto.randomUUID(),
             status: 'processing' as const,
             kind: 'image' as const,
@@ -426,7 +427,7 @@ describe('Image processor (mocked S3)', () => {
         };
 
         await processImageJob(job);
-        await vi.resetModules();
+        vi.resetModules();
 
         // Content type should be JPEG
         expect(uploadedContentType).toBe('image/jpeg');
@@ -453,7 +454,7 @@ describe('Image processor (mocked S3)', () => {
 
         const { processImageJob } =
             await import('../../apps/worker-images/src/processors/imageProcessor.js');
-        const job = {
+        const job: ConversionJob = {
             id: crypto.randomUUID(),
             status: 'processing' as const,
             kind: 'image' as const,
@@ -468,7 +469,7 @@ describe('Image processor (mocked S3)', () => {
         };
 
         await expect(processImageJob(job)).rejects.toThrow(/MIME mismatch/i);
-        await vi.resetModules();
+        vi.resetModules();
     });
 
     it('output size cap: throws when output exceeds limit', async () => {
@@ -502,7 +503,7 @@ describe('Image processor (mocked S3)', () => {
 
         const { processImageJob } =
             await import('../../apps/worker-images/src/processors/imageProcessor.js');
-        const job = {
+        const job: ConversionJob = {
             id: crypto.randomUUID(),
             status: 'processing' as const,
             kind: 'image' as const,
@@ -517,7 +518,7 @@ describe('Image processor (mocked S3)', () => {
         };
 
         await expect(processImageJob(job)).rejects.toThrow(/too large/i);
-        await vi.resetModules();
+        vi.resetModules();
     });
 });
 

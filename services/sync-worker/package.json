@@ -4,20 +4,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --env-file=.env --import tsx/esm --watch src/index.ts",
     "build": "tsc",
-    "start": "node --experimental-vm-modules dist/index.js"
+    "dev": "node --env-file=.env --import tsx --watch src/index.ts",
+    "start": "node dist/index.js",
+    "smoke": "node --import tsx src/smoke.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test --test-concurrency=1 src/tests/*.test.ts",
+    "format": "prettier src --write",
+    "format:check": "prettier src --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.100.0",
     "bullmq": "^5.76.10",
     "ioredis": "^5.10.1",
+    "rss-parser": "^3.13.0",
     "ws": "^8.21.0",
     "zod": "^4.4.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/ws": "^8.18.1",
+    "prettier": "^3.8.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

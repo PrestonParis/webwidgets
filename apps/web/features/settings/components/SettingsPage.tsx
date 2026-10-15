@@ -33,6 +33,7 @@ export default function SettingsHomePage() {
         isCalendarConnected,
         useAIEmail,
         anthropicApiKey,
+        hasAnthropicApiKey,
         setAnthropicApiKey,
         handleGoogleConnect,
         handleConnectCalendar,
@@ -139,6 +140,7 @@ export default function SettingsHomePage() {
             <EmailIntelligenceCard
                 useAI={useAIEmail}
                 apiKey={anthropicApiKey}
+                hasApiKey={hasAnthropicApiKey}
                 saving={saving}
                 onToggleAI={handleToggleAIEmail}
                 onApiKeyChange={setAnthropicApiKey}

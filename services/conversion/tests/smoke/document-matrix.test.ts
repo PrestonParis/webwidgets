@@ -13,10 +13,8 @@ const requiredPairs = [
     ['odt', 'pdf', 'libreoffice'],
     ['rtf', 'pdf', 'libreoffice'],
     ['txt', 'pdf', 'pandoc'],
-    ['html', 'pdf', 'pandoc'],
     ['md', 'pdf', 'pandoc'],
     ['md', 'html', 'pandoc'],
-    ['html', 'md', 'pandoc'],
     ['txt', 'md', 'native'],
     ['md', 'txt', 'pandoc'],
     ['ppt', 'pdf', 'libreoffice'],
@@ -30,7 +28,6 @@ const requiredPairs = [
     ['xlsx', 'csv', 'libreoffice'],
     ['epub', 'pdf', 'pandoc'],
     ['epub', 'html', 'pandoc'],
-    ['html', 'epub', 'pandoc'],
     ['md', 'epub', 'pandoc'],
     ['pdf', 'txt', 'pdftotext'],
     ['pdf', 'html', 'pdftohtml'],
@@ -69,12 +66,16 @@ describe('document conversion matrix', () => {
         expect(getSupportedTargetsForSource('markdown')).toEqual(
             expect.arrayContaining(['pdf', 'html', 'txt', 'epub']),
         );
-        expect(getSupportedTargetsForSource('htm')).toEqual(
-            expect.arrayContaining(['pdf', 'md', 'epub']),
-        );
+        expect(getSupportedTargetsForSource('htm')).toEqual([]);
         expect(getSupportedTargetsForSource('pdf')).toEqual(
             expect.arrayContaining(['docx', 'txt', 'html', 'md', 'epub']),
         );
+    });
+
+    it('keeps unsanitized HTML input disabled', () => {
+        expect(findSupportedConversion('html', 'pdf')).toBeUndefined();
+        expect(findSupportedConversion('html', 'md')).toBeUndefined();
+        expect(findSupportedConversion('html', 'epub')).toBeUndefined();
     });
 
     it('keeps xlsx to csv first-sheet warning visible', () => {

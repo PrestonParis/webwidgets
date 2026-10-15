@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { gmail_v1, google } from 'googleapis';
 import { z } from 'zod';
@@ -19,6 +20,19 @@ const notificationSchema = z.object({
     emailAddress: z.string(),
     historyId: z.string(),
 });
+
+function validWebhookToken(
+    expected: string | undefined,
+    received: string | null,
+) {
+    if (!expected) return false;
+    const expectedBytes = Buffer.from(expected);
+    const receivedBytes = Buffer.from(received ?? '');
+    return (
+        expectedBytes.length === receivedBytes.length &&
+        timingSafeEqual(expectedBytes, receivedBytes)
+    );
+}
 
 function parseNotification(
     data: string,
@@ -56,12 +70,41 @@ function collectNewMessages(
     return newMessages;
 }
 
+async function scheduleCanonicalSync(
+    supabase: ReturnType<typeof createAdminClient>,
+    userId: string,
+    emailAddress: string,
+) {
+    const account = await supabase
+        .from('user_email_accounts')
+        .select('integration_connection_id')
+        .eq('user_id', userId)
+        .eq('provider', 'google')
+        .ilike('email', emailAddress)
+        .maybeSingle();
+    const connectionId = account.data?.integration_connection_id;
+    if (!connectionId) return false;
+    const scheduled = await supabase
+        .from('integration_connections')
+        .update({
+            sync_status: 'scheduled',
+            next_sync_at: new Date().toISOString(),
+        })
+        .eq('id', connectionId)
+        .eq('user_id', userId)
+        .is('disabled_at', null)
+        .is('disconnected_at', null)
+        .select('id')
+        .maybeSingle();
+    return Boolean(scheduled.data);
+}
+
 // Gmail sends Pub/Sub push messages to this endpoint.
 // Validate via a shared token appended to the subscription push URL.
 export async function POST(req: Request): Promise<Response> {
     const expectedToken = process.env.GMAIL_WEBHOOK_TOKEN;
     const receivedToken = new URL(req.url).searchParams.get('token');
-    if (!expectedToken || receivedToken !== expectedToken) {
+    if (!validWebhookToken(expectedToken, receivedToken)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -92,8 +135,9 @@ export async function POST(req: Request): Promise<Response> {
         return NextResponse.json({ ok: true });
     }
 
-    const userId = tokenRow.user_id as string;
-    const lastHistoryId = tokenRow.last_history_id as string | null;
+    const userId = tokenRow.user_id;
+    const lastHistoryId = tokenRow.last_history_id;
+    await scheduleCanonicalSync(supabase, userId, notification.emailAddress);
 
     if (!lastHistoryId) {
         // First notification — seed the history cursor and wait for the next event

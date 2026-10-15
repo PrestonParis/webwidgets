@@ -16,8 +16,8 @@ export async function GET() {
 
     // Query journal entries, excluding deleted ones
     const { data: journals } = await supabase
-        .from('journal_entries')
-        .select('id, created_at, title, content')
+        .from('journals')
+        .select('id,created_at,title,content')
         .eq('user_id', userId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -27,21 +27,16 @@ export async function GET() {
     const currentYear = today.getFullYear();
     const memories = (journals ?? [])
         .filter((entry) => {
-            const d = new Date(entry.created_at as string);
+            const d = new Date(entry.created_at);
             const entryMonthDay = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             return entryMonthDay === monthDay && d.getFullYear() < currentYear;
         })
         .map((entry) => ({
-            id: entry.id as string,
-            date: entry.created_at as string,
-            title: (entry.title as string | null) ?? 'Journal entry',
-            snippet:
-                typeof entry.content === 'string'
-                    ? entry.content.slice(0, 200)
-                    : '',
-            yearsAgo:
-                currentYear -
-                new Date(entry.created_at as string).getFullYear(),
+            id: entry.id,
+            date: entry.created_at,
+            title: entry.title || 'Journal entry',
+            snippet: entry.content.slice(0, 200),
+            yearsAgo: currentYear - new Date(entry.created_at).getFullYear(),
         }));
 
     return NextResponse.json({

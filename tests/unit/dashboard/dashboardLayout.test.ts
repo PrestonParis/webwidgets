@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
+    buildDefaultLayout,
     hydrateTrackers,
     makePersistKey,
     makePersistTimestampKey,
+    reconcileLayout,
 } from '@/features/dashboard/lib/dashboardLayout';
 import type { WidgetConfig } from '@/features/dashboard/types/dashboard';
 import type { Tracker } from '@/features/recovery/types/recovery';
@@ -70,6 +72,46 @@ describe('hydrateTrackers', () => {
         const result = hydrateTrackers(layout, [t1, t2]);
         expect(result[0]?.props?.tracker?.id).toBe('t1');
         expect(result[1]?.props?.tracker?.id).toBe('t2');
+    });
+});
+
+describe('V1 default layout', () => {
+    it('does not seed suspended beta widgets', () => {
+        const widgetTypes = buildDefaultLayout([]).map((widget) => widget.type);
+
+        expect(widgetTypes).not.toContain('chess');
+        expect(widgetTypes).not.toContain('creative');
+        expect(widgetTypes).not.toContain('memorization');
+        expect(widgetTypes).not.toContain('reading');
+        expect(widgetTypes).toContain('news');
+    });
+
+    it('preserves suspended widgets already owned by the user', () => {
+        const existing: WidgetConfig = {
+            id: 'widget-creative-existing',
+            type: 'creative',
+            visible: true,
+            columnSpan: 2,
+            containerId: 'main',
+            order: 4,
+        };
+
+        const result = reconcileLayout([existing], [], true);
+
+        expect(result).toEqual([existing]);
+    });
+
+    it('treats a saved layout as authoritative without injecting defaults', () => {
+        const selected: WidgetConfig = {
+            id: 'widget-todo',
+            type: 'todo',
+            visible: true,
+            columnSpan: 1,
+            containerId: 'main',
+            order: 0,
+        };
+
+        expect(reconcileLayout([selected], [], false)).toEqual([selected]);
     });
 });
 

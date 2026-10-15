@@ -1,12 +1,19 @@
 import { randomUUID } from 'crypto';
-import type { Json } from '@/types/supabase';
 import { getLogger } from '@/lib/observability/logger';
+import { hashInferenceInput } from '@/features/intelligence/lib/redaction';
+import { inferenceFailureDetails } from '@/features/intelligence/providers/providerError';
 import { getProvidersForTask } from '@/features/intelligence/providers/providerRegistry';
+import {
+    evaluateExternalInferencePolicy,
+    type ExternalInferenceAuthorization,
+} from '@/features/intelligence/services/externalInferencePolicy';
 import type {
+    InferenceFailure,
     InferenceRequest,
     InferenceResult,
     PredictionTask,
 } from '@/features/intelligence/types/inference';
+import type { Json } from '@/types/supabase';
 
 export interface RunInferenceInput<TInput = Json> {
     userId?: string;
@@ -14,7 +21,7 @@ export interface RunInferenceInput<TInput = Json> {
     input: TInput;
     context?: Json;
     sensitive?: boolean;
-    allowExternal?: boolean;
+    externalAuthorization?: ExternalInferenceAuthorization;
     requiredConsentScopes?: string[];
     cacheKey?: string;
 }
@@ -23,30 +30,33 @@ export async function runInference<TInput = Json, TOutput = Json>(
     input: RunInferenceInput<TInput>,
 ): Promise<InferenceResult<TOutput>> {
     const request = buildRequest(input);
+    const externalDenial = evaluateExternalInferencePolicy({
+        sensitive: request.sensitive,
+        requiredConsentScopes: request.requiredConsentScopes,
+        ...(input.externalAuthorization
+            ? { authorization: input.externalAuthorization }
+            : {}),
+    });
     const providers = getProvidersForTask(
         request.task,
-        request.fallback.allowExternal,
+        externalDenial === null,
     );
-    const errors: string[] = [];
-    const log = getLogger({
-        operation: 'runInference',
-        task: request.task,
-        ...(request.userId ? { userId: request.userId } : {}),
-    });
-
+    if (providers.length === 0 && externalDenial) {
+        return failure(request, externalDenial, false);
+    }
+    const log = getLogger({ operation: 'runInference', task: request.task });
+    let lastFailure: InferenceFailure | null = null;
     for (const provider of providers) {
         try {
-            const result = await retry(
+            const result = await retryProvider(
                 () => provider.infer<TInput, TOutput>(request),
-                request.retryPolicy.maxAttempts,
+                request.retryPolicy,
             );
             log.info(
-                {
-                    providerId: provider.id,
-                    confidence: result.confidence.value,
-                },
+                { providerId: provider.id, status: result.status },
                 'Inference completed',
             );
+            if (result.status === 'abstained') return result;
             if (
                 result.confidence.value >=
                     request.fallback.stopWhenConfidenceAtLeast ||
@@ -55,19 +65,20 @@ export async function runInference<TInput = Json, TOutput = Json>(
                 return result;
             }
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : 'Unknown inference error';
-            errors.push(`${provider.id}: ${message}`);
+            const details = inferenceFailureDetails(error);
+            lastFailure = failure(
+                request,
+                details.code,
+                details.retryable,
+                provider.id,
+            );
             log.warn(
-                { providerId: provider.id, error: message },
+                { providerId: provider.id, code: details.code },
                 'Inference provider failed',
             );
         }
     }
-
-    throw new Error(`No inference provider succeeded: ${errors.join('; ')}`);
+    return lastFailure ?? failure(request, 'provider_unavailable', true);
 }
 
 function buildRequest<TInput>(
@@ -80,24 +91,64 @@ function buildRequest<TInput>(
         sensitive: input.sensitive ?? false,
         requiredConsentScopes: input.requiredConsentScopes ?? [],
         fallback: {
-            providerIds: [],
+            providerIds: [
+                'deterministic-rules',
+                'internal-ml-service',
+                'anthropic',
+            ],
             stopWhenConfidenceAtLeast: 0.72,
-            allowExternal: input.allowExternal ?? false,
+            allowExternal: input.externalAuthorization?.allowExternal ?? false,
         },
-        retryPolicy: { maxAttempts: 2, timeoutMs: 5000, backoffMs: 250 },
+        retryPolicy: { maxAttempts: 2, timeoutMs: 12_000, backoffMs: 250 },
         ...(input.userId ? { userId: input.userId } : {}),
         ...(input.context ? { context: input.context } : {}),
         ...(input.cacheKey ? { cacheKey: input.cacheKey } : {}),
     };
 }
 
-async function retry<T>(operation: () => Promise<T>, attempts: number) {
+function failure<TInput>(
+    request: InferenceRequest<TInput>,
+    code: InferenceFailure['code'],
+    retryable: boolean,
+    providerId?: string,
+): InferenceFailure {
+    const timestamp = new Date().toISOString();
+    return {
+        status: 'failed',
+        requestId: request.id,
+        task: request.task,
+        code,
+        retryable,
+        ...(providerId ? { providerId } : {}),
+        audit: {
+            requestId: request.id,
+            providerId: providerId ?? 'policy',
+            task: request.task,
+            startedAt: timestamp,
+            completedAt: timestamp,
+            status: 'failed',
+            failureCode: code,
+            redactedInputHash: hashInferenceInput(request.input),
+        },
+    };
+}
+
+async function retryProvider<T>(
+    operation: () => Promise<T>,
+    policy: InferenceRequest['retryPolicy'],
+) {
     let lastError: unknown;
-    for (let attempt = 0; attempt < attempts; attempt++) {
+    for (let attempt = 0; attempt < policy.maxAttempts; attempt++) {
         try {
             return await operation();
         } catch (error) {
             lastError = error;
+            if (!inferenceFailureDetails(error).retryable) throw error;
+            if (attempt + 1 < policy.maxAttempts) {
+                await new Promise((resolve) =>
+                    setTimeout(resolve, policy.backoffMs * (attempt + 1)),
+                );
+            }
         }
     }
     throw lastError;

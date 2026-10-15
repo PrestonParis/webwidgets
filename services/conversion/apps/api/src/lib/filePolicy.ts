@@ -81,6 +81,13 @@ export function assertJobAllowed(request: CreateConversionJobRequest) {
         throw new HttpError('Unsupported source MIME type.', 400);
     }
 
+    if (request.sourceExtension === 'html') {
+        throw new HttpError(
+            'HTML input conversion is disabled until active sanitization is available.',
+            400,
+        );
+    }
+
     const supported = findSupportedConversion(
         request.sourceExtension,
         request.targetExtension,

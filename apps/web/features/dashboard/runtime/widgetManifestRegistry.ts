@@ -520,15 +520,12 @@ const MANIFESTS: Partial<Record<string, WidgetManifest>> = {
         priority: 'low',
         aboveFold: false,
         dataRequirements: [
-            // News is an external feed, not user data — the import-export adapter
-            // pattern doesn't apply. A dedicated feed-cache layer is the right
-            // long-term path; using a direct API route for now.
             {
                 sourceType: 'api',
                 apiRoute: '/api/news/feed',
                 required: true,
-                label: 'Feed',
-                cacheTtlMs: 300_000,
+                label: 'Timeline',
+                cacheTtlMs: 60_000,
             },
         ],
         acceptsSchemas: [],

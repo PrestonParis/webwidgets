@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const workflowKeySchema = z.enum([
+export const workflowKeySchema = z.enum([
     'email_ingestion',
     'calendar_sync',
     'finance_sync',
@@ -146,5 +146,20 @@ export const workflowPayloadSchemas = {
         trackerId: z.string().optional(),
     }),
 } satisfies Record<z.infer<typeof workflowKeySchema>, z.ZodType>;
+
+export function parseWorkflowParameters(
+    workflowKey: WorkflowKey,
+    parameters: unknown,
+    userId: string,
+) {
+    return workflowPayloadSchemas[workflowKey].parse({
+        ...(parameters &&
+        typeof parameters === 'object' &&
+        !Array.isArray(parameters)
+            ? parameters
+            : {}),
+        userId,
+    });
+}
 
 export type WorkflowKey = z.infer<typeof workflowKeySchema>;

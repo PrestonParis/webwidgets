@@ -55,7 +55,7 @@ export const filesAdapter: ImportExportAdapter = {
         let query = supabase
             .from('file_uploads')
             .select(
-                'id, user_id, original_name, mime_type, size_bytes, s3_key, status, created_at, updated_at',
+                'id,user_id,original_name,mime_type,size_bytes,s3_key,status,created_at,updated_at',
             )
             .eq('user_id', userId)
             .eq('status', 'uploaded')

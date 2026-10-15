@@ -8,7 +8,6 @@ import {
     ingestContextNode,
     ingestContextNodes,
 } from '@/features/context/services/contextService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { UpsertEntryPayload } from '@/features/context/types/context';
 import {
     contextNodeInputSchema,
@@ -43,10 +42,7 @@ export async function GET() {
     try {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const entries = await listEntries(
-            supabase as unknown as SupabaseClient,
-            userId,
-        );
+        const entries = await listEntries(supabase, userId);
         return NextResponse.json({ entries });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -87,11 +83,7 @@ export async function POST(req: Request) {
                 metadata: legacy.metadata,
             }),
         );
-        const entry = await ingestContextNode(
-            supabase as unknown as SupabaseClient,
-            userId,
-            canonical,
-        );
+        const entry = await ingestContextNode(supabase, userId, canonical);
         return NextResponse.json({ entry });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -137,11 +129,7 @@ export async function PUT(req: Request) {
                 }),
             ),
         );
-        await ingestContextNodes(
-            supabase as unknown as SupabaseClient,
-            userId,
-            nodes,
-        );
+        await ingestContextNodes(supabase, userId, nodes);
         return NextResponse.json({ ok: true });
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';

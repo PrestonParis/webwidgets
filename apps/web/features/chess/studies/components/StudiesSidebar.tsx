@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/db/supabase';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
 import { useRouter } from 'next/navigation';
-import { StudiesSidebarProps } from '@/features/chess/studies/types/studies';
 import { z } from 'zod';
 
 const sidebarStudySchema = z.object({
@@ -11,24 +10,39 @@ const sidebarStudySchema = z.object({
 });
 
 const sidebarStudyArraySchema = z.array(sidebarStudySchema);
+type SidebarStudy = z.infer<typeof sidebarStudySchema>;
 
-export default function StudiesSidebar({ gameId }: StudiesSidebarProps) {
+interface StudyState {
+    userId: string;
+    studies: SidebarStudy[];
+}
+
+export default function StudiesSidebar() {
     const { user } = useAuthContext();
     const router = useRouter();
-    const [studies, setStudies] = useState<{ id: string; title: string }[]>([]);
+    const [studyState, setStudyState] = useState<StudyState>({
+        userId: '',
+        studies: [],
+    });
+    const studies = studyState.userId === user?.id ? studyState.studies : [];
 
     useEffect(() => {
-        // 1. Use gameId to filter the initial fetch
+        const userId = user?.id;
+        if (!userId) return;
+
         supabase
             .from('chess_studies')
             .select('id, title')
-            .eq('game_id', gameId) // Only fetch studies for this specific game
+            .eq('user_id', userId)
             .order('updated_at', { ascending: false })
             .then(({ data }) => {
                 const parsed = sidebarStudyArraySchema.safeParse(data);
-                setStudies(parsed.success ? parsed.data : []);
+                setStudyState({
+                    userId,
+                    studies: parsed.success ? parsed.data : [],
+                });
             });
-    }, [gameId]);
+    }, [user?.id]);
 
     const handleCreateStudy = async () => {
         const title = prompt('Study title?');
@@ -36,13 +50,11 @@ export default function StudiesSidebar({ gameId }: StudiesSidebarProps) {
 
         if (!user) return;
 
-        // 2. Include game_id in the insert payload
         const result = await supabase
             .from('chess_studies')
             .insert({
                 user_id: user.id,
                 title,
-                game_id: gameId, // Associate the new study with the current game
             })
             .select()
             .single();
@@ -53,7 +65,13 @@ export default function StudiesSidebar({ gameId }: StudiesSidebarProps) {
         }
 
         const newStudyId = result.data.id;
-        setStudies((prev) => [{ id: newStudyId, title }, ...prev]);
+        setStudyState((previous) => ({
+            userId: user.id,
+            studies: [
+                { id: newStudyId, title },
+                ...(previous.userId === user.id ? previous.studies : []),
+            ],
+        }));
     };
     return (
         <div className="p-4 space-y-4">

@@ -3,10 +3,22 @@ import { basename, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    vi,
+    type MockedFunction,
+} from 'vitest';
 import type { ConversionJob } from '@webwidgets/conversion-shared';
 
 const execFileAsync = promisify(execFile);
+type DownloadObject =
+    typeof import('../../apps/worker-docs/src/services/storage.js').downloadObject;
+type UploadObject =
+    typeof import('../../apps/worker-docs/src/services/storage.js').uploadObject;
 
 // ---------------------------------------------------------------------------
 // Mock S3 storage so the processor runs without a MinIO instance.
@@ -144,8 +156,8 @@ describe('processDocumentJob (mocked S3)', () => {
     let processDocumentJob: (
         job: ConversionJob,
     ) => Promise<{ outputObjectKey: string; outputSizeBytes: number }>;
-    let downloadObject: ReturnType<typeof vi.fn>;
-    let uploadObject: ReturnType<typeof vi.fn>;
+    let downloadObject: MockedFunction<DownloadObject>;
+    let uploadObject: MockedFunction<UploadObject>;
 
     beforeEach(async () => {
         const processorMod =
@@ -154,8 +166,9 @@ describe('processDocumentJob (mocked S3)', () => {
 
         const storageMod =
             await import('../../apps/worker-docs/src/services/storage.js');
-        downloadObject = storageMod.downloadObject as ReturnType<typeof vi.fn>;
-        uploadObject = storageMod.uploadObject as ReturnType<typeof vi.fn>;
+        downloadObject =
+            storageMod.downloadObject as MockedFunction<DownloadObject>;
+        uploadObject = storageMod.uploadObject as MockedFunction<UploadObject>;
 
         vi.clearAllMocks();
     });
@@ -211,31 +224,18 @@ describe('processDocumentJob (mocked S3)', () => {
         expect(uploadedHtml).toMatch(/<html/i);
     });
 
-    it('html→md: produces markdown when Pandoc is available', async (ctx) => {
-        if (!(await isPandocAvailable())) return ctx.skip();
-
-        let uploadedMarkdown = '';
-        downloadObject.mockImplementation(
-            async (_key: string, destPath: string) => {
-                await copyFile(FIXTURES.html, destPath);
-            },
-        );
-        uploadObject.mockImplementation(
-            async (_key: string, srcPath: string) => {
-                uploadedMarkdown = await readFile(srcPath, 'utf8');
-            },
-        );
-
+    it('html→md: rejects unsafe HTML input', async () => {
         const job = makeJob({
             originalFileName: 'sample.html',
             sourceMime: 'text/html',
             sourceExtension: 'html',
             targetExtension: 'md',
         });
-        const result = await processDocumentJob(job);
 
-        expect(result.outputObjectKey).toMatch(/\.md$/);
-        expect(uploadedMarkdown).toMatch(/Sample HTML Document/i);
+        await expect(processDocumentJob(job)).rejects.toThrow(
+            'No document converter for html to md',
+        );
+        expect(uploadObject).not.toHaveBeenCalled();
     });
 
     it('txt→md: preserves plain text natively', async () => {
@@ -506,7 +506,7 @@ describe('processDocumentJob output size cap', () => {
         const original = process.env.CONVERSION_MAX_OUTPUT_BYTES;
         process.env.CONVERSION_MAX_OUTPUT_BYTES = '1'; // 1 byte — any conversion output exceeds this
 
-        await vi.resetModules(); // discard cached env + processor modules
+        vi.resetModules(); // discard cached env + processor modules
 
         vi.doMock('../../apps/worker-docs/src/services/storage.js', () => ({
             downloadObject: async (_key: string, destPath: string) => {
@@ -538,7 +538,7 @@ describe('processDocumentJob output size cap', () => {
 
         // Restore env and module cache for subsequent test files.
         process.env.CONVERSION_MAX_OUTPUT_BYTES = original;
-        await vi.resetModules();
+        vi.resetModules();
     });
 });
 

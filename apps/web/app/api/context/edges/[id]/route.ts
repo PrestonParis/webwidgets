@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClients } from '@/lib/supabase/serverClient';
 import { getRequestUserId } from '@/features/backend/lib/requestUser';
 import { deleteContextEdge } from '@/features/context/services/contextService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function DELETE(
     _req: Request,
@@ -12,11 +11,7 @@ export async function DELETE(
         const { id } = await params;
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
-        const deleted = await deleteContextEdge(
-            supabase as unknown as SupabaseClient,
-            userId,
-            id,
-        );
+        const deleted = await deleteContextEdge(supabase, userId, id);
         if (!deleted)
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         return NextResponse.json({ ok: true });

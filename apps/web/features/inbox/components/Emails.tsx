@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ChevronDown, RefreshCw, Users, Zap } from 'lucide-react';
 import { computePriorityScore } from '@/features/inbox/lib/priorityScore';
 import { useEmails } from '@/features/inbox/hooks/useEmails';
-import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useEmailActions } from '@/features/inbox/hooks/useEmailActions';
 import { useEmailConnection } from '@/features/inbox/hooks/useEmailConnection';
 import {
@@ -160,6 +159,43 @@ const CATEGORY_ICONS: Record<string, string> = {
     other: '📁',
 };
 
+function FilterButton({
+    label,
+    count,
+    filterKey,
+    icon,
+    active,
+    onSelect,
+}: {
+    label: string;
+    count: number;
+    filterKey: InboxFilter;
+    icon?: string | undefined;
+    active: InboxFilter;
+    onSelect: (filter: InboxFilter) => void;
+}) {
+    const isActive = active === filterKey;
+    return (
+        <button
+            type="button"
+            onClick={() => onSelect(isActive ? null : filterKey)}
+            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                isActive
+                    ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            }`}
+        >
+            <span className="flex items-center gap-1.5 truncate">
+                {icon && <span className="shrink-0">{icon}</span>}
+                <span className="truncate">{label}</span>
+            </span>
+            {count > 0 && (
+                <span className="tabular-nums ml-1 shrink-0">{count}</span>
+            )}
+        </button>
+    );
+}
+
 function FilterSidebar({
     emails,
     actions,
@@ -229,46 +265,15 @@ function FilterSidebar({
         };
     }, [emails, actions]);
 
-    function Btn({
-        label,
-        count,
-        filterKey,
-        icon,
-    }: {
-        label: string;
-        count: number;
-        filterKey: InboxFilter;
-        icon?: string | undefined;
-    }) {
-        const isActive = active === filterKey;
-        return (
-            <button
-                type="button"
-                onClick={() => onSelect(isActive ? null : filterKey)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    isActive
-                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                }`}
-            >
-                <span className="flex items-center gap-1.5 truncate">
-                    {icon && <span className="shrink-0">{icon}</span>}
-                    <span className="truncate">{label}</span>
-                </span>
-                {count > 0 && (
-                    <span className="tabular-nums ml-1 shrink-0">{count}</span>
-                )}
-            </button>
-        );
-    }
-
     return (
         <nav className="py-3 space-y-0.5 px-2">
-            <Btn
+            <FilterButton
                 label="All Mail"
                 count={emails.length}
                 filterKey={null}
                 icon="📬"
+                active={active}
+                onSelect={onSelect}
             />
 
             {(counts.attention > 0 ||
@@ -280,51 +285,63 @@ function FilterSidebar({
                         Smart
                     </p>
                     {counts.needsReply > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Needs Reply"
                             count={counts.needsReply}
                             filterKey={FILTER_NEEDS_REPLY}
                             icon="↩"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                     {counts.tasks > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Tasks"
                             count={counts.tasks}
                             filterKey={FILTER_TASKS}
                             icon="✓"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                     {counts.deadlines > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Deadlines"
                             count={counts.deadlines}
                             filterKey={FILTER_DEADLINES}
                             icon="⏰"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                     {counts.meetings > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Meetings"
                             count={counts.meetings}
                             filterKey={FILTER_MEETINGS}
                             icon="📅"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                     {counts.security > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Security"
                             count={counts.security}
                             filterKey={FILTER_SECURITY}
                             icon="🔒"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                     {counts.development > 0 && (
-                        <Btn
+                        <FilterButton
                             label="Development"
                             count={counts.development}
                             filterKey={FILTER_DEVELOPMENT}
                             icon="⚙️"
+                            active={active}
+                            onSelect={onSelect}
                         />
                     )}
                 </>
@@ -615,8 +632,6 @@ export default function Emails() {
         emailIdsWithDeadlines,
         emailIdsWithMeetings,
     ]);
-
-    const { connectCalendar } = useAuth();
 
     if (isUnauthorized) return <EmailUnauthorized />;
 

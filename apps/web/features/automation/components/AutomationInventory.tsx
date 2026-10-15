@@ -14,7 +14,7 @@ import {
     widgetEmoji,
 } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge, StatusBadge, Toggle } from './AutomationBadges';
-import { deleteAutomation } from '@/features/automation/services/automationService';
+import { AutomationTemplateConfiguration } from './AutomationTemplateConfiguration';
 
 const FILTERS: { value: AutomationFilter; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -120,33 +120,7 @@ function InstanceRow({
             </div>
 
             {configureOpen && (
-                <div className="mt-3 border-t border-zinc-100 pt-3 space-y-2 dark:border-zinc-800">
-                    <div>
-                        <label className="text-[10px] font-medium uppercase text-zinc-400">
-                            Trigger
-                        </label>
-                        <p className="text-xs text-zinc-600 dark:text-zinc-300">
-                            {definition.trigger.label}
-                        </p>
-                    </div>
-                    {definition.approvalPolicy.required && (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                            This automation requires your approval before
-                            executing actions.
-                        </p>
-                    )}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            void deleteAutomation(instance.id).then(() =>
-                                window.location.reload(),
-                            )
-                        }
-                        className="text-xs text-red-500 hover:text-red-700"
-                    >
-                        Remove automation
-                    </button>
-                </div>
+                <AutomationTemplateConfiguration instance={instance} />
             )}
         </div>
     );

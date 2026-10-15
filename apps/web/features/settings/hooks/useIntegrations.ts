@@ -2,7 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/db/supabase';
+import { startGoogleConnection } from '@/lib/auth/googleConnection';
 import { useAuthContext } from '@/features/auth/components/AuthContext';
+import {
+    deleteIntegrationKey,
+    listIntegrationKeyProviders,
+    saveIntegrationKey,
+} from '../api/integrationKeysClient';
 
 export interface IntegrationState {
     connected: boolean;
@@ -11,7 +17,6 @@ export interface IntegrationState {
 
 type IntegrationMap = Record<string, IntegrationState>;
 type UserIdentity = { provider?: string };
-type IntegrationKeyRow = { provider: string };
 
 const GOOGLE_OAUTH_IDS = ['gmail', 'google_calendar', 'google_drive'];
 const MICROSOFT_OAUTH_IDS = ['outlook', 'outlook_calendar'];
@@ -33,22 +38,17 @@ export function useIntegrations() {
             (identity) => identity.provider === 'google',
         );
 
-        const [tokensResult, keysResult] = await Promise.all([
+        const [tokensResult, savedProviderList] = await Promise.all([
             supabase
                 .from('user_tokens')
                 .select('has_calendar, has_microsoft')
                 .eq('user_id', user.id)
                 .maybeSingle(),
-            supabase
-                .from('user_integration_keys')
-                .select('provider')
-                .eq('user_id', user.id),
+            listIntegrationKeyProviders(),
         ]);
 
         const tokens = tokensResult.data;
-        const keyRows =
-            (keysResult.data as unknown as IntegrationKeyRow[] | null) ?? [];
-        const savedProviders = new Set(keyRows.map((row) => row.provider));
+        const savedProviders = new Set(savedProviderList);
 
         const next: IntegrationMap = {};
         GOOGLE_OAUTH_IDS.forEach((id) => {
@@ -95,15 +95,12 @@ export function useIntegrations() {
         return () => window.clearTimeout(timeoutId);
     }, [user, status, load]);
 
-    const connectGoogle = useCallback(async (scopes: string[]) => {
-        await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                scopes: scopes.join(' '),
-                queryParams: { access_type: 'offline', prompt: 'consent' },
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
+    const connectGoogle = useCallback((scopes: string[]) => {
+        startGoogleConnection(
+            scopes.includes('https://www.googleapis.com/auth/calendar.events')
+                ? 'calendar'
+                : 'gmail',
+        );
     }, []);
 
     const connectMicrosoft = useCallback(() => {
@@ -116,14 +113,7 @@ export function useIntegrations() {
         async (providerId: string, key: string) => {
             if (!user || !key.trim()) return;
             setSaving(providerId);
-            await supabase.from('user_integration_keys').upsert(
-                {
-                    user_id: user.id,
-                    provider: providerId,
-                    api_key: key.trim(),
-                },
-                { onConflict: 'user_id,provider' },
-            );
+            await saveIntegrationKey(providerId, key.trim());
             setSaving(null);
             setStates((prev) => ({
                 ...prev,
@@ -137,11 +127,7 @@ export function useIntegrations() {
         async (providerId: string) => {
             if (!user) return;
             setSaving(providerId);
-            await supabase
-                .from('user_integration_keys')
-                .delete()
-                .eq('user_id', user.id)
-                .eq('provider', providerId);
+            await deleteIntegrationKey(providerId);
             setSaving(null);
             setStates((prev) => ({
                 ...prev,

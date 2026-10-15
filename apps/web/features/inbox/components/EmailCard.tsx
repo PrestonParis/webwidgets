@@ -85,12 +85,15 @@ function formatRelativeTime(dateStr: string): string {
     // ISO 8601 with +HH:MM offset sometimes parses wrong in older envs — normalise to Z
     if (isNaN(date.getTime())) {
         date = new Date(
-            dateStr.replace(/([+-]\d{2}):(\d{2})$/, (_, h, m) => {
+            dateStr.replace(
+                /([+-]\d{2}):(\d{2})$/,
+                (_match: string, h: string, m: string) => {
                 const total =
                     (Number(h.replace('+', '')) * 60 + Number(m)) *
                     (h.startsWith('-') ? -1 : 1);
                 return total === 0 ? 'Z' : dateStr;
-            }),
+                },
+            ),
         );
     }
     if (isNaN(date.getTime())) return dateStr;
@@ -167,16 +170,8 @@ export function EmailCard({
     onConfirmAll: () => void;
     onRejectAction: (id: string) => void;
 }) {
-    const {
-        open,
-        setOpen,
-        bodyOpen,
-        body,
-        bodyLoading,
-        showActions,
-        setShowActions,
-        handleReadEmail,
-    } = useEmailCard(emailActions, extracting);
+    const { open, setOpen, bodyOpen, body, bodyLoading, handleReadEmail } =
+        useEmailCard(emailActions, extracting);
 
     const [expanded, setExpanded] = useState(false);
 

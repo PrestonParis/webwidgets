@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 export type ActionType = 'action' | 'event' | 'deadline';
 
@@ -21,7 +22,9 @@ const actionSchema = z.object({
 
 const responseSchema = z.record(z.string(), z.array(actionSchema));
 
-const defaultClient = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
+const defaultClient = sharedLlmKey('ANTHROPIC_API_KEY')
+    ? new Anthropic()
+    : null;
 
 export interface EmailInput {
     id: string;

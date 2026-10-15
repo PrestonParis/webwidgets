@@ -7,7 +7,14 @@ import { useToastContext } from '@/features/ui/components/ToastProvider';
 import type { AutomationCenterController } from '@/features/automation/hooks/useAutomationCenter';
 import { widgetEmoji } from '@/features/automation/lib/automationDisplay';
 import { SafetyBadge } from './AutomationBadges';
-import { createAutomation } from '@/features/automation/services/automationService';
+import { createAutomation } from '@/features/automation/services/automationCenterService';
+import type { V1TemplateDefinition } from '@/features/automation/lib/v1TemplateCatalog';
+
+function boundedDefinition(value: unknown): V1TemplateDefinition | null {
+    if (!value || typeof value !== 'object' || !('prohibitedEffects' in value))
+        return null;
+    return value as V1TemplateDefinition;
+}
 
 export function AutomationSuggestions({
     controller,
@@ -32,6 +39,7 @@ export function AutomationSuggestions({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {suggestions.map((suggestion) => {
                 const { definition } = suggestion;
+                const bounded = boundedDefinition(definition);
                 return (
                     <article
                         key={suggestion.id}
@@ -64,6 +72,27 @@ export function AutomationSuggestions({
                                 {suggestion.reason}
                             </p>
                         </div>
+                        {bounded && (
+                            <div className="mt-2 space-y-1 text-[11px] leading-4 text-zinc-500 dark:text-zinc-400">
+                                <p>
+                                    <strong>Trigger:</strong>{' '}
+                                    {definition.trigger.label}
+                                </p>
+                                <p>
+                                    <strong>Action:</strong>{' '}
+                                    {definition.actions[0]?.label}
+                                </p>
+                                <p>
+                                    <strong>Evidence:</strong>{' '}
+                                    {definition.consent.dataRead.join(', ') ||
+                                        'No source content'}
+                                </p>
+                                <p>
+                                    <strong>Never:</strong>{' '}
+                                    {bounded.prohibitedEffects.join(', ')}
+                                </p>
+                            </div>
+                        )}
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                             <SafetyBadge level={definition.safetyLevel} />
                             {definition.consent.providersRequired.length >
@@ -80,24 +109,26 @@ export function AutomationSuggestions({
                             <button
                                 type="button"
                                 disabled={enabling === suggestion.id}
-                                onClick={async () => {
-                                    setEnabling(suggestion.id);
-                                    try {
-                                        await createAutomation({
-                                            userId: 'me',
-                                            definitionId: definition.id,
-                                        });
-                                        toast.success(
-                                            `"${definition.name}" enabled — check Automations tab`,
-                                        );
-                                        dismissSuggestion(suggestion.id);
-                                    } catch {
-                                        toast.error(
-                                            'Failed to enable automation',
-                                        );
-                                    } finally {
-                                        setEnabling(null);
-                                    }
+                                onClick={() => {
+                                    void (async () => {
+                                        setEnabling(suggestion.id);
+                                        try {
+                                            await createAutomation({
+                                                userId: 'me',
+                                                definitionId: definition.id,
+                                            });
+                                            toast.success(
+                                                `"${definition.name}" created — enable it from Automations`,
+                                            );
+                                            window.location.reload();
+                                        } catch {
+                                            toast.error(
+                                                'Failed to enable automation',
+                                            );
+                                        } finally {
+                                            setEnabling(null);
+                                        }
+                                    })();
                                 }}
                                 className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
                             >

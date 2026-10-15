@@ -31,9 +31,10 @@ export const WIDGET_CATALOG_PART_4: WidgetEntry[] = [
     },
     {
         type: 'news',
-        name: 'News',
+        name: 'Timeline Intelligence',
         emoji: '🗞️',
-        description: 'Ranked news and universal event intelligence feed',
+        description:
+            'Personal and selected external events organized into one timeline',
         href: '/news',
         keywords: [
             'news',

@@ -7,7 +7,6 @@ import {
     listFinanceSubscriptionsForUser,
     createFinanceSubscriptionForUser,
 } from '@/features/finance/services/financeSubscriptionService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 
 const createSchema = z.object({
@@ -28,7 +27,7 @@ export async function GET() {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const subscriptions = await listFinanceSubscriptionsForUser(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
         );
         return NextResponse.json({ subscriptions });
@@ -49,13 +48,13 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
 
-        const sub = await createFinanceSubscriptionForUser(
-            supabase as unknown as SupabaseClient,
-            { ...body.data, userId } as unknown as Omit<
-                import('@/features/finance/types/finance').FinanceSubscription,
-                'id'
-            >,
-        );
+        const sub = await createFinanceSubscriptionForUser(supabase, {
+            ...body.data,
+            userId,
+        } as unknown as Omit<
+            import('@/features/finance/types/finance').FinanceSubscription,
+            'id'
+        >);
 
         const subRecord = sub as { id?: string };
         const cycle = body.data.billingCycle;

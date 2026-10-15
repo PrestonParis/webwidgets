@@ -10,8 +10,10 @@ import { FEATURE_REGISTRY } from '@/features/platform/registry/featureRegistry';
 import { WIDGET_REGISTRY } from '@/features/platform/registry/widgetRegistry';
 
 export function recommendWidgetsForContext(context: AssemblyContext) {
-    return WIDGET_REGISTRY.filter((widget) =>
-        widget.goals.some((goal) => context.goals.includes(goal)),
+    return WIDGET_REGISTRY.filter(
+        (widget) =>
+            widget.goals.some((goal) => context.goals.includes(goal)) &&
+            (context.showBeta || widget.betaState === 'stable'),
     ).sort(
         (left, right) =>
             scoreWidget(right, context) - scoreWidget(left, context),

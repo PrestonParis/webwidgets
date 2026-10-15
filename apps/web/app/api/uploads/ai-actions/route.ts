@@ -19,6 +19,7 @@ import {
 import { getAdapter } from '@/features/import-export/lib/adapterRegistry';
 import { registerCoreImportExportAdapters } from '@/features/import-export/lib/registerCoreAdapters';
 import { ingestContextFromAdapterPayload } from '@/features/import-export/lib/contextMapper';
+import { sharedLlmKey } from '@/lib/llm/sharedKeys';
 
 const requestSchema = z.object({
     actionType: z.enum([
@@ -51,7 +52,7 @@ type SourceBlock = {
 
 export async function POST(req: Request): Promise<Response> {
     try {
-        const { supabase } = await createClients();
+        const { supabase, supabaseAdmin } = await createClients();
         const userId = await getRequestUserId(supabase);
         const parsed = requestSchema.safeParse(await req.json());
         if (!parsed.success) {
@@ -99,7 +100,7 @@ export async function POST(req: Request): Promise<Response> {
         }
 
         const title = parsed.data.title ?? defaultTitle(action.label);
-        const content = await generateArtifactContent(supabase, userId, {
+        const content = await generateArtifactContent(supabaseAdmin, userId, {
             actionLabel: action.label,
             title,
             instructions,
@@ -297,7 +298,7 @@ async function generateArtifactContent(
 ): Promise<string> {
     const apiKey =
         (await getModelKey(supabase, userId, 'anthropic').catch(() => null)) ??
-        process.env.ANTHROPIC_API_KEY ??
+        sharedLlmKey('ANTHROPIC_API_KEY') ??
         null;
     if (!apiKey) throw new Error('NO_MODEL_KEY');
 

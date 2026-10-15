@@ -7,6 +7,7 @@ import {
     Landmark,
     Layers3,
     Mail,
+    Newspaper,
     Sparkles,
     Wrench,
 } from 'lucide-react';
@@ -180,11 +181,23 @@ export const WIDGET_CATEGORIES: WidgetCategory[] = [
         },
     },
     {
+        id: 'timeline-intelligence',
+        label: 'Timeline Intelligence',
+        description: 'Personal events, selected feeds, and relevant changes',
+        icon: Newspaper,
+        types: ['news'],
+        color: {
+            bar: 'bg-indigo-950 text-white border-indigo-400/25 hover:bg-indigo-900',
+            chip: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+            icon: 'bg-indigo-400/15 text-indigo-200',
+        },
+    },
+    {
         id: 'entertainment',
         label: 'Entertainment',
-        description: 'News, reading, creative studio, games, and learning',
+        description: 'Beta reading, creative, games, and learning experiences',
         icon: Sparkles,
-        types: ['chess', 'memorization', 'news', 'reading', 'creative'],
+        types: ['chess', 'memorization', 'reading', 'creative'],
         color: {
             bar: 'bg-orange-950 text-white border-orange-400/25 hover:bg-orange-900',
             chip: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',

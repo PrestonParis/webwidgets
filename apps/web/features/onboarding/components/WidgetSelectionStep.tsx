@@ -94,7 +94,7 @@ export function WidgetSelectionStep({
     onToggleWidget,
 }: WidgetSelectionStepProps) {
     const library = getDashboardWidgetLibrary().filter(
-        (w) => w.betaState !== 'unavailable',
+        (widget) => widget.betaState === 'stable',
     );
     const groups = groupWidgets(library);
 

@@ -100,7 +100,7 @@ export const contextEntriesAdapter: ImportExportAdapter = {
             },
         }));
 
-        const { data: edgeData, error: edgeError } = await (supabase as any)
+        const { data: edgeData, error: edgeError } = await supabase
             .from('context_edges')
             .select(
                 'id,from_entity_id,to_entity_id,kind,label,weight,confidence,source_type,source_id,metadata,created_at,updated_at',

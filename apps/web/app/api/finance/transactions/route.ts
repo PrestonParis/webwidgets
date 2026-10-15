@@ -7,7 +7,6 @@ import {
     listFinanceTransactionsForUser,
     createFinanceTransactionForUser,
 } from '@/features/finance/services/financeTransactionService';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { publishActivityEventSafe } from '@/features/activity/services/activityService';
 import { ingestFinanceTransactionContext } from '@/features/context/services/contextProducerServiceServer';
 
@@ -28,7 +27,7 @@ export async function GET() {
         const { supabase } = await createClients();
         const userId = await getRequestUserId(supabase);
         const transactions = await listFinanceTransactionsForUser(
-            supabase as unknown as SupabaseClient,
+            supabase,
             userId,
         );
         return NextResponse.json({ transactions });
@@ -48,13 +47,13 @@ export async function POST(req: Request) {
                 { error: 'Invalid payload' },
                 { status: 400 },
             );
-        const tx = await createFinanceTransactionForUser(
-            supabase as unknown as SupabaseClient,
-            { ...body.data, userId } as unknown as Omit<
-                import('@/features/finance/types/finance').FinanceTransaction,
-                'id'
-            >,
-        );
+        const tx = await createFinanceTransactionForUser(supabase, {
+            ...body.data,
+            userId,
+        } as unknown as Omit<
+            import('@/features/finance/types/finance').FinanceTransaction,
+            'id'
+        >);
 
         const { type, title, amount, category } = body.data;
         const sign = type === 'income' ? '+' : type === 'expense' ? '-' : '↕';

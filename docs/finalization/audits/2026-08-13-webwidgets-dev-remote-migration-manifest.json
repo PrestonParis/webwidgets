@@ -1,0 +1,331 @@
+{
+  "generated_at": "2026-08-13",
+  "project_name": "webwidgets-dev",
+  "project_ref": "cvroudtyxsgllivlrayu",
+  "scope": "metadata and checksums only; migration SQL is not committed by this audit",
+  "remote_migration_count": 46,
+  "migrations": [
+    {
+      "file": "20260506013548_remote_schema.sql",
+      "bytes": 33583,
+      "sha256": "240b1d8af3dc4fc89d969189ab0eb4dfdc287a3f540e263296a0863063502519",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260506201733_security_hardening.sql",
+      "bytes": 2368,
+      "sha256": "4a7054d80a4fcda5cdce4c6da4dfc5a6667345fe30268c491d15abb6ddaec6ff",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260508000000_email_actions.sql",
+      "bytes": 2401,
+      "sha256": "88085a897744c9fb5c693482a4190c4c482a4423057b19d5eb5d0520089fcd57",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260509000000_ai_email_prefs.sql",
+      "bytes": 197,
+      "sha256": "e7a9d04be9630202deecbf342b647bc15ceb3b04d0da23008bdefad4cc123139",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260509000001_email_action_url.sql",
+      "bytes": 87,
+      "sha256": "37052be9ab6aca6cc2367914e1b9016e04dbdf1300125836f54280be880cbb03",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260510000000_email_queue.sql",
+      "bytes": 1645,
+      "sha256": "d239eba677a677feb7584f3729622b86721503bc8b215176d43e60af222d4460",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260510000001_form_filler.sql",
+      "bytes": 2540,
+      "sha256": "de37178a9ccde30575ae34a6654546edbeffe5cc3cd36a414dd053e1bfa1e581",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260513000000_recovery_update_policy.sql",
+      "bytes": 346,
+      "sha256": "96132f4d24d99e499905839814b7de74ab387b6e258afc432d5c67ce0cf638ac",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260514000000_email_actions_synced.sql",
+      "bytes": 193,
+      "sha256": "e736ac117c760e3a6a352ad38d2adeddbdceb90a2c6f1e193f374c00016c813f",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260516000001_currency_rates.sql",
+      "bytes": 849,
+      "sha256": "313305edfda246a456779a2b7e7f8f487faece1133242b38b8c52ee3532f726f",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260516000002_journals_type.sql",
+      "bytes": 405,
+      "sha256": "d626605dcd6ba5d688deb91081e010ad7144ffe48164e21bfc9b068b82e591cc",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260516000003_admin_role.sql",
+      "bytes": 2323,
+      "sha256": "0d79e58fcbabe5504ff9a505a8902034fff5527bf5634a02596e7bed6590f945",
+      "contains_email_literal": true,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260516000004_seed_admin.sql",
+      "bytes": 209,
+      "sha256": "60bba80a1db3efbf2c185c55095d7899f07d11b6a4cd9315d786b4603769abe9",
+      "contains_email_literal": true,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000001_tracking_entries.sql",
+      "bytes": 674,
+      "sha256": "318027175c4dd0ac292e6e88ba5135789fc26585fdbd44979192168534a02e1c",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000002_platform_foundation.sql",
+      "bytes": 7915,
+      "sha256": "030cd3f4207dfdd62f383c6b4faa0240c6d175fc956920f9408fd59c2860adec",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000003_backend_foundation.sql",
+      "bytes": 5203,
+      "sha256": "c8d80932c0ca9780af1497a6870cc52774b21ea0c51f9923e4ecedbbe9825891",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000004_file_uploads.sql",
+      "bytes": 1041,
+      "sha256": "a34d9ef6da269d42fbc513d05f4286a2582d8657063175f97daf2613e4fefdef",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000005_billing.sql",
+      "bytes": 1601,
+      "sha256": "a9154399f47f19134ceb4c46eb96fe79b0f1b9245e3b37909e3ec5b9ee34fc85",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000006_context_chat.sql",
+      "bytes": 2790,
+      "sha256": "b9e9b9159cc1fc9381ba9586f902e297a86d9012d79c16ccc3ef278e3f8ea8c2",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000007_tracking_goals.sql",
+      "bytes": 611,
+      "sha256": "d2516641bc24470a1b632a9d2931db2196a33c0023f457b18a5e9f0bb897ecba",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260518000009_watchlist.sql",
+      "bytes": 1207,
+      "sha256": "b952a83bd74543279203148fd52d7578151d71bff06e314eed7bcaa4ea5ba41e",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000001_finance_dashboard_fields.sql",
+      "bytes": 1099,
+      "sha256": "6fdce8fb48397500071d17cc684435caafdb0980028f3e12d37efef791d84700",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000002_admin_suite.sql",
+      "bytes": 2486,
+      "sha256": "54c1935af1d62fb6731e252473777cf37278ebab7c85cce5375d28fbc7d0daf5",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000003_metrics_suite.sql",
+      "bytes": 3352,
+      "sha256": "0d3176fc50dd065718725165dfced12709f38ecc1195007f6c5f276ed1bd692c",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000005_drive_scope.sql",
+      "bytes": 158,
+      "sha256": "a1cbdf23011008c5923e0dd9dd13ec54ed1615665a15c3f8177d082959cfcc86",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000006_supplements.sql",
+      "bytes": 711,
+      "sha256": "cdbba60d696c56cf9349cbbbb41171692fe916fcf76e8f8dc6dea5cb09426672",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000007_microsoft_tokens.sql",
+      "bytes": 285,
+      "sha256": "80492bf9fe864ece68a9703c6e9674ff98c16ff0f46ddd391ce0940e8a9eecdf",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000008_integration_keys.sql",
+      "bytes": 950,
+      "sha256": "590155e169dbea8fc9d6cc39d7974f7fed9e67f814507ec3677e647e2ece53b0",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260519000009_reading.sql",
+      "bytes": 5809,
+      "sha256": "d682d375d3bf622824f4c627cf6e64a895171684d9ec7e8432d6a30cf4835d43",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260520000001_user_feedback.sql",
+      "bytes": 458,
+      "sha256": "12f971f5db8abde232d75f8b1e340ef19e60810695cf6d9666d7a8a821dd9816",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260520000002_feedback_extended.sql",
+      "bytes": 366,
+      "sha256": "7d75ab8927101fff969f70056a91bd94cf4c83fb40e38bec02317d927f51ab4e",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260521000001_feature_data.sql",
+      "bytes": 7013,
+      "sha256": "9f962bf1d4f5ba0db9d50bd7b447b65627325006b4bdb6427d904077adf334c9",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260522000001_journals_note_type.sql",
+      "bytes": 250,
+      "sha256": "43ba21272c0b145131565ff4be3065615deb7b4377d9b267b7de11e97c8ddd36",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260522000002_journals_update_policy.sql",
+      "bytes": 385,
+      "sha256": "2426cc9a98cb28c951e395349f3ece6acd44352776619a58ce90b4872138719f",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260522000003_soft_delete_rpc.sql",
+      "bytes": 808,
+      "sha256": "2c70013fe6f27650c725550f875b3320c0189ab55c953961ea8741b03465fdd0",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260524000000_body_issues.sql",
+      "bytes": 2123,
+      "sha256": "6f21fd8bc9720d31547b4e03f72a327b31c73eab5759b5e063add45ceda254c5",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260526000001_company_timeclock.sql",
+      "bytes": 6670,
+      "sha256": "6fc3740efee7579124f5c375da456bb01888ca8eddd93e13570da7e0ddbcce0c",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260527000001_user_tokens_has_gmail.sql",
+      "bytes": 108,
+      "sha256": "9ee0bdf7bd45b61a831fb9ac1af7c5a0f6ecfcdd3e122c9f413029349a7dd1d1",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260527000002_user_email_accounts.sql",
+      "bytes": 794,
+      "sha256": "d4676716d7af51f513b0c9621677cc9fbc8701b26b279662f0d497b5b5b5e1ca",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260527000003_email_snapshots.sql",
+      "bytes": 1616,
+      "sha256": "f5e0bbf7be54e3ab85b1f11700af6b4a90e71231aaf5018c063348ab5d224ea8",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260528000001_collaboration_schema.sql",
+      "bytes": 10310,
+      "sha256": "2c8f18f913f2653813d66a3023210738449e42f17e45ba831ef416d8f26e4bfc",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260528000002_import_export_schema.sql",
+      "bytes": 5448,
+      "sha256": "b46467c98d7eeee18249cdcf31c095ec709fb7005c888b0412c398a26beffafd",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260528000003_conversion_jobs.sql",
+      "bytes": 4484,
+      "sha256": "79d2a6d5b8934ef9b148ef163dec595e4821027773f88741ddd624a153a99000",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260528000004_view_file_metadata.sql",
+      "bytes": 3329,
+      "sha256": "ef451e2ca834d617155a740527a99dbd97e2a52072568640d95fd7b03e42835e",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260529000001_stage1_foundation.sql",
+      "bytes": 7033,
+      "sha256": "72fe3f30c8fde60ad51b21bf78f97c98e1ac8cc8df3706af81dba1d98178a628",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    },
+    {
+      "file": "20260529000002_email_snapshot_body.sql",
+      "bytes": 507,
+      "sha256": "bf9c49104b9cfba6728ba5ce68e39ebf4968342e2712402f7759f2660f8986f7",
+      "contains_email_literal": false,
+      "contains_secret_key_pattern": false
+    }
+  ]
+}

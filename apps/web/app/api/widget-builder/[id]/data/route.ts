@@ -30,7 +30,8 @@ export async function GET(
     if (error || !widget)
         return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const definition = widget.definition as SynthesizedWidgetDefinition;
+    const definition =
+        widget.definition as unknown as SynthesizedWidgetDefinition;
     const adapters = listAdapters();
     const result: Record<string, unknown> = {};
 

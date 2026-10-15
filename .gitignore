@@ -25,6 +25,7 @@ scripts/*
 out/
 .vercel/
 build/
+dist/
 
 # =========================
 # TypeScript
@@ -84,9 +85,11 @@ coverage/
 !apps/web/app/api/context/coverage/route.ts
 .nyc_output/
 .pytest_cache/
+.ruff_cache/
 junit.xml
 test-results/
 playwright-report/
+reports/
 
 # =========================
 # Tooling
@@ -94,6 +97,9 @@ playwright-report/
 .husky/
 .claude/
 .cache/
+.webwidgets-dispatcher/
+.worktrees/
+.codex-worktrees/
 CLAUDE.md
 /infra/supabase
 supabase/.temp

@@ -195,15 +195,36 @@ openssl x509 -in cert.pem -text -noout      # Decode and print a certificate fil
 ## Supabase CLI
 
 ```sh
-supabase start                     # Start the full local Supabase stack (Postgres, Auth, Storage, etc.)
-supabase stop                      # Stop the local stack (preserves data)
-supabase stop --no-backup          # Stop and wipe all local data
-supabase db pull                   # Sync remote schema changes down to local migration files
-supabase db push                   # Apply local migrations to the remote database
-supabase db psql                   # Open a psql shell to the local database
-supabase gen types typescript --local > types/supabase.ts   # Regenerate TS types from local schema
-supabase migration new <name>      # Create a new blank migration file
+npx supabase start                 # Start the local stack using supabase/config.toml
+npx supabase stop                  # Stop the local stack and preserve data
+npx supabase migration new <name>  # Create a new timestamped migration
+npx supabase link --project-ref cvroudtyxsgllivlrayu --yes  # Link this checkout to webwidgets-dev only
+npx supabase migration list --linked                       # Compare local and webwidgets-dev history
+npx supabase db push --linked --dry-run                    # Required review before any remote push
+npx supabase db push --linked --yes                        # Apply only the reviewed dry-run set
+npx supabase gen types typescript --linked --schema public,graphql_public > apps/web/types/supabase.ts
 ```
+
+The project link and authentication session stay machine-local under
+`supabase/.temp`; never commit credentials or link this checkout to the
+separate Worldview project. Regenerate and review types after every deployed
+schema change.
+
+## V1 worker
+
+```sh
+cd services/sync-worker
+npm install                    # Install this independently managed service
+npm run typecheck              # Type-check worker source without a production build
+npm test                       # Run processor/restart/dead-letter/readiness tests
+npm run format:check           # Verify worker formatting
+npm run smoke                  # Run the canonical probe with SMOKE_* env configured
+```
+
+The supported production manifest is `render.yaml`. Deploy dark with
+`WORKER_DRY_RUN=true`, `EMAIL_SYNC_ENABLED=false`, and
+`SCHEDULE_OWNER=vercel`; see `docs/finalization/V1_WORKER_DEPLOYMENT.md` before
+changing schedule ownership.
 
 ---
 
