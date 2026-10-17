@@ -25,6 +25,7 @@ What remains is the operational bar set for V1, not more features:
 - seven consecutive days of monitored pilot operation
 - a continuously running production worker and queue
 - external alert delivery
+- reconciled schema history and a tested recovery exercise
 - CI checks enforced on `main`
 
 Each item is detailed in §3. Until those are met, treat WebWidgets as a working
@@ -99,7 +100,7 @@ it.
 | Widget-based actions (stage 4)             | partial                   | Email draft/send, Calendar create/cancel, local tasks, and configured workflow runs use canonical approval and receipts. Generate document, export data, and summarize file remain unverified.                                                                                                                                               |
 | Security (stage 7)                         | working, bounded V1       | Prompt 18 closes known critical/high V1 findings: provider keys are server-only, metrics fail closed, unsafe HTML input is disabled, webhook secrets use constant-time comparison, and owner/action boundaries have automated evidence. Broader platform hardening remains post-pilot work.                                                  |
 | Deployment (stage 8)                       | working (partially)       | Web deploys to Vercel and the V1 worker is deployed as a free Render web service with non-persistent Key Value. The paid worker/persistent queue production cutover, conversion, and Go remain without completed production paths.                                                                                                           |
-| Schema/migration tracking                  | working, audited          | Local and remote migration history aligns through Prompt 18; operations and credential-boundary migrations through `202608300005` are tracked and deployed.                                                                                                                                                                                  |
+| Schema/migration tracking                  | blocked by drift          | The 2026-09-06 linked check found deployed migration `202609030001`, while `origin/finalization` stops at `202608300005`. The only observed local copy is untracked and must be reviewed and versioned without changing the deployed migration identity.                                                                                     |
 | CI                                         | working, unenforced       | `.github/workflows/ci.yml` reports changed-file lint/typecheck/tests/build. GitHub returned HTTP 403 when Prompt 19 inspected `main` protection because required checks are unavailable for this private repository on the current plan.                                                                                                     |
 | Automated test coverage                    | release suite ready       | Broken npm targets and dead Playwright projects are removed. `test:v1` contains three production-like Chromium journeys; the seven-day pilot must record a passing deployed run.                                                                                                                                                             |
 | Local commit-time quality gates            | broken                    | Husky is installed but no `.husky/pre-commit` script exists — nothing is actually enforced at commit time today.                                                                                                                                                                                                                             |
@@ -121,6 +122,13 @@ workflow this bootstrap sets up from being trustworthy.
 - **Complete Prompt 19 evidence** — preserve the passing deployed V1 journeys,
   then record seven consecutive qualifying pilot days against the frozen
   launch thresholds and obtain human release-owner approval.
+- **Reconcile deployed schema history** — review and version the exact deployed
+  `202609030001` migration. Do not start a release pilot from a branch that
+  cannot reproduce the linked database.
+- **Clear the open operations health alerts** — the 2026-09-07
+  00:15 UTC snapshot reported seven dead letters, a 1,725,311-second oldest
+  queued job, and seven degraded sources out of fifteen. Reconcile effects and
+  restore health before day 1.
 - **Upgrade the smoke-tested worker topology before release** — ADR-015's free
   Render host is deployed and verified. Before production, cut over to
   ADR-014's continuous worker and persistent Key Value. The bounded Python

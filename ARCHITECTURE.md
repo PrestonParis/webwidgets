@@ -123,6 +123,47 @@ The complete lifecycle, responsibility matrices, retention policy, and
 migration sequence are in
 [`docs/finalization/OWNERSHIP_PROPOSAL.md`](docs/finalization/OWNERSHIP_PROPOSAL.md).
 
+### Accepted V2 automation ownership target
+
+ADR-027 defines a separate control plane and execution plane for V2. This is
+the required target, not an optional Go experiment:
+
+- The Next.js application owns the authenticated control plane. It validates
+  objective intent, constructs and publishes immutable plan versions from the
+  production capability registry, evaluates policy, binds approvals, exposes
+  inspection and cancellation APIs, and requests re-planning. Planning may
+  propose data only; it cannot invoke a capability or mutate external state.
+- Supabase Postgres is the canonical source of truth for objectives, plans,
+  policy decisions, approvals, runs, attempts, side-effect reservations,
+  results, verification, plan revisions, cancellation, and audit evidence.
+  Queue state, worker memory, and provider responses are never sufficient to
+  claim progress or completion.
+- The Go worker is the sole durable orchestrator for each V2 job class after
+  that class is cut over. It consumes canonical events, owns leases,
+  heartbeats, timers, dependency readiness, dispatch, retry, cancellation
+  propagation, verification coordination, and execution-state transitions.
+- Capability implementations may remain behind bounded TypeScript, Python,
+  conversion, or n8n adapters, but Go is their only V2 caller and the only
+  writer of canonical attempt/result/verification state. Adapters return typed
+  results and safe provider references; they do not schedule continuation or
+  declare an objective complete.
+- Re-planning is a handshake: Go records why the pinned plan is no longer
+  executable and requests a revision; the Next.js control plane publishes the
+  replacement immutable plan after validation and policy evaluation; Go then
+  resumes from the new version without replaying completed side effects.
+- A job-class ownership record gates cutover. Before activation, the V1
+  TypeScript worker is the only owner; during a dark Go deployment it may
+  observe but not claim; after atomic activation, Go is the only owner and V1
+  entry points reject the class. Rollback reverses that gate only after Go
+  leases drain or expire and in-flight external effects are reconciled.
+
+Redis/BullMQ is an at-least-once delivery and backpressure mechanism only. The
+Python service remains stateless inference, the conversion service remains a
+bounded file-operation executor with its own internal storage, and n8n remains
+an allowlisted external adapter. None is a V2 source of truth, policy owner, or
+workflow scheduler. The complete responsibility, failure, versioning, and
+cutover rules are in ADR-027.
+
 ---
 
 ## 3. Frontend structure and feature catalog
@@ -430,9 +471,10 @@ Client (FinanceWidget) → /api/finance/accounts (manual balances, Supabase)
 
 ## 6. Context / knowledge system
 
-`features/context/` (~37 importers) is the context graph — knowledge nodes,
-AI memory, and permissions. Backed by the single tracked Supabase migration
-in the repo, `202605300001_context_substrate.sql`. This is the newest major
+`features/context/` (~37 importers) is the rebuildable entity and retrieval
+graph, including permissions and inferred relationships. It is not a general
+AI memory store or source of durable user truth. It is backed by the tracked
+`202605300001_context_substrate.sql` migration. This is the newest major
 subsystem and the one most likely to still be evolving; treat changes here as
 higher-risk/needs-care by default.
 
@@ -447,6 +489,33 @@ The normalized V1 timeline owns meaningful user-scoped facts and provenance.
 knowledge, timeline, and verified outcome records may project one way into
 activity and context; those projections must not republish themselves as new
 timeline facts.
+
+ADR-028 defines five V2 data lifecycles that must remain distinguishable in
+storage, contracts, context assembly, and UI:
+
+| Data class                          | Source of truth                                                   | Lifecycle                                                                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Raw source/domain records           | Owning provider or WebWidgets domain table                        | Preserve provider identity, observation time, and content hash; private raw payload expires after normalization under the source policy |
+| User-authored facts and preferences | Explicit authenticated user write and immutable versions          | Durable until corrected, deleted, or expired by an explicit user/domain rule; never inferred implicitly                                 |
+| Inferred context                    | Evidence-linked projection with rule/model version and confidence | Rebuildable and expiring; rejection invalidates it rather than changing source truth                                                    |
+| Objective-local working memory      | One objective/run and its immutable context package               | Bounded, resumable scratch state; expires 30 days after terminal state and cannot become general memory                                 |
+| Execution evidence                  | Go-owned append-only receipts and verification records            | Content-minimized and immutable for the documented audit-retention period, then deleted only by the retention/account-deletion process  |
+
+Every plan is pinned to one immutable task-scoped context package. The package
+is assembled server-side from explicitly permitted source classes, consent,
+freshness limits, and a resource budget. It contains references and bounded
+excerpts, not unrestricted account data. Code-owned instructions, authenticated
+user intent/preferences, control metadata, and untrusted source evidence remain
+separate typed fields throughout model use. Source content and model output can
+never alter policy, approval, capability selection constraints, or instruction
+priority.
+
+Packages use owner/workspace-matched references and RLS, record exclusions and
+their reasons, and retain the exact source versions used by a plan or attempt.
+Deletion purges copied source content and invalidates packages for future use;
+historical execution traces retain only content-minimized tombstones until
+their documented deletion process runs. The complete provenance, correction,
+retention, context-budget, and write-back rules are in ADR-028.
 
 ---
 
@@ -703,9 +772,11 @@ silently pick an interpretation when working in these areas — ask, or scope
 the task narrower to avoid guessing:
 
 - **Legacy runtime cutover** — widget hydration remains client-side, the Go
-  worker is deferred, n8n is an adapter, and the TypeScript worker owns V1
-  background work. The source-by-source order for retiring duplicate Vercel
-  cron and provider-processing paths still requires implementation evidence.
+  worker is deferred for V1, n8n is an adapter, and the TypeScript worker owns
+  V1 background work. ADR-027 resolves V2 ownership: every V2 job class moves
+  atomically from its V1 owner to the Go orchestrator through a canonical
+  ownership gate. The class-by-class order and production evidence remain
+  delivery work, not an ownership ambiguity.
 - **`docs/blueprint/CURRENT_STATE.md`, `docs/blueprint/DEPLOYMENT.md`, and
   `docs/blueprint/AUTOMATION_GUIDE.md` are empty files.** Treat any claim
   that depends on them as unverified — `docs/blueprint/CURRENT_STATE.md` now

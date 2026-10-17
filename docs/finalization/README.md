@@ -39,6 +39,9 @@ of widgets in the repository.
   [pilot log](V1_PILOT_LOG.md), [release notes](V1_RELEASE_NOTES.md), and the
   [release checklist](V1_RELEASE_CHECKLIST.md) hold Prompt 19 evidence and the
   final human decision.
+- [2026-09-06 execution baseline](audits/2026-09-06-v1-execution-baseline.md)
+  records the current production, queue, schema, CI, alerting, recovery, and
+  pilot gate evidence for V2-004.
 
 ## Planning rules
 
