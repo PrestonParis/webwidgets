@@ -1,0 +1,9 @@
+export * as automationCapabilities from './capabilities';
+export * as automationErrors from './errors';
+export * as automationEvents from './events';
+export * as automationExecution from './execution';
+export * as automationGovernance from './governance';
+export * as automationObjectives from './objectives';
+export * as automationParsers from './parsers';
+export * as automationPrimitives from './primitives';
+export { createAutomationContractSet } from './boundaries';
