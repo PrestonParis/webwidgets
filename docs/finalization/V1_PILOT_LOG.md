@@ -116,8 +116,15 @@ unresolved.
 This window does not start or advance the count. No retained, cohort-scoped
 24-hour evidence is available for source sync/lag, duplicates, briefing
 quality/latency/cost, commitment candidates, action and automation outcomes,
-pause and recovery behavior, security findings, or delivered alerts. A safe
-historical aggregate operations snapshot is unavailable as well.
+pause and recovery behavior, security findings, or delivered alerts.
+
+The 2026-09-07 00:15 UTC aggregate operations snapshot confirms a healthy
+worker on release `8a2b6357`, Redis and Supabase readiness, 94 timeline events,
+and no persisted duplicate group in the preceding 24 hours. It also reports
+seven dead letters, an oldest queued job age of 1,725,311 seconds, and seven
+degraded sources out of fifteen active sources. Those are automatic `No Go`
+conditions. There was no briefing, inference, action, or successful automation
+evidence in the snapshot, and external alert delivery remains unproven.
 
 At the next review, on 2026-09-08, production web liveness and readiness and
 Render worker readiness returned HTTP 200; the worker reported Redis and
@@ -139,6 +146,806 @@ missing evidence categories. Result: **not counted; 0 of 7**. Eight reviewed
 UTC windows have now failed to start the pilot for the same missing-evidence
 condition; a new qualifying attempt requires the blocked setup work before
 00:00 UTC.
+
+### 2026-09-08 UTC
+
+This window does not start or advance the count. The review has no retained,
+cohort-scoped evidence covering the exact UTC window for source sync/lag,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+The 2026-09-09 14:30 UTC aggregate snapshot reported no canonical duplicate
+groups or failures/dead letters in its rolling 24-hour view, but it also showed
+an unhealthy stale worker with no active instance, one queued job aged
+1,949,433 seconds, all 15 active sources overdue, seven degraded sources, and
+no timeline, briefing, inference, action, or successful automation activity.
+After a readiness request, the production web and worker endpoints returned
+HTTP 200 and the worker reported Redis and Supabase ready; the worker request
+took 14.4 seconds. The inference endpoint produced no verifiable readiness
+response. These are operational `No Go` conditions and still do not supply the
+missing full-window evidence. Result: **not counted; 0 of 7**.
+
+### 2026-09-09 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the next available review, on 2026-09-16, production web liveness and
+readiness returned HTTP 200. The Render worker probe produced no verifiable
+response, and the protected aggregate snapshot could not be retrieved. These
+later point-in-time checks cannot establish September 9 behavior. Result:
+**not counted; 0 of 7**. The previously recorded operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-10 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The 2026-09-16 point-in-time production review confirmed web liveness and
+readiness but produced no verifiable worker or aggregate-operations evidence.
+Those later checks cannot establish September 10 behavior. Result: **not
+counted; 0 of 7**. The previously recorded operational `No Go` conditions and
+pilot setup blocker remain unresolved.
+
+### 2026-09-11 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The latest production review confirmed only web liveness and readiness; it
+did not produce verifiable worker or aggregate-operations evidence. Those
+later checks cannot establish September 11 behavior. Result: **not counted; 0
+of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-12 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the next review, on 2026-09-17, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 12 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-13 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The September 17 production review confirmed only web liveness and readiness;
+it produced no verifiable worker or aggregate-operations evidence. Those later
+checks cannot establish September 13 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-14 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The September 17 production review confirmed only web liveness and readiness;
+it produced no verifiable worker or aggregate-operations evidence. Those later
+checks cannot establish September 14 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-15 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The September 17 production review confirmed only web liveness and readiness;
+it produced no verifiable worker or aggregate-operations evidence. Those later
+checks cannot establish September 15 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-16 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+The September 17 production review confirmed web liveness and readiness but
+produced no verifiable worker or aggregate-operations evidence. Those later
+checks cannot establish September 16 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-17 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-18, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 17 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-18 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, production web liveness and readiness returned HTTP
+200. The worker probe produced no verifiable response, and the protected
+aggregate snapshot could not be retrieved. Those later checks cannot establish
+September 18 behavior. Result: **not counted; 0 of 7**. The operational `No
+Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-19 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-20, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 19 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-20 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-21, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 20 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-21 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-22, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 21 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-22 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-23, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 22 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-23 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-24, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved. Those later
+checks cannot establish September 23 behavior. Result: **not counted; 0 of
+7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-09-24 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-27, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 24 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-25 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-28, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 25 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-26 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-29, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 26 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-27 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-30, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 27 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-28 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-09-30, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 28 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-09-29 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-10-01, the production web probes produced no
+verifiable response because name resolution failed. The worker probe also
+produced no verifiable response, and the protected aggregate snapshot could
+not be retrieved. Those later checks cannot establish September 29 behavior.
+Result: **not counted; 0 of 7**. The operational `No Go` conditions and pilot
+setup blocker remain unresolved.
+
+### 2026-09-30 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-10-01, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved. Those later checks cannot
+establish September 30 behavior. Result: **not counted; 0 of 7**. The
+operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-01 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts. No safe historical aggregate snapshot is available.
+
+At the following review, on 2026-10-02, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved. Those later
+checks cannot establish October 1 behavior. Result: **not counted; 0 of 7**.
+The operational `No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-02 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-03, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200. The protected aggregate
+snapshot was retrievable, but it reported the tracked worker unhealthy with
+zero active instances and a last-seen time of September 9. It also reported
+one queued job about 3,980,712 seconds old, all 15 active sources overdue, 7
+sources degraded, and no 24-hour timeline, briefing, inference, action, or
+completed-job activity. This later snapshot cannot establish October 2
+behavior or satisfy the missing evidence categories. Result: **not counted; 0
+of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-10-03 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-04, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200. The protected aggregate
+snapshot could not be retrieved because the local operator environment needed
+for the protected query was unavailable. Those later checks cannot establish
+October 3 behavior or satisfy the missing evidence categories. Result: **not
+counted; 0 of 7**. The operational `No Go` conditions and pilot setup blocker
+remain unresolved.
+
+### 2026-10-04 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-05, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200. The protected aggregate
+snapshot could not be retrieved because the required local operator
+environment remained unavailable. Those later checks cannot establish October
+4 behavior or satisfy the missing evidence categories. Result: **not counted;
+0 of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-10-05 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-06, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved because the required
+local operator environment remained unavailable. Those later checks cannot
+establish October 5 behavior or satisfy the missing evidence categories.
+Result: **not counted; 0 of 7**. The operational `No Go` conditions and pilot
+setup blocker remain unresolved.
+
+### 2026-10-06 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-08, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200. The protected aggregate
+snapshot could not be retrieved because the required local operator
+environment remained unavailable. Those later checks cannot establish October
+6 behavior or satisfy the missing evidence categories. Result: **not counted;
+0 of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-10-07 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-12, production web liveness and readiness
+returned HTTP 200. The worker probe produced no verifiable response, and the
+protected aggregate snapshot could not be retrieved because the required
+local operator environment remained unavailable. Those later checks cannot
+establish October 7 behavior or satisfy the missing evidence categories.
+Result: **not counted; 0 of 7**. The operational `No Go` conditions and pilot
+setup blocker remain unresolved.
+
+### 2026-10-08 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-13, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200. The protected aggregate
+snapshot could not be retrieved because the required local operator
+environment remained unavailable. Those later checks cannot establish October
+8 behavior or satisfy the missing evidence categories. Result: **not counted;
+0 of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-10-09 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-13, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. Those later checks
+cannot establish October 9 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-10 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-13, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. Those later checks
+cannot establish October 10 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-11 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-13, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. Those later checks
+cannot establish October 11 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-12 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-14, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. Those
+later checks cannot establish October 12 behavior or satisfy the missing
+evidence categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-13 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-14, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. Those
+later checks cannot establish October 13 behavior or satisfy the missing
+evidence categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-14 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-15, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. Those
+later checks cannot establish October 14 behavior or satisfy the missing
+evidence categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-15 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-16, both production web health endpoints
+returned HTTP 402 rather than a successful readiness response. The worker
+readiness probe timed out without a response, and the protected aggregate
+snapshot could not be retrieved because the required local operator
+environment remained unavailable. These are current availability blockers and
+cannot establish October 15 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-16 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-17, both production web health endpoints
+continued to return HTTP 402 rather than successful readiness responses. The
+worker readiness endpoint returned HTTP 200 and reported Redis and Supabase
+ready, but the protected aggregate snapshot could not be retrieved because
+the required local operator environment remained unavailable. These are
+current availability and evidence blockers and cannot establish October 16
+behavior or satisfy the missing evidence categories. Result: **not counted; 0
+of 7**. The operational `No Go` conditions and pilot setup blocker remain
+unresolved.
+
+### 2026-10-17 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-18, production web liveness and readiness
+returned HTTP 200, recovering from the prior HTTP 402 responses. The worker
+readiness probe timed out without a response, and the protected aggregate
+snapshot could not be retrieved because the required local operator
+environment remained unavailable. These point-in-time checks cannot establish
+October 17 behavior or satisfy the missing evidence categories. Result: **not
+counted; 0 of 7**. The operational `No Go` conditions and pilot setup blocker
+remain unresolved.
+
+### 2026-10-18 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-19, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. These
+point-in-time checks cannot establish October 18 behavior or satisfy the
+missing evidence categories. Result: **not counted; 0 of 7**. The operational
+`No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-19 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-20, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 19 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-20 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-21, production web readiness and the
+worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The web liveness probe timed out without a response, and the
+protected aggregate snapshot could not be retrieved because the required
+local operator environment remained unavailable. These point-in-time checks
+cannot establish October 20 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-21 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-22, production web liveness/readiness and
+the worker readiness endpoint returned HTTP 200; the worker reported Redis and
+Supabase ready. The protected aggregate snapshot could not be retrieved
+because the required local operator environment remained unavailable. These
+point-in-time checks cannot establish October 21 behavior or satisfy the
+missing evidence categories. Result: **not counted; 0 of 7**. The operational
+`No Go` conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-22 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-24, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 22 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-23 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-24, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 23 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-24 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-25, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 24 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-25 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-26, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 25 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-26 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-27, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 26 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-27 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-28, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 27 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-28 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-29, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 28 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
+
+### 2026-10-29 UTC
+
+This window does not start or advance the count. No retained, cohort-scoped
+evidence covers the complete UTC window for source sync/lag, duplicates,
+briefing usefulness/evidence/latency/cost, candidate precision, action and
+automation outcomes, pause and recovery behavior, security findings, or
+delivered alerts.
+
+At the following review, on 2026-10-30, production web liveness and readiness
+returned HTTP 200. The worker readiness probe timed out without a response,
+and the protected aggregate snapshot could not be retrieved because the
+required local operator environment remained unavailable. These point-in-time
+checks cannot establish October 29 behavior or satisfy the missing evidence
+categories. Result: **not counted; 0 of 7**. The operational `No Go`
+conditions and pilot setup blocker remain unresolved.
 
 ## Release-suite environment
 
